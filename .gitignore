@@ -1,0 +1,17 @@
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# Umgebung – enthaelt den Mapbox-Token
+.env
+.env.local
+.env*.local
+
+.DS_Store
+*.log
+
+# Ausgaben aus dem Werkzeug
+/export/

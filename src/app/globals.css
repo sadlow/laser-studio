@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+:root {
+  --grund: #f7f6f3;
+  --karte: #ffffff;
+  --linie: #e2e0da;
+  --text: #22201c;
+  --gedaempft: #6f6a60;
+  --akzent: #8a5a2b;
+}
+
+body {
+  background: var(--grund);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.feld {
+  @apply w-full rounded-md border px-2 py-1.5 text-sm outline-none;
+  border-color: var(--linie);
+  background: var(--karte);
+}
+
+.feld:focus {
+  border-color: var(--akzent);
+}
+
+.beschriftung {
+  @apply block text-xs font-medium mb-1;
+  color: var(--gedaempft);
+}
+
+.karte {
+  background: var(--karte);
+  border: 1px solid var(--linie);
+  @apply rounded-lg;
+}
