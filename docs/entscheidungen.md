@@ -73,11 +73,11 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   wand|flach|symbol|titel|wasser|kante&vollbild=1`, dazu `entwurf={json}`, `zoom`,
   `versatz`, `grund`, `frontal`, `umgebung`, Schatten- und Softbox-Schalter; `referenzbilder.sh`.
   Listing-Set: `scripts/listing-fotos/` (Leonardo 1K, Referenz HIGH, `prompt_enhance:
-  OFF`). Gelernt: Schrift braucht zweite Referenz (Nahaufnahme der Schlitze), sonst fett/aufgedruckt;
-  Wandschatten wurde zum Standfuss, Softbox im Spiegel zur Glasplatte, schraege
-  Einzelaufnahmen nebeneinander zum Escher-Bild (darum frontal auf gezeichneter Kommode).
-  Nahaufnahmen zu perfekt: Staub, Kratzer, Laserriefen in den Generierungs-Prompt, dann Ultra 2x
-  (nimmt keinen Prompt; klassisch trotz Prompt ohne Staub). Paris 3,5 km zu dicht: Grossstaedte 2 km.
+  OFF`). Gelernt: Wandschatten wurde zum Standfuss, Softbox im Spiegel zur Glasplatte oder zu weissem
+  Wasser (Nahaufnahmen `softboxen=0`), schraege Einzelaufnahmen nebeneinander zum Escher-Bild (frontal
+  auf gezeichneter Kommode), Paris 3,5 km zu dicht (Grossstaedte 2 km). Nahaufnahmen zu perfekt: wenig
+  Staub und Kantenstruktur in den Prompt, keine Fussel (wurden ein Haar), dann Ultra 2x. Schrift in
+  Szenen: Stege unter 1 px zeichnet das Bildmodell nicht, `schrift_einsetzen.py` setzt die echte ein.
 - **Kundeneingaben werden feldweise gemischt** (zwei schnelle Klicks hoben sich sonst auf).
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)

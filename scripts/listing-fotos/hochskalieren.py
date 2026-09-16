@@ -2,22 +2,23 @@
 """Nahaufnahmen hochskalieren und dabei glaubwuerdiger machen (Leonardo Universal Upscaler, Ultra).
 
 Aufruf: python3 scripts/listing-fotos/hochskalieren.py <foto-name> [kreativitaet] [aehnlichkeit] [ultra|klassisch]
-Ultra nimmt keinen Prompt an ("Prompt is not supported with ultraUpscaleStyle"), der
-klassische Upscaler (Stil CINEMATIC) schon.
+Ultra nimmt keinen Prompt an ("Prompt is not supported with ultraUpscaleStyle") und laeuft
+darum ohne; der klassische Upscaler (Stil CINEMATIC) bekommt einen.
 Marcel 16.09.2026: "bei den Close-ups sieht es fast ein bisschen zu perfekt aus ... etwas
-dust & grunge ... sonst riecht es nach 3D-Render". Der Skill ruft den Upscaler ohne Prompt
-auf; hier geht ein Prompt mit, der Staub und Kantenstruktur beschreibt. Nimmt die API ihn
-nicht an, laeuft der Aufruf ohne Prompt. Der Skill selbst bleibt unveraendert.
+dust & grunge ... sonst riecht es nach 3D-Render". Der klassische Upscaler zeigte trotz
+Prompt keinen Staub; die Spuren entstehen darum in der Generierung (QUALITAET_ECHT in
+auftraege_anlaesse.py). Der Skill selbst bleibt unveraendert.
 """
 import importlib.util, json, os, sys, time, urllib.error, urllib.request
 
 SKILL = os.path.expanduser("~/.claude/skills/leonardo-nano-banana-2")
 HIER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "export", "produktfoto", "listing")
 
+# Sparsam: Fussel und Fingerabdruecke wirkten "unappetitlich" (Marcel 16.09.2026).
 STAUB = (
-    "real macro product photograph, not a 3D render: a few tiny dust specks and one or two fine lint fibers on the "
-    "glossy acrylic, faint fingerprint smudges and hairline micro scratches visible in the reflections, laser-cut "
-    "edges with a slightly irregular fine texture and minimal burr, natural sensor grain"
+    "real macro product photograph, not a 3D render: a few barely visible fine dust specks on the glossy acrylic, "
+    "laser-cut edges with a slightly irregular fine texture and minimal burr, natural sensor grain; a clean product "
+    "without hairs, fibers or fingerprints"
 )
 
 
@@ -57,15 +58,17 @@ if __name__ == "__main__":
     modus = sys.argv[4] if len(sys.argv) > 4 else "klassisch"
     up = modul("upscale")
     config = up.load_config()
-    body = {"generatedImageId": bild_id(name), "creativityStrength": kreativ, "upscaleMultiplier": 2.0, "prompt": STAUB}
+    body = {"generatedImageId": bild_id(name), "creativityStrength": kreativ, "upscaleMultiplier": 2.0}
     if modus == "ultra":
         body.update({"ultraUpscaleStyle": "REALISTIC", "detailContrast": 5, "similarity": aehnlich})
     else:
-        body["upscalerStyle"] = "CINEMATIC"
+        body.update({"upscalerStyle": "CINEMATIC", "prompt": STAUB})
     try:
         antwort = anfrage(config, body)
-        mit_prompt = True
+        mit_prompt = "prompt" in body
     except urllib.error.HTTPError as e:
+        if "prompt" not in body:
+            raise
         print(f"Mit Prompt abgelehnt ({e.code}: {e.read().decode()[:200]}) – ohne Prompt")
         body.pop("prompt")
         antwort = anfrage(config, body)

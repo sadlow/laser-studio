@@ -46,9 +46,11 @@ AUFNAHMEN = {
     "lifestyle-mallorca": (ORTE["mallorca"], "wand", 0.62, (0.18, 0.1), None),
     "personalize-newyork": (ORTE["newyork"], "flach", 0.8, None, None),
     "desire-hamburg": (ORTE["hamburg"], "wand", 0.62, (-0.17, 0.12), None),
-    "features-koeln": (ohne("koeln"), "symbol", 1, (0.1, 0), None),
+    # softboxen=0 wie bei titel-koeln: der Rhein rechts vom Herz wurde im Foto zu einer weissen Flaeche
+    "features-koeln": (ohne("koeln"), "symbol", 1, (0.1, 0), None, {"softboxen": "0"}),
     "features-rand-mallorca": (ORTE["mallorca"], "kante", 1, None, None),
-    "titel-koeln": (ohne("koeln"), "titel", 1, None, None),
+    # softboxen=0: sonst spiegelte sich eine Softbox im Rhein und das Wasser wurde im Foto fast weiss
+    "titel-koeln": (ohne("koeln"), "titel", 1, None, None, {"softboxen": "0"}),
     "frames-schwarz": (rahmen("koeln", "schwarz"), "wand", 1, None, None, {"frontal": "1", "wandschatten": "0", "bodenschatten": "0", "umgebung": "0", "softboxen": "0"}),
     "frames-weiss": (rahmen("koeln", "weiss"), "wand", 1, None, None, {"frontal": "1", "wandschatten": "0", "bodenschatten": "0", "umgebung": "0", "softboxen": "0"}),
     "frames-eiche": (ORTE["koeln"], "wand", 1, None, None, {"frontal": "1", "wandschatten": "0", "bodenschatten": "0", "umgebung": "0", "softboxen": "0"}),
@@ -104,6 +106,9 @@ AUFNAHMEN.update({
     # Zweite Referenz: eingeschnittene Schrift mit Tiefe, sonst wirkt sie im Foto aufgedruckt
     "paris-schrift": (ohne("paris"), "titel", 1, None, None),
     "starnberg-ufer": (ohne("starnberg"), "wasser", 1, None, None, {"softboxen": "0"}),
+    # Vorlage fuer schrift_einsetzen.py: gerade von vorn, ohne Spiegelungen, gross genug fuer die Stege
+    "paris-schrift-frontal": (ORTE["paris"], "wand", 1.25, None, None,
+                              {"frontal": "1", "umgebung": "0", "softboxen": "0", "wandschatten": "0", "bodenschatten": "0", "px": "2400"}),
 })
 def variante(ort, **felder):
     e = json.loads(json.dumps(ORTE[ort]))
@@ -124,14 +129,16 @@ AUFNAHMEN.update({f"test-{o}": (ORTE[o], "wand", 1, None, None) for o in
 
 def aufnehmen(name):
     entwurf, motiv, zoom, versatz, grund, *extra = AUFNAHMEN[name]
-    teile = {"entwurf": json.dumps(entwurf, ensure_ascii=False), "foto": motiv, "seiten": "1:1", **(extra[0] if extra else {})}
+    extra = dict(extra[0]) if extra else {}
+    px = extra.pop("px", "1600")
+    teile = {"entwurf": json.dumps(entwurf, ensure_ascii=False), "foto": motiv, "seiten": "1:1", **extra}
     if zoom != 1: teile["zoom"] = str(zoom)
     if versatz: teile["versatz"] = f"{versatz[0]},{versatz[1]}"
     if grund:
         teile["grund"] = grund
         teile["wandschatten"] = "0"
     query = urllib.parse.urlencode(teile, quote_via=urllib.parse.quote)
-    subprocess.run(["bash", os.path.join(STUDIO, "scripts", "referenzbilder.sh"), name, query, "1600", "1600"], check=True)
+    subprocess.run(["bash", os.path.join(STUDIO, "scripts", "referenzbilder.sh"), name, query, px, px], check=True)
     os.makedirs(ZIEL, exist_ok=True)
     shutil.move(os.path.join(STUDIO, "export", "produktfoto", "nah", name + ".png"), os.path.join(ZIEL, name + ".png"))
 
