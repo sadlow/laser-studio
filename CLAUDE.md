@@ -44,7 +44,7 @@ Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Gravur als Flaeche nur im Export; nie unter Netz, Text oder Wasser
 - Strassenbreite folgt dem Ausschnitt; nicht schneidbare Klassen werden graviert
 - Tunnel, Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet
-- Zeilenschrift Avant Garde Demi (ExtraLight hat 0,20 mm Strich)
+- Zeilenschrift Avant Garde Book, Sperrung 0,14 (Deckschicht 2 mm; ExtraLight 0,20 mm zu duenn)
 - opentype.js gepatcht (`patches/`) wegen AvantGardeCE-Demi.otf
 
 ## Herkunft
@@ -61,7 +61,7 @@ npm install && npm run dev   # http://localhost:3010
 ```
 
 `npx tsc --noEmit` · `npx tsx scripts/formatvergleich.ts` · `quadrat-varianten.ts` ·
-`ausschnittvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts`
+`ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts`
 
 ## Offen
 

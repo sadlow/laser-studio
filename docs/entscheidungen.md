@@ -78,8 +78,14 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Schrift
 
-- **Avant Garde Demi statt ExtraLight** (Poster). Strich bei 5 mm Versalhoehe:
-  ExtraLight 0,20 / Book 0,50 / Demi 0,93 / Bold 1,36 mm (`strichstaerke.ts`).
+- **Avant Garde Book, Sperrung 0,14** – nicht ExtraLight (Poster), nicht Demi.
+  Strich bei 5 mm Versalhoehe: ExtraLight 0,20 / Book 0,50 / Demi 0,93 / Bold
+  1,36 mm (`strichstaerke.ts`). ExtraLight: die beiden Schnittkanten eines Strichs
+  fielen bei 0,1-0,2 mm Schnittfuge praktisch zusammen. Demi war zuerst Standard,
+  wirkte aber technisch statt edel, die Stege fielen auf. **Die Deckschicht ist
+  2 mm stark** (Marcel 16.09.2026) – ein 0,5-mm-Schlitz loest sich dort sauber.
+  Die Stege landen bei Book auf der Untergrenze 0,3 mm; ob sie bis zum Verkleben
+  halten, zeigt der Probeschnitt (`schriftvergleich.ts`).
 - **opentype.js ist gepatcht** (`patches/`, `postinstall`): CFF-Encoding mit
   Zusatzbit (Format 129) warf einen Fehler, betroffen AvantGardeCE-Demi.otf.
 

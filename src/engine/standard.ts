@@ -28,10 +28,12 @@ export const STRASSEN_STANDARD: StrassenGruppe[] = [
  * 77,5 %, Namen 87,8 %, Ort 91 %. Der Titel steht dort ueber rund 52 % der
  * Breite – das erreicht Bacalisties bei 7 % Versalhoehe.
  *
- * Zeilen in ITC Avant Garde Gothic wie das Poster, aber Demi statt ExtraLight:
- * gemessen bei 5 mm Versalhoehe hat ExtraLight 0,20 mm Strich – kaum breiter
- * als die Schnittfuge, da loest sich nichts sauber heraus. Book 0,50 mm,
- * Demi 0,93 mm, Bold 1,36 mm.
+ * Zeilen in ITC Avant Garde Gothic wie das Poster, aber Book statt ExtraLight.
+ * Strich bei 5 mm Versalhoehe: ExtraLight 0,20 mm (kaum breiter als die
+ * Schnittfuge – die beiden Kanten eines Strichs fielen zusammen), Book 0,50,
+ * Demi 0,93, Bold 1,36. Demi war zuerst gewaehlt, wirkte aber nicht edel;
+ * die Deckschicht ist nur 2 mm stark, dort loest sich ein 0,5-mm-Schlitz sauber
+ * (Marcel 16.09.2026). Sperrung 0,14 wie auf dem Poster.
  */
 export function standardSchichtkarte(): Schichtkarte {
   return {
@@ -72,7 +74,7 @@ export function standardSchichtkarte(): Schichtkarte {
     zeile1MitteAnteil: 0.878,
     zeile2MitteAnteil: 0.912,
     titelStil: { schrift: "Bacalisties.ttf", hoeheAnteil: 0.07, sperrung: 0, versalien: false },
-    zeilenStil: { schrift: "AvantGardeCE-Demi.otf", hoeheAnteil: 0.017, sperrung: 0.06, versalien: true },
+    zeilenStil: { schrift: "AvantGarde-Book.otf", hoeheAnteil: 0.017, sperrung: 0.14, versalien: true },
     strassen: STRASSEN_STANDARD.map((g) => ({ ...g, klassen: [...g.klassen] })),
     netzMinBreiteMm: 0.8,
     // Exponent 1: doppelter Ausschnitt, halbe Breite – das Bild bleibt gleich
@@ -116,8 +118,8 @@ export const TITELSCHRIFTEN = [
 ];
 
 export const ZEILENSCHRIFTEN = [
-  "AvantGardeCE-Demi.otf",
   "AvantGarde-Book.otf",
+  "AvantGardeCE-Demi.otf",
   "AvantGarde-ExtraLight.otf",
   "ITC Avant Garde Gothic LT Bold.ttf",
   "JosefinSans-SemiBold.ttf",

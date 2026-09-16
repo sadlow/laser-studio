@@ -28,9 +28,9 @@
       "versalien": false
     },
     "zeilenStil": {
-      "schrift": "AvantGardeCE-Demi.otf",
+      "schrift": "AvantGarde-Book.otf",
       "hoeheAnteil": 0.017,
-      "sperrung": 0.06,
+      "sperrung": 0.14,
       "versalien": true
     },
     "strassen": [
