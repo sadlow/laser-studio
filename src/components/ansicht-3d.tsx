@@ -133,7 +133,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
       {baut && <p className="absolute inset-0 flex items-center justify-center text-sm" style={{ color: "var(--gedaempft)" }}>baut 3D…</p>}
       <p className="pointer-events-none absolute bottom-3 left-3 text-xs" style={{ color: "var(--gedaempft)" }}>
         Ziehen dreht · Rad zoomt · rechte Maustaste verschiebt · {ergebnis.lagen.map((l) => `${l.titel} ${l.staerkeMm} mm`).join(" · ")}
-        {" "}· Symbol auf Blau, {ergebnis.kennzahlen.symbolVertiefungMm.toFixed(1)} mm vertieft
+        {" "}· Symbol auf dem Hintergrund, {ergebnis.kennzahlen.symbolUeberNetzMm.toFixed(1)} mm ueber dem Netz
       </p>
     </div>
   );

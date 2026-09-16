@@ -12,12 +12,13 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   (schwarz-weiss-blau, Marcel 16.09.2026). Eine vierlagige: `netz-schwarz`
   (weiss-schwarz-weiss-blau), Positiv-Look des Posters mit weisser Deckschicht
   fuer Rahmen und Text. Die Bausteine (`lagen.ts`) sind fuer alle identisch.
-- **Das Standort-Symbol liegt auf Blau und ist dort geklebt** (Marcel
-  16.09.2026). Jede Lage darueber hat an seiner Stelle einen Ausschnitt mit
-  exakt der Aussenkontur des Symbols (beim Pin ohne dessen Loch, sonst bliebe eine
-  Scheibe). Gleiche Kontur fuer Teil und Loch: der Schnitt gibt eine Fuge Spiel.
-- **Staerken nach Material:** Acrylglas weiss/schwarz 2 mm, Spiegelacryl (Blau,
-  Symbol) 3 mm. Symbol vertieft dreilagig 1 mm, vierlagig 3 mm.
+- **Das Standort-Symbol wird auf den Hintergrund geklebt** (die Lage auf dem
+  Wasser) und steht 1 mm ueber das Netz hinaus – schoener als vertieft auf Blau,
+  wie zuerst geplant (Marcel 16.09.2026). Klebemarke: Umriss 0,3 mm nach innen
+  graviert, damit das Symbol sie trotz Schnittfuge abdeckt. Unter dem Symbol kein
+  Wasserschnitt (Test: Herz zu 70 % ueber der Spree, Klebeflaeche voll). Netz und
+  Deckschicht haben exakt die Aussenkontur als Ausschnitt (Pin ohne sein Loch).
+- **Staerken nach Material:** Acrylglas weiss/schwarz 2 mm, Spiegelacryl 3 mm.
 - **Unter Bruecken wird der Hintergrund nicht geschnitten.** Er haelt dann ueber
   die Bruecke zusammen, statt am Fluss zu zerfallen.
 - **Unter Texten kein Wasser, keine Gravur**, im schwarzen Netz volles Material –

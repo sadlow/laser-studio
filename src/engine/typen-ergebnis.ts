@@ -69,8 +69,8 @@ export interface Kennzahlen {
   wasserFlaechenGeschnitten: number;
   /** Kleine Inseln, die Wasser wurden statt Einzelteil. */
   wasserInselnGeflutet: number;
-  /** So tief liegt die Oberseite des Symbols unter der Oberflaeche (negativ: steht vor). */
-  symbolVertiefungMm: number;
+  /** So weit steht das Symbol (auf dem Hintergrund geklebt) ueber die Netzlage hinaus. */
+  symbolUeberNetzMm: number;
   rechenzeitMs: number;
 }
 

@@ -88,8 +88,8 @@ function uebersicht(name: string, datum: string, karte: Schichtkarte, r: Awaited
     ``,
     `Lagen von oben nach unten (Dateinummer = Reihenfolge):`,
     ...r.lagen.map((l, i) => `  ${String(i + 1).padStart(2, "0")}  ${l.titel.padEnd(16)} ${l.material.padEnd(20)} ${String(l.staerkeMm).padStart(3)} mm  ${l.teile.length} Teil(e)`),
-    // Das Symbol wird zuletzt eingesetzt: auf Blau geklebt, durch die Ausschnitte der Lagen darueber.
-    `Symbol: sitzt auf Blau (Tropfen Sekundenkleber), alle Lagen darueber haben den Ausschnitt; ${r.kennzahlen.symbolVertiefungMm.toFixed(1)} mm vertieft.`,
+    // Das Symbol wird zuletzt eingesetzt: auf die Gravurmarke im Hintergrund, durch den Ausschnitt im Netz.
+    `Symbol: auf die Gravurmarke des Hintergrunds kleben (Tropfen Sekundenkleber), Netz hat den Ausschnitt; steht ${r.kennzahlen.symbolUeberNetzMm.toFixed(1)} mm ueber dem Netz.`,
     ``,
     `Jede Datei: Ebene "1 Gravur" (Flaeche), "2 Schnitt innen" (rot), "3 Schnitt aussen" (blau).`,
     `Stencil-Stege: ${r.kennzahlen.stencilStege}, zugefuellte Innenflaechen: ${r.kennzahlen.inselnZugefuellt}`,

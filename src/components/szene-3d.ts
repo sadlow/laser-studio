@@ -9,10 +9,9 @@ import type { Lage, SchichtkartenErgebnis } from "@/engine/typen";
  * ihrer Materialstaerke extrudiert und von unten nach oben gestapelt; die Gravur
  * liegt als Textur auf dem Hintergrund, die Spiegel spiegeln die Umgebung.
  *
- * Das Symbol liegt nicht obenauf, sondern direkt auf Blau – geklebt, in den
- * Ausschnitten der Lagen darueber. Auseinandergezogen schwebt es ueber dem
- * Stapel, damit man den Weg durch die Ausschnitte sieht; sonst verdeckten es
- * die Lagen darueber.
+ * Das Symbol liegt auf dem Hintergrund (der Lage auf dem Wasser), geklebt an
+ * die Gravurmarke, im Ausschnitt der Netzlage – und steht darueber hinaus.
+ * Auseinandergezogen schwebt es ueber dem Stapel, damit man den Weg sieht.
  */
 // Punkte naeher als das zusammenfassen – die gepufferten Strassen haben runde
 // Ecken aus sehr vielen kurzen Stuecken, die Triangulierung dauerte sonst Sekunden.
@@ -103,14 +102,14 @@ export function baueSzene(ergebnis: SchichtkartenErgebnis): { gruppe: THREE.Grou
   };
   // Lagen kommen von oben nach unten; gestapelt wird von unten.
   let z = 0;
-  let blauOben = 0;
+  let klebeflaeche = 0;
   [...ergebnis.lagen].reverse().filter((l) => l.key !== "symbol").forEach((lage, index) => {
     platzieren(lage, z, index);
-    if (lage.key === "blau") blauOben = z + lage.staerkeMm;
+    if (lage.key === "hintergrund") klebeflaeche = z + lage.staerkeMm;
     z += lage.staerkeMm;
   });
   const symbol = ergebnis.lagen.find((l) => l.key === "symbol");
-  if (symbol) platzieren(symbol, blauOben, platten.length);
+  if (symbol) platzieren(symbol, klebeflaeche, platten.length);
   return { gruppe, platten, hoehe: z };
 }
 

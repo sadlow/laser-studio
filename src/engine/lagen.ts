@@ -5,9 +5,11 @@ import {
   flaecheMm2,
   ohneLoecher,
   rechteck,
+  ringeInMm,
   schneide,
   teile,
   vereinige,
+  versatz,
   ziehAb,
   ziehLinienAb,
   zuFlaeche,
@@ -47,10 +49,10 @@ export interface Bausteine {
   gravur: { linien: Punkt[][]; breiteMm: number }[];
   symbol: Teil[];
   symbolLage: SchichtkartenErgebnis["symbol"];
-  /** Aussenkontur des Symbols – in jeder Lage ueber Blau ausgeschnitten. */
+  /** Aussenkontur des Symbols – in den Lagen ueber dem Hintergrund ausgeschnitten. */
   symbolLoch: Flaeche;
   textBereich: Flaeche;
-  kennzahlen: Omit<Kennzahlen, "zoomEntsprechung" | "loseNetzstuecke" | "loseTextteile" | "hintergrundTeile" | "rechenzeitMs" | "symbolVertiefungMm">;
+  kennzahlen: Omit<Kennzahlen, "zoomEntsprechung" | "loseNetzstuecke" | "loseTextteile" | "hintergrundTeile" | "rechenzeitMs" | "symbolUeberNetzMm">;
 }
 
 // Liegt nach dem Nachruecken mehr Netzflaeche lose, bleiben die Wege ganz
@@ -58,13 +60,15 @@ export interface Bausteine {
 // gravierten Gassen. Gemessen: Allgaeu 1,1-1,4 %, Venedig bei 2 km 78 %.
 const NACHRUECKEN_MAX_LOSE_ANTEIL = 0.1;
 
+// Klebemarke fuer das Symbol auf dem Hintergrund.
+const MARKE_EINZUG_MM = 0.3;
+const MARKE_BREITE_MM = 0.25;
+
 export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdaten, text: Textblock): Bausteine {
   const { platte, kartenfenster: f } = layout;
   const plattenFl = rechteck(0, 0, platte.breiteMm, platte.hoeheMm);
   const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
   const schutz = schneide(text.schutz, fensterFl);
-  const wasser = wasserImFenster(k, roh, fensterFl, schutz);
-
   const faktor = f.breiteMm / REFERENZ_KARTENBREITE_MM;
 
   // --- Standort-Symbol: Anker auf dem Ort (Spitze bei Herz und Pin), Groesse
@@ -75,9 +79,13 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   const eingepasst = symbolEinpassen(k.kunde.symbol ?? "herz", anker.x, anker.y, (k.symbolBreitenMm[k.kunde.symbolGroesse] ?? 11) * faktor);
   const symbol = imFenster ? teile(zuFlaeche(eingepasst.ringe)) : [];
   const symbolLage = imFenster ? { ankerXMm: anker.x, ankerYMm: anker.y, ...eingepasst.box } : null;
-  // Jede Lage ueber Blau bekommt dort einen Ausschnitt in Symbolform – nur die
-  // Aussenkontur, sonst bliebe im Loch des Pins eine lose Scheibe.
+  // Das Symbol wird auf den Hintergrund geklebt (die Lage auf dem Wasser) und
+  // steht ueber das Netz hinaus (Marcel 16.09.2026). Die Lagen darueber haben
+  // dort einen Ausschnitt in Symbolform – nur die Aussenkontur, sonst bliebe im
+  // Loch des Pins eine lose Scheibe. Unter dem Symbol wird kein Wasser
+  // geschnitten, sonst fehlte am Fluss die Klebeflaeche.
   const symbolLoch = imFenster ? ohneLoecher(zuFlaeche(eingepasst.ringe)) : [];
+  const wasser = wasserImFenster(k, roh, fensterFl, vereinige(schutz, symbolLoch));
 
   // --- Strassen. Breiten gelten fuer A4, wachsen mit dem Format und folgen der
   // Dichte vor Ort (dichte.ts). Gemessen wird auf dem Land: Wasser ist blau,
@@ -122,6 +130,10 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   // bei 160 ms Rechenzeit – A4 Berlin: 15,0 m auf 10,4 m.
   const gravurAus = vereinige(schutz, inseln.wasser, netz, symbolLoch);
   const gravur = gravurRoh.map((g) => ({ linien: ziehLinienAb(g.linien, gravurAus), breiteMm: g.breiteMm }));
+  // Klebemarke: der Umriss des Symbols, leicht nach innen gesetzt – das Symbol
+  // verliert beim Schneiden eine halbe Fuge und deckt die Marke trotzdem ab.
+  const marke = ringeInMm(versatz(symbolLoch, -MARKE_EINZUG_MM)).map((r) => [...r, r[0]]);
+  if (marke.length) gravur.push({ linien: marke, breiteMm: MARKE_BREITE_MM });
 
 
   return {

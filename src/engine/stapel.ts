@@ -24,14 +24,15 @@ const GRAVUR_AUF_WEISS = "#c7c2b6";
  * nur die Farben von Netz und Hintergrund tauschen. Beim vierlagigen kommt eine
  * weisse Deckschicht mit Rahmen und Text dazu.
  *
- * Das Symbol liegt auf Blau und ist dort geklebt: jede Lage darueber hat an
- * seiner Stelle einen Ausschnitt in Symbolform (Marcel 16.09.2026).
+ * Das Symbol wird auf den Hintergrund geklebt, an eine Gravurmarke; die Lagen
+ * darueber haben an seiner Stelle einen Ausschnitt in Symbolform, und es steht
+ * ueber das Netz hinaus (Marcel 16.09.2026, zuerst auf Blau geplant).
  */
 export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stapel {
   const rahmen = ziehAb(b.plattenFl, b.fensterFl);
   // Unter Bruecken wird nicht geschnitten: dort liegt Netz darueber, und der
   // Hintergrund haelt ueber die Bruecke zusammen, statt am Fluss zu zerfallen.
-  const hintergrund = teile(ziehAb(b.plattenFl, vereinige(ziehAb(b.wasser, b.netz), b.symbolLoch)), SPLITTER_MM2);
+  const hintergrund = teile(ziehAb(b.plattenFl, ziehAb(b.wasser, b.netz)), SPLITTER_MM2);
   const blau = teile(b.plattenFl);
   const symbolTitel = SYMBOL_TITEL[k.kunde.symbol] ?? "Symbol";
 

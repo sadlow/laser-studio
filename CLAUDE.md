@@ -47,7 +47,7 @@ Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Gravur als Flaeche nur im Export; nie unter Netz, Text oder Wasser
 - Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 42/33/26 %)
 - Lose Netzstuecke graviert; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
-- Symbol auf Blau geklebt, Ausschnitt in allen Lagen darueber; Acryl 2 mm, Spiegel 3 mm
+- Symbol auf Hintergrund geklebt (Gravurmarke), Ausschnitt im Netz, steht 1 mm vor; Acryl 2, Spiegel 3 mm
 - Tunnel, Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet
 - Zeilenschrift Avant Garde Book, Sperrung 0,14 (Deckschicht 2 mm; ExtraLight 0,20 mm zu duenn)
 - opentype.js gepatcht (`patches/`) wegen AvantGardeCE-Demi.otf
