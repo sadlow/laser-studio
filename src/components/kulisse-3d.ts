@@ -27,7 +27,7 @@ export interface Kulisse {
  * wandschatten: auf Weiss zeichnete der Schatten an der Wand ein graues Dreieck
  * hinter die Platte – im KI-Foto sah sie aus wie ein Tischaufsteller.
  */
-export function baueKulisse(szene: THREE.Scene, gross: number, grund = 0xf3f0ea, wandschatten = true): Kulisse {
+export function baueKulisse(szene: THREE.Scene, gross: number, grund = 0xf3f0ea, wandschatten = true, bodenschatten = true): Kulisse {
   const halter = new THREE.Group();
   szene.add(halter);
 
@@ -54,12 +54,12 @@ export function baueKulisse(szene: THREE.Scene, gross: number, grund = 0xf3f0ea,
         stapel.gruppe.position.y = hoch / 2;
         boden.position.y = -hoch / 2;
         wand.position.set(0, -hoch / 2 + gross * 2.5, -hoch * Math.sin(neigung) - 0.5);
-        szene.add(boden);
+        if (bodenschatten) szene.add(boden);
         if (wandschatten) szene.add(wand);
       } else if (art === "liegend") {
         // Knapp unter der Rueckseite, sonst flimmern Tisch und Plattenboden ineinander.
         boden.position.y = -0.05;
-        szene.add(boden);
+        if (bodenschatten) szene.add(boden);
       }
       szene.background = new THREE.Color(art === "frei" ? 0xeceae4 : grund);
       // Flach liegend spiegelte das Hochglanz-Schwarz die Deckenleuchte der

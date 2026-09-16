@@ -19,11 +19,10 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Wasserschnitt (Test: Herz zu 70 % ueber der Spree, Klebeflaeche voll). Netz und
   Deckschicht haben exakt die Aussenkontur als Ausschnitt (Pin ohne sein Loch).
 - **Staerken nach Material:** Acrylglas weiss/schwarz 2 mm, Spiegelacryl 3 mm.
-- **Holzrahmen optional: Holz schwarz, Holz weiss, Eiche** (Marcel 16.09.2026), ein Profil fuer
-  alle Groessen: 14 mm breit, 28 mm tief, Bild 6 mm eingelassen, innen 4 mm
-  Ueberstand. Die Wahl steht in `kunde`, das Profil in der Vorlage. Bei 7 mm Rand
-  bleiben im Rahmen 3 mm sichtbar (Kennzahl). Warnung, wenn Karte, Symbol oder
-  Text unter den Rahmen reichen oder der Stapel nicht in den Falz passt.
+- **Holzrahmen optional: Holz schwarz, Holz weiss, Eiche** (Marcel 16.09.2026), ein Profil:
+  14 mm breit, 28 mm tief, Bild 6 mm eingelassen, 4 mm Ueberstand; Wahl in `kunde`, Profil
+  in der Vorlage. Bei 7 mm Rand bleiben 3 mm sichtbar (Kennzahl). Warnung, wenn Karte,
+  Symbol oder Text unter den Rahmen reichen oder der Stapel nicht in den Falz passt.
 - **Unter Bruecken kein Wasserschnitt:** der Hintergrund haelt ueber die Bruecke zusammen.
 - **Unter Texten kein Wasser, keine Gravur**, im schwarzen Netz volles Material –
   sonst helle Striche in den Buchstaben und keine Klebeflaeche.
@@ -76,10 +75,11 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Spiegelbild – die Raumumgebung als Hintergrund wurde dort schwarz).
 - **Motive fuer KI-Produktfotos** (`motive-3d.ts`, `aufnahme-3d.ts`): `?ansicht=3d&foto=
   wand|flach|symbol|titel|wasser|kante&vollbild=1`, dazu `entwurf={json}`, `zoom`,
-  `versatz`, `grund`, `wandschatten=0`, `softboxen=0`; `referenzbilder.sh` (6-8 s).
+  `versatz`, `grund`, `frontal`, `umgebung`, Schatten- und Softbox-Schalter; `referenzbilder.sh`.
   Listing-Set: `scripts/listing-fotos/` (Leonardo 1K, Referenz HIGH, `prompt_enhance:
-  OFF`). Gelernt: Titel nur als "thin, delicate … laser-cut flush" fein statt fett und
-  erhaben; Wandschatten wurde zum Standfuss, gespiegelte Softbox zur Glasplatte im See.
+  OFF`). Gelernt: Titel nur als "thin, delicate … laser-cut flush" fein statt fett;
+  Wandschatten wurde zum Standfuss, Softbox im Spiegel zur Glasplatte, schraege
+  Einzelaufnahmen nebeneinander zum Escher-Bild (darum frontal auf gezeichneter Kommode).
 - **Kundeneingaben werden feldweise gemischt** (zwei schnelle Klicks hoben sich sonst auf).
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)

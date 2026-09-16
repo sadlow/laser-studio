@@ -49,9 +49,9 @@ AUFNAHMEN = {
     "features-koeln": (ohne("koeln"), "symbol", 1, (0.1, 0), None),
     "features-rand-mallorca": (ORTE["mallorca"], "kante", 1, None, None),
     "titel-koeln": (ohne("koeln"), "titel", 1, None, None),
-    "frames-schwarz": (rahmen("koeln", "schwarz"), "wand", 1, None, None),
-    "frames-weiss": (rahmen("koeln", "weiss"), "wand", 1, None, None),
-    "frames-eiche": (ORTE["koeln"], "wand", 1, None, None),
+    "frames-schwarz": (rahmen("koeln", "schwarz"), "wand", 1, None, None, {"frontal": "1", "wandschatten": "0", "bodenschatten": "0", "umgebung": "0", "softboxen": "0"}),
+    "frames-weiss": (rahmen("koeln", "weiss"), "wand", 1, None, None, {"frontal": "1", "wandschatten": "0", "bodenschatten": "0", "umgebung": "0", "softboxen": "0"}),
+    "frames-eiche": (ORTE["koeln"], "wand", 1, None, None, {"frontal": "1", "wandschatten": "0", "bodenschatten": "0", "umgebung": "0", "softboxen": "0"}),
 }
 
 
@@ -118,6 +118,45 @@ def aufnehmen(name):
     os.makedirs(ZIEL, exist_ok=True)
     shutil.move(os.path.join(STUDIO, "export", "produktfoto", "nah", name + ".png"), os.path.join(ZIEL, name + ".png"))
 
+
+def rahmen_drei():
+    """Drei Rahmen frontal auf einer gezeichneten Kommode – eine Kamera, eine gerade
+    Kante zur Wand, gleiche Groesse. Die frueheren Einzelaufnahmen schraeg von rechts
+    nebeneinander passten zu keiner Kamera: Leonardo machte daraus ein Escher-Bild
+    mit ansteigender Kommode und kleiner werdenden Rahmen (Marcel 16.09.2026).
+    Die Aufnahmen haben keinen Schatten und einen einfarbigen Grund, darum lassen
+    sie sich sauber freistellen; Schatten macht Leonardo."""
+    import numpy as np
+    from PIL import Image, ImageDraw
+    wand = np.array([243, 240, 234])
+    B, kante, platte, hoehe = 1600, 1190, 34, 620
+    leinwand = Image.new("RGB", (B, B), tuple(int(v) for v in wand))
+    d = ImageDraw.Draw(leinwand)
+    d.rectangle((0, kante, B, kante + platte), fill=(216, 188, 148))   # Deckplatte
+    d.rectangle((0, kante + platte, B, B), fill=(194, 162, 120))       # Front
+    d.line((0, kante, B, kante), fill=(172, 146, 108), width=3)        # gerade Kante zur Wand
+    for i, n in enumerate(["frames-schwarz", "frames-weiss", "frames-eiche"]):
+        rgb = np.asarray(Image.open(os.path.join(ZIEL, n + ".png")).convert("RGB")).astype(np.int32)
+        diff = np.abs(rgb - wand).sum(axis=2)
+        ys, xs = np.nonzero(diff > 30)
+        box = (xs.min(), ys.min(), xs.max() + 1, ys.max() + 1)
+        maske = Image.fromarray((np.clip((diff - 4) / 16, 0, 1) * 255).astype(np.uint8)).crop(box)
+        # Ohne Raumspiegelung ist Schwarz schwarz, aber Weiss nur hellgrau: jede Kachel
+        # am weissen Textfeld (unteres Fuenftel, Mitte) auf Weiss abgleichen.
+        x0, y0, x1, y1 = box
+        feld = rgb[y0 + (y1 - y0) * 82 // 100:y0 + (y1 - y0) * 90 // 100, x0 + (x1 - x0) * 30 // 100:x0 + (x1 - x0) * 70 // 100]
+        faktor = min(1.35, 244 / max(1, np.median(feld)))
+        bild = Image.fromarray(np.clip(rgb * faktor, 0, 255).astype(np.uint8)).crop(box)
+        breite = round(bild.width * hoehe / bild.height)
+        bild, maske = bild.resize((breite, hoehe), Image.LANCZOS), maske.resize((breite, hoehe), Image.LANCZOS)
+        mitte = round(B / 6 + i * B / 3)
+        leinwand.paste(bild, (mitte - breite // 2, kante + platte // 2 - hoehe), maske)
+    leinwand.save(os.path.join(ZIEL, "frames-drei.png"))
+
+
 if __name__ == "__main__":
     for n in sys.argv[1:] or AUFNAHMEN:
-        aufnehmen(n)
+        if n == "frames-drei":
+            rahmen_drei()
+        else:
+            aufnehmen(n)

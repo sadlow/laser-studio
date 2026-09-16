@@ -102,13 +102,16 @@ JOBS = {
         "through glossy white acrylic, revealing a glossy black layer beneath, with delicate stencil bridges and "
         f"crisp polished edges. Soft raking light, shallow depth of field. {QUALITAET_NAH}"),
     "07-frames-drei-rahmen": ("frames-drei",
-        "Interior product photograph of three layered acrylic city map artworks side by side, leaning against a warm "
-        "white wall on a light oak sideboard: the left one in a matte black solid wood frame, the middle one in a "
-        "matte white solid wood frame, the right one in a natural oak frame. All three show the same design as in "
-        "the reference: in the upper part a map with glossy white laser-cut streets on a black layer, a blue mirror "
-        "river and a tiny red heart; below it a WHITE acrylic text panel (not black) with the thin script title "
-        "'Zuhause' and two small dark uppercase lines. Minimal "
-        f"styling, soft daylight. The upper half of the image stays an empty calm wall. {QUALITAET}"),
+        "Interior product photograph, straight-on frontal view at eye level: three identical layered acrylic city map "
+        "artworks of exactly the same size stand side by side at the same distance from the camera on a light oak "
+        "sideboard and lean against a warm white wall. The sideboard has a straight, perfectly horizontal top edge "
+        "where it meets the wall, and all three frames stand on that same line. The left one is in a matte black solid "
+        "wood frame, the middle one in a matte white solid wood frame, the right one in a natural oak frame. All three "
+        "show the same design as in the reference: in the upper part a map with glossy white laser-cut streets on a "
+        "black layer, a blue mirror river and a tiny red heart; below it a WHITE acrylic text panel with the thin "
+        "script title 'Zuhause' and two small dark uppercase lines 'LENA & JONAS' and 'KÖLN 50°56'18\"N 6°57'39\"O'. "
+        "Minimal styling, soft daylight from the left with soft natural shadows on the wall. The upper half of the "
+        f"image stays an empty calm wall. {QUALITAET}"),
 }
 
 

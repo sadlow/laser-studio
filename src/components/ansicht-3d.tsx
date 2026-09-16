@@ -83,7 +83,8 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
     licht.shadow.bias = -0.0004;
     licht.shadow.normalBias = 0.3;
     szene.add(licht, licht.target, new THREE.HemisphereLight(0xffffff, 0xd8d4ca, 0.6));
-    const kulisse = baueKulisse(szene, gross, aufnahme.grund, aufnahme.wandschatten);
+    const kulisse = baueKulisse(szene, gross, aufnahme.grund, aufnahme.wandschatten, aufnahme.bodenschatten);
+    if (aufnahme.umgebung !== undefined) szene.environmentIntensity = aufnahme.umgebung;
 
     // Gezeichnet wird nur, wenn sich etwas geaendert hat – im Headless-Browser
     // (Software-Grafik) kostet ein Bild mit Schatten Sekunden.
@@ -117,7 +118,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
         groesse,
         anwenden: (m) => {
           motivAnwenden(m, ergebnis, s, { kamera, steuerung, licht, kulisse });
-          aufnahme.ausschnitt(kamera, renderer);
+          aufnahme.ausschnitt(kamera, renderer, steuerung.target);
           neu = true;
         },
         referenz: () => {
