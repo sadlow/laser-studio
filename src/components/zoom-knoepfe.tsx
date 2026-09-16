@@ -24,7 +24,7 @@ const kmText = (km: number) => km.toLocaleString("de-DE", { maximumFractionDigit
 export function ZoomKnoepfe({ km, setzeKm, style }: { km: number; setzeKm: (km: number) => void; style: CSSProperties }) {
   const rein = naechsteStufe(km, "rein");
   const raus = naechsteStufe(km, "raus");
-  const knopf = "h-8 w-11 text-lg leading-none disabled:opacity-30 hover:bg-black/5";
+  const knopf = "h-8 w-11 text-lg leading-none outline-none disabled:opacity-30 hover:bg-black/5 focus-visible:bg-black/10";
   return (
     <div
       className="absolute flex flex-col overflow-hidden rounded-md shadow-md"

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { mmZuOrt } from "@/engine/geo";
 import { herzPfadEinheit } from "@/engine/herz";
+import { FARBE_SCHWARZ, FARBE_WEISS } from "@/engine/svg";
 import type { Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
 import { KartenKopie } from "./karten-kopie";
 import { useSvgLage } from "./svg-lage";
@@ -133,6 +134,8 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
   // Zoom bestellt, aber noch nicht gerechnet: die alte Vorschau skaliert zeigen.
   const zoomFaktor = ergebnis.ausschnittMeter.breite / (karte.ausschnittKm * 1000);
   const s = lage?.pxProMm ?? 1;
+  // Frei gewordene Raender in der Farbe, auf der die Strassen liegen.
+  const grund = karte.aufbau === "netz-weiss" ? FARBE_SCHWARZ : FARBE_WEISS;
   const h = ergebnis.herz;
   const cursor = zieht ? "grabbing" : zeiger === "herz" ? "move" : zeiger === "karte" ? "grab" : "default";
 
@@ -153,10 +156,10 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
         dangerouslySetInnerHTML={{ __html: svg }}
       />
       {lage && zieht === "karte" && zug && (
-        <KartenKopie svg={svg} lage={lage} platte={platte} fenster={f} dx={zug.dx} dy={zug.dy} />
+        <KartenKopie svg={svg} lage={lage} platte={platte} fenster={f} grund={grund} dx={zug.dx} dy={zug.dy} />
       )}
       {lage && !zieht && Math.abs(zoomFaktor - 1) > 0.002 && (
-        <KartenKopie svg={svg} lage={lage} platte={platte} fenster={f} faktor={zoomFaktor} />
+        <KartenKopie svg={svg} lage={lage} platte={platte} fenster={f} grund={grund} faktor={zoomFaktor} />
       )}
       {lage && zieht === "herz" && zug && h && (
         <svg
