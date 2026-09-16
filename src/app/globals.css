@@ -35,3 +35,11 @@ body {
   border: 1px solid var(--linie);
   @apply rounded-lg;
 }
+
+/* Laseransicht: Schnittlinien sind 0,1 mm und verschwaenden verkleinert im
+   Browser. Nur fuer die Anzeige auf ein Pixel fixiert – die Datei bleibt, wie
+   der Laser sie braucht. */
+.laser #schnitt path {
+  vector-effect: non-scaling-stroke;
+  stroke-width: 1px;
+}

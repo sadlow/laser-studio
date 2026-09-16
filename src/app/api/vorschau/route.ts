@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { rendereEntwurf, type KartenEntwurf } from "@/engine";
+import { rendereSchichtkarte, type Schichtkarte } from "@/engine";
 
-// Node-Laufzeit: der Tile-Parser arbeitet mit Buffern.
+// Node-Laufzeit: Kachel-Parser und Schriftdateien brauchen Buffer und fs.
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
@@ -13,18 +13,16 @@ export async function POST(request: Request) {
     );
   }
 
-  let entwurf: KartenEntwurf;
+  let karte: Schichtkarte;
   try {
-    entwurf = (await request.json()) as KartenEntwurf;
+    karte = (await request.json()) as Schichtkarte;
   } catch {
     return NextResponse.json({ fehler: "Anfrage ist kein gueltiges JSON." }, { status: 400 });
   }
 
   try {
-    const ergebnis = await rendereEntwurf(entwurf, token);
-    return NextResponse.json(ergebnis);
+    return NextResponse.json(await rendereSchichtkarte(karte, token));
   } catch (e) {
-    const text = e instanceof Error ? e.message : String(e);
-    return NextResponse.json({ fehler: text }, { status: 500 });
+    return NextResponse.json({ fehler: e instanceof Error ? e.message : String(e) }, { status: 500 });
   }
 }

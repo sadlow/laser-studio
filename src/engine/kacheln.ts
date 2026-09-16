@@ -1,0 +1,158 @@
+import { clipPolygon, clipPolyline, type Punkt } from "./clip";
+import { DATEN_ZOOM, TILESET, TILE_EXTENT, lonLatToGlobalPx, meterProEinheit } from "./geo";
+import type { Zone } from "./typen";
+
+/**
+ * Rohdaten der Karte in Millimetern auf der Platte, noch ohne Entscheidung,
+ * was daraus wird. Die Lagen-Logik entscheidet, welche Klasse ins Netz geht.
+ */
+export interface KartenRohdaten {
+  /** Linien je Mapbox-Strassenklasse. Tunnel sind bereits entfernt. */
+  strassen: Map<string, Punkt[][]>;
+  wasserFlaechen: Punkt[][];
+  wasserlaeufe: Punkt[][];
+  ausschnittMeter: { breite: number; hoehe: number };
+}
+
+// Wasserlaeufe, die als Flaeche gelesen werden duerfen. Graeben (ditch/drain)
+// sind im Massstab einer Wandkarte Rauschen.
+const WASSERLAUF_KLASSEN = new Set(["river", "canal"]);
+
+// Kacheln aendern sich nicht, waehrend jemand am Titel tippt. Ohne Cache laedt
+// jede Aenderung im Formular die ganze Karte neu von Mapbox.
+const KACHEL_CACHE = new Map<string, ArrayBuffer | null>();
+const CACHE_MAX = 400;
+
+async function ladeKachel(z: number, x: number, y: number, token: string): Promise<ArrayBuffer | null> {
+  const schluessel = `${z}/${x}/${y}`;
+  if (KACHEL_CACHE.has(schluessel)) return KACHEL_CACHE.get(schluessel) ?? null;
+  const url = `https://api.mapbox.com/v4/${TILESET}/${z}/${x}/${y}.mvt?access_token=${encodeURIComponent(token)}`;
+  const res = await fetch(url, { cache: "no-store" });
+  if (res.status !== 404 && !res.ok) {
+    throw new Error(`Mapbox antwortete mit HTTP ${res.status} fuer Kachel ${schluessel}`);
+  }
+  const daten = res.status === 404 ? null : await res.arrayBuffer();
+  if (KACHEL_CACHE.size >= CACHE_MAX) {
+    const aeltester = KACHEL_CACHE.keys().next().value;
+    if (aeltester !== undefined) KACHEL_CACHE.delete(aeltester);
+  }
+  KACHEL_CACHE.set(schluessel, daten);
+  return daten;
+}
+
+/**
+ * Holt alle Kacheln unter dem Kartenfenster und rechnet die Geometrie auf
+ * Millimeter der Platte um. Geclippt wird an einem Fenster mit Zugabe: die
+ * Strassen werden erst gepuffert und dann exakt beschnitten – sonst haetten
+ * sie am Fensterrand runde Enden statt gerader Kanten.
+ */
+export async function ladeKartenRohdaten(opts: {
+  lon: number;
+  lat: number;
+  /** Breite des Kartenfensters in Metern Wirklichkeit. Die Hoehe folgt dem Fenster. */
+  ausschnittBreiteM: number;
+  fenster: Zone;
+  zugabeMm: number;
+  token: string;
+}): Promise<KartenRohdaten> {
+  const { lon, lat, ausschnittBreiteM, fenster, zugabeMm, token } = opts;
+
+  const ausschnittMeter = {
+    breite: ausschnittBreiteM,
+    hoehe: (ausschnittBreiteM * fenster.hoeheMm) / fenster.breiteMm,
+  };
+  const mProEinheit = meterProEinheit(DATEN_ZOOM, lat);
+  const einheitenBreite = ausschnittMeter.breite / mProEinheit;
+  const einheitenHoehe = ausschnittMeter.hoehe / mProEinheit;
+  const mmProEinheit = fenster.breiteMm / einheitenBreite;
+
+  const mitte = lonLatToGlobalPx(lon, lat, DATEN_ZOOM);
+  // Das Fenster wird um die Zugabe erweitert – auch beim Kachelabruf.
+  const zugabeEinheiten = zugabeMm / mmProEinheit;
+  const links = mitte.x - einheitenBreite / 2;
+  const oben = mitte.y - einheitenHoehe / 2;
+
+  const tx0 = Math.floor((links - zugabeEinheiten) / TILE_EXTENT);
+  const tx1 = Math.floor((links + einheitenBreite + zugabeEinheiten) / TILE_EXTENT);
+  const ty0 = Math.floor((oben - zugabeEinheiten) / TILE_EXTENT);
+  const ty1 = Math.floor((oben + einheitenHoehe + zugabeEinheiten) / TILE_EXTENT);
+
+  const { VectorTile } = await import("@mapbox/vector-tile");
+  const Pbf = (await import("pbf")).default;
+
+  const anfragen: Promise<{ x: number; y: number; tile: InstanceType<typeof VectorTile> } | null>[] = [];
+  for (let tx = tx0; tx <= tx1; tx++) {
+    for (let ty = ty0; ty <= ty1; ty++) {
+      anfragen.push(
+        ladeKachel(DATEN_ZOOM, tx, ty, token).then((buf) =>
+          buf && buf.byteLength ? { x: tx, y: ty, tile: new VectorTile(new Pbf(new Uint8Array(buf))) } : null,
+        ),
+      );
+    }
+  }
+  const kacheln = (await Promise.all(anfragen)).filter((k) => k !== null);
+
+  const nachMm = (p: Punkt, tx: number, ty: number): Punkt => ({
+    x: fenster.xMm + (tx * TILE_EXTENT + p.x - links) * mmProEinheit,
+    y: fenster.yMm + (ty * TILE_EXTENT + p.y - oben) * mmProEinheit,
+  });
+
+  const cx0 = fenster.xMm - zugabeMm;
+  const cy0 = fenster.yMm - zugabeMm;
+  const cx1 = fenster.xMm + fenster.breiteMm + zugabeMm;
+  const cy1 = fenster.yMm + fenster.hoeheMm + zugabeMm;
+
+  const strassen = new Map<string, Punkt[][]>();
+  const wasserFlaechen: Punkt[][] = [];
+  const wasserlaeufe: Punkt[][] = [];
+
+  for (const k of kacheln) {
+    const road = k.tile.layers.road;
+    if (road) {
+      for (let i = 0; i < road.length; i++) {
+        const f = road.feature(i);
+        // Nur Linien. Punkte sind Ampeln und Schilder, Flaechen sind Plaetze.
+        if (f.type !== 2) continue;
+        // Tunnel liegen unter der Erde – als Acrylstreifen laegen sie mitten
+        // auf einem Stadtblock. Gemessen: Berlin-Tiergarten hat 21 Tunnelstuecke.
+        if (f.properties.structure === "tunnel") continue;
+        const klasse = String(f.properties.class ?? "");
+        const liste = strassen.get(klasse) ?? [];
+        for (const ring of f.loadGeometry()) {
+          const coords = ring.map((p) => nachMm(p, k.x, k.y));
+          for (const stueck of clipPolyline(coords, cx0, cy0, cx1, cy1)) liste.push(stueck);
+        }
+        strassen.set(klasse, liste);
+      }
+    }
+
+    const water = k.tile.layers.water;
+    if (water) {
+      for (let i = 0; i < water.length; i++) {
+        const f = water.feature(i);
+        if (f.type !== 3) continue;
+        for (const ring of f.loadGeometry()) {
+          const geclippt = clipPolygon(
+            ring.map((p) => nachMm(p, k.x, k.y)),
+            cx0, cy0, cx1, cy1,
+          );
+          if (geclippt.length >= 3) wasserFlaechen.push(geclippt);
+        }
+      }
+    }
+
+    const waterway = k.tile.layers.waterway;
+    if (waterway) {
+      for (let i = 0; i < waterway.length; i++) {
+        const f = waterway.feature(i);
+        if (f.type !== 2 || !WASSERLAUF_KLASSEN.has(String(f.properties.class))) continue;
+        for (const ring of f.loadGeometry()) {
+          const coords = ring.map((p) => nachMm(p, k.x, k.y));
+          for (const stueck of clipPolyline(coords, cx0, cy0, cx1, cy1)) wasserlaeufe.push(stueck);
+        }
+      }
+    }
+  }
+
+  return { strassen, wasserFlaechen, wasserlaeufe, ausschnittMeter };
+}

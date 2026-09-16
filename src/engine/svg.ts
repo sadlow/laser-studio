@@ -1,121 +1,94 @@
-import type { Pfad } from "./tiles";
-import { EBENEN_TITEL, FARBE, IST_LINIEN_EBENE, type EbenenEinstellung, type KartenEntwurf, type Layout, type Rolle } from "./typen";
+import type { Punkt } from "./clip";
+import type { Lagengeometrie } from "./lagen";
+import type { Layout, Teil } from "./typen";
+
+const f = (n: number) => (Math.round(n * 100) / 100).toString();
+
+function ringD(ring: Punkt[]): string {
+  if (ring.length < 2) return "";
+  let d = `M${f(ring[0].x)},${f(ring[0].y)}`;
+  for (let i = 1; i < ring.length; i++) d += `L${f(ring[i].x)},${f(ring[i].y)}`;
+  return d + "Z";
+}
+
+function linieD(linie: Punkt[]): string {
+  if (linie.length < 2) return "";
+  let d = `M${f(linie[0].x)},${f(linie[0].y)}`;
+  for (let i = 1; i < linie.length; i++) d += `L${f(linie[i].x)},${f(linie[i].y)}`;
+  return d;
+}
+
+/** Ein Teil samt Loechern als ein Pfad – mit evenodd bleiben die Loecher frei. */
+export function teileD(t: Teil[]): string {
+  return t.map((teil) => ringD(teil.aussen) + teil.loecher.map(ringD).join("")).join("");
+}
+
+function kopf(breite: number, hoehe: number, titel: string): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="${f(breite)}mm" height="${f(hoehe)}mm" ` +
+    `viewBox="0 0 ${f(breite)} ${f(hoehe)}"><title>${titel}</title>`
+  );
+}
 
 /**
- * Baut die SVG. Zwei Dinge sind hier Absicht:
- *
- * 1. **Einheit ist Millimeter.** width/height tragen "mm", die viewBox zaehlt
- *    dieselben Zahlen. Damit kommt die Datei in jeder Lasersoftware in der
- *    richtigen Groesse an, ohne dass jemand skaliert.
- *
- * 2. **Die Rolle steht in der Datei, nicht im Kopf des Operators.** Schnitt und
- *    Gravur sind eigene Gruppen mit fester Farbe. Heute traegt der
- *    Illustrator-Export alles als Haarlinie aus und die Zuordnung passiert von
- *    Hand im xTool Studio – genau die Handarbeit, die hier entfallen soll.
+ * So sieht die Karte zusammengesetzt aus. Von unten nach oben gemalt, jede
+ * Lage mit einem leichten Schatten – sonst sieht man die Stufen nicht, und die
+ * sind der Witz des Produkts.
  */
-export function baueSvg(opts: {
-  entwurf: KartenEntwurf;
-  layout: Layout;
-  pfade: Record<string, Pfad[]>;
-}): string {
-  const { entwurf, layout, pfade } = opts;
-  const { platte } = layout;
+export function vorschauSvg(layout: Layout, g: Lagengeometrie, loseMarkieren: boolean): string {
+  const { breiteMm: b, hoeheMm: h } = layout.platte;
+  const [hauptteil, ...lose] = g.weiss;
 
-  const gruppen: Record<Exclude<Rolle, "aus">, string[]> = { schnitt: [], gravur: [] };
-
-  // Plattenumriss zuerst – er ist der aeussere Schnitt.
-  if (entwurf.plattenschnitt) {
-    gruppen.schnitt.push(
-      `<rect id="plattenumriss" x="0" y="0" width="${f(platte.breiteMm)}" height="${f(platte.hoeheMm)}" ` +
-        `fill="none" stroke="${FARBE.schnitt}" stroke-width="0.1"/>`,
-    );
-  }
-
-  // Ebenen in fester Reihenfolge: Flaechen nach hinten, Linien nach vorn.
-  const reihenfolge: EbenenEinstellung[] = [...entwurf.ebenen].sort(
-    (a, b) => zeichenrang(a) - zeichenrang(b),
-  );
-
-  for (const ebene of reihenfolge) {
-    if (ebene.rolle === "aus") continue;
-    const liste = pfade[ebene.key] ?? [];
-    if (liste.length === 0) continue;
-
-    const farbe = FARBE[ebene.rolle];
-    const istLinie = IST_LINIEN_EBENE[ebene.key];
-    const strich = ebene.strichMm && ebene.strichMm > 0 ? ebene.strichMm : 0.4;
-
-    // Flaechen werden bei Gravur gefuellt (Flaechengravur), beim Schnitt nur
-    // umrandet – eine gefuellte Flaeche laesst sich nicht schneiden.
-    const stil = istLinie
-      ? `fill="none" stroke="${farbe}" stroke-width="${f(strich)}" stroke-linecap="round" stroke-linejoin="round"`
-      : ebene.rolle === "gravur"
-        ? `fill="${grauwert(ebene.dichte)}" stroke="none"`
-        : `fill="none" stroke="${farbe}" stroke-width="0.1"`;
-
-    const inhalt = liste.map((p) => `<path d="${p.d}"/>`).join("");
-    gruppen[ebene.rolle].push(
-      `<g id="${ebene.key}" data-titel="${EBENEN_TITEL[ebene.key]}" ${stil}>${inhalt}</g>`,
-    );
-  }
-
-  // Texte. Noch als echte <text>-Elemente, nicht als Pfade – fuer den Entwurf
-  // des Layouts reicht das, fuer die Produktion nicht (siehe Warnung in index).
-  entwurf.texte.forEach((t, i) => {
-    if (t.rolle === "aus" || !t.text.trim()) return;
-    const zone = layout.textzeilen[i];
-    if (!zone) return;
-    const x =
-      t.ausrichtung === "links"
-        ? zone.xMm
-        : t.ausrichtung === "rechts"
-          ? zone.xMm + zone.breiteMm
-          : zone.xMm + zone.breiteMm / 2;
-    const anchor = t.ausrichtung === "links" ? "start" : t.ausrichtung === "rechts" ? "end" : "middle";
-    // Grundlinie in der Zeilenmitte, um die halbe Versalhoehe nach unten.
-    const y = zone.yMm + zone.hoeheMm / 2 + t.groesseMm * 0.35;
-    gruppen[t.rolle].push(
-      `<text x="${f(x)}" y="${f(y)}" font-family="Helvetica, Arial, sans-serif" ` +
-        `font-size="${f(t.groesseMm)}" text-anchor="${anchor}" fill="${FARBE[t.rolle]}">${escape(t.text)}</text>`,
-    );
-  });
-
-  const teile: string[] = [];
-  if (gruppen.gravur.length) teile.push(`<g id="gravur">${gruppen.gravur.join("")}</g>`);
-  if (gruppen.schnitt.length) teile.push(`<g id="schnitt">${gruppen.schnitt.join("")}</g>`);
+  const gravur = g.gravur
+    .map((gr) => `<path d="${gr.linien.map(linieD).join("")}" stroke-width="${f(gr.breiteMm)}"/>`)
+    .join("");
 
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" ` +
-    `width="${f(platte.breiteMm)}mm" height="${f(platte.hoeheMm)}mm" ` +
-    `viewBox="0 0 ${f(platte.breiteMm)} ${f(platte.hoeheMm)}">` +
-    `<title>Lasercut-Karte ${f(platte.breiteMm)} x ${f(platte.hoeheMm)} mm</title>` +
-    teile.join("") +
+    kopf(b, h, "Schichtkarte – Vorschau") +
+    `<defs>` +
+    `<linearGradient id="blau" x1="0" y1="0" x2="1" y2="1">` +
+    `<stop offset="0" stop-color="#1b4b82"/><stop offset=".45" stop-color="#7fb4e3"/>` +
+    `<stop offset=".55" stop-color="#5d97cf"/><stop offset="1" stop-color="#173f70"/></linearGradient>` +
+    `<linearGradient id="rot" x1="0" y1="0" x2="1" y2="1">` +
+    `<stop offset="0" stop-color="#7d0c12"/><stop offset=".45" stop-color="#f0525a"/>` +
+    `<stop offset="1" stop-color="#8f1016"/></linearGradient>` +
+    `<filter id="schatten" x="-5%" y="-5%" width="110%" height="110%">` +
+    `<feDropShadow dx="0.25" dy="0.35" stdDeviation="0.3" flood-color="#000" flood-opacity="0.55"/></filter>` +
+    `</defs>` +
+    `<rect width="${f(b)}" height="${f(h)}" fill="url(#blau)"/>` +
+    `<path d="${teileD(g.schwarz)}" fill="#151515" fill-rule="evenodd" filter="url(#schatten)"/>` +
+    `<g fill="none" stroke="#b9b6ae" stroke-linecap="round" stroke-linejoin="round">${gravur}</g>` +
+    (hauptteil
+      ? `<path d="${teileD([hauptteil])}" fill="#f6f5f1" fill-rule="evenodd" filter="url(#schatten)"/>`
+      : "") +
+    (lose.length
+      ? `<path d="${teileD(lose)}" fill="${loseMarkieren ? "#ff8a1f" : "#f6f5f1"}" fill-rule="evenodd"/>`
+      : "") +
+    `<path d="${teileD(g.herz)}" fill="url(#rot)" filter="url(#schatten)"/>` +
     `</svg>`
   );
 }
 
 /**
- * Gravurdichte -> Grauwert. 1.0 ist volle Leistung (Schwarz), 0.3 ein heller
- * Anriss. Die Lasersoftware liest den Wert als Leistung, die Vorschau zeigt
- * dadurch dasselbe, was das Holz spaeter hergibt.
+ * Datei fuer den Laser: Schnitt rot, Gravur schwarz, Einheit mm, keine Fuellung.
+ * Genau eine Platte je Datei – jede Lage ist ein eigenes Material.
  */
-function grauwert(dichte: number | undefined): string {
-  const d = Math.min(1, Math.max(0.05, dichte ?? 1));
-  const stufe = Math.round(255 * (1 - d));
-  const hex = stufe.toString(16).padStart(2, "0");
-  return `#${hex}${hex}${hex}`;
-}
-
-/** Flaechen liegen hinten, Linien vorn – sonst verdeckt der Wald die Strassen. */
-function zeichenrang(e: EbenenEinstellung): number {
-  const rang: Record<string, number> = { green: 0, water: 1, buildings: 2, streets: 3, roads: 4 };
-  return rang[e.key] ?? 9;
-}
-
-function f(n: number): string {
-  return Number.isInteger(n) ? String(n) : n.toFixed(2);
-}
-
-function escape(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+export function laserSvg(
+  layout: Layout,
+  titel: string,
+  schnitt: Teil[],
+  gravur: { linien: Punkt[][]; breiteMm: number }[] = [],
+): string {
+  const { breiteMm: b, hoeheMm: h } = layout.platte;
+  const gravurTeil = gravur.length
+    ? `<g id="gravur" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round">` +
+      gravur.map((gr) => `<path d="${gr.linien.map(linieD).join("")}" stroke-width="${f(gr.breiteMm)}"/>`).join("") +
+      `</g>`
+    : "";
+  return (
+    kopf(b, h, titel) +
+    gravurTeil +
+    `<g id="schnitt" fill="none" stroke="#ff0000" stroke-width="0.1"><path d="${teileD(schnitt)}"/></g>` +
+    `</svg>`
+  );
 }

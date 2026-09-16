@@ -1,76 +1,133 @@
+import { zoomEntsprechung } from "./geo";
+import { ladeKartenRohdaten } from "./kacheln";
+import { baueLagen } from "./lagen";
 import { berechneLayout } from "./layout";
-import { baueSvg } from "./svg";
-import { ladeKartenPfade } from "./tiles";
-import { IST_LINIEN_EBENE, type EbenenKey, type Entwurfsergebnis, type KartenEntwurf } from "./typen";
+import { laserSvg, vorschauSvg } from "./svg";
+import { setzeTextblock } from "./textblock";
+import { REFERENZ_KARTENBREITE_MM, type Lage, type Schichtkarte, type SchichtkartenErgebnis } from "./typen";
 
 export * from "./typen";
-export { FORMATE, masseAusEntwurf } from "./formate";
+export { FORMATE, masseAusFormat } from "./formate";
 export { berechneLayout } from "./layout";
-export { standardEntwurf } from "./standard";
+export { standardSchichtkarte, STRASSEN_STANDARD, TITELSCHRIFTEN, ZEILENSCHRIFTEN } from "./standard";
 
 /**
- * Der einzige Einstieg: Parameter rein, SVG und Masse raus.
+ * Der einzige Einstieg: Produktparameter rein, Vorschau und je Lage eine
+ * Laserdatei raus.
  *
- * Keine UI-Abhaengigkeit, kein Dateisystem, kein Zustand. Dieselbe Funktion
- * bedient die Live-Vorschau im Browser und spaeter die Produktion – sonst gibt
- * es zwei Geometrien fuer dasselbe Produkt, und die driften unbemerkt
- * auseinander.
+ * Keine UI-Abhaengigkeit, kein Zustand. Dieselbe Funktion bedient die
+ * Live-Vorschau und spaeter die Produktion – sonst gaebe es zwei Geometrien
+ * fuer dasselbe Produkt, und die driften unbemerkt auseinander.
  */
-export async function rendereEntwurf(entwurf: KartenEntwurf, token: string): Promise<Entwurfsergebnis> {
+export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promise<SchichtkartenErgebnis> {
+  const start = Date.now();
+  const layout = berechneLayout(k);
   const warnungen: string[] = [];
-  const layout = berechneLayout(entwurf);
 
-  if (layout.kartenfeld.hoeheMm < 20) {
-    warnungen.push("Das Kartenfeld ist unter 20 mm hoch – Rahmen oder Textfeld nehmen fast alles weg.");
+  // Zugabe beim Laden: so breit wie die breiteste Netzstrasse, damit gepufferte
+  // Strassen am Fensterrand gerade enden statt rund.
+  const faktor = layout.kartenfenster.breiteMm / REFERENZ_KARTENBREITE_MM;
+  const breitesteStrasse = Math.max(
+    k.netzMinBreiteMm,
+    ...k.strassen.filter((s) => s.ziel === "netz").map((s) => s.breiteMm * faktor),
+  );
+
+  const roh = await ladeKartenRohdaten({
+    lon: k.lon,
+    lat: k.lat,
+    ausschnittBreiteM: k.ausschnittKm * 1000,
+    fenster: layout.kartenfenster,
+    zugabeMm: breitesteStrasse + 1,
+    token,
+  });
+
+  const textblock = setzeTextblock(k, layout);
+  warnungen.push(...textblock.warnungen);
+
+  const g = baueLagen(k, layout, roh, textblock.zeilen);
+
+  if (g.netz.anMindestbreite.length > 0) {
+    warnungen.push(
+      `Auf diesem Format waeren ${g.netz.anMindestbreite.join(", ")} schmaler als ${k.netzMinBreiteMm} mm ` +
+        "und werden auf die Mindestbreite gehalten – sie wirken dadurch kraeftiger als auf A4.",
+    );
+  }
+  if (g.weissLose.imNetz > 0) {
+    warnungen.push(
+      `${g.weissLose.imNetz} Strassenstuecke haengen nicht am Netz und fallen lose heraus ` +
+        "(orange markiert). Meist sind sie nur ueber eine gravierte Strasse angebunden.",
+    );
+  }
+  if (g.weissLose.imText > 0) {
+    warnungen.push(`${g.weissLose.imText} Innenflaechen im Text sind trotz Stegen lose.`);
+  }
+  if (g.stencil.ohneSteg > 0) {
+    warnungen.push(`${g.stencil.ohneSteg} Innenflaechen im Text haben keinen Steg bekommen.`);
+  }
+  if (g.schwarz.length > 1) {
+    warnungen.push(
+      `Die schwarze Lage zerfaellt durch das Wasser in ${g.schwarz.length} Teile – ` +
+        "die muessen beim Verkleben einzeln ausgerichtet werden.",
+    );
   }
 
-  const aktiveEbenen = entwurf.ebenen.filter((e) => e.rolle !== "aus").map((e) => e.key as EbenenKey);
+  const lagen: Lage[] = [
+    {
+      key: "herz",
+      titel: "Herz",
+      material: "Spiegelacryl rot",
+      teile: g.herz,
+      gravur: [],
+      laserSvg: laserSvg(layout, "Lage Herz – Spiegelacryl rot", g.herz),
+    },
+    {
+      key: "weiss",
+      titel: "Weiss",
+      material: "Acrylglas weiss",
+      teile: g.weiss,
+      gravur: [],
+      laserSvg: laserSvg(layout, "Lage Weiss – Acrylglas weiss", g.weiss),
+    },
+    {
+      key: "schwarz",
+      titel: "Schwarz",
+      material: "Acrylglas schwarz",
+      teile: g.schwarz,
+      gravur: g.gravur,
+      laserSvg: laserSvg(layout, "Lage Schwarz – Acrylglas schwarz", g.schwarz, g.gravur),
+    },
+    {
+      key: "blau",
+      titel: "Blau",
+      material: "Spiegelacryl blau",
+      teile: g.blau,
+      gravur: [],
+      laserSvg: laserSvg(layout, "Lage Blau – Spiegelacryl blau", g.blau),
+    },
+  ];
 
-  let pfade: Record<string, { d: string; art: "flaeche" | "linie" }[]> = {};
-  let ausschnittMeter = { breite: 0, hoehe: 0 };
-
-  if (aktiveEbenen.length > 0) {
-    const ergebnis = await ladeKartenPfade({
-      lon: entwurf.lon,
-      lat: entwurf.lat,
-      zoom: entwurf.zoom,
-      kartenfeld: layout.kartenfeld,
-      ebenen: aktiveEbenen,
-      token,
-    });
-    pfade = ergebnis.pfade;
-    ausschnittMeter = ergebnis.ausschnittMeter;
-  } else {
-    warnungen.push("Keine Kartenebene aktiv – die Platte bleibt leer.");
-  }
-
-  const svg = baueSvg({ entwurf, layout, pfade });
-
-  const statistik = entwurf.ebenen
-    .filter((e) => e.rolle !== "aus")
-    .map((e) => ({ ebene: e.key, rolle: e.rolle, pfade: (pfade[e.key] ?? []).length }));
-
-  for (const eintrag of statistik) {
-    if (eintrag.pfade === 0) {
-      warnungen.push(`Ebene "${eintrag.ebene}" liefert an dieser Stelle keine Daten.`);
-    }
-  }
-
-  // Ehrlich benennen, was noch fehlt: solange die Texte als <text> in der Datei
-  // stehen, haengt das Ergebnis davon ab, welche Schrift die Lasersoftware
-  // findet. Fuer den Entwurf des Layouts reicht das, fuer den Schnitt nicht.
-  if (entwurf.texte.some((t) => t.rolle !== "aus" && t.text.trim())) {
-    warnungen.push("Texte sind noch nicht in Pfade umgewandelt – fuer die Produktion fehlt die Vektorisierung.");
-  }
-
-  for (const e of entwurf.ebenen) {
-    if (e.rolle === "schnitt" && IST_LINIEN_EBENE[e.key]) {
-      warnungen.push(
-        `"${e.key}" als Schnitt: eine Strassenlinie hat keine Breite, der Laser faehrt sie als einzelnen Schnitt. ` +
-          "Als Gravur ist das fast immer gemeint.",
-      );
-    }
-  }
-
-  return { svg, layout, ausschnittMeter, statistik, warnungen };
+  return {
+    vorschauSvg: vorschauSvg(layout, g, k.loseTeileMarkieren),
+    lagen,
+    layout,
+    texte: textblock.texte,
+    ausschnittMeter: roh.ausschnittMeter,
+    kennzahlen: {
+      weissAnteilFenster: g.netz.weissAnteilFenster,
+      netzLoecherZugefuellt: g.netz.loecherZugefuellt,
+      netzAnMindestbreite: g.netz.anMindestbreite,
+      formatfaktor: g.netz.faktor,
+      zoomEntsprechung: zoomEntsprechung(k.ausschnittKm * 1000, layout.kartenfenster.breiteMm, k.lat),
+      weissTeile: g.weiss.length,
+      weissLoseImNetz: g.weissLose.imNetz,
+      weissLoseImText: g.weissLose.imText,
+      schwarzTeile: g.schwarz.length,
+      stencilStege: g.stencil.anzahl,
+      punzenOhneSteg: g.stencil.ohneSteg,
+      inselnZugefuellt: g.stencil.zugefuellt,
+      wasserFlaechenGeschnitten: g.wasserFlaechen,
+      rechenzeitMs: Date.now() - start,
+    },
+    warnungen,
+  };
 }

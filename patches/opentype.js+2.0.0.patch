@@ -1,0 +1,26 @@
+diff --git a/node_modules/opentype.js/dist/opentype.js b/node_modules/opentype.js/dist/opentype.js
+index 4dc6dea..cd4850e 100644
+--- a/node_modules/opentype.js/dist/opentype.js
++++ b/node_modules/opentype.js/dist/opentype.js
+@@ -6655,7 +6655,7 @@ var opentype = (() => {
+     let code;
+     const encoding = {};
+     const parser = new parse_default.Parser(data, start);
+-    const format = parser.parseCard8();
++    const format = parser.parseCard8() & 0x7f;
+     if (format === 0) {
+       const nCodes = parser.parseCard8();
+       for (let i = 0; i < nCodes; i += 1) {
+diff --git a/node_modules/opentype.js/dist/opentype.mjs b/node_modules/opentype.js/dist/opentype.mjs
+index 53ed20e..d149390 100644
+--- a/node_modules/opentype.js/dist/opentype.mjs
++++ b/node_modules/opentype.js/dist/opentype.mjs
+@@ -6623,7 +6623,7 @@ function parseCFFEncoding(data, start) {
+   let code;
+   const encoding = {};
+   const parser = new parse_default.Parser(data, start);
+-  const format = parser.parseCard8();
++  const format = parser.parseCard8() & 0x7f;
+   if (format === 0) {
+     const nCodes = parser.parseCard8();
+     for (let i = 0; i < nCodes; i += 1) {

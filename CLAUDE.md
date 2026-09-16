@@ -1,102 +1,88 @@
 # Laser Studio
 
-Entwurfswerkzeug fuer Lasercut-Kartenprodukte. Laeuft lokal im Browser, ohne
-Illustrator. Zweck: ein neues Kartenprodukt im Dialog entwerfen und dabei
-pruefen, wie weit ein rein numerisches Layout traegt.
+Entwurfswerkzeug fuer Lasercut-Kartenprodukte, lokal im Browser, ohne
+Illustrator. Erstes Produkt: **Schichtkarte**, das Amazon-Poster "Zuhause"
+(Family Motiv 8) als Acrylaufbau. **Kein Produktivsystem** (siehe "Umfeld").
 
-**Kein Produktivsystem.** Die Bestellstrecke liegt woanders (siehe „Umfeld").
+## Produkt Schichtkarte (von oben nach unten)
 
-## Der eine Grundsatz: Engine und UI sind getrennt
+| Lage | Material | Was passiert |
+|---|---|---|
+| Herz | Spiegelacryl rot | am Ort aufgeklebt |
+| Weiss | Acrylglas weiss | Rahmen + Strassennetz + Textflaeche, Woerter als Stencil ausgeschnitten |
+| Schwarz | Acrylglas schwarz | Wasser ausgeschnitten, feine Wege graviert (hell) |
+| Blau | Spiegelacryl blau | scheint durch das Wasser |
 
-`src/engine/` kennt weder React noch Next noch ein Dateisystem. Ein Aufruf,
-ein Ergebnis:
+Je Lage eine Laserdatei (Schnitt rot, Gravur schwarz, mm), dazu die
+zusammengesetzte Vorschau.
 
-```ts
-rendereEntwurf(entwurf: KartenEntwurf, token: string) => Entwurfsergebnis
-```
+## Grundsatz: Engine und UI getrennt
 
-Alles, was ein Kartenprodukt beschreibt, steht in `src/engine/typen.ts` — und
-nur dort. Die UI ist ein Formular auf diese Typen und darf weggeworfen werden.
+`src/engine/` kennt kein React/Next. Einstieg:
+`rendereSchichtkarte(karte, token) => SchichtkartenErgebnis`. Der ganze
+Vertrag steht in `typen.ts`. Wandert das Produkt in den baseline-customizer,
+wird die Engine **importiert**, nicht nachgebaut – sonst driften Vorschau und
+Produktion unbemerkt auseinander.
 
-Der Grund ist nicht Ordnungsliebe: sobald dieselbe Geometrie ein zweites Mal
-implementiert wird (einmal fuer die Kundenvorschau, einmal fuer die
-Produktion), driften die beiden auseinander, und zwar unbemerkt. Wandert das
-Werkzeug spaeter in den baseline-customizer, wird die Engine **importiert**,
-nicht nachgebaut.
+## Entscheidungen, die man nicht am Code sieht
 
-## Layout ist Parameter, Form ist Asset
+- **Ausschnitt in km statt Zoom.** A3 zeigt denselben Kiez wie A5, nur groesser –
+  wie das Poster. Strassenbreiten und Herz gelten fuer A4 und wachsen mit
+  (`REFERENZ_KARTENBREITE_MM`). Fest bleiben Rahmen (Falz) und Stege.
+  Ergebnis: 22-24 % Weiss im Fenster auf allen Formaten.
+- **Mindestbreite im Netz** (0,8 mm). Auf A5 greift sie bei den Wohnstrassen.
+- **Ausschnitt entscheidet die Dichte.** A4 bei 2 km 13 % Weiss, 3,5 km 22 %,
+  6 km 37 % mit 5 losen Netzstuecken – dort gehoeren Wohnstrassen zurueck auf
+  Gravur (`scripts/ausschnittvergleich.ts`).
+- **Tunnel nie, Bruecken immer.** In echten Kacheln gemessen (Berlin-Tiergarten:
+  21 Tunnelstuecke). Bruecken halten das Netz ueber dem Wasser zusammen.
+- **Stencil-Stege 0,7 mm**, wie die Spardosen-Stege im Bulk-Script: halten nur
+  bis zum Verkleben. Steg-Laenge am Strich gemessen, nie ueber den Buchstaben
+  hinaus.
+- **Kleine Innenflaechen werden zugefuellt**, Grenze relativ zur Versalhoehe
+  (2 %). Eine feste mm²-Grenze fuellte auf A5 die A zu und zerteilte auf A3 das
+  Gradzeichen. Josefin/Avant Garde: ° 1,3 %, obere 8 2,9 %, A 4,3 %.
+- **Kleine Bloecke im Netz bleiben weiss** (< 4 mm²) – loesen sich nicht sauber.
+- **Zeilenschrift Avant Garde Demi statt ExtraLight** (Poster): Strich bei 5 mm
+  Versalhoehe ExtraLight 0,20 / Book 0,50 / Demi 0,93 / Bold 1,36 mm. 0,20 ist
+  kaum breiter als die Schnittfuge (`scripts/strichstaerke.ts`).
+- **Titel Bacalisties bei 7 %, Mitte 74,3 %.** Die Versalien schwingen
+  gleichmaessig 9,7-10,1 % unter die Mitte. Beruehren sich Zeilen, meldet die
+  Engine es – das haengt am Kundentext.
+- **opentype.js ist gepatcht** (`patches/`, `postinstall`): CFF-Encoding mit
+  Zusatzbit (Format 129) warf einen Fehler, betroffen AvantGardeCE-Demi.otf.
 
-- **Layout = Zahlen.** Format, Rahmen, Kartenfeld, Textzonen (`layout.ts`).
-  Dasselbe Layout traegt A5 bis A3, ohne zweite Vorlagendatei. Im Illustrator
-  ist das heute je Format ein eigenes .ai-Template.
-- **Form = Asset.** Ein Herz ist keine Formel. Formen kommen als SVG-Pfad
-  dazu und werden in den parametrischen Rahmen eingepasst. (Noch nicht gebaut —
-  der erste Entwurf ist rechteckig.)
+## Herkunft
 
-## Die Rolle steht in der Datei
+Geo-Mathematik, Strassenklassen-Filter, Clipping: aus
+`extendscript-bulk-processing/tools/fetch-vector-tiles.js`. GMS-Format:
+`decimalToDMS()` im Bulk-Script. Felder: `ETSY_FIELD_SPECS` Motiv 8/9.
 
-Schnitt und Gravur sind getrennte SVG-Gruppen mit fester Farbe (rot schneidet,
-schwarz graviert). Die **Gravurdichte** ist ein Grauwert und kein
-Anzeige-Trick: Lasersoftware liest ihn als Leistung. 100 % brennt eine
-Waldflaeche voll durch und deckt die halbe Karte zu — darum stehen die
-Standardwerte bei 25 % (gruen) und 55 % (Wasser).
-
-Zum Vergleich der Bestand: `md2_applyLasercutStyle()` im Bulk-Script reduziert
-alles auf Haarlinie und transportiert die Funktion ueber die Strichfarbe — die
-Zuordnung passiert dann von Hand im xTool Studio.
-
-## Herkunft der Kartendaten
-
-Geo-Mathematik, Layer-Filter und Clipping sind aus
-`extendscript-bulk-processing/tools/fetch-vector-tiles.js` uebernommen, nicht
-neu hergeleitet: die Werte sind dort an echten Drucken kalibriert.
-
-Der Unterschied: das alte Werkzeug rechnet in Tile-Pixeln und macht per viewBox
-wieder ein Mass daraus. Hier ist **Millimeter auf der Platte** das Ergebnis,
-und das Layout gibt es vor.
-
-Datendetail bleibt fest bei Tile-Zoom 14 (dichteste Stufe von
-mapbox-streets-v8). Der eingestellte Zoom steuert nur den Ausschnitt.
-
-## Tech-Stack
-
-Next.js 15 (App Router) · TypeScript · Tailwind 4 · Mapbox Vector Tiles.
-Kein Datenbank, kein Deployment. Port 3010.
+## Start
 
 ```bash
-cp .env.example .env.local   # MAPBOX_ACCESS_TOKEN eintragen
-npm install && npm run dev
+cp .env.example .env.local   # MAPBOX_ACCESS_TOKEN wie in shared/config-local.jsx
+npm install && npm run dev   # http://localhost:3010
 ```
 
-Der Token ist derselbe wie in
-`extendscript-bulk-processing/shared/config-local.jsx`.
+Pruefskripte: `npx tsx scripts/formatvergleich.ts`, `ausschnittvergleich.ts`,
+`strichstaerke.ts`, `inseln-messen.ts`, `titel-lage.ts`.
 
-## Stand
+## Offen
 
-Fertig: Formate (A5/A4/A3/30x30/frei), Rahmen, Kartenfeld, Textfeld, fuenf
-Kartenebenen mit Rolle und Dichte, Live-Vorschau, SVG-Export in mm.
-
-Offen:
-- **Texte sind noch keine Pfade.** Sie stehen als `<text>` in der Datei, das
-  Ergebnis haengt also an der Schrift, die die Lasersoftware findet. Fuer den
-  Layout-Entwurf reicht es, fuer den Schnitt nicht.
-- Formen (Herz, Kreis, Ellipse) als Clip-Asset.
-- Hillshade. Wird es Flaechengravur, genuegt das Graustufen-PNG eingebettet —
-  kein Image Trace noetig.
-- Adresssuche (heute nur Lon/Lat).
+- Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
+- Quadrat 30x30 braucht eigene Layout-Anteile (Fenster wird mit A-Werten quer)
+- Standort-Bestaetigung: "Luebeck" fand Luebecker Strasse in Koeln
+- Herz-Auflage: liegt teils auf Weiss, teils eine Lage tiefer auf Schwarz
+- Materialstaerken, Aufbauhoehe vs. Falztiefe des Bilderrahmens
+- Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten
 
 ## Umfeld
 
 | Projekt | Rolle |
 |---|---|
-| `extendscript-bulk-processing` | heutige Produktion (Illustrator/InDesign), Quelle fuer Konturmatrix, Layer-Filter, Geo-Mathematik |
-| `baseline-customizer` | Personalisierungs-Backend, rendert Schriftzuege bereits per Direktsatz; dorthin wandert die Engine, wenn das Konzept traegt |
-| `print-pipeline` | zieht Orders, kennt den Lasercut-Kanon, dispatcht — **nicht** hier nachbauen |
+| `extendscript-bulk-processing` | heutige Produktion; Planungsgrundsatz `docs/laser-online-grundsatz.md` |
+| `baseline-customizer` | Personalisierungs-Backend; dorthin wandert die Engine |
+| `print-pipeline` | zieht Orders, kennt den Lasercut-Kanon – **nicht** hier nachbauen |
 
-Planungsgrundsatz:
-`extendscript-bulk-processing/docs/laser-online-grundsatz.md`
-
-## Konventionen
-
-Code-Kommentare deutsch · Commits englisch (Conventional Commits) · Dateien
-unter 200 Zeilen · diese Datei unter 100 Zeilen.
+Code-Kommentare deutsch · Commits englisch · Dateien < 200 Zeilen · diese Datei < 100 Zeilen.
