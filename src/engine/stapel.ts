@@ -1,0 +1,93 @@
+import { enthaelt, schwerpunkt, teile, vereinige, ziehAb } from "./geometrie";
+import { SPLITTER_MM2, type Bausteine } from "./lagen";
+import { FARBE_LOSE, FARBE_SCHWARZ, FARBE_WEISS, laserSvg, vorschauSvg, type Gravur, type Malschritt } from "./svg";
+import type { LagenKey, Lage, Layout, Schichtkarte, Teil } from "./typen";
+
+export interface Stapel {
+  lagen: Lage[];
+  vorschauSvg: string;
+  loseNetzstuecke: number;
+  loseTextteile: number;
+  hintergrundTeile: number;
+}
+
+// Gravur auf Schwarz wird hell. Auf Weiss wird sie eine feine graue Rille mit
+// leichtem Schatten – am Musterstueck (Ziegelwand in weissem PMMA) gut zu sehen.
+const GRAVUR_AUF_SCHWARZ = "#b9b6ae";
+const GRAVUR_AUF_WEISS = "#c7c2b6";
+
+/**
+ * Setzt aus den Bausteinen die Lagen des gewaehlten Aufbaus zusammen. Beide
+ * Aufbauten sind gleich gebaut – Netz-Lage ueber Hintergrund-Lage ueber Blau –,
+ * nur die Farben von Netz und Hintergrund tauschen. Beim schwarzen Netz kommt
+ * eine weisse Deckschicht mit Rahmen und Text dazu.
+ */
+export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stapel {
+  const rahmen = ziehAb(b.plattenFl, b.fensterFl);
+  // Unter Bruecken wird nicht geschnitten: dort liegt Netz darueber, und der
+  // Hintergrund haelt ueber die Bruecke zusammen, statt am Fluss zu zerfallen.
+  const hintergrund = teile(ziehAb(b.plattenFl, ziehAb(b.wasser, b.netz)), SPLITTER_MM2);
+  const blau = teile(b.plattenFl);
+
+  if (k.aufbau === "netz-schwarz") {
+    const deck = teile(ziehAb(vereinige(rahmen, b.schutz), b.textAusschnitt), SPLITTER_MM2);
+    // Unter den Texten bleibt das Schwarz voll: die Buchstaben zeigen schwarz,
+    // und die Deckschicht hat dort Flaeche zum Aufkleben.
+    const netz = teile(vereinige(rahmen, b.netz, b.schutz), SPLITTER_MM2);
+    const [netzHaupt, ...netzLose] = netz;
+
+    const schritte: Malschritt[] = [
+      { art: "flaeche", teile: blau, fuellung: "url(#blau)" },
+      { art: "flaeche", teile: hintergrund, fuellung: FARBE_WEISS, schatten: true },
+      { art: "gravur", gravur: b.gravur, farbe: GRAVUR_AUF_WEISS },
+      { art: "flaeche", teile: netzHaupt ? [netzHaupt] : [], fuellung: FARBE_SCHWARZ, schatten: true },
+      { art: "flaeche", teile: netzLose, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : FARBE_SCHWARZ },
+      { art: "flaeche", teile: deck, fuellung: FARBE_WEISS, schatten: true },
+      { art: "flaeche", teile: b.herz, fuellung: "url(#rot)", schatten: true },
+    ];
+    return {
+      lagen: [
+        lage(layout, "herz", "Herz", "Spiegelacryl rot", b.herz),
+        lage(layout, "deck", "Weiss oben", "Acrylglas weiss", deck),
+        lage(layout, "netz", "Schwarz (Netz)", "Acrylglas schwarz", netz),
+        lage(layout, "hintergrund", "Weiss unten", "Acrylglas weiss", hintergrund, b.gravur),
+        lage(layout, "blau", "Blau", "Spiegelacryl blau", blau),
+      ],
+      vorschauSvg: vorschauSvg(layout, schritte),
+      loseNetzstuecke: netzLose.length,
+      loseTextteile: Math.max(0, deck.length - 1),
+      hintergrundTeile: hintergrund.length,
+    };
+  }
+
+  // netz-weiss: die Texte sitzen im weissen Netz selbst.
+  const netz = teile(ziehAb(vereinige(rahmen, b.netz, b.schutz), b.textAusschnitt), SPLITTER_MM2);
+  const [netzHaupt, ...lose] = netz;
+  const loseText = lose.filter((t) => enthaelt(b.textBereich, schwerpunkt(t)));
+  const loseNetz = lose.filter((t) => !loseText.includes(t));
+
+  const schritte: Malschritt[] = [
+    { art: "flaeche", teile: blau, fuellung: "url(#blau)" },
+    { art: "flaeche", teile: hintergrund, fuellung: FARBE_SCHWARZ, schatten: true },
+    { art: "gravur", gravur: b.gravur, farbe: GRAVUR_AUF_SCHWARZ },
+    { art: "flaeche", teile: netzHaupt ? [netzHaupt, ...loseText] : [], fuellung: FARBE_WEISS, schatten: true },
+    { art: "flaeche", teile: loseNetz, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : FARBE_WEISS },
+    { art: "flaeche", teile: b.herz, fuellung: "url(#rot)", schatten: true },
+  ];
+  return {
+    lagen: [
+      lage(layout, "herz", "Herz", "Spiegelacryl rot", b.herz),
+      lage(layout, "netz", "Weiss (Netz)", "Acrylglas weiss", netz),
+      lage(layout, "hintergrund", "Schwarz", "Acrylglas schwarz", hintergrund, b.gravur),
+      lage(layout, "blau", "Blau", "Spiegelacryl blau", blau),
+    ],
+    vorschauSvg: vorschauSvg(layout, schritte),
+    loseNetzstuecke: loseNetz.length,
+    loseTextteile: loseText.length,
+    hintergrundTeile: hintergrund.length,
+  };
+}
+
+function lage(layout: Layout, key: LagenKey, titel: string, material: string, t: Teil[], gravur: Gravur = []): Lage {
+  return { key, titel, material, teile: t, gravur, laserSvg: laserSvg(layout, `Lage ${titel} – ${material}`, t, gravur) };
+}

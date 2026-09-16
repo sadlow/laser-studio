@@ -48,14 +48,19 @@ export function standardSchichtkarte(): Schichtkarte {
     ausschnittKm: 3.5,
     format: "a4",
     rahmenMm: 7,
+    aufbau: "netz-weiss",
     layoutArt: "poster",
-    // Quadrat-Entwurf Marcel 16.09.2026: Titel oben am Rand, Namen links unten,
-    // Koordinaten rechts unten, je mit 5 mm Schutzkontur; unterer Rand breiter.
+    // Quadrat-Entwurf Marcel 16.09.2026, zweite Runde: Die Kontur um die
+    // Buchstaben und die Texte in drei Ecken wirkten unruhig. Jetzt wie die
+    // DIN-Version uebereinander – Titel oben in einem abgerundeten Rechteck,
+    // Namen und Koordinaten mittig darunter unten in einem zweiten.
     eingebettet: {
       titelAnker: "oben-mitte",
-      zeile1Anker: "unten-links",
-      zeile2Anker: "unten-rechts",
+      zeile1Anker: "unten-mitte",
+      zeile2Anker: "unten-mitte",
+      form: "rechteck",
       schutzMm: 5,
+      eckenRadiusMm: 6,
       rahmenUntenMm: 14,
     },
     kartenEndeAnteil: 0.68,

@@ -1,5 +1,4 @@
 import type { Punkt } from "./clip";
-import type { Lagengeometrie } from "./lagen";
 import type { Layout, Teil } from "./typen";
 
 const f = (n: number) => (Math.round(n * 100) / 100).toString();
@@ -30,17 +29,37 @@ function kopf(breite: number, hoehe: number, titel: string): string {
   );
 }
 
+export type Gravur = { linien: Punkt[][]; breiteMm: number }[];
+
+/** Ein Schritt beim Malen der Vorschau, von unten nach oben. */
+export type Malschritt =
+  | { art: "flaeche"; teile: Teil[]; fuellung: string; schatten?: boolean }
+  | { art: "gravur"; gravur: Gravur; farbe: string };
+
+export const FARBE_WEISS = "#f6f5f1";
+export const FARBE_SCHWARZ = "#151515";
+export const FARBE_LOSE = "#ff8a1f";
+
 /**
  * So sieht die Karte zusammengesetzt aus. Von unten nach oben gemalt, jede
  * Lage mit einem leichten Schatten – sonst sieht man die Stufen nicht, und die
- * sind der Witz des Produkts.
+ * sind der Witz des Produkts. Welche Lage welche Farbe hat, entscheidet der
+ * Aufbau (stapel.ts), nicht diese Funktion.
  */
-export function vorschauSvg(layout: Layout, g: Lagengeometrie, loseMarkieren: boolean): string {
+export function vorschauSvg(layout: Layout, schritte: Malschritt[]): string {
   const { breiteMm: b, hoeheMm: h } = layout.platte;
-  const [hauptteil, ...lose] = g.weiss;
-
-  const gravur = g.gravur
-    .map((gr) => `<path d="${gr.linien.map(linieD).join("")}" stroke-width="${f(gr.breiteMm)}"/>`)
+  const koerper = schritte
+    .map((s) => {
+      if (s.art === "gravur") {
+        const pfade = s.gravur
+          .map((gr) => `<path d="${gr.linien.map(linieD).join("")}" stroke-width="${f(gr.breiteMm)}"/>`)
+          .join("");
+        return `<g fill="none" stroke="${s.farbe}" stroke-linecap="round" stroke-linejoin="round">${pfade}</g>`;
+      }
+      if (!s.teile.length) return "";
+      const schatten = s.schatten ? ` filter="url(#schatten)"` : "";
+      return `<path d="${teileD(s.teile)}" fill="${s.fuellung}" fill-rule="evenodd"${schatten}/>`;
+    })
     .join("");
 
   return (
@@ -55,16 +74,7 @@ export function vorschauSvg(layout: Layout, g: Lagengeometrie, loseMarkieren: bo
     `<filter id="schatten" x="-5%" y="-5%" width="110%" height="110%">` +
     `<feDropShadow dx="0.25" dy="0.35" stdDeviation="0.3" flood-color="#000" flood-opacity="0.55"/></filter>` +
     `</defs>` +
-    `<rect width="${f(b)}" height="${f(h)}" fill="url(#blau)"/>` +
-    `<path d="${teileD(g.schwarz)}" fill="#151515" fill-rule="evenodd" filter="url(#schatten)"/>` +
-    `<g fill="none" stroke="#b9b6ae" stroke-linecap="round" stroke-linejoin="round">${gravur}</g>` +
-    (hauptteil
-      ? `<path d="${teileD([hauptteil])}" fill="#f6f5f1" fill-rule="evenodd" filter="url(#schatten)"/>`
-      : "") +
-    (lose.length
-      ? `<path d="${teileD(lose)}" fill="${loseMarkieren ? "#ff8a1f" : "#f6f5f1"}" fill-rule="evenodd"/>`
-      : "") +
-    `<path d="${teileD(g.herz)}" fill="url(#rot)" filter="url(#schatten)"/>` +
+    koerper +
     `</svg>`
   );
 }
@@ -73,12 +83,7 @@ export function vorschauSvg(layout: Layout, g: Lagengeometrie, loseMarkieren: bo
  * Datei fuer den Laser: Schnitt rot, Gravur schwarz, Einheit mm, keine Fuellung.
  * Genau eine Platte je Datei – jede Lage ist ein eigenes Material.
  */
-export function laserSvg(
-  layout: Layout,
-  titel: string,
-  schnitt: Teil[],
-  gravur: { linien: Punkt[][]; breiteMm: number }[] = [],
-): string {
+export function laserSvg(layout: Layout, titel: string, schnitt: Teil[], gravur: Gravur = []): string {
   const { breiteMm: b, hoeheMm: h } = layout.platte;
   const gravurTeil = gravur.length
     ? `<g id="gravur" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round">` +

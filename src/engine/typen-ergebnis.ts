@@ -22,31 +22,34 @@ export interface Teil {
   flaecheMm2: number;
 }
 
-export type LagenKey = "herz" | "weiss" | "schwarz" | "blau";
+/** deck nur beim schwarzen Netz: weisse Oberseite mit Rahmen und Text. */
+export type LagenKey = "herz" | "deck" | "netz" | "hintergrund" | "blau";
 
 export interface Lage {
   key: LagenKey;
   titel: string;
   material: string;
   teile: Teil[];
-  /** Nur Schwarz: feine Wege als Linien (mm) mit Strichbreite. */
+  /** Nur Hintergrund: feine Wege als Linien (mm) mit Strichbreite. */
   gravur: { linien: Punkt[][]; breiteMm: number }[];
   /** SVG fuer den Laser: Schnitt rot, Gravur schwarz, Einheit mm. */
   laserSvg: string;
 }
 
 export interface Kennzahlen {
-  /** Wieviel vom Kartenfenster ist weisses Netz – das Mass fuer "zu dicht". */
-  weissAnteilFenster: number;
+  /** Wieviel vom Kartenfenster ist Strassennetz – das Mass fuer "zu dicht". */
+  netzAnteilFenster: number;
   netzLoecherZugefuellt: number;
   /** Strassengruppen, deren Breite durch das Format unter die Mindestbreite fiele. */
   netzAnMindestbreite: string[];
   formatfaktor: number;
   zoomEntsprechung: number;
-  weissTeile: number;
-  weissLoseImNetz: number;
-  weissLoseImText: number;
-  schwarzTeile: number;
+  /** Strassenstuecke, die nicht am Netz haengen und lose herausfallen. */
+  loseNetzstuecke: number;
+  /** Innenflaechen im Text, die trotz Stegen lose sind. */
+  loseTextteile: number;
+  /** Teile der Hintergrund-Lage – mehr als eins, wenn Wasser sie teilt. */
+  hintergrundTeile: number;
   stencilStege: number;
   punzenOhneSteg: number;
   inselnZugefuellt: number;

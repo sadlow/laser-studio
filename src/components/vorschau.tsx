@@ -23,8 +23,14 @@ function Kennzahl({ titel, wert }: { titel: string; wert: string }) {
 export function Vorschau({ ergebnis, fehler, laedt }: Props) {
   const [ansicht, setAnsicht] = useState<Ansicht>("gesamt");
 
+  // Der Aufbau bestimmt, welche Lagen es gibt – die Reiter kommen aus dem Ergebnis.
   const lage = ergebnis?.lagen.find((l) => l.key === ansicht);
-  const svg = ansicht === "gesamt" ? ergebnis?.vorschauSvg : lage?.laserSvg;
+  const aktiv: Ansicht = ansicht !== "gesamt" && ergebnis && !lage ? "gesamt" : ansicht;
+  const svg = aktiv === "gesamt" ? ergebnis?.vorschauSvg : lage?.laserSvg;
+  const reiter: { key: Ansicht; titel: string }[] = [
+    { key: "gesamt", titel: "Zusammengesetzt" },
+    ...(ergebnis?.lagen ?? []).map((l) => ({ key: l.key as Ansicht, titel: l.titel })),
+  ];
 
   const speichern = (inhalt: string, name: string) => {
     const url = URL.createObjectURL(new Blob([inhalt], { type: "image/svg+xml" }));
@@ -38,18 +44,18 @@ export function Vorschau({ ergebnis, fehler, laedt }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-1">
-        {(["gesamt", "herz", "weiss", "schwarz", "blau"] as Ansicht[]).map((a) => (
+        {reiter.map((r) => (
           <button
-            key={a}
-            onClick={() => setAnsicht(a)}
+            key={r.key}
+            onClick={() => setAnsicht(r.key)}
             className="rounded-md px-3 py-1.5 text-sm"
             style={
-              ansicht === a
+              aktiv === r.key
                 ? { background: "var(--text)", color: "var(--grund)" }
                 : { background: "var(--karte)", border: "1px solid var(--linie)" }
             }
           >
-            {a === "gesamt" ? "Zusammengesetzt" : (ergebnis?.lagen.find((l) => l.key === a)?.titel ?? a)}
+            {r.titel}
           </button>
         ))}
         {laedt && (
@@ -59,7 +65,7 @@ export function Vorschau({ ergebnis, fehler, laedt }: Props) {
         )}
       </div>
 
-      <div className={`karte flex items-center justify-center p-6 ${ansicht === "gesamt" ? "" : "laser"}`}>
+      <div className={`karte flex items-center justify-center p-6 ${aktiv === "gesamt" ? "" : "laser"}`}>
         {fehler ? (
           <p className="max-w-md text-sm text-red-700">{fehler}</p>
         ) : svg ? (
@@ -117,14 +123,14 @@ export function Vorschau({ ergebnis, fehler, laedt }: Props) {
           </table>
 
           <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4">
-            <Kennzahl titel="Weiss im Fenster" wert={`${Math.round(ergebnis.kennzahlen.weissAnteilFenster * 100)} %`} />
+            <Kennzahl titel="Netz im Fenster" wert={`${Math.round(ergebnis.kennzahlen.netzAnteilFenster * 100)} %`} />
             <Kennzahl titel="Formatfaktor" wert={`× ${ergebnis.kennzahlen.formatfaktor.toFixed(2)}`} />
             <Kennzahl titel="entspricht Zoom" wert={ergebnis.kennzahlen.zoomEntsprechung.toFixed(1)} />
             <Kennzahl titel="Bloecke zugefuellt" wert={String(ergebnis.kennzahlen.netzLoecherZugefuellt)} />
             <Kennzahl titel="Stencil-Stege" wert={String(ergebnis.kennzahlen.stencilStege)} />
             <Kennzahl titel="Innenflaechen zu" wert={String(ergebnis.kennzahlen.inselnZugefuellt)} />
             <Kennzahl titel="Wasserflaechen" wert={String(ergebnis.kennzahlen.wasserFlaechenGeschnitten)} />
-            <Kennzahl titel="lose Netzstuecke" wert={String(ergebnis.kennzahlen.weissLoseImNetz)} />
+            <Kennzahl titel="lose Netzstuecke" wert={String(ergebnis.kennzahlen.loseNetzstuecke)} />
           </div>
 
           {ergebnis.warnungen.length > 0 && (

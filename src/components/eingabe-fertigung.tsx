@@ -9,7 +9,7 @@ interface Props {
 }
 
 const ZIELE: { wert: StrassenZiel; titel: string }[] = [
-  { wert: "netz", titel: "Weiss (Netz)" },
+  { wert: "netz", titel: "Netz" },
   { wert: "gravur", titel: "Gravur" },
   { wert: "aus", titel: "aus" },
 ];
@@ -21,7 +21,11 @@ export function EingabeStrassen({ karte, aendern }: Props) {
   return (
     <Block
       titel="Strassen"
-      hinweis="Breiten gelten fuer A4 und wachsen mit dem Format. Weiss = Acrylstreifen in der obersten Lage. Gravur = heller Strich auf Schwarz. Tunnel werden nie gezeichnet, Bruecken immer."
+      hinweis={`Breiten gelten fuer A4 und wachsen mit dem Format. Netz = Strassen als ${
+        karte.aufbau === "netz-schwarz" ? "schwarzes" : "weisses"
+      } Acryl, die Bloecke fallen heraus. Gravur = Linie auf dem ${
+        karte.aufbau === "netz-schwarz" ? "weissen" : "schwarzen"
+      } Hintergrund. Tunnel werden nie gezeichnet, Bruecken immer.`}
     >
       <div className="mb-3 grid grid-cols-2 gap-3">
         <Zahl

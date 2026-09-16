@@ -19,10 +19,10 @@ for (const format of ["a5", "a4", "a3", "quadrat30"] as FormatKey[]) {
     format.padEnd(10),
     `Fenster ${r.layout.kartenfenster.breiteMm.toFixed(0)}x${r.layout.kartenfenster.hoeheMm.toFixed(0)}mm`,
     `| x${k.formatfaktor.toFixed(2)} | Zoom ${k.zoomEntsprechung.toFixed(1)}`,
-    `| Weiss ${Math.round(k.weissAnteilFenster * 100)}%`,
-    `| Bloecke zu ${k.netzLoecherZugefuellt} | lose ${k.weissLoseImNetz}`,
+    `| Netz ${Math.round(k.netzAnteilFenster * 100)}%`,
+    `| Bloecke zu ${k.netzLoecherZugefuellt} | lose ${k.loseNetzstuecke}`,
     `| Stege ${k.stencilStege} Inseln zu ${k.inselnZugefuellt}`,
-    `| Schwarz ${k.schwarzTeile}T | ${k.rechenzeitMs}ms`,
+    `| Hintergrund ${k.hintergrundTeile}T | ${k.rechenzeitMs}ms`,
   );
   for (const w of r.warnungen) console.log("           -", w);
 }

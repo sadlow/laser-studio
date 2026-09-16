@@ -57,15 +57,36 @@ export type LayoutArt = "poster" | "eingebettet";
 
 export type Anker = "oben-mitte" | "oben-links" | "oben-rechts" | "unten-mitte" | "unten-links" | "unten-rechts";
 
+/**
+ * rechteck: abgerundetes Rechteck, das wie ein Reiter am Rand haengt – ruhig.
+ * kontur:   folgt den Buchstaben. Bei Schreibschrift unruhig (Marcel 16.09.2026).
+ */
+export type TextForm = "rechteck" | "kontur";
+
 export interface EingebettetesLayout {
+  /** Zeilen mit demselben Anker bilden einen Block und stehen uebereinander. */
   titelAnker: Anker;
   zeile1Anker: Anker;
   zeile2Anker: Anker;
-  /** Breite der weissen Schutzkontur um jeden Text. */
+  form: TextForm;
+  /** Weiss um den Text: Innenabstand des Rechtecks bzw. Breite der Kontur. */
   schutzMm: number;
-  /** Unterer Rand, breiter als die anderen – dort sitzen die Ecktexte. */
+  eckenRadiusMm: number;
+  /** Unterer Rand, breiter als die anderen. */
   rahmenUntenMm: number;
 }
+
+/**
+ * Welche Farbe das Strassennetz hat. Beide Aufbauten sind gleich gebaut: eine
+ * Netz-Lage (Rahmen + Strassen als Material, die Bloecke fallen heraus) ueber
+ * einer Hintergrund-Lage (Wasser geschnitten, feine Wege graviert) ueber Blau.
+ *
+ * netz-weiss:   Netz weiss, Hintergrund schwarz. Die Texte sitzen im Netz.
+ * netz-schwarz: Netz schwarz, Hintergrund weiss – der Positiv-Look des Posters.
+ *               Darueber eine weisse Deckschicht nur mit Rahmen und Text
+ *               (Marcel 16.09.2026). Gravur auf Weiss sieht man kaum.
+ */
+export type Aufbau = "netz-weiss" | "netz-schwarz";
 
 export interface TextStil {
   /** Dateiname in ~/Library/Fonts oder /Library/Fonts. */
@@ -97,6 +118,7 @@ export interface Schichtkarte {
   /** Weisser Rahmen rundum, soll im Falz des Bilderrahmens verschwinden. */
   rahmenMm: number;
 
+  aufbau: Aufbau;
   layoutArt: LayoutArt;
   eingebettet: EingebettetesLayout;
 

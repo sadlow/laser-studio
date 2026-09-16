@@ -2,7 +2,7 @@
 
 import { FORMATE } from "@/engine/formate";
 import { standardLayoutFuer, TITELSCHRIFTEN, ZEILENSCHRIFTEN } from "@/engine/standard";
-import type { Anker, EingebettetesLayout, FormatKey, LayoutArt, Schichtkarte, TextStil } from "@/engine/typen";
+import type { Anker, Aufbau, EingebettetesLayout, FormatKey, LayoutArt, Schichtkarte, TextForm, TextStil } from "@/engine/typen";
 import { Anteil, Auswahl, Block, Zahl } from "./felder";
 
 interface Props {
@@ -18,6 +18,16 @@ const FORMAT_OPTIONEN = [
   { wert: "frei" as FormatKey, titel: "frei" },
 ];
 
+const FORM_OPTIONEN: { wert: TextForm; titel: string }[] = [
+  { wert: "rechteck", titel: "Abgerundetes Rechteck" },
+  { wert: "kontur", titel: "Kontur um die Buchstaben" },
+];
+
+const AUFBAU_OPTIONEN: { wert: Aufbau; titel: string }[] = [
+  { wert: "netz-weiss", titel: "Weisses Netz auf Schwarz (Gravur hell)" },
+  { wert: "netz-schwarz", titel: "Schwarzes Netz auf Weiss, weisse Deckschicht" },
+];
+
 const schriftOptionen = (liste: string[]) =>
   liste.map((datei) => ({ wert: datei, titel: datei.replace(/\.(otf|ttf)$/i, "") }));
 
@@ -28,6 +38,9 @@ export function EingabePlatte({ karte, aendern }: Props) {
       hinweis="A3 zeigt denselben Ausschnitt wie A5, nur groesser – wie beim Poster. Strassenbreiten und Schrift wachsen mit. Fest bleiben nur Rahmen (Falz des Bilderrahmens) und Stege."
     >
       <div className="grid grid-cols-2 gap-3">
+        <div className="col-span-2">
+          <Auswahl titel="Aufbau" wert={karte.aufbau} optionen={AUFBAU_OPTIONEN} aendern={(v) => aendern({ aufbau: v })} />
+        </div>
         <div className="col-span-2">
           {/* Das Format bringt sein Layout mit (Quadrat: eingebettet) – unten im
               Block "Layout" sichtbar und jederzeit umstellbar. */}
@@ -109,7 +122,11 @@ export function EingabeLayout({ karte, aendern }: Props) {
             <Auswahl titel="Titel" wert={e.titelAnker} optionen={ANKER_OPTIONEN} aendern={(v) => ein({ titelAnker: v })} />
             <Auswahl titel="Namen" wert={e.zeile1Anker} optionen={ANKER_OPTIONEN} aendern={(v) => ein({ zeile1Anker: v })} />
             <Auswahl titel="Letzte Zeile" wert={e.zeile2Anker} optionen={ANKER_OPTIONEN} aendern={(v) => ein({ zeile2Anker: v })} />
-            <Zahl titel="Schutzkontur" einheit="mm" schritt={0.5} min={0} wert={e.schutzMm} aendern={(v) => ein({ schutzMm: v })} />
+            <Auswahl titel="Form um den Text" wert={e.form} optionen={FORM_OPTIONEN} aendern={(v) => ein({ form: v })} />
+            <Zahl titel="Weiss um den Text" einheit="mm" schritt={0.5} min={0} wert={e.schutzMm} aendern={(v) => ein({ schutzMm: v })} />
+            {e.form === "rechteck" && (
+              <Zahl titel="Eckenradius" einheit="mm" schritt={0.5} min={0} wert={e.eckenRadiusMm} aendern={(v) => ein({ eckenRadiusMm: v })} />
+            )}
             <Zahl titel="Rahmen unten" einheit="mm" schritt={0.5} min={0} wert={e.rahmenUntenMm} aendern={(v) => ein({ rahmenUntenMm: v })} />
           </div>
         )}

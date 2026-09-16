@@ -15,8 +15,8 @@ async function main() {
     const k = r.kennzahlen;
     console.log(
       `${km} km`.padEnd(8),
-      `Zoom ${k.zoomEntsprechung.toFixed(1)} | Weiss ${Math.round(k.weissAnteilFenster * 100)}%`,
-      `| Bloecke zu ${k.netzLoecherZugefuellt} | lose Netzstuecke ${k.weissLoseImNetz} | Schwarz ${k.schwarzTeile}T`,
+      `Zoom ${k.zoomEntsprechung.toFixed(1)} | Netz ${Math.round(k.netzAnteilFenster * 100)}%`,
+      `| Bloecke zu ${k.netzLoecherZugefuellt} | lose Netzstuecke ${k.loseNetzstuecke} | Hintergrund ${k.hintergrundTeile}T`,
     );
   }
 }

@@ -1,11 +1,11 @@
+import { setzeEingebettet } from "./ecken";
 import { zoomEntsprechung } from "./geo";
 import { ladeKartenRohdaten } from "./kacheln";
-import { baueLagen } from "./lagen";
+import { baueBausteine } from "./lagen";
 import { berechneLayout } from "./layout";
-import { laserSvg, vorschauSvg } from "./svg";
-import { setzeEingebettet } from "./ecken";
+import { stapleLagen } from "./stapel";
 import { setzePosterText } from "./textblock";
-import { REFERENZ_KARTENBREITE_MM, type Lage, type Schichtkarte, type SchichtkartenErgebnis } from "./typen";
+import { REFERENZ_KARTENBREITE_MM, type Schichtkarte, type SchichtkartenErgebnis } from "./typen";
 
 export * from "./typen";
 export { FORMATE, masseAusFormat } from "./formate";
@@ -51,88 +51,47 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
   const textblock = k.layoutArt === "eingebettet" ? setzeEingebettet(k, layout) : setzePosterText(k, layout);
   warnungen.push(...textblock.warnungen);
 
-  const g = baueLagen(k, layout, roh, textblock);
+  const b = baueBausteine(k, layout, roh, textblock);
+  const s = stapleLagen(k, layout, b);
+  const netzFarbe = k.aufbau === "netz-schwarz" ? "schwarzen" : "weissen";
 
-  if (g.netz.anMindestbreite.length > 0) {
+  if (b.kennzahlen.netzAnMindestbreite.length > 0) {
     warnungen.push(
-      `Auf diesem Format waeren ${g.netz.anMindestbreite.join(", ")} schmaler als ${k.netzMinBreiteMm} mm ` +
+      `Auf diesem Format waeren ${b.kennzahlen.netzAnMindestbreite.join(", ")} schmaler als ${k.netzMinBreiteMm} mm ` +
         "und werden auf die Mindestbreite gehalten – sie wirken dadurch kraeftiger als auf A4.",
     );
   }
-  if (g.weissLose.imNetz > 0) {
+  if (s.loseNetzstuecke > 0) {
     warnungen.push(
-      `${g.weissLose.imNetz} Strassenstuecke haengen nicht am Netz und fallen lose heraus ` +
+      `${s.loseNetzstuecke} Strassenstuecke haengen nicht am ${netzFarbe} Netz und fallen lose heraus ` +
         "(orange markiert). Meist sind sie nur ueber eine gravierte Strasse angebunden.",
     );
   }
-  if (g.weissLose.imText > 0) {
-    warnungen.push(`${g.weissLose.imText} Innenflaechen im Text sind trotz Stegen lose.`);
+  if (s.loseTextteile > 0) {
+    warnungen.push(`${s.loseTextteile} Innenflaechen im Text sind trotz Stegen lose.`);
   }
-  if (g.stencil.ohneSteg > 0) {
-    warnungen.push(`${g.stencil.ohneSteg} Innenflaechen im Text haben keinen Steg bekommen.`);
+  if (b.kennzahlen.punzenOhneSteg > 0) {
+    warnungen.push(`${b.kennzahlen.punzenOhneSteg} Innenflaechen im Text haben keinen Steg bekommen.`);
   }
-  if (g.schwarz.length > 1) {
+  if (s.hintergrundTeile > 1) {
     warnungen.push(
-      `Die schwarze Lage zerfaellt durch das Wasser in ${g.schwarz.length} Teile – ` +
+      `Die Hintergrund-Lage zerfaellt durch das Wasser in ${s.hintergrundTeile} Teile – ` +
         "die muessen beim Verkleben einzeln ausgerichtet werden.",
     );
   }
 
-  const lagen: Lage[] = [
-    {
-      key: "herz",
-      titel: "Herz",
-      material: "Spiegelacryl rot",
-      teile: g.herz,
-      gravur: [],
-      laserSvg: laserSvg(layout, "Lage Herz – Spiegelacryl rot", g.herz),
-    },
-    {
-      key: "weiss",
-      titel: "Weiss",
-      material: "Acrylglas weiss",
-      teile: g.weiss,
-      gravur: [],
-      laserSvg: laserSvg(layout, "Lage Weiss – Acrylglas weiss", g.weiss),
-    },
-    {
-      key: "schwarz",
-      titel: "Schwarz",
-      material: "Acrylglas schwarz",
-      teile: g.schwarz,
-      gravur: g.gravur,
-      laserSvg: laserSvg(layout, "Lage Schwarz – Acrylglas schwarz", g.schwarz, g.gravur),
-    },
-    {
-      key: "blau",
-      titel: "Blau",
-      material: "Spiegelacryl blau",
-      teile: g.blau,
-      gravur: [],
-      laserSvg: laserSvg(layout, "Lage Blau – Spiegelacryl blau", g.blau),
-    },
-  ];
-
   return {
-    vorschauSvg: vorschauSvg(layout, g, k.loseTeileMarkieren),
-    lagen,
+    vorschauSvg: s.vorschauSvg,
+    lagen: s.lagen,
     layout,
     texte: textblock.texte,
     ausschnittMeter: roh.ausschnittMeter,
     kennzahlen: {
-      weissAnteilFenster: g.netz.weissAnteilFenster,
-      netzLoecherZugefuellt: g.netz.loecherZugefuellt,
-      netzAnMindestbreite: g.netz.anMindestbreite,
-      formatfaktor: g.netz.faktor,
+      ...b.kennzahlen,
       zoomEntsprechung: zoomEntsprechung(k.ausschnittKm * 1000, layout.kartenfenster.breiteMm, k.lat),
-      weissTeile: g.weiss.length,
-      weissLoseImNetz: g.weissLose.imNetz,
-      weissLoseImText: g.weissLose.imText,
-      schwarzTeile: g.schwarz.length,
-      stencilStege: g.stencil.anzahl,
-      punzenOhneSteg: g.stencil.ohneSteg,
-      inselnZugefuellt: g.stencil.zugefuellt,
-      wasserFlaechenGeschnitten: g.wasserFlaechen,
+      loseNetzstuecke: s.loseNetzstuecke,
+      loseTextteile: s.loseTextteile,
+      hintergrundTeile: s.hintergrundTeile,
       rechenzeitMs: Date.now() - start,
     },
     warnungen,

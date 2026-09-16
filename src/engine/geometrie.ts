@@ -89,6 +89,22 @@ export function versatz(flaeche: Flaeche, mm: number): Flaeche {
   return ergebnis;
 }
 
+/** Rechteck mit runden Ecken: erst um den Radius schrumpfen, dann rund aufweiten. */
+export function abgerundetesRechteck(x: number, y: number, breite: number, hoehe: number, radius: number): Flaeche {
+  const r = Math.max(0, Math.min(radius, breite / 2 - 0.01, hoehe / 2 - 0.01));
+  if (r <= 0) return rechteck(x, y, breite, hoehe);
+  return versatz(rechteck(x + r, y + r, breite - 2 * r, hoehe - 2 * r), r);
+}
+
+/**
+ * Schliessen: erst aufweiten, dann um dasselbe Mass zurueck. Innenecken und
+ * Kerben unter dem doppelten Radius werden rund gefuellt, Aussenformen bleiben.
+ */
+export function schliesse(flaeche: Flaeche, radius: number): Flaeche {
+  if (radius <= 0 || !flaeche.length) return flaeche;
+  return versatz(versatz(flaeche, radius), -radius);
+}
+
 /**
  * Zerlegt eine Flaeche in physische Teile: jede Aussenkontur mit ihren
  * Loechern ist ein Stueck Acryl. Das ist die Zahl, die in der Werkstatt zaehlt.
@@ -141,6 +157,17 @@ export function ziehLinienAb(linien: Punkt[][], flaeche: Flaeche): Punkt[][] {
   const baum = new ClipperLib.PolyTree();
   c.Execute(ClipperLib.ClipType.ctDifference, baum, NONZERO, NONZERO);
   return ClipperLib.Clipper.OpenPathsFromPolyTree(baum).map(vonPfad);
+}
+
+/** Mittelwert der Aussenkontur – reicht, um ein Teil einem Bereich zuzuordnen. */
+export function schwerpunkt(t: Teil): Punkt {
+  let x = 0;
+  let y = 0;
+  for (const p of t.aussen) {
+    x += p.x;
+    y += p.y;
+  }
+  return { x: x / t.aussen.length, y: y / t.aussen.length };
 }
 
 /** Liegt der Punkt in der Flaeche? */
