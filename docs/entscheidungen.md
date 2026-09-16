@@ -179,10 +179,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Lose Netzstuecke werden graviert statt geschnitten** (Marcel: "meist nur
   Artefakte", 1-13 mm2, angebunden nur ueber Fussweg, Treppe oder Tunnel). Stege
   zu nahen Stuecken waeren die Alternative, bisher nicht gebaut.
-- **Textreiter zaehlen zur Landflaeche** – die Strassen darunter stecken in den
-  Laengen. Sonst Quadrat 38 statt 33 %.
-- Das Bild wird in Megastaedten lichter als in Berlin (Tokio 15, New York 13 %
-  Netz): die Deckung zaehlt parallele Fahrbahnen und Hochstrassen doppelt.
+- **Textreiter zaehlen zur Landflaeche** (sonst Quadrat 38 statt 33 %). Megastaedte
+  wirken lichter (Tokio 15 % Netz): parallele Fahrbahnen zaehlen doppelt.
 - **Vorlagen werden beim Laden mit Standardwerten aufgefuellt** (neue Parameter).
 
 ## Prototyp-Platten (`src/server/bogen.ts`)
