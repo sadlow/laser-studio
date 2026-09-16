@@ -3,13 +3,20 @@ import { ladeKartenRohdaten } from "./kacheln";
 import { baueLagen } from "./lagen";
 import { berechneLayout } from "./layout";
 import { laserSvg, vorschauSvg } from "./svg";
-import { setzeTextblock } from "./textblock";
+import { setzeEingebettet } from "./ecken";
+import { setzePosterText } from "./textblock";
 import { REFERENZ_KARTENBREITE_MM, type Lage, type Schichtkarte, type SchichtkartenErgebnis } from "./typen";
 
 export * from "./typen";
 export { FORMATE, masseAusFormat } from "./formate";
 export { berechneLayout } from "./layout";
-export { standardSchichtkarte, STRASSEN_STANDARD, TITELSCHRIFTEN, ZEILENSCHRIFTEN } from "./standard";
+export {
+  standardLayoutFuer,
+  standardSchichtkarte,
+  STRASSEN_STANDARD,
+  TITELSCHRIFTEN,
+  ZEILENSCHRIFTEN,
+} from "./standard";
 
 /**
  * Der einzige Einstieg: Produktparameter rein, Vorschau und je Lage eine
@@ -41,10 +48,10 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
     token,
   });
 
-  const textblock = setzeTextblock(k, layout);
+  const textblock = k.layoutArt === "eingebettet" ? setzeEingebettet(k, layout) : setzePosterText(k, layout);
   warnungen.push(...textblock.warnungen);
 
-  const g = baueLagen(k, layout, roh, textblock.zeilen);
+  const g = baueLagen(k, layout, roh, textblock);
 
   if (g.netz.anMindestbreite.length > 0) {
     warnungen.push(

@@ -2,7 +2,7 @@
 // Aufruf: npx tsx scripts/formatvergleich.ts [zielordner]
 import fs from "node:fs";
 import path from "node:path";
-import { rendereSchichtkarte, standardSchichtkarte, type FormatKey } from "../src/engine";
+import { rendereSchichtkarte, standardLayoutFuer, standardSchichtkarte, type FormatKey } from "../src/engine";
 
 const ziel = process.argv[2] ?? "export/formatvergleich";
 fs.mkdirSync(ziel, { recursive: true });
@@ -10,7 +10,7 @@ const token = fs.readFileSync(".env.local", "utf8").match(/MAPBOX_ACCESS_TOKEN=(
 
 async function main() {
 for (const format of ["a5", "a4", "a3", "quadrat30"] as FormatKey[]) {
-  const karte = { ...standardSchichtkarte(), format };
+  const karte = { ...standardSchichtkarte(), format, layoutArt: standardLayoutFuer(format) };
   const r = await rendereSchichtkarte(karte, token);
   fs.writeFileSync(path.join(ziel, `${format}.svg`), r.vorschauSvg);
   for (const l of r.lagen) fs.writeFileSync(path.join(ziel, `${format}-${l.key}.svg`), l.laserSvg);

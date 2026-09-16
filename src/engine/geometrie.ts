@@ -123,6 +123,32 @@ export function teile(flaeche: Flaeche, minFlaecheMm2 = 0.05): Teil[] {
   return ergebnis.sort((a, b) => b.flaecheMm2 - a.flaecheMm2);
 }
 
+/** Nur die Aussenkonturen – Loecher werden geschlossen. */
+export function ohneLoecher(flaeche: Flaeche, minFlaecheMm2 = 0.05): Flaeche {
+  return vereinige(teile(flaeche, minFlaecheMm2).map((t) => zuPfad(t.aussen)));
+}
+
+/**
+ * Linien, soweit sie ausserhalb der Flaeche liegen. Gebraucht fuer die Gravur:
+ * unter einer weissen Schutzkontur ist sie unsichtbar, in den ausgeschnittenen
+ * Buchstaben aber schon – dort stoerten helle Striche im Schwarz.
+ */
+export function ziehLinienAb(linien: Punkt[][], flaeche: Flaeche): Punkt[][] {
+  if (!flaeche.length || !linien.length) return linien;
+  const c = new ClipperLib.Clipper();
+  c.AddPaths(linien.filter((l) => l.length >= 2).map(zuPfad), ClipperLib.PolyType.ptSubject, false);
+  c.AddPaths(flaeche, ClipperLib.PolyType.ptClip, true);
+  const baum = new ClipperLib.PolyTree();
+  c.Execute(ClipperLib.ClipType.ctDifference, baum, NONZERO, NONZERO);
+  return ClipperLib.Clipper.OpenPathsFromPolyTree(baum).map(vonPfad);
+}
+
+/** Liegt der Punkt in der Flaeche? */
+export function enthaelt(flaeche: Flaeche, p: Punkt): boolean {
+  if (!flaeche.length) return false;
+  return schneide(rechteck(p.x - 0.01, p.y - 0.01, 0.02, 0.02), flaeche).length > 0;
+}
+
 /** Teile zurueck in eine Flaeche. */
 export function ausTeilen(t: Teil[]): Flaeche {
   const ringe: ClipperLib.Paths = [];

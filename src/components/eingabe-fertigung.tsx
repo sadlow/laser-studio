@@ -77,11 +77,11 @@ export function EingabeFertigung({ karte, aendern }: Props) {
   return (
     <Block
       titel="Fertigung"
-      hinweis="Innenflaechen, die kaum breiter als der Steg sind, werden zugefuellt – daneben bliebe nichts stehen. Aus dem ° wird ein Punkt. Bei A4 gemessen: ° 0,97 mm, obere 8 1,07, A 1,16, Titel-Schleifen ab 2,66 mm."
+      hinweis="Stege sitzen am hoechsten und tiefsten Punkt jeder Innenflaeche und sind nie breiter als der halbe Schriftstrich (mindestens 0,3 mm). Zu schmale Innenflaechen werden zugefuellt – aus dem ° wird ein Punkt. Bei A4 gemessen: ° 0,97 mm, A 1,16, Titel-Schleifen ab 2,66 mm."
     >
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
-          <Zahl titel="Stencil-Steg" einheit="mm" schritt={0.1} min={0} wert={karte.stegMm} aendern={(v) => aendern({ stegMm: v })} />
+          <Zahl titel="Steg hoechstens" einheit="mm" schritt={0.05} min={0} wert={karte.stegMm} aendern={(v) => aendern({ stegMm: v })} />
           <Zahl
             titel="Zufuellen schmaler als"
             einheit="mm"

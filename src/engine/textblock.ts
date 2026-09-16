@@ -1,37 +1,14 @@
-import { gms } from "./geo";
-import { flaecheMm2, schneide, vereinige, zuFlaeche, type Flaeche } from "./geometrie";
+import { rechteck, vereinige, ziehAb, zuFlaeche } from "./geometrie";
 import { setzeZeile } from "./schrift";
 import type { Layout, Schichtkarte, TextStil } from "./typen";
-
-export interface Textblock {
-  /** Je Zeile getrennt – die Stencil-Grenze haengt an der Schriftgroesse der Zeile. */
-  zeilen: { name: string; flaeche: Flaeche; versalhoeheMm: number }[];
-  texte: { titel: string; zeile1: string; zeile2: string };
-  warnungen: string[];
-}
-
-/** Die drei Zeilen so, wie sie auf dem Poster stehen. */
-export function zeilenAusEingabe(k: Schichtkarte) {
-  const zeile2 =
-    k.kunde.letzteZeile === "koordinaten"
-      ? [k.kunde.ortText.trim(), gms(k.lat, "breite"), gms(k.lon, "laenge")].filter(Boolean).join(" ")
-      : k.kunde.wunschtext.trim();
-  return {
-    titel: stil(k.kunde.titel.trim(), k.titelStil),
-    zeile1: stil(k.kunde.namen.trim(), k.zeilenStil),
-    zeile2: stil(zeile2, k.zeilenStil),
-  };
-}
-
-function stil(text: string, s: TextStil) {
-  return s.versalien ? text.toLocaleUpperCase("de-DE") : text;
-}
+import { pruefeBeruehrungen, zeilenAusEingabe, type Textblock } from "./zeilen";
 
 /**
- * Setzt Titel und beide Zeilen als eine Flaeche – das, was aus der weissen
- * Lage ausgeschnitten wird. Die Stencil-Stege kommen spaeter dazu.
+ * Poster-Layout: Titel und beide Zeilen untereinander im Textfeld unter der
+ * Karte, positioniert ueber die Versalhoehen-Mitte – so bleibt die Grundlinie
+ * gleich, egal welchen Text der Kunde eingibt.
  */
-export function setzeTextblock(k: Schichtkarte, layout: Layout): Textblock {
+export function setzePosterText(k: Schichtkarte, layout: Layout): Textblock {
   const { platte, kartenfenster } = layout;
   const warnungen: string[] = [];
   const texte = zeilenAusEingabe(k);
@@ -76,20 +53,12 @@ export function setzeTextblock(k: Schichtkarte, layout: Layout): Textblock {
     }
   }
 
-  // Beruehren sich zwei Zeilen, verschmelzen ihre Ausschnitte zu einem Loch.
-  // Ob das passiert, haengt am Kundentext: der Schwung eines Z reicht weiter
-  // hinunter als der eines H. Darum pruefen statt nur gut positionieren.
-  for (let i = 0; i < gesetzt.length; i++) {
-    for (let j = i + 1; j < gesetzt.length; j++) {
-      const beruehrung = flaecheMm2(schneide(gesetzt[i].flaeche, gesetzt[j].flaeche));
-      if (beruehrung > 0.01) {
-        warnungen.push(
-          `${gesetzt[i].name} und ${gesetzt[j].name} beruehren sich (${beruehrung.toFixed(1)} mm²) – ` +
-            "die Ausschnitte verschmelzen. Zeilen auseinanderschieben.",
-        );
-      }
-    }
-  }
+  pruefeBeruehrungen(gesetzt, warnungen);
 
-  return { zeilen: gesetzt, texte, warnungen };
+  const f = kartenfenster;
+  const textBereich = ziehAb(
+    rechteck(0, 0, platte.breiteMm, platte.hoeheMm),
+    rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm),
+  );
+  return { zeilen: gesetzt, texte, schutz: [], textBereich, warnungen };
 }

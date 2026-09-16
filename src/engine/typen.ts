@@ -9,8 +9,6 @@
 // Alles, was das Produkt beschreibt, steht hier. Die UI ist ein Formular auf
 // diese Typen, die Produktion ruft dieselbe Funktion auf. Kein React, kein Next.
 
-import type { Punkt } from "./clip";
-
 export type FormatKey = "a5" | "a4" | "a3" | "quadrat30" | "frei";
 
 /** Wohin eine Strassenklasse gehoert. */
@@ -49,6 +47,26 @@ export interface Kundeneingabe {
   wunschtext: string;
 }
 
+/**
+ * poster:      Karte oben, Textfeld darunter – wie das Amazon-Poster "Zuhause".
+ * eingebettet: Karte ueber die ganze Platte, die Texte liegen in der Karte auf
+ *              einer weissen Schutzkontur, die ins Netz und den Rahmen uebergeht.
+ *              Entworfen fuer das Quadrat (Marcel 16.09.2026).
+ */
+export type LayoutArt = "poster" | "eingebettet";
+
+export type Anker = "oben-mitte" | "oben-links" | "oben-rechts" | "unten-mitte" | "unten-links" | "unten-rechts";
+
+export interface EingebettetesLayout {
+  titelAnker: Anker;
+  zeile1Anker: Anker;
+  zeile2Anker: Anker;
+  /** Breite der weissen Schutzkontur um jeden Text. */
+  schutzMm: number;
+  /** Unterer Rand, breiter als die anderen – dort sitzen die Ecktexte. */
+  rahmenUntenMm: number;
+}
+
 export interface TextStil {
   /** Dateiname in ~/Library/Fonts oder /Library/Fonts. */
   schrift: string;
@@ -79,6 +97,10 @@ export interface Schichtkarte {
   /** Weisser Rahmen rundum, soll im Falz des Bilderrahmens verschwinden. */
   rahmenMm: number;
 
+  layoutArt: LayoutArt;
+  eingebettet: EingebettetesLayout;
+
+  // --- nur layoutArt "poster" ---
   /** Unterkante des Kartenfensters als Anteil der Plattenhoehe. */
   kartenEndeAnteil: number;
   /** Mittellinien der drei Textzeilen als Anteil der Plattenhoehe. */
@@ -106,7 +128,10 @@ export interface Schichtkarte {
   /** Kleinere Wasserflaechen werden nicht geschnitten – nicht montierbar. */
   wasserMinFlaecheMm2: number;
 
-  /** Breite der Stencil-Stege, die freiliegende Innenflaechen im Text halten. */
+  /**
+   * Hoechstbreite der Stencil-Stege. Tatsaechlich nie breiter als der halbe
+   * Schriftstrich an der Stelle und nie unter 0,3 mm.
+   */
   stegMm: number;
   /**
    * Schmalere Innenflaechen bekommen keine Stege, sondern werden zugefuellt –
@@ -123,63 +148,4 @@ export interface Schichtkarte {
   loseTeileMarkieren: boolean;
 }
 
-export interface Zone {
-  xMm: number;
-  yMm: number;
-  breiteMm: number;
-  hoeheMm: number;
-}
-
-export interface Layout {
-  platte: Zone;
-  kartenfenster: Zone;
-}
-
-/** Ein physisches Teil: Aussenkontur mit Loechern, alles in mm. */
-export interface Teil {
-  aussen: Punkt[];
-  loecher: Punkt[][];
-  flaecheMm2: number;
-}
-
-export type LagenKey = "herz" | "weiss" | "schwarz" | "blau";
-
-export interface Lage {
-  key: LagenKey;
-  titel: string;
-  material: string;
-  teile: Teil[];
-  /** Nur Schwarz: feine Wege als Linien (mm) mit Strichbreite. */
-  gravur: { linien: Punkt[][]; breiteMm: number }[];
-  /** SVG fuer den Laser: Schnitt rot, Gravur schwarz, Einheit mm. */
-  laserSvg: string;
-}
-
-export interface Kennzahlen {
-  /** Wieviel vom Kartenfenster ist weisses Netz – das Mass fuer "zu dicht". */
-  weissAnteilFenster: number;
-  netzLoecherZugefuellt: number;
-  /** Strassengruppen, deren Breite durch das Format unter die Mindestbreite fiele. */
-  netzAnMindestbreite: string[];
-  formatfaktor: number;
-  zoomEntsprechung: number;
-  weissTeile: number;
-  weissLoseImNetz: number;
-  weissLoseImText: number;
-  schwarzTeile: number;
-  stencilStege: number;
-  punzenOhneSteg: number;
-  inselnZugefuellt: number;
-  wasserFlaechenGeschnitten: number;
-  rechenzeitMs: number;
-}
-
-export interface SchichtkartenErgebnis {
-  vorschauSvg: string;
-  lagen: Lage[];
-  layout: Layout;
-  texte: { titel: string; zeile1: string; zeile2: string };
-  ausschnittMeter: { breite: number; hoehe: number };
-  kennzahlen: Kennzahlen;
-  warnungen: string[];
-}
+export * from "./typen-ergebnis";

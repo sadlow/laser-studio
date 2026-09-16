@@ -13,6 +13,21 @@ import type { Layout, Schichtkarte } from "./typen";
 export function berechneLayout(k: Schichtkarte): Layout {
   const { breiteMm, hoeheMm } = masseAusFormat(k.format, k.breiteMm, k.hoeheMm);
   const rahmen = Math.max(0, k.rahmenMm);
+
+  // Eingebettet: die Karte fuellt alles innerhalb des Rahmens, unten breiter.
+  if (k.layoutArt === "eingebettet") {
+    const unten = Math.max(rahmen, k.eingebettet.rahmenUntenMm);
+    return {
+      platte: { xMm: 0, yMm: 0, breiteMm, hoeheMm },
+      kartenfenster: {
+        xMm: rahmen,
+        yMm: rahmen,
+        breiteMm: Math.max(1, breiteMm - 2 * rahmen),
+        hoeheMm: Math.max(1, hoeheMm - rahmen - unten),
+      },
+    };
+  }
+
   const kartenEnde = Math.max(rahmen + 10, Math.min(hoeheMm - rahmen, hoeheMm * k.kartenEndeAnteil));
 
   return {

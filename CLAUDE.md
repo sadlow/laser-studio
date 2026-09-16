@@ -36,9 +36,10 @@ Produktion unbemerkt auseinander.
   Gravur (`scripts/ausschnittvergleich.ts`).
 - **Tunnel nie, Bruecken immer.** In echten Kacheln gemessen (Berlin-Tiergarten:
   21 Tunnelstuecke). Bruecken halten das Netz ueber dem Wasser zusammen.
-- **Stencil-Stege 0,7 mm**, wie die Spardosen-Stege im Bulk-Script: halten nur
-  bis zum Verkleben. Steg-Laenge am Strich gemessen, nie ueber den Buchstaben
-  hinaus.
+- **Stencil-Stege am hoechsten und tiefsten Punkt jeder Innenflaeche**, hoechstens
+  0,5 mm und nie breiter als der halbe Strich (Regel aus dem Direktsatz,
+  `STEG_ANTEIL_STRICH`), mindestens 0,3 mm. 0,7 mm wirkte bei Demi (Strich
+  0,93 mm) wie eine Luecke. Laenge am Strich gemessen, nie ueber den Buchstaben.
 - **Innenflaechen unter 1,0 mm Breite werden zugefuellt** – neben dem senkrechten
   Steg bliebe nichts stehen. Zwei Irrwege davor: eine mm²-Grenze (zerteilte auf
   A3 das Gradzeichen) und ein Anteil der Versalhoehe (machte die Schleifen der
@@ -52,6 +53,12 @@ Produktion unbemerkt auseinander.
 - **Titel Bacalisties bei 7 %, Mitte 74,3 %.** Die Versalien schwingen
   gleichmaessig 9,7-10,1 % unter die Mitte. Beruehren sich Zeilen, meldet die
   Engine es – das haengt am Kundentext.
+- **Quadrat = eingebettetes Layout** (`ecken.ts`, `standardLayoutFuer`). Karte
+  ueber die ganze Platte, Texte an Ankern (Titel oben, Namen unten links,
+  Koordinaten unten rechts), je 5 mm weisse Schutzkontur, die in Rahmen und Netz
+  uebergeht (1 mm Ueberlappung, geglaettet, ohne Loecher). Unten 14 mm Rand.
+  Positioniert nach Umriss, nicht Grundlinie. Unter der Kontur kein Wasser, keine
+  Gravur – sonst helle Striche in den Buchstaben und keine Klebeflaeche.
 - **opentype.js ist gepatcht** (`patches/`, `postinstall`): CFF-Encoding mit
   Zusatzbit (Format 129) warf einen Fehler, betroffen AvantGardeCE-Demi.otf.
 
@@ -68,13 +75,13 @@ cp .env.example .env.local   # MAPBOX_ACCESS_TOKEN wie in shared/config-local.js
 npm install && npm run dev   # http://localhost:3010
 ```
 
-Pruefskripte: `npx tsx scripts/formatvergleich.ts`, `ausschnittvergleich.ts`,
+Pruefskripte: `npx tsx scripts/formatvergleich.ts`, `quadrat-varianten.ts`, `ausschnittvergleich.ts`,
 `strichstaerke.ts`, `inseln-titel.ts`, `titel-lage.ts`.
 
 ## Offen
 
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
-- Quadrat 30x30 braucht eigene Layout-Anteile (Fenster wird mit A-Werten quer)
+- Quadrat: Titel oben haengt nur am Schwung des Z am Rand; Titel unten verschmilzt mit den Ecken
 - Standort-Bestaetigung: "Luebeck" fand Luebecker Strasse in Koeln
 - Herz-Auflage: liegt teils auf Weiss, teils eine Lage tiefer auf Schwarz
 - Materialstaerken, Aufbauhoehe vs. Falztiefe des Bilderrahmens

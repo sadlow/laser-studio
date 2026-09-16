@@ -1,6 +1,7 @@
 import { clipPolyline, type Punkt } from "./clip";
 import {
   ausTeilen,
+  enthaelt,
   flaecheMm2,
   puffereLinien,
   rechteck,
@@ -8,6 +9,7 @@ import {
   teile,
   vereinige,
   ziehAb,
+  ziehLinienAb,
   zuFlaeche,
   type Flaeche,
 } from "./geometrie";
@@ -15,6 +17,7 @@ import { herzRing } from "./herz";
 import type { KartenRohdaten } from "./kacheln";
 import { stencilStege } from "./stencil";
 import { REFERENZ_KARTENBREITE_MM, type Layout, type Schichtkarte, type Teil } from "./typen";
+import type { Textblock } from "./zeilen";
 
 export interface Lagengeometrie {
   herz: Teil[];
@@ -32,15 +35,12 @@ export interface Lagengeometrie {
 // Unterhalb dieser Flaeche ist es ein Rechenrest, kein Acrylteil.
 const SPLITTER_MM2 = 0.3;
 
-export function baueLagen(
-  k: Schichtkarte,
-  layout: Layout,
-  roh: KartenRohdaten,
-  textzeilen: { name: string; flaeche: Flaeche; versalhoeheMm: number }[],
-): Lagengeometrie {
+export function baueLagen(k: Schichtkarte, layout: Layout, roh: KartenRohdaten, text: Textblock): Lagengeometrie {
   const { platte, kartenfenster: f } = layout;
   const plattenFl = rechteck(0, 0, platte.breiteMm, platte.hoeheMm);
   const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
+  // Weisse Schutzkontur um Texte in der Karte (eingebettetes Layout, sonst leer).
+  const schutz = schneide(text.schutz, fensterFl);
 
   // --- Strassen: Netz (weisser Acrylstreifen) oder Gravur (heller Strich auf Schwarz).
   // Die Breiten gelten fuer A4 und wachsen mit dem Format – sonst saehe A3 filigran
@@ -61,28 +61,36 @@ export function baueLagen(
       const exakt = linien.flatMap((l) =>
         clipPolyline(l, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm),
       );
-      gravur.push({ linien: exakt, breiteMm: Math.max(0.15, gruppe.breiteMm * faktor) });
+      // Unter der Schutzkontur sieht man die Gravur nicht – in den ausgeschnittenen
+      // Buchstaben aber schon, als helle Striche im Schwarz. Darum dort weg.
+      gravur.push({
+        linien: ziehLinienAb(exakt, schutz),
+        breiteMm: Math.max(0.15, gruppe.breiteMm * faktor),
+      });
     }
   }
-  let netz = schneide(vereinige(...netzTeile), fensterFl);
+  const netz = vereinige(schneide(vereinige(...netzTeile), fensterFl), schutz);
 
   // Kleine Bloecke zwischen den Strassen bleiben weiss. Beim Schneiden fiele
   // dort ein Splitter heraus, der haengen bleibt oder verbrennt – dieselbe
-  // Ueberlegung wie bei den zugefuellten Innenflaechen im Text.
+  // Ueberlegung wie bei den zugefuellten Innenflaechen im Text. Die Schutzkontur
+  // zaehlt mit: ein schmaler Rest zwischen ihr und einer Strasse ist genauso einer.
   const kleineBloecke = teile(ziehAb(fensterFl, netz), SPLITTER_MM2).filter(
     (b) => b.flaecheMm2 < k.netzMinLochMm2,
   );
-  if (kleineBloecke.length) netz = vereinige(netz, ausTeilen(kleineBloecke));
-  const weissAnteilFenster = flaecheMm2(netz) / (f.breiteMm * f.hoeheMm);
+  const weissImFenster = kleineBloecke.length ? vereinige(netz, ausTeilen(kleineBloecke)) : netz;
+  // Dichte des Netzes ohne die Textflaechen – die sagen nichts ueber "zu dicht".
+  const ohneSchutz = ziehAb(fensterFl, schutz);
+  const weissAnteilFenster = flaecheMm2(schneide(weissImFenster, ohneSchutz)) / Math.max(1, flaecheMm2(ohneSchutz));
 
-  // --- Weiss: alles ausserhalb des Fensters bleibt stehen, im Fenster nur das Netz.
-  // Die Woerter werden ausgeschnitten, ihre Innenflaechen haengen an Stegen.
-  const weissBasis = vereinige(ziehAb(plattenFl, fensterFl), netz);
+  // --- Weiss: alles ausserhalb des Fensters bleibt stehen, im Fenster Netz und
+  // Schutzkonturen. Die Woerter werden ausgeschnitten, Innenflaechen an Stegen.
+  const weissBasis = vereinige(ziehAb(plattenFl, fensterFl), weissImFenster);
 
   // Stege je Zeile, damit die Strahlen einer Zeile nie an einer anderen enden.
   const ausschnitte: Flaeche[] = [];
   const st = { anzahl: 0, ohneSteg: 0, zugefuelltAnzahl: 0 };
-  for (const zeile of textzeilen) {
+  for (const zeile of text.zeilen) {
     const z = stencilStege(zeile.flaeche, k.stegMm, k.stencilMinInselBreiteMm);
     ausschnitte.push(ziehAb(vereinige(zeile.flaeche, z.zugefuellt), z.stege));
     st.anzahl += z.anzahl;
@@ -92,12 +100,11 @@ export function baueLagen(
   const weiss = teile(ziehAb(weissBasis, vereinige(...ausschnitte)), SPLITTER_MM2);
 
   // Das groesste Teil ist Rahmen + Netz + Textflaeche. Alles andere ist lose.
-  const unterkanteFenster = f.yMm + f.hoeheMm;
   let imNetz = 0;
   let imText = 0;
   for (const t of weiss.slice(1)) {
-    if (schwerpunktY(t) < unterkanteFenster) imNetz++;
-    else imText++;
+    if (enthaelt(text.textBereich, schwerpunkt(t))) imText++;
+    else imNetz++;
   }
 
   // --- Schwarz: durchgehend, nur das Wasser wird geschnitten.
@@ -110,7 +117,9 @@ export function baueLagen(
     );
     // Ein Teich von 3 mm2 ist ein Loch, das niemand bemerkt, aber jemand
     // sauber machen muss. Unter der Grenze bleibt das Schwarz geschlossen.
-    const behalten = teile(schneide(roheFlaeche, fensterFl), SPLITTER_MM2).filter(
+    // Unter einer Schutzkontur ebenso: dort ist es unsichtbar, und die weisse
+    // Flaeche braucht darunter Schwarz zum Aufkleben.
+    const behalten = teile(ziehAb(schneide(roheFlaeche, fensterFl), schutz), SPLITTER_MM2).filter(
       (t) => t.flaecheMm2 >= k.wasserMinFlaecheMm2,
     );
     wasserFlaechen = behalten.length;
@@ -137,8 +146,12 @@ export function baueLagen(
   };
 }
 
-function schwerpunktY(t: Teil): number {
-  let summe = 0;
-  for (const p of t.aussen) summe += p.y;
-  return summe / t.aussen.length;
+function schwerpunkt(t: Teil): Punkt {
+  let x = 0;
+  let y = 0;
+  for (const p of t.aussen) {
+    x += p.x;
+    y += p.y;
+  }
+  return { x: x / t.aussen.length, y: y / t.aussen.length };
 }

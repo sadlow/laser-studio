@@ -48,6 +48,16 @@ export function standardSchichtkarte(): Schichtkarte {
     ausschnittKm: 3.5,
     format: "a4",
     rahmenMm: 7,
+    layoutArt: "poster",
+    // Quadrat-Entwurf Marcel 16.09.2026: Titel oben am Rand, Namen links unten,
+    // Koordinaten rechts unten, je mit 5 mm Schutzkontur; unterer Rand breiter.
+    eingebettet: {
+      titelAnker: "oben-mitte",
+      zeile1Anker: "unten-links",
+      zeile2Anker: "unten-rechts",
+      schutzMm: 5,
+      rahmenUntenMm: 14,
+    },
     kartenEndeAnteil: 0.68,
     // Bacalisties-Versalien schwingen gleichmaessig 9,7-10,1 % unter die
     // Versalhoehen-Mitte (gemessen: Zuhause, Home, Unser Nest, Familie). Bei
@@ -65,14 +75,25 @@ export function standardSchichtkarte(): Schichtkarte {
     wasserlaeufe: false,
     wasserlaufBreiteMm: 1.2,
     wasserMinFlaecheMm2: 6,
-    // "Super fein": 0,7 mm wie die Spardosen-Stege im Bulk-Script – auch dort
-    // halten sie nur, bis das Teil verklebt ist, danach traegt der Kleber.
-    stegMm: 0.7,
-    // Steg 0,7 mm plus je 0,15 mm, die links und rechts stehen bleiben muessen.
+    // "Super fein": hoechstens 0,5 mm und nie breiter als der halbe Strich.
+    // 0,7 mm (wie die Spardosen-Stege) wirkte bei Avant Garde Demi zu dick –
+    // der Strich ist dort bei A4 selbst nur 0,93 mm.
+    stegMm: 0.5,
+    // Darunter bliebe neben dem Steg kaum sichtbares Material. Gemessen bei A4:
+    // Gradzeichen 0,97 mm (wird Punkt), obere 8 1,07, A 1,16 (bekommen Stege).
     stencilMinInselBreiteMm: 1.0,
     herzBreiteMm: 11,
     loseTeileMarkieren: true,
   };
+}
+
+/**
+ * Welches Layout ein Format mitbringt. Die Poster-Anteile sind am A-Seiten-
+ * verhaeltnis vermessen – auf dem Quadrat liegt das Kartenfenster damit quer
+ * und der Textbereich wird gross. Darum dort das eingebettete Layout.
+ */
+export function standardLayoutFuer(format: Schichtkarte["format"]): Schichtkarte["layoutArt"] {
+  return format === "quadrat30" ? "eingebettet" : "poster";
 }
 
 /** Schriften zur Auswahl. */
