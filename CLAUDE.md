@@ -31,7 +31,8 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 | `wasser.ts` | Wasser im Fenster, schmale Kanaele und kleine Inseln raus |
 | `lagen.ts` | Bausteine: Netz, Wasser, Textausschnitt, Gravur, Herz |
 | `stapel.ts` | Lagen je Aufbau (weisses oder schwarzes Netz) + Vorschau |
-| `produktion.ts` | Exportdatei: Ebenen 1 Gravur / 2 Schnitt innen / 3 Schnitt aussen |
+| `produktion.ts`, `gravur-export.ts` | Exportdatei: Ebenen 1 Gravur / 2 Schnitt innen / 3 Schnitt aussen; Gravur als Flaeche, Mittellinie oder Kontur |
+| `zeichen.ts` | Hoechstlaengen der Kundentexte (Titel 20, Zeilen 30), ohne Kartenabhaengigkeit |
 | `geometrie.ts` | Clipper-Wrapper in mm |
 
 Server (`src/server/`): `vorlagen.ts` (JSON lesen/schreiben), `export.ts`
@@ -44,7 +45,8 @@ Alle mit Messwert in **`docs/entscheidungen.md`** – vor Aenderungen an Breiten
 Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Ausschnitt in km, Strassen wachsen mit dem Format; Mindestbreite Netz 0,8 mm
 - Stege am Scheitel, hoechstens 0,5 mm und halber Strich; Inseln < 0,8 mm zu
-- Gravur als Flaeche nur im Export; nie unter Netz, Text oder Wasser
+- Gravur im Export waehlbar: Flaeche, Mittellinie (Breite ueber Defokus), Kontur; nie unter Netz, Text oder Wasser
+- Titel hoechstens 20 Zeichen, jede Zeile darunter 30 – bei Ort + Koordinaten zaehlen die Koordinaten mit
 - Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 42/33/26 %)
 - Lose Netzstuecke graviert; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
 - Symbol auf Hintergrund geklebt (Gravurmarke), Ausschnitt im Netz, steht 1 mm vor; Acryl 2, Spiegel 3 mm
@@ -80,7 +82,7 @@ npm install && npm run dev   # http://localhost:3010
 - Holzrahmen: was haelt den Stapel an der Lippe? Hinter 7 mm (9 mm vierlagig) bleiben 15 (13) mm Falz frei
 - Lesbarkeit der Zeilen schraeg: 0,5-mm-Schlitz in 2 mm zeigt Schwarz nur bis 14°; am Prototyp Book vs. Demi
 - Megastaedte wirken lichter als Berlin (Tokio 15 % Netz): Deckung zaehlt Hochstrassen doppelt
-- Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten, Symbol-Passung
+- Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten, Symbol-Passung; Gravur als Linie (Strahlbreite mit Defokus messen)
 
 ## Umfeld
 
