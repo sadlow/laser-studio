@@ -6,6 +6,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import type { SchichtkartenErgebnis } from "@/engine/typen";
 import { Leiste3D, SEITEN, seitenZahl, type Seiten } from "./ansicht-3d-leiste";
+import { aufnahmeParameter } from "./aufnahme-3d";
 import { baueKulisse } from "./kulisse-3d";
 import { MOTIV_TITEL, motivAnwenden, motivMoeglich, type Motiv } from "./motive-3d";
 import { baueSzene, entsorgen, stapeln, type Stapel } from "./szene-3d";
@@ -32,6 +33,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
   });
   const [seiten, setSeiten] = useState<Seiten>(() => ((SEITEN as readonly string[]).includes(url.get("seiten") ?? "") ? (url.get("seiten") as Seiten) : "4:3"));
   const vollbild = url.get("vollbild") === "1";
+  const aufnahme = useMemo(() => aufnahmeParameter(url), [url]);
   const [baut, setBaut] = useState(true);
   const motive = useMemo(() => (Object.keys(MOTIV_TITEL) as Motiv[]).filter((m) => motivMoeglich(m, ergebnis)), [ergebnis]);
   const aktiv = motive.includes(motiv) ? motiv : "frei";
@@ -81,7 +83,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
     licht.shadow.bias = -0.0004;
     licht.shadow.normalBias = 0.3;
     szene.add(licht, licht.target, new THREE.HemisphereLight(0xffffff, 0xd8d4ca, 0.6));
-    const kulisse = baueKulisse(szene, gross);
+    const kulisse = baueKulisse(szene, gross, aufnahme.grund, aufnahme.wandschatten);
 
     // Gezeichnet wird nur, wenn sich etwas geaendert hat – im Headless-Browser
     // (Software-Grafik) kostet ein Bild mit Schatten Sekunden.
@@ -114,6 +116,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
         groesse,
         anwenden: (m) => {
           motivAnwenden(m, ergebnis, s, { kamera, steuerung, licht, kulisse });
+          aufnahme.ausschnitt(kamera, renderer);
           neu = true;
         },
         referenz: () => {

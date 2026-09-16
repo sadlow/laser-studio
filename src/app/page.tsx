@@ -59,10 +59,20 @@ export default function Seite() {
 
   const aendern = (teil: Aenderung) => setKarte((alt) => mischen(alt, teil));
 
-  // ?holzrahmen=schwarz startet mit Rahmen – fuer Referenzbilder aus dem Headless-Browser.
+  // Startwerte aus der URL – fuer Referenzbilder aus dem Headless-Browser:
+  // ?entwurf={"lon":…,"lat":…,"aufbau":…,"kunde":{…}} (eine Aenderung wie aus dem
+  // Formular) und kurz ?holzrahmen=schwarz. Ungueltiges JSON wird ignoriert.
   useEffect(() => {
-    const rahmen = new URLSearchParams(window.location.search).get("holzrahmen");
-    if (rahmen === "schwarz" || rahmen === "weiss" || rahmen === "eiche") setKarte((alt) => mischen(alt, { kunde: { holzrahmen: rahmen } }));
+    const url = new URLSearchParams(window.location.search);
+    let teil: Aenderung = {};
+    try {
+      teil = JSON.parse(url.get("entwurf") ?? "{}") as Aenderung;
+    } catch {
+      teil = {};
+    }
+    const rahmen = url.get("holzrahmen");
+    if (rahmen === "schwarz" || rahmen === "weiss" || rahmen === "eiche") teil = { ...teil, kunde: { ...teil.kunde, holzrahmen: rahmen } };
+    if (Object.keys(teil).length) setKarte((alt) => mischen(alt, teil));
   }, []);
 
   return (
