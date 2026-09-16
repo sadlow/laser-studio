@@ -75,12 +75,11 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   wand|flach|symbol|titel|wasser|kante&vollbild=1`, dazu `entwurf={json}`, `zoom`,
   `versatz`, `grund`, `frontal`, `umgebung`, Schatten- und Softbox-Schalter; `referenzbilder.sh`.
   Listing-Set: `scripts/listing-fotos/` (Leonardo 1K, Referenz HIGH, `prompt_enhance:
-  OFF`). Gelernt: Titel nur als "thin, delicate … laser-cut flush" fein statt fett;
+  OFF`). Gelernt: Schrift braucht zweite Referenz (Nahaufnahme der Schlitze), sonst fett/aufgedruckt;
   Wandschatten wurde zum Standfuss, Softbox im Spiegel zur Glasplatte, schraege
   Einzelaufnahmen nebeneinander zum Escher-Bild (darum frontal auf gezeichneter Kommode).
-  Nahaufnahmen wirkten zu perfekt: Staub, Kratzer, Laserriefen gehoeren in den Generierungs-
-  Prompt; Ultra-Upscale (2x, 0,05 $) nimmt keinen Prompt, der klassische zeigt trotz Prompt
-  keinen Staub. Paris bei 3,5 km wurde zu schwarzen "Strassen" im Weiss: dichte Staedte 2 km.
+  Nahaufnahmen zu perfekt: Staub, Kratzer, Laserriefen in den Generierungs-Prompt, dann Ultra 2x
+  (nimmt keinen Prompt; klassisch trotz Prompt ohne Staub). Paris 3,5 km zu dicht: Grossstaedte 2 km.
 - **Kundeneingaben werden feldweise gemischt** (zwei schnelle Klicks hoben sich sonst auf).
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)

@@ -34,8 +34,9 @@ WEISS = (
     "a personalized 3D layered acrylic city map artwork: a raised network of glossy white laser-cut acrylic streets "
     "on a glossy black acrylic layer with fine light engraved paths, rivers and lakes cut out to reveal blue mirror "
     "acrylic below, a tiny glossy red mirror acrylic heart marking a place, and a white acrylic lower panel into "
-    "which a thin, delicate handwritten script title and two small uppercase text lines are laser-cut flush, "
-    "appearing as fine dark lines (not raised, not bold, no printed ink)"
+    "which a thin, delicate handwritten script title and two small uppercase text lines are laser-cut as open slots "
+    "through the white layer: every letter is a narrow cut-out with crisp inner edges and a subtle inner shadow, "
+    "revealing the black acrylic 2 mm below, clearly recessed like a stencil (not printed ink, not raised, not bold)"
 )
 NEWYORK = (
     "a personalized 3D layered acrylic city map artwork: a glossy black laser-cut acrylic street network over a white "
@@ -209,6 +210,34 @@ JOBS["features-paris-herz-echt"] = (JOBS["features-paris-herz-echt"][0], JOBS["f
     "fine engraved paths,", "fine engraved paths that appear as light grey lines (never red),"))
 
 
+# Zweite Referenz je Foto (Marcel 16.09.2026: "die Schriftzuege sind nicht mehr eingelassen,
+# sondern schwarz aufgedruckt"). In der kleinen Produktansicht sieht man die Tiefe der
+# 0,5-mm-Schlitze nicht; eine Nahaufnahme derselben Schrift zeigt sie. Der Skill kann nur
+# eine Referenz, die API bis zu sechs.
+ZUSATZ_REFS = {"lifestyle-paris-antrag": [("paris-schrift", "MID")]}
+
+
+def generieren_mit_refs(gen, config, prompt, ziel, refs, seed):
+    """Wie generate_image des Skills, aber mit mehreren Referenzbildern [(id, staerke), ...]."""
+    import urllib.request
+    breite, hoehe = gen.get_dimensions(config, "1:1", "1K")
+    params = {"width": breite, "height": hoehe, "prompt": prompt, "quantity": 1, "prompt_enhance": "OFF",
+              "style_ids": [gen.get_style_id(config, "Stock Photo")], "seed": seed,
+              "guidances": {"image_reference": [{"image": {"id": i, "type": "UPLOADED"}, "strength": st} for i, st in refs]}}
+    body = {"model": config["model"], "parameters": params, "public": config["defaults"]["public"]}
+    req = urllib.request.Request(f"{config['api_base_v2']}/generations", data=json.dumps(body).encode(), method="POST")
+    for k, v in {"Authorization": f"Bearer {config['api_key']}", "Content-Type": "application/json", "Accept": "application/json"}.items():
+        req.add_header(k, v)
+    with urllib.request.urlopen(req) as resp:
+        antwort = json.loads(resp.read().decode())["generate"]
+    print(f"Generation {antwort['generationId']} | Referenzen: {len(refs)} | Kosten: {antwort.get('cost')}")
+    bilder = gen.poll_generation(config, antwort["generationId"])
+    if not bilder:
+        return None
+    gen.download_image(bilder[0]["url"], ziel)
+    return [{"id": bilder[0]["id"], "url": bilder[0]["url"], "path": ziel}]
+
+
 if __name__ == "__main__":
     gen, up = modul("generate"), modul("upload_ref")
     config = gen.load_config()
@@ -221,9 +250,18 @@ if __name__ == "__main__":
             refs[ref] = up.upload_reference_image(config, os.path.join(HIER, "referenzen", ref + ".png"))
             json.dump(refs, open(refs_datei, "w"), indent=2)
         ziel = os.path.join(HIER, "fotos", name + ".jpg")
-        erg = gen.generate_and_download(config, prompt, ziel, aspect_ratio="1:1", resolution="1K", style="Stock Photo",
-                                        ref_image_id=refs[ref], ref_strength="HIGH", prompt_enhance="OFF",
-                                        seed=int(os.environ.get("SEED", 4711)))
+        zusatz = ZUSATZ_REFS.get(name, [])
+        for z, _ in zusatz:
+            if z not in refs:
+                refs[z] = up.upload_reference_image(config, os.path.join(HIER, "referenzen", z + ".png"))
+                json.dump(refs, open(refs_datei, "w"), indent=2)
+        if zusatz:
+            erg = generieren_mit_refs(gen, config, prompt, ziel, [(refs[ref], "HIGH")] + [(refs[z], st) for z, st in zusatz],
+                                      int(os.environ.get("SEED", 4711)))
+        else:
+            erg = gen.generate_and_download(config, prompt, ziel, aspect_ratio="1:1", resolution="1K", style="Stock Photo",
+                                            ref_image_id=refs[ref], ref_strength="HIGH", prompt_enhance="OFF",
+                                            seed=int(os.environ.get("SEED", 4711)))
         with open(os.path.join(HIER, "protokoll.jsonl"), "a") as f:
             f.write(json.dumps({"zeit": time.strftime("%Y-%m-%d %H:%M"), "name": name, "referenz": ref,
                                 "ref_id": refs[ref], "ergebnis": erg, "prompt": prompt}, ensure_ascii=False) + "\n")

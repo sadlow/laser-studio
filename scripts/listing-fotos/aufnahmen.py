@@ -101,6 +101,8 @@ AUFNAHMEN.update({
     "sylt-urlaub": (ORTE["sylt"], "wand", 0.62, (0.15, 0.1), None),
     "barcelona-flatlay": (ORTE["barcelona"], "flach", 0.72, None, None),
     "paris-herz": (ohne("paris"), "symbol", 1, (0.1, 0), None),
+    # Zweite Referenz: eingeschnittene Schrift mit Tiefe, sonst wirkt sie im Foto aufgedruckt
+    "paris-schrift": (ohne("paris"), "titel", 1, None, None),
     "starnberg-ufer": (ohne("starnberg"), "wasser", 1, None, None, {"softboxen": "0"}),
 })
 def variante(ort, **felder):
