@@ -40,11 +40,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   schwarz), 2 Schnitt innen (rot), 3 Schnitt aussen (blau, zuletzt – sonst
   verschiebt sich die Platte vor den Innenschnitten). Namen als id, data-name
   (Illustrator) und inkscape:label; Farben nach LightBurn-Palette.
-- **Gravur als gepufferte Flaeche, nicht als Strich.** Die SVG-Strichbreite
-  uebernimmt Lasersoftware nicht zuverlaessig. Kostet 1,6 s je Lage, darum nur
-  im Export; die Live-Vorschau zeichnet dieselben Linien als Strich.
-- **Jeder Schnittring ein eigener Pfad** – keine zusammengesetzten Pfade mit
-  Fuellregel in Schnittebenen.
+- **Gravur als gepufferte Flaeche** (SVG-Strichbreite uebernimmt Lasersoftware
+  nicht zuverlaessig; 1,6 s je Lage, nur im Export). Jeder Schnittring ein Pfad.
 - **Parameter liegen jedem Export bei** (`parameter.json`) – Prototypen bleiben nachbaubar.
 
 ## Vorlagen (`src/server/vorlagen.ts`, `vorlagen/*.json`)
@@ -127,12 +124,10 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Stege am hoechsten und tiefsten Punkt jeder Innenflaeche**, hoechstens
   0,5 mm, nie breiter als der halbe Strich (Direktsatz: `STEG_ANTEIL_STRICH`),
   mindestens 0,3 mm. 0,7 mm wirkte bei Demi (Strich 0,93 mm) wie eine Luecke.
-- **Innenflaechen unter 0,8 mm Breite werden zugefuellt.** 1,0 mm (aus der
-  Demi-Zeit, A4 Demi: ° 0,97 mm) machte bei A5 aus dem Gradzeichen einen
-  ausgeschnittenen Punkt ohne Innenkreis (Marcel 16.09.2026). In Book: ° innen
-  A5 0,97 mm, Prototyp 145 x 205 0,95, A4 1,38. Irrwege davor: eine mm²-Grenze
-  (zerteilte auf A3 das Gradzeichen), ein Anteil der Versalhoehe (machte
-  Schreibschrift-Schleifen schwarz) (`inseln-titel.ts`).
+- **Innenflaechen unter 0,8 mm Breite werden zugefuellt.** 1,0 mm (Demi-Zeit)
+  machte bei A5 aus dem Gradzeichen einen Punkt (Marcel 16.09.2026); Book: °
+  innen A5 0,97, Prototyp 0,95, A4 1,38 mm. Irrwege: mm²-Grenze, Anteil der
+  Versalhoehe (machte Schreibschrift-Schleifen schwarz) (`inseln-titel.ts`).
 
 ## Schrift
 
