@@ -56,6 +56,7 @@ function lese(datei: string): Vorlage {
         ...k.generalisierung,
         stufen: { ...basis.generalisierung.stufen, ...k.generalisierung?.stufen },
       },
+      symbolBreitenMm: { ...basis.symbolBreitenMm, ...k.symbolBreitenMm },
       titelStil: { ...basis.titelStil, ...k.titelStil },
       zeilenStil: { ...basis.zeilenStil, ...k.zeilenStil },
     },

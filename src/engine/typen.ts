@@ -1,7 +1,7 @@
 // Der Vertrag der Engine fuer das Produkt "Schichtkarte".
 //
 // Aufbau von oben nach unten:
-//   Herz    rotes Spiegelacryl, aufgeklebt am Ort
+//   Symbol  rotes Spiegelacryl, aufgeklebt am Ort (Herz, Haus, Pin, X)
 //   Weiss   Rahmen + Strassennetz + Textflaeche mit ausgeschnittenen Woertern
 //   Schwarz durchgehend, Wasser ausgeschnitten, feine Wege graviert (hell)
 //   Blau    Spiegelacryl, scheint durch das Wasser
@@ -9,6 +9,7 @@
 // Alles, was das Produkt beschreibt, steht hier. Die UI ist ein Formular auf
 // diese Typen, die Produktion ruft dieselbe Funktion auf. Kein React, kein Next.
 
+import type { SymbolArt, SymbolGroesse } from "./symbole";
 import type { Generalisierung, StrassenGruppe, StrassenStufe } from "./typen-strassen";
 
 export type FormatKey = "a5" | "a4" | "a3" | "quadrat30" | "frei";
@@ -31,6 +32,9 @@ export interface Kundeneingabe {
   wunschtext: string;
   /** Wie viel vom Strassennetz geschnitten wird – die Bedeutung legt die Vorlage fest. */
   strassenStufe: StrassenStufe;
+  /** Standort-Symbol und seine Groesse – die Masse legt die Vorlage fest. */
+  symbol: SymbolArt;
+  symbolGroesse: SymbolGroesse;
 }
 
 /**
@@ -89,7 +93,7 @@ export interface TextStil {
 export interface Schichtkarte {
   kunde: Kundeneingabe;
 
-  /** Der Ort: Spitze des Herzens, steht in den Koordinaten (Marcel 16.09.2026). */
+  /** Der Ort: Spitze des Symbols, steht in den Koordinaten (Marcel 16.09.2026). */
   lon: number;
   lat: number;
   /** Mitte des Kartenausschnitts, wenn die Karte verschoben wurde – sonst der Ort. */
@@ -161,8 +165,8 @@ export interface Schichtkarte {
    */
   stencilMinInselBreiteMm: number;
 
-  /** Breite des Herzens bei A4, waechst mit dem Format wie die Strassen. */
-  herzBreiteMm: number;
+  /** Breite des Standort-Symbols je Groesse bei A4, waechst mit dem Format. */
+  symbolBreitenMm: Record<SymbolGroesse, number>;
 
   /** Lose Teile der weissen Lage in der Vorschau markieren. */
   loseTeileMarkieren: boolean;

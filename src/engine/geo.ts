@@ -82,6 +82,19 @@ export function zoomEntsprechung(ausschnittBreiteM: number, kartenBreiteMm: numb
 }
 
 /**
+ * Dezimal-Koordinaten, wie Google Maps sie kopiert ("52.51640, 13.33750",
+ * Breite zuerst). Auch mit deutschem Komma ("52,5164; 13,3375") und ohne
+ * Leerzeichen. null, wenn nicht genau zwei Zahlen im gueltigen Bereich.
+ */
+export function leseKoordinaten(text: string): { lat: number; lon: number } | null {
+  const zahlen = text.match(/-?\d+(?:[.,]\d+)?/g)?.map((z) => Number(z.replace(",", ".")));
+  if (!zahlen || zahlen.length !== 2) return null;
+  const [lat, lon] = zahlen;
+  if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+  return { lat, lon };
+}
+
+/**
  * Grad/Minuten/Sekunden wie auf dem Koordinatenposter: ganze Sekunden,
  * deutsches "O" fuer Ost. Uebernommen aus decimalToDMS() im Bulk-Script,
  * damit Poster und Acrylkarte dieselbe Zeile tragen.

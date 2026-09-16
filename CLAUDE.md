@@ -25,6 +25,7 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 |---|---|
 | `kacheln.ts` | Mapbox-Vector-Tiles -> Linien/Flaechen in mm, Tunnel und Gehwege raus |
 | `layout.ts`, `textblock.ts`, `ecken.ts` | Zonen; Texte im Poster bzw. in Reitern |
+| `poster-masse.ts`, `symbole.ts` | Gemessene Poster-Masse je Format; Standort-Symbole mit Anker |
 | `stencil.ts` | Stege fuer Innenflaechen im ausgeschnittenen Text |
 | `dichte.ts`, `netz.ts` | Netzklassen und Breiten nach Dichte vor Ort; lose Stuecke -> Gravur |
 | `wasser.ts` | Wasser im Fenster, schmale Kanaele und kleine Inseln raus |
@@ -72,7 +73,8 @@ npm install && npm run dev   # http://localhost:3010
 - Exportdateien noch nicht in xTool Studio geoeffnet
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
 - Standort-Bestaetigung: "Luebeck" fand Luebecker Strasse in Koeln
-- Herz-Auflage: liegt teils auf dem Netz, teils eine Lage tiefer; Spitze = Ort, ziehbar in der Vorschau
+- Symbol-Auflage: liegt teils auf dem Netz, teils eine Lage tiefer; Anker = Ort, ziehbar in der Vorschau
+- 3D-Ansicht der Lagen (drehbar) – zugesagt, noch nicht gebaut
 - Megastaedte wirken lichter als Berlin (Tokio 15 % Netz): Deckung zaehlt Hochstrassen doppelt
 - Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten
 

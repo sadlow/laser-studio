@@ -2,8 +2,7 @@ import type { Punkt } from "./clip";
 
 /**
  * Das Herz ist ein Form-Asset, keine Formel: ein einmal gezeichneter Pfad, der
- * in Groesse und Lage eingepasst wird. Genau so kommen spaeter weitere Formen
- * dazu (Kringel, Kreuz, Pfeil wie beim Poster), ohne dass die Engine sich aendert.
+ * in Groesse und Lage eingepasst wird (symbole.ts, zusammen mit Haus, Pin, X).
  *
  * Einheitsbox 0..1, y nach unten, Spitze unten.
  */
@@ -19,20 +18,8 @@ const HERZ_KUBISCH: [Punkt, Punkt, Punkt, Punkt][] = [
 /** Hoehe zu Breite des Assets – etwas hoeher als breit. */
 export const HERZ_HOEHE_ANTEIL = 0.95;
 
-/** Umriss in der Einheitsbox als SVG-Pfad – fuer das Herz, das man in der Vorschau zieht. */
-export function herzPfadEinheit(): string {
-  const [start] = HERZ_KUBISCH[0];
-  return `M${start.x},${start.y}` + HERZ_KUBISCH.map(([, b, c, d]) => `C${b.x},${b.y} ${c.x},${c.y} ${d.x},${d.y}`).join("") + "Z";
-}
-
-/** Herz, dessen Spitze auf dem Ort liegt – die Koordinaten zeigen die Spitze. */
-export function herzRingAnSpitze(spitzeX: number, spitzeY: number, breiteMm: number): Punkt[] {
-  return herzRing(spitzeX, spitzeY - (breiteMm * HERZ_HOEHE_ANTEIL) / 2, breiteMm);
-}
-
-/** Herz mit gegebener Breite um eine Mitte. */
-export function herzRing(mitteX: number, mitteY: number, breiteMm: number): Punkt[] {
-  const hoeheMm = breiteMm * HERZ_HOEHE_ANTEIL;
+/** Umriss in Breiten-Einheiten: x 0..1, y 0..0,95, Spitze bei (0,5 | 0,95). */
+export function herzEinheitRing(): Punkt[] {
   const punkte: Punkt[] = [];
   for (const [a, b, c, d] of HERZ_KUBISCH) {
     for (let i = 0; i < 24; i++) {
@@ -40,7 +27,7 @@ export function herzRing(mitteX: number, mitteY: number, breiteMm: number): Punk
       const u = 1 - t;
       const x = u * u * u * a.x + 3 * u * u * t * b.x + 3 * u * t * t * c.x + t * t * t * d.x;
       const y = u * u * u * a.y + 3 * u * u * t * b.y + 3 * u * t * t * c.y + t * t * t * d.y;
-      punkte.push({ x: mitteX + (x - 0.5) * breiteMm, y: mitteY + (y - 0.5) * hoeheMm });
+      punkte.push({ x, y: y * HERZ_HOEHE_ANTEIL });
     }
   }
   return punkte;

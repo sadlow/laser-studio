@@ -1,3 +1,4 @@
+import { standardLayoutWerte } from "./poster-masse";
 import type { Schichtkarte, StrassenGruppe } from "./typen";
 
 /**
@@ -56,6 +57,8 @@ export function standardSchichtkarte(): Schichtkarte {
       ortText: "Berlin",
       wunschtext: "",
       strassenStufe: "ausgewogen",
+      symbol: "herz",
+      symbolGroesse: "mittel",
     },
     lon: 13.3375,
     lat: 52.5164,
@@ -63,29 +66,8 @@ export function standardSchichtkarte(): Schichtkarte {
     format: "a4",
     rahmenMm: 7,
     aufbau: "netz-weiss",
-    layoutArt: "poster",
-    // Quadrat-Entwurf Marcel 16.09.2026, zweite Runde: Die Kontur um die
-    // Buchstaben und die Texte in drei Ecken wirkten unruhig. Jetzt wie die
-    // DIN-Version uebereinander – Titel oben in einem abgerundeten Rechteck,
-    // Namen und Koordinaten mittig darunter unten in einem zweiten.
-    eingebettet: {
-      titelAnker: "oben-mitte",
-      zeile1Anker: "unten-mitte",
-      zeile2Anker: "unten-mitte",
-      form: "rechteck",
-      schutzMm: 5,
-      eckenRadiusMm: 6,
-      rahmenUntenMm: 14,
-    },
-    kartenEndeAnteil: 0.68,
-    // Der Schwung von "Zuhause" endet auf dem Poster bei 255,2 mm, 6,7 mm ueber
-    // den Namen. Bacalisties-Versalien schwingen gleichmaessig 9,7-10,1 % unter
-    // die Versalhoehen-Mitte (Zuhause, Home, Unser Nest, Familie).
-    titelMitteAnteil: 0.7564,
-    zeile1MitteAnteil: 0.8909,
-    zeile2MitteAnteil: 0.9236,
-    titelStil: { schrift: "Bacalisties.ttf", hoeheAnteil: 0.074, sperrung: 0, versalien: false },
-    zeilenStil: { schrift: "AvantGarde-Book.otf", hoeheAnteil: 0.01825, sperrung: 0.14, versalien: true },
+    // Lage und Groesse der Texte wie auf dem A4-Poster (poster-masse.ts).
+    ...standardLayoutWerte("a4"),
     strassen: STRASSEN_STANDARD.map((g) => ({ ...g, klassen: [...g.klassen] })),
     netzMinBreiteMm: 0.8,
     // Hoechstens 1,4-fach breiter als entworfen, sonst klobig.
@@ -120,18 +102,10 @@ export function standardSchichtkarte(): Schichtkarte {
     // 16.09.2026). Innenkreis des Gradzeichens in Book: A5 0,97, Prototyp 145 x
     // 205 0,95, A4 1,38 mm – alle behalten Innenkreis und Stege.
     stencilMinInselBreiteMm: 0.8,
-    herzBreiteMm: 11,
+    // Herz bisher 11 mm = mittel.
+    symbolBreitenMm: { klein: 8, mittel: 11, gross: 15 },
     loseTeileMarkieren: true,
   };
-}
-
-/**
- * Welches Layout ein Format mitbringt. Die Poster-Anteile sind am A-Seiten-
- * verhaeltnis vermessen – auf dem Quadrat liegt das Kartenfenster damit quer
- * und der Textbereich wird gross. Darum dort das eingebettete Layout.
- */
-export function standardLayoutFuer(format: Schichtkarte["format"]): Schichtkarte["layoutArt"] {
-  return format === "quadrat30" ? "eingebettet" : "poster";
 }
 
 /** Schriften zur Auswahl. */

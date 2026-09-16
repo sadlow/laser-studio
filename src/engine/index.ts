@@ -10,8 +10,9 @@ import { REFERENZ_KARTENBREITE_MM, type Schichtkarte, type SchichtkartenErgebnis
 export * from "./typen";
 export { FORMATE, masseAusFormat } from "./formate";
 export { berechneLayout } from "./layout";
+export { POSTER_MASSE, standardLayoutWerte } from "./poster-masse";
+export { SYMBOL_TITEL, symbolPfad, type SymbolArt, type SymbolGroesse } from "./symbole";
 export {
-  standardLayoutFuer,
   standardSchichtkarte,
   STRASSEN_STANDARD,
   TITELSCHRIFTEN,
@@ -101,14 +102,14 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
     );
   }
 
-  if (!b.herzLage) {
-    warnungen.push("Der Ort liegt ausserhalb des Kartenausschnitts – das Herz fehlt. Karte zurueckschieben oder Herz neu setzen.");
+  if (!b.symbolLage) {
+    warnungen.push("Der Ort liegt ausserhalb des Kartenausschnitts – das Standort-Symbol fehlt. Karte zurueckschieben oder zentrieren.");
   }
 
   return {
     vorschauSvg: s.vorschauSvg,
     kartenMitte,
-    herz: b.herzLage,
+    symbol: b.symbolLage,
     lagen: s.lagen,
     layout,
     texte: textblock.texte,

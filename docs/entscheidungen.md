@@ -57,10 +57,27 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   22-24 % Netz im Fenster auf allen Formaten.
 - **Mindestbreite im Netz 0,8 mm**, **kleine Bloecke (< 4 mm²) bleiben Material.**
 
-## Ort, Ausschnitt, Herz (`geo.ts`, `zieh-vorschau.tsx`)
+## Oberflaeche (Marcel 16.09.2026)
 
-- **Die Koordinaten zeigen die Herzspitze** (Marcel 16.09.2026), nicht mehr die
-  Herzmitte. `lon/lat` ist der Ort, `kartenMitte` die Mitte des Ausschnitts,
+- **Vollbild in drei Spalten:** links, was der Kunde spaeter selbst einstellt
+  (Standort, Texte, Design mit Vorschaubild, Format, Strassenstufe, Symbol und
+  Groesse), Mitte der Komposer, rechts Technik und Prototypenbau, aufklappbar.
+- **Standort als Adresse oder Dezimal-Koordinaten** (Google-Format, auch mit
+  deutschem Komma). Eingefuegte Koordinaten bleiben exakt; der Ortsname kommt
+  aus der Rueckwaerts-Suche.
+- **Kundeneingaben werden feldweise gemischt.** Zwei schnelle Klicks (Symbol,
+  dann Groesse) schickten sonst je die ganze alte Kundeneingabe mit, und der
+  zweite machte den ersten rueckgaengig.
+
+## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)
+
+- **Standort-Symbol waehlbar:** Herz, Haus, Standort-Pin, X (wie beim Poster
+  HERZ/KREUZ/PFEIL), klein/mittel/gross = 8/11/15 mm bei A4, mitwachsend. Der
+  Anker sitzt auf dem Ort: Spitze bei Herz und Pin, Fussmitte beim Haus, Mitte
+  beim X. Die Lage heisst nach dem Symbol, Material rotes Spiegelacryl.
+
+- **Die Koordinaten zeigen den Symbol-Anker** (Marcel 16.09.2026: die
+  Herzspitze), nicht mehr die Herzmitte. `lon/lat` ist der Ort, `kartenMitte` die Mitte des Ausschnitts,
   wenn die Karte verschoben wurde. Neue Adresse oder Referenzort setzt die Mitte
   zurueck. Liegt der Ort ausserhalb des Ausschnitts, fehlt das Herz mit Warnung.
 - **Gezogen wird auf der gerenderten Vorschau**, nicht in einer zweiten
@@ -80,13 +97,18 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Layout
 
-- **Poster (A-Formate), Richtwert A4:** Anteile der Plattenhoehe, vermessen am
-  A4-Muster des Posters (`Familienposter/8 Zuhause Map/Musterdaten/A4`, 300 und
-  600 dpi auf 0,05 mm gleich, `poster-abgleich.ts`). Karte endet 68,0 %, Titel
-  Bacalisties 7,40 % Versalhoehe mit Mitte 75,64 %, Zeilen 1,825 % (5,42 mm)
-  mit Mitte 89,09 % und 92,36 %. Titel aus Hoehe und Breite der Tintenbox
-  unabhaengig bestimmt: 21,97 und 21,98 mm. Die Schaetzung am schraegen
-  Listing-Foto lag 5-7 % zu klein und 3,5 mm zu hoch.
+- **Poster-Masse je Format** (`poster-masse.ts`), vermessen an den Mustern
+  `Familienposter/8 Zuhause Map/Musterdaten/<Format>` (A4 bei 300 und 600 dpi
+  auf 0,05 mm gleich, `poster-abgleich.ts`). Die InDesign-Vorlagen sind nicht
+  skaliert, jedes Format hat eigene Werte (Anteil der Plattenhoehe):
+  A5 Karte 65,85 %, Titel 7,65 % / Mitte 72,84, Zeilen 1,995 % / 87,97 / 91,86;
+  A4 68,0 %, 7,40 % / 75,64, 1,825 % / 89,09 / 92,36;
+  A3 67,7 %, 7,30 % / 75,00, 1,795 % / 88,73 / 91,96.
+  Titel aus Hoehe und Breite der Tintenbox unabhaengig bestimmt (A4 21,97 und
+  21,98 mm). Die Schaetzung am schraegen Listing-Foto lag 5-7 % zu klein.
+- **Das Format bringt seine Poster-Masse mit**, Schriften und Sperrung bleiben.
+  "Auf Standard zuruecksetzen" im Layout stellt alles wie gemessen wieder her
+  (Marcel 16.09.2026). Quadrat und freie Formate nehmen A4.
 - **Koordinaten mit ‘ und “** wie auf dem Poster: InDesign macht aus ' und "
   typografische Zeichen. Nur damit trifft die zweite Zeile die Posterbreite.
 - **Quadrat = eingebettet** (`ecken.ts`). Zeilen mit gleichem Anker stehen

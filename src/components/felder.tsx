@@ -2,19 +2,61 @@
 
 import type { ReactNode } from "react";
 
-export function Block({ titel, children, hinweis }: { titel: string; children: ReactNode; hinweis?: string }) {
-  return (
-    <section className="karte p-4">
-      <h2 className="mb-3 text-xs font-semibold tracking-wider uppercase" style={{ color: "var(--akzent)" }}>
-        {titel}
-      </h2>
+/**
+ * Abschnitt mit Titel. Mit `zu` aufklappbar (Technik-Seite): offen oder
+ * geschlossen startend, per Klick auf den Titel umschaltbar.
+ */
+export function Block({ titel, children, hinweis, zu }: { titel: string; children: ReactNode; hinweis?: string; zu?: boolean }) {
+  const kopf = (
+    <h2 className="text-xs font-semibold tracking-wider uppercase" style={{ color: "var(--akzent)" }}>
+      {titel}
+    </h2>
+  );
+  const inhalt = (
+    <>
       {children}
       {hinweis && (
         <p className="mt-3 text-xs leading-relaxed" style={{ color: "var(--gedaempft)" }}>
           {hinweis}
         </p>
       )}
-    </section>
+    </>
+  );
+  if (zu === undefined) {
+    return (
+      <section className="karte p-4">
+        <div className="mb-3">{kopf}</div>
+        {inhalt}
+      </section>
+    );
+  }
+  return (
+    <details className="karte group p-4" open={!zu}>
+      <summary className="flex cursor-pointer list-none items-center justify-between group-open:mb-3">
+        {kopf}
+        <span className="text-xs transition-transform group-open:rotate-90" style={{ color: "var(--gedaempft)" }}>›</span>
+      </summary>
+      {inhalt}
+    </details>
+  );
+}
+
+/** Umschalter aus wenigen Knoepfen – fuer Kundenwahl ohne Aufklappliste. */
+export function Wahl<T extends string>(props: { wert: T; optionen: { wert: T; titel: ReactNode }[]; aendern: (v: T) => void; spalten?: number }) {
+  return (
+    <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${props.spalten ?? props.optionen.length}, minmax(0, 1fr))` }}>
+      {props.optionen.map((o) => (
+        <button
+          key={o.wert}
+          type="button"
+          onClick={() => props.aendern(o.wert)}
+          className="rounded-md border px-2 py-1.5 text-xs leading-tight"
+          style={props.wert === o.wert ? { background: "var(--akzent)", borderColor: "var(--akzent)", color: "#fff" } : { borderColor: "var(--linie)", background: "var(--karte)" }}
+        >
+          {o.titel}
+        </button>
+      ))}
+    </div>
   );
 }
 

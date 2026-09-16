@@ -71,6 +71,7 @@ export function PrototypPlatten({ karte }: Props) {
   return (
     <Block
       titel="Prototyp-Platten"
+      zu={true}
       hinweis="Je Material eine Laserdatei mit allen Exemplaren nebeneinander. A4 traegt zwei Prototypen 145 × 205 mm (98 % von A5, mit Rand – zwei echte A5 laegen auf der Plattenkante)."
     >
       <div className="space-y-3">

@@ -1,5 +1,6 @@
 import { enthaelt, schwerpunkt, teile, vereinige, ziehAb } from "./geometrie";
 import type { Bausteine } from "./lagen";
+import { SYMBOL_TITEL } from "./symbole";
 import { SPLITTER_MM2 } from "./wasser";
 import { FARBE_LOSE, FARBE_SCHWARZ, FARBE_WEISS, laserSvg, vorschauSvg, type Gravur, type Malschritt } from "./svg";
 import type { LagenKey, Lage, Layout, Schichtkarte, Teil } from "./typen";
@@ -44,11 +45,11 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
       { art: "flaeche", teile: netzHaupt ? [netzHaupt] : [], fuellung: FARBE_SCHWARZ, schatten: true },
       { art: "flaeche", teile: netzLose, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : FARBE_SCHWARZ },
       { art: "flaeche", teile: deck, fuellung: FARBE_WEISS, schatten: true },
-      { art: "flaeche", teile: b.herz, fuellung: "url(#rot)", schatten: true, id: "herz" },
+      { art: "flaeche", teile: b.symbol, fuellung: "url(#rot)", schatten: true, id: "symbol" },
     ];
     return {
       lagen: [
-        lage(layout, "herz", "Herz", "Spiegelacryl rot", b.herz),
+        lage(layout, "symbol", SYMBOL_TITEL[k.kunde.symbol] ?? "Symbol", "Spiegelacryl rot", b.symbol),
         lage(layout, "deck", "Weiss oben", "Acrylglas weiss", deck),
         lage(layout, "netz", "Schwarz (Netz)", "Acrylglas schwarz", netz),
         lage(layout, "hintergrund", "Weiss unten", "Acrylglas weiss", hintergrund, b.gravur),
@@ -81,11 +82,11 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
     { art: "gravur", gravur: b.gravur, farbe: schwarz ? GRAVUR_AUF_WEISS : GRAVUR_AUF_SCHWARZ },
     { art: "flaeche", teile: netzHaupt ? [netzHaupt, ...loseText] : [], fuellung: netzFarbe, schatten: true },
     { art: "flaeche", teile: loseNetz, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : netzFarbe },
-    { art: "flaeche", teile: b.herz, fuellung: "url(#rot)", schatten: true, id: "herz" },
+    { art: "flaeche", teile: b.symbol, fuellung: "url(#rot)", schatten: true, id: "symbol" },
   ];
   return {
     lagen: [
-      lage(layout, "herz", "Herz", "Spiegelacryl rot", b.herz),
+      lage(layout, "symbol", SYMBOL_TITEL[k.kunde.symbol] ?? "Symbol", "Spiegelacryl rot", b.symbol),
       lage(layout, "netz", netzTitel, netzMaterial, netz),
       lage(layout, "hintergrund", grundTitel, grundMaterial, hintergrund, b.gravur),
       lage(layout, "blau", "Blau", "Spiegelacryl blau", blau),

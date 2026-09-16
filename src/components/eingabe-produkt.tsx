@@ -1,78 +1,58 @@
 "use client";
 
-import { FORMATE } from "@/engine/formate";
-import { standardLayoutFuer, TITELSCHRIFTEN, ZEILENSCHRIFTEN } from "@/engine/standard";
-import type { Anker, Aufbau, EingebettetesLayout, FormatKey, LayoutArt, Schichtkarte, TextForm, TextStil } from "@/engine/typen";
-import { Anteil, Auswahl, Block, Zahl } from "./felder";
+import { standardLayoutWerte } from "@/engine/poster-masse";
+import { TITELSCHRIFTEN, ZEILENSCHRIFTEN } from "@/engine/standard";
+import type { Anker, EingebettetesLayout, LayoutArt, Schichtkarte, TextForm, TextStil } from "@/engine/typen";
+import { Anteil, Auswahl, Block, Haken, Zahl } from "./felder";
+import type { Aenderung } from "./aenderung";
 
 interface Props {
   karte: Schichtkarte;
-  aendern: (teil: Partial<Schichtkarte>) => void;
+  aendern: (teil: Aenderung) => void;
 }
-
-const FORMAT_OPTIONEN = [
-  ...Object.entries(FORMATE).map(([wert, f]) => ({
-    wert: wert as FormatKey,
-    titel: `${f.titel} · ${f.breiteMm}×${f.hoeheMm} mm`,
-  })),
-  { wert: "frei" as FormatKey, titel: "frei" },
-];
 
 const FORM_OPTIONEN: { wert: TextForm; titel: string }[] = [
   { wert: "rechteck", titel: "Abgerundetes Rechteck" },
   { wert: "kontur", titel: "Kontur um die Buchstaben" },
 ];
 
-const AUFBAU_OPTIONEN: { wert: Aufbau; titel: string }[] = [
-  { wert: "netz-weiss", titel: "Weiss–Schwarz–Blau: weisses Netz, Gravur hell" },
-  { wert: "netz-schwarz-dreilagig", titel: "Schwarz–Weiss–Blau: schwarzes Netz, Text im Schwarz" },
-  { wert: "netz-schwarz", titel: "Weiss–Schwarz–Weiss–Blau: schwarzes Netz, weisse Deckschicht" },
-];
-
 const schriftOptionen = (liste: string[]) =>
   liste.map((datei) => ({ wert: datei, titel: datei.replace(/\.(otf|ttf)$/i, "") }));
 
+/** Masse, die der Kunde nicht sieht: freies Format, Rahmen, Symbolgroessen, Ausschnitt fein. */
 export function EingabePlatte({ karte, aendern }: Props) {
+  const frei = karte.format === "frei";
+  const groessen = karte.symbolBreitenMm;
   return (
     <Block
       titel="Platte und Ausschnitt"
-      hinweis="A3 zeigt denselben Ausschnitt wie A5, nur groesser – wie beim Poster. Strassenbreiten und Schrift wachsen mit. Fest bleiben nur Rahmen (Falz des Bilderrahmens) und Stege."
+      zu={true}
+      hinweis="A3 zeigt denselben Ausschnitt wie A5, nur groesser – wie beim Poster. Strassenbreiten, Schrift und Symbol wachsen mit. Fest bleiben Rahmen (Falz des Bilderrahmens) und Stege."
     >
-      <div className="grid grid-cols-2 gap-3">
-        <div className="col-span-2">
-          <Auswahl titel="Aufbau" wert={karte.aufbau} optionen={AUFBAU_OPTIONEN} aendern={(v) => aendern({ aufbau: v })} />
-        </div>
-        <div className="col-span-2">
-          {/* Das Format bringt sein Layout mit (Quadrat: eingebettet) – unten im
-              Block "Layout" sichtbar und jederzeit umstellbar. */}
-          <Auswahl
-            titel="Format"
-            wert={karte.format}
-            optionen={FORMAT_OPTIONEN}
-            aendern={(v) => aendern({ format: v, layoutArt: standardLayoutFuer(v) })}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="col-span-3">
+          <Haken
+            titel="Freies Format (Prototyp-Masse)"
+            wert={frei}
+            aendern={(v) => aendern(v ? { format: "frei", breiteMm: karte.breiteMm ?? 145, hoeheMm: karte.hoeheMm ?? 205 } : { format: "a4", ...standardLayoutWerte("a4") })}
           />
         </div>
-        {karte.format === "frei" && (
+        {frei && (
           <>
             <Zahl titel="Breite" einheit="mm" wert={karte.breiteMm ?? 200} aendern={(v) => aendern({ breiteMm: v })} />
             <Zahl titel="Hoehe" einheit="mm" wert={karte.hoeheMm ?? 200} aendern={(v) => aendern({ hoeheMm: v })} />
+            <div />
           </>
         )}
         <Zahl titel="Rahmen" einheit="mm" schritt={0.5} wert={karte.rahmenMm} aendern={(v) => aendern({ rahmenMm: v })} />
-        <Zahl titel="Herz" einheit="mm" schritt={0.5} wert={karte.herzBreiteMm} aendern={(v) => aendern({ herzBreiteMm: v })} />
-        <div className="col-span-2">
-          <span className="beschriftung">
-            Ausschnitt: {karte.ausschnittKm.toFixed(1)} km breit – bei jedem Format gleich
-          </span>
-          <input
-            type="range"
-            className="w-full"
-            min={0.8}
-            max={12}
-            step={0.1}
-            value={karte.ausschnittKm}
-            onChange={(e) => aendern({ ausschnittKm: Number(e.target.value) })}
-          />
+        <div className="col-span-2" />
+        <Zahl titel="Symbol klein" einheit="mm" schritt={0.5} wert={groessen.klein} aendern={(v) => aendern({ symbolBreitenMm: { ...groessen, klein: v } })} />
+        <Zahl titel="mittel" einheit="mm" schritt={0.5} wert={groessen.mittel} aendern={(v) => aendern({ symbolBreitenMm: { ...groessen, mittel: v } })} />
+        <Zahl titel="gross" einheit="mm" schritt={0.5} wert={groessen.gross} aendern={(v) => aendern({ symbolBreitenMm: { ...groessen, gross: v } })} />
+        <div className="col-span-3">
+          <span className="beschriftung">Ausschnitt: {karte.ausschnittKm.toFixed(2)} km breit – bei jedem Format gleich</span>
+          <input type="range" className="w-full" min={0.8} max={12} step={0.05} value={karte.ausschnittKm}
+            onChange={(e) => aendern({ ausschnittKm: Number(e.target.value) })} />
         </div>
       </div>
     </Block>
@@ -98,17 +78,28 @@ export function EingabeLayout({ karte, aendern }: Props) {
     aendern({ [key]: { ...karte[key], ...teil } } as Partial<Schichtkarte>);
   const ein = (teil: Partial<EingebettetesLayout>) => aendern({ eingebettet: { ...karte.eingebettet, ...teil } });
   const e = karte.eingebettet;
+  const posterFormat = ["a5", "a4", "a3"].includes(karte.format) ? karte.format.toUpperCase() : "A4";
 
   return (
     <Block
       titel="Layout"
+      zu={true}
       hinweis={
         karte.layoutArt === "poster"
-          ? "Positionen und Groessen als Anteil der Plattenhoehe, vermessen am Poster 'Zuhause'. Ein Satz Zahlen traegt alle A-Formate."
+          ? `Positionen und Groessen als Anteil der Plattenhoehe, vermessen am Poster "Zuhause" in ${posterFormat}. Jedes Poster-Format hat eigene Werte.`
           : "Jeder Text steht an seinem Rand in einer weissen Schutzkontur, die in Rahmen und Strassennetz uebergeht. Darunter wird weder Wasser geschnitten noch graviert."
       }
     >
       <div className="space-y-3">
+        <button
+          type="button"
+          onClick={() => aendern(standardLayoutWerte(karte.format))}
+          className="w-full rounded-md border px-3 py-1.5 text-xs"
+          style={{ borderColor: "var(--linie)" }}
+          title="Lage, Groessen, Schriften und Sperrung wie gemessen"
+        >
+          Auf Standard zuruecksetzen ({karte.format === "quadrat30" ? "Quadrat" : `Poster ${posterFormat}`})
+        </button>
         <Auswahl titel="Layout-Art" wert={karte.layoutArt} optionen={LAYOUT_OPTIONEN} aendern={(v) => aendern({ layoutArt: v })} />
 
         {karte.layoutArt === "poster" ? (
@@ -134,7 +125,7 @@ export function EingabeLayout({ karte, aendern }: Props) {
 
         <div className="grid grid-cols-[1fr_88px] gap-2 border-t pt-3" style={{ borderColor: "var(--linie)" }}>
           <Auswahl titel="Titelschrift" wert={karte.titelStil.schrift} optionen={schriftOptionen(TITELSCHRIFTEN)} aendern={(v) => stil("titelStil", { schrift: v })} />
-          <Zahl titel="Hoehe" einheit="%" schritt={0.1} wert={round(karte.titelStil.hoeheAnteil * 100)} aendern={(v) => stil("titelStil", { hoeheAnteil: v / 100 })} />
+          <Zahl titel="Hoehe" einheit="%" schritt={0.01} wert={round(karte.titelStil.hoeheAnteil * 100)} aendern={(v) => stil("titelStil", { hoeheAnteil: v / 100 })} />
           <Auswahl titel="Zeilenschrift" wert={karte.zeilenStil.schrift} optionen={schriftOptionen(ZEILENSCHRIFTEN)} aendern={(v) => stil("zeilenStil", { schrift: v })} />
           <Zahl titel="Hoehe" einheit="%" schritt={0.01} wert={round(karte.zeilenStil.hoeheAnteil * 100)} aendern={(v) => stil("zeilenStil", { hoeheAnteil: v / 100 })} />
         </div>

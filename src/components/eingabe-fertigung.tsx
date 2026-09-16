@@ -3,10 +3,11 @@
 import type { Generalisierung, Schichtkarte, StrassenGruppe, StrassenZiel } from "@/engine/typen";
 import { Block, Haken, Zahl } from "./felder";
 import { StufenTabelle } from "./stufen-tabelle";
+import type { Aenderung } from "./aenderung";
 
 interface Props {
   karte: Schichtkarte;
-  aendern: (teil: Partial<Schichtkarte>) => void;
+  aendern: (teil: Aenderung) => void;
 }
 
 const ZIELE: { wert: StrassenZiel; titel: string }[] = [
@@ -24,6 +25,7 @@ export function EingabeStrassen({ karte, aendern }: Props) {
   return (
     <Block
       titel="Strassen"
+      zu={true}
       hinweis={`Breiten gelten fuer A4 und wachsen mit dem Format. Netz = Strassen als ${
         karte.aufbau === "netz-weiss" ? "weisses" : "schwarzes"
       } Acryl, die Bloecke fallen heraus. Gravur = Linie auf dem ${
@@ -107,6 +109,7 @@ export function EingabeFertigung({ karte, aendern }: Props) {
   return (
     <Block
       titel="Fertigung"
+      zu={true}
       hinweis="Stege sitzen am hoechsten und tiefsten Punkt jeder Innenflaeche und sind nie breiter als der halbe Schriftstrich (mindestens 0,3 mm). Schmalere Innenflaechen als die Grenze werden zugefuellt – das Zeichen faellt dann als Ganzes heraus. Innenkreis des Gradzeichens: A5 0,97 mm, A4 1,38 mm; Titel-Schleifen ab 2,66 mm."
     >
       <div className="space-y-3">

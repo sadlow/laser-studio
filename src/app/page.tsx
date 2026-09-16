@@ -1,15 +1,25 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { mischen, type Aenderung } from "@/components/aenderung";
 import { EingabeFertigung, EingabeStrassen } from "@/components/eingabe-fertigung";
-import { EingabeKunde } from "@/components/eingabe-kunde";
 import { EingabeLayout, EingabePlatte } from "@/components/eingabe-produkt";
+import { Komposer } from "@/components/komposer";
+import { KundeGestaltung } from "@/components/kunde-gestaltung";
+import { KundeStandort } from "@/components/kunde-standort";
+import { KundeTexte } from "@/components/kunde-texte";
 import { PrototypPlatten } from "@/components/prototyp-platten";
+import { TechnikPruefung } from "@/components/technik-pruefung";
+import { TechnikReferenzorte } from "@/components/technik-referenzorte";
 import { VorlagenExport } from "@/components/vorlagen-export";
-import { Vorschau } from "@/components/vorschau";
 import { standardSchichtkarte } from "@/engine/standard";
 import type { Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
 
+/**
+ * Vollbild in drei Spalten (Marcel 16.09.2026): links, was der Kunde spaeter
+ * selbst einstellt; in der Mitte das grosse Arbeitsfeld; rechts die Technik
+ * fuer den Prototypenbau.
+ */
 export default function Seite() {
   const [karte, setKarte] = useState<Schichtkarte>(standardSchichtkarte);
   const [ergebnis, setErgebnis] = useState<SchichtkartenErgebnis | null>(null);
@@ -47,33 +57,39 @@ export default function Seite() {
     return () => clearTimeout(t);
   }, [karte, rendern]);
 
-  const aendern = (teil: Partial<Schichtkarte>) => setKarte((alt) => ({ ...alt, ...teil }));
+  const aendern = (teil: Aenderung) => setKarte((alt) => mischen(alt, teil));
 
   return (
-    <main className="mx-auto max-w-[1500px] p-6">
-      <header className="mb-6 flex flex-wrap items-baseline justify-between gap-2">
-        <div>
-          <h1 className="text-xl font-semibold">Laser Studio · Schichtkarte</h1>
-          <p className="text-sm" style={{ color: "var(--gedaempft)" }}>
-            Acrylschichten mit geschnittenem Strassennetz und Stencil-Text · feine Wege graviert · Wasser in blauem Spiegel · Herz in rotem Spiegel
+    <main className="grid h-screen grid-cols-[330px_minmax(0,1fr)_380px] overflow-hidden">
+      <aside className="space-y-3 overflow-y-auto border-r p-3" style={{ borderColor: "var(--linie)" }}>
+        <header className="px-1 pt-1 pb-2">
+          <h1 className="text-base font-semibold">Laser Studio · Schichtkarte</h1>
+          <p className="text-xs" style={{ color: "var(--gedaempft)" }}>
+            Was der Kunde spaeter selbst einstellt
           </p>
-        </div>
-      </header>
+        </header>
+        <KundeStandort karte={karte} aendern={aendern} />
+        <KundeTexte karte={karte} aendern={aendern} />
+        <KundeGestaltung karte={karte} aendern={aendern} />
+      </aside>
 
-      <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
-        <div className="space-y-4">
-          <VorlagenExport karte={karte} aendern={aendern} />
-          <PrototypPlatten karte={karte} />
-          <EingabeKunde karte={karte} aendern={aendern} />
-          <EingabePlatte karte={karte} aendern={aendern} />
-          <EingabeLayout karte={karte} aendern={aendern} />
-          <EingabeStrassen karte={karte} aendern={aendern} />
-          <EingabeFertigung karte={karte} aendern={aendern} />
-        </div>
-        <div className="lg:sticky lg:top-6 lg:self-start">
-          <Vorschau ergebnis={ergebnis} fehler={fehler} laedt={laedt} karte={karte} aendern={aendern} />
-        </div>
-      </div>
+      <section className="min-h-0 p-3">
+        <Komposer ergebnis={ergebnis} fehler={fehler} laedt={laedt} karte={karte} aendern={aendern} />
+      </section>
+
+      <aside className="space-y-3 overflow-y-auto border-l p-3" style={{ borderColor: "var(--linie)" }}>
+        <p className="px-1 pt-1 text-xs font-medium" style={{ color: "var(--gedaempft)" }}>
+          Technik und Prototypenbau
+        </p>
+        <TechnikPruefung ergebnis={ergebnis} />
+        <VorlagenExport karte={karte} aendern={aendern} />
+        <PrototypPlatten karte={karte} />
+        <TechnikReferenzorte karte={karte} aendern={aendern} />
+        <EingabePlatte karte={karte} aendern={aendern} />
+        <EingabeLayout karte={karte} aendern={aendern} />
+        <EingabeStrassen karte={karte} aendern={aendern} />
+        <EingabeFertigung karte={karte} aendern={aendern} />
+      </aside>
     </main>
   );
 }

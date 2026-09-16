@@ -5,10 +5,11 @@ import type { Schichtkarte } from "@/engine/typen";
 import type { ExportErgebnis } from "@/server/export";
 import type { Vorlage } from "@/server/vorlagen";
 import { Block } from "./felder";
+import type { Aenderung } from "./aenderung";
 
 interface Props {
   karte: Schichtkarte;
-  aendern: (teil: Partial<Schichtkarte>) => void;
+  aendern: (teil: Aenderung) => void;
 }
 
 /**
@@ -90,7 +91,8 @@ export function VorlagenExport({ karte, aendern }: Props) {
   return (
     <Block
       titel="Vorlagen und Export"
-      hinweis="Export je Variante: eine Laserdatei pro Lage mit den Ebenen 1 Gravur, 2 Schnitt innen, 3 Schnitt aussen – dazu Vorschau, Parameter und Uebersicht. Es gilt die Kundeneingabe oben."
+      zu={false}
+      hinweis="Export je Variante: eine Laserdatei pro Lage mit den Ebenen 1 Gravur, 2 Schnitt innen, 3 Schnitt aussen – dazu Vorschau, Parameter und Uebersicht. Es gilt die Kundeneingabe links."
     >
       <div className="space-y-3">
         <div className="flex gap-2">

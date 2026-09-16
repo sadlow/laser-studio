@@ -44,8 +44,8 @@ body {
   stroke-width: 1px;
 }
 
-/* Beim Ziehen des Herzens zeigt die Vorschau ein bewegtes Herz – das
+/* Beim Ziehen des Symbols zeigt die Vorschau ein bewegtes Symbol – das
    gerenderte bleibt bis zur neuen Vorschau verborgen. */
-[data-zieht="herz"] #herz {
+[data-zieht="symbol"] #symbol {
   visibility: hidden;
 }

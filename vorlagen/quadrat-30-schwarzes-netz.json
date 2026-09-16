@@ -176,7 +176,11 @@
     "wasserInselMinMm2": 15,
     "stegMm": 0.5,
     "stencilMinInselBreiteMm": 0.8,
-    "herzBreiteMm": 11,
+    "symbolBreitenMm": {
+      "klein": 8,
+      "mittel": 11,
+      "gross": 15
+    },
     "loseTeileMarkieren": true
   }
 }

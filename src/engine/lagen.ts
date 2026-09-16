@@ -12,7 +12,7 @@ import {
   zuFlaeche,
   type Flaeche,
 } from "./geometrie";
-import { HERZ_HOEHE_ANTEIL, herzRingAnSpitze } from "./herz";
+import { symbolEinpassen } from "./symbole";
 import { ortZuMm } from "./geo";
 import type { KartenRohdaten } from "./kacheln";
 import { stencilStege } from "./stencil";
@@ -44,8 +44,8 @@ export interface Bausteine {
   /** Was aus der weissen Oberseite fuer die Buchstaben herausgeschnitten wird. */
   textAusschnitt: Flaeche;
   gravur: { linien: Punkt[][]; breiteMm: number }[];
-  herz: Teil[];
-  herzLage: SchichtkartenErgebnis["herz"];
+  symbol: Teil[];
+  symbolLage: SchichtkartenErgebnis["symbol"];
   textBereich: Flaeche;
   kennzahlen: Omit<Kennzahlen, "zoomEntsprechung" | "loseNetzstuecke" | "loseTextteile" | "hintergrundTeile" | "rechenzeitMs">;
 }
@@ -107,15 +107,14 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   const gravurAus = vereinige(schutz, inseln.wasser, netz);
   const gravur = gravurRoh.map((g) => ({ linien: ziehLinienAb(g.linien, gravurAus), breiteMm: g.breiteMm }));
 
-  // --- Herz: Spitze auf dem Ort, Groesse fuer A4 und mitwachsend. Liegt der Ort
-  // ausserhalb des verschobenen Ausschnitts, gibt es kein Herz.
-  const herzBreite = k.herzBreiteMm * faktor;
-  const spitze = ortZuMm({ lon: k.lon, lat: k.lat }, k.kartenMitte ?? { lon: k.lon, lat: k.lat }, k.ausschnittKm * 1000, f);
-  const imFenster = spitze.x >= f.xMm && spitze.x <= f.xMm + f.breiteMm && spitze.y >= f.yMm && spitze.y <= f.yMm + f.hoeheMm;
-  const herz = imFenster ? teile(zuFlaeche([herzRingAnSpitze(spitze.x, spitze.y, herzBreite)])) : [];
-  const herzLage = imFenster
-    ? { spitzeXMm: spitze.x, spitzeYMm: spitze.y, breiteMm: herzBreite, hoeheMm: herzBreite * HERZ_HOEHE_ANTEIL }
-    : null;
+  // --- Standort-Symbol: Anker auf dem Ort (Spitze bei Herz und Pin), Groesse
+  // fuer A4 und mitwachsend. Liegt der Ort ausserhalb des verschobenen
+  // Ausschnitts, gibt es kein Symbol.
+  const anker = ortZuMm({ lon: k.lon, lat: k.lat }, k.kartenMitte ?? { lon: k.lon, lat: k.lat }, k.ausschnittKm * 1000, f);
+  const imFenster = anker.x >= f.xMm && anker.x <= f.xMm + f.breiteMm && anker.y >= f.yMm && anker.y <= f.yMm + f.hoeheMm;
+  const eingepasst = symbolEinpassen(k.kunde.symbol ?? "herz", anker.x, anker.y, (k.symbolBreitenMm[k.kunde.symbolGroesse] ?? 11) * faktor);
+  const symbol = imFenster ? teile(zuFlaeche(eingepasst.ringe)) : [];
+  const symbolLage = imFenster ? { ankerXMm: anker.x, ankerYMm: anker.y, ...eingepasst.box } : null;
 
   return {
     plattenFl,
@@ -125,8 +124,8 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
     wasser: inseln.wasser,
     textAusschnitt: vereinige(...ausschnitte),
     gravur,
-    herz,
-    herzLage,
+    symbol,
+    symbolLage,
     textBereich: text.textBereich,
     kennzahlen: {
       netzAnteilFenster,

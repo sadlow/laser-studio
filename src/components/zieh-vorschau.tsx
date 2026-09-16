@@ -2,34 +2,33 @@
 
 import { useEffect, useRef, useState } from "react";
 import { mmZuOrt } from "@/engine/geo";
-import { herzPfadEinheit } from "@/engine/herz";
+import { symbolPfad } from "@/engine/symbole";
 import { FARBE_SCHWARZ, FARBE_WEISS } from "@/engine/svg";
 import type { Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
 import { KartenKopie } from "./karten-kopie";
 import { useSvgLage } from "./svg-lage";
 import { ZOOM_STUFEN_KM, ZoomKnoepfe } from "./zoom-knoepfe";
+import type { Aenderung } from "./aenderung";
 
 interface Props {
   svg: string;
   ergebnis: SchichtkartenErgebnis;
   karte: Schichtkarte;
-  aendern: (teil: Partial<Schichtkarte>) => void;
+  aendern: (teil: Aenderung) => void;
 }
 
 interface Zug {
-  art: "karte" | "herz";
+  art: "karte" | "symbol";
   startX: number;
   startY: number;
   dx: number;
   dy: number;
 }
 
-const HERZ_PFAD = herzPfadEinheit();
-
 /**
  * Vorschau zum Anfassen (Marcel 16.09.2026): Karte ziehen verschiebt den
- * Ausschnitt, Herz ziehen versetzt den Ort – die Koordinaten zeigen immer die
- * Herzspitze –, Plus und Minus zoomen in festen Stufen. Beim Ziehen und Zoomen
+ * Ausschnitt, Symbol ziehen versetzt den Ort – die Koordinaten zeigen immer den
+ * Symbol-Anker (Spitze bei Herz und Pin) –, Plus und Minus zoomen in festen Stufen. Beim Ziehen und Zoomen
  * wird die letzte Vorschau verschoben bzw. skaliert gezeigt, bis die neue da ist.
  */
 export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
@@ -37,7 +36,7 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
   const [zug, setZug] = useState<Zug | null>(null);
   const [gezogen, setGezogen] = useState(false);
   const [haltenFuer, setHaltenFuer] = useState<SchichtkartenErgebnis | null>(null);
-  const [zeiger, setZeiger] = useState<"karte" | "herz" | null>(null);
+  const [zeiger, setZeiger] = useState<"karte" | "symbol" | null>(null);
   const aktuell = useRef({ karte, aendern });
   aktuell.current = { karte, aendern };
 
@@ -58,9 +57,9 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
     return { x: ((clientX - r.left) / r.width) * platte.breiteMm, y: ((clientY - r.top) / r.height) * platte.hoeheMm };
   };
 
-  const trifft = (p: { x: number; y: number }): "karte" | "herz" | null => {
-    const h = ergebnis.herz;
-    if (h && Math.abs(p.x - h.spitzeXMm) <= h.breiteMm / 2 && p.y <= h.spitzeYMm && p.y >= h.spitzeYMm - h.hoeheMm) return "herz";
+  const trifft = (p: { x: number; y: number }): "karte" | "symbol" | null => {
+    const h = ergebnis.symbol;
+    if (h && p.x >= h.xMm && p.x <= h.xMm + h.breiteMm && p.y >= h.yMm && p.y <= h.yMm + h.hoeheMm) return "symbol";
     if (p.x >= f.xMm && p.x <= f.xMm + f.breiteMm && p.y >= f.yMm && p.y <= f.yMm + f.hoeheMm) return "karte";
     return null;
   };
@@ -120,9 +119,9 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
     if (zug.art === "karte") {
       const neu = mmZuOrt({ x: f.xMm + f.breiteMm / 2 - dxMm, y: f.yMm + f.hoeheMm / 2 - dyMm }, mitte, breiteM, f);
       aendern({ kartenMitte: neu });
-    } else if (ergebnis.herz) {
-      const x = Math.min(f.xMm + f.breiteMm, Math.max(f.xMm, ergebnis.herz.spitzeXMm + dxMm));
-      const y = Math.min(f.yMm + f.hoeheMm, Math.max(f.yMm, ergebnis.herz.spitzeYMm + dyMm));
+    } else if (ergebnis.symbol) {
+      const x = Math.min(f.xMm + f.breiteMm, Math.max(f.xMm, ergebnis.symbol.ankerXMm + dxMm));
+      const y = Math.min(f.yMm + f.hoeheMm, Math.max(f.yMm, ergebnis.symbol.ankerYMm + dyMm));
       const ort = mmZuOrt({ x, y }, mitte, breiteM, f);
       // Die Karte bleibt, wo sie ist – nur der Ort wandert.
       aendern({ lon: ort.lon, lat: ort.lat, kartenMitte: mitte });
@@ -136,8 +135,9 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
   const s = lage?.pxProMm ?? 1;
   // Frei gewordene Raender in der Farbe, auf der die Strassen liegen.
   const grund = karte.aufbau === "netz-weiss" ? FARBE_SCHWARZ : FARBE_WEISS;
-  const h = ergebnis.herz;
-  const cursor = zieht ? "grabbing" : zeiger === "herz" ? "move" : zeiger === "karte" ? "grab" : "default";
+  const h = ergebnis.symbol;
+  const form = symbolPfad(karte.kunde.symbol);
+  const cursor = zieht ? "grabbing" : zeiger === "symbol" ? "move" : zeiger === "karte" ? "grab" : "default";
 
   return (
     <div
@@ -151,7 +151,7 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
       onPointerLeave={() => setZeiger(null)}
     >
       <div
-        className="w-full [&>svg]:mx-auto [&>svg]:h-auto [&>svg]:max-h-[78vh] [&>svg]:w-auto [&>svg]:max-w-full"
+        className="w-full [&>svg]:mx-auto [&>svg]:h-auto [&>svg]:max-h-[calc(100vh-9rem)] [&>svg]:w-auto [&>svg]:max-w-full"
         // Die SVG kommt aus der eigenen Engine, nicht aus einer Fremdquelle.
         dangerouslySetInnerHTML={{ __html: svg }}
       />
@@ -161,19 +161,13 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
       {lage && !zieht && Math.abs(zoomFaktor - 1) > 0.002 && (
         <KartenKopie svg={svg} lage={lage} platte={platte} fenster={f} grund={grund} faktor={zoomFaktor} />
       )}
-      {lage && zieht === "herz" && zug && h && (
+      {lage && zieht === "symbol" && zug && h && (
         <svg
           className="pointer-events-none absolute"
-          viewBox="0 0 1 1"
-          preserveAspectRatio="none"
-          style={{
-            left: lage.links + (h.spitzeXMm - h.breiteMm / 2) * s + zug.dx,
-            top: lage.oben + (h.spitzeYMm - h.hoeheMm) * s + zug.dy,
-            width: h.breiteMm * s,
-            height: h.hoeheMm * s,
-          }}
+          viewBox={`0 0 1 ${form.hoehe}`}
+          style={{ left: lage.links + h.xMm * s + zug.dx, top: lage.oben + h.yMm * s + zug.dy, width: h.breiteMm * s, height: h.hoeheMm * s }}
         >
-          <path d={HERZ_PFAD} fill="#d23a45" stroke="#fff" strokeWidth={0.03} />
+          <path d={form.d} fill="#d23a45" fillRule="evenodd" stroke="#fff" strokeWidth={0.03} />
         </svg>
       )}
       {lage && (

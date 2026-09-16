@@ -82,7 +82,7 @@ function uebersicht(name: string, datum: string, karte: Schichtkarte, r: Awaited
     `erstellt ${datum}`,
     ``,
     `Platte:     ${platte.breiteMm} x ${platte.hoeheMm} mm (${karte.format}, ${karte.layoutArt}, ${karte.aufbau})`,
-    `Herzspitze: ${karte.lat.toFixed(5)}, ${karte.lon.toFixed(5)}`,
+    `Ort (Symbol-Anker): ${karte.lat.toFixed(5)}, ${karte.lon.toFixed(5)} – ${karte.kunde.symbol}, ${karte.kunde.symbolGroesse}`,
     `Ausschnitt: ${karte.ausschnittKm} km breit um ${r.kartenMitte.lat.toFixed(5)}, ${r.kartenMitte.lon.toFixed(5)}`,
     `Texte:      ${r.texte.titel} / ${r.texte.zeile1} / ${r.texte.zeile2}`,
     ``,

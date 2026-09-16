@@ -23,7 +23,7 @@ export interface Teil {
 }
 
 /** deck nur beim schwarzen Netz: weisse Oberseite mit Rahmen und Text. */
-export type LagenKey = "herz" | "deck" | "netz" | "hintergrund" | "blau";
+export type LagenKey = "symbol" | "deck" | "netz" | "hintergrund" | "blau";
 
 export interface Lage {
   key: LagenKey;
@@ -75,8 +75,8 @@ export interface SchichtkartenErgebnis {
   vorschauSvg: string;
   /** Wirksame Kartenmitte – die Vorschau rechnet damit Ziehen in Koordinaten um. */
   kartenMitte: { lon: number; lat: number };
-  /** Herzspitze in mm auf der Platte; null, wenn der Ort ausserhalb des Ausschnitts liegt. */
-  herz: { spitzeXMm: number; spitzeYMm: number; breiteMm: number; hoeheMm: number } | null;
+  /** Standort-Symbol in mm: Anker auf dem Ort und Umriss-Box; null ausserhalb des Ausschnitts. */
+  symbol: { ankerXMm: number; ankerYMm: number; xMm: number; yMm: number; breiteMm: number; hoeheMm: number } | null;
   lagen: Lage[];
   layout: Layout;
   texte: { titel: string; zeile1: string; zeile2: string };
