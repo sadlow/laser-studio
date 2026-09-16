@@ -3,7 +3,7 @@
 import { FORMATE } from "@/engine/formate";
 import { standardLayoutWerte } from "@/engine/poster-masse";
 import { SYMBOL_TITEL, symbolPfad, type SymbolArt, type SymbolGroesse } from "@/engine/symbole";
-import type { Aufbau, FormatKey, Kundeneingabe, Schichtkarte } from "@/engine/typen";
+import type { Aufbau, FormatKey, Holzrahmen, Kundeneingabe, Schichtkarte } from "@/engine/typen";
 import { Block, Wahl } from "./felder";
 import { STUFEN } from "./stufen-tabelle";
 import type { Aenderung } from "./aenderung";
@@ -36,6 +36,13 @@ function DesignBild({ netz, grund, rahmen }: { netz: string; grund: string; rahm
     </svg>
   );
 }
+
+const RAHMEN: { wert: Holzrahmen; titel: string; farbe?: string }[] = [
+  { wert: "ohne", titel: "ohne" },
+  { wert: "schwarz", titel: "schwarz", farbe: "#1d1c1a" },
+  { wert: "weiss", titel: "weiss", farbe: "#f4f2ed" },
+  { wert: "eiche", titel: "Eiche", farbe: "#c49a6c" },
+];
 
 function SymbolBild({ art }: { art: SymbolArt }) {
   const p = symbolPfad(art);
@@ -117,6 +124,22 @@ export function KundeGestaltung({ karte, aendern }: Props) {
               aendern={(v) => setze({ symbolGroesse: v })}
             />
           </div>
+        </div>
+        <div>
+          <span className="beschriftung">Holzrahmen</span>
+          <Wahl<Holzrahmen>
+            wert={k.holzrahmen ?? "ohne"}
+            optionen={RAHMEN.map((r) => ({
+              wert: r.wert,
+              titel: (
+                <span className="inline-flex items-center gap-1.5">
+                  {r.farbe && <span className="inline-block h-3 w-3 rounded-sm border" style={{ background: r.farbe, borderColor: "#8f8b83" }} />}
+                  {r.titel}
+                </span>
+              ),
+            }))}
+            aendern={(v) => setze({ holzrahmen: v })}
+          />
         </div>
       </div>
     </Block>

@@ -2,6 +2,7 @@
 // Getrennt vom Eingabe-Vertrag in typen.ts, der von dort re-exportiert wird.
 
 import type { Punkt } from "./clip";
+import type { Holzrahmen, HolzrahmenProfil } from "./typen";
 
 export interface Zone {
   xMm: number;
@@ -71,6 +72,8 @@ export interface Kennzahlen {
   wasserInselnGeflutet: number;
   /** So weit steht das Symbol (auf dem Hintergrund geklebt) ueber die Netzlage hinaus. */
   symbolUeberNetzMm: number;
+  /** So viel vom Rand bleibt im Holzrahmen sichtbar (Rand minus Ueberstand). */
+  randImRahmenMm: number;
   rechenzeitMs: number;
 }
 
@@ -82,7 +85,11 @@ export interface SchichtkartenErgebnis {
   symbol: { ankerXMm: number; ankerYMm: number; xMm: number; yMm: number; breiteMm: number; hoeheMm: number } | null;
   lagen: Lage[];
   layout: Layout;
+  /** Gewaehlter Holzrahmen mit Profil; null ohne Rahmen. */
+  rahmen: ({ farbe: Exclude<Holzrahmen, "ohne"> } & HolzrahmenProfil) | null;
   texte: { titel: string; zeile1: string; zeile2: string };
+  /** Wo die gesetzten Zeilen stehen ("Titel", "Namen", "Letzte Zeile") – fuer Kameramotive. */
+  textZonen: { name: string; zone: Zone }[];
   ausschnittMeter: { breite: number; hoehe: number };
   kennzahlen: Kennzahlen;
   warnungen: string[];

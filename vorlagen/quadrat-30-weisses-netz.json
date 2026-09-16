@@ -185,6 +185,12 @@
       "acryl": 2,
       "spiegel": 3
     },
+    "holzrahmenProfil": {
+      "breiteMm": 14,
+      "tiefeMm": 28,
+      "einlassMm": 6,
+      "ueberstandMm": 4
+    },
     "loseTeileMarkieren": true
   }
 }

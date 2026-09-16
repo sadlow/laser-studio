@@ -59,6 +59,7 @@ export function standardSchichtkarte(): Schichtkarte {
       strassenStufe: "ausgewogen",
       symbol: "herz",
       symbolGroesse: "mittel",
+      holzrahmen: "ohne",
     },
     lon: 13.3375,
     lat: 52.5164,
@@ -106,6 +107,9 @@ export function standardSchichtkarte(): Schichtkarte {
     symbolBreitenMm: { klein: 8, mittel: 11, gross: 15 },
     // Marcel 16.09.2026: weiss und schwarz immer 2 mm, Spiegelacryl immer 3 mm.
     staerkenMm: { acryl: 2, spiegel: 3 },
+    // Marcel 16.09.2026, gleiches Profil fuer alle Groessen. Bei 7 mm Rand und
+    // 4 mm Ueberstand bleiben im Rahmen 3 mm Rand sichtbar.
+    holzrahmenProfil: { breiteMm: 14, tiefeMm: 28, einlassMm: 6, ueberstandMm: 4 },
     loseTeileMarkieren: true,
   };
 }

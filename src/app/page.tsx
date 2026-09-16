@@ -59,6 +59,12 @@ export default function Seite() {
 
   const aendern = (teil: Aenderung) => setKarte((alt) => mischen(alt, teil));
 
+  // ?holzrahmen=schwarz startet mit Rahmen – fuer Referenzbilder aus dem Headless-Browser.
+  useEffect(() => {
+    const rahmen = new URLSearchParams(window.location.search).get("holzrahmen");
+    if (rahmen === "schwarz" || rahmen === "weiss" || rahmen === "eiche") setKarte((alt) => mischen(alt, { kunde: { holzrahmen: rahmen } }));
+  }, []);
+
   return (
     <main className="grid h-screen grid-cols-[330px_minmax(0,1fr)_380px] overflow-hidden">
       <aside className="space-y-3 overflow-y-auto border-r p-3" style={{ borderColor: "var(--linie)" }}>

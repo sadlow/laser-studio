@@ -58,6 +58,7 @@ function lese(datei: string): Vorlage {
       },
       symbolBreitenMm: { ...basis.symbolBreitenMm, ...k.symbolBreitenMm },
       staerkenMm: { ...basis.staerkenMm, ...k.staerkenMm },
+      holzrahmenProfil: { ...basis.holzrahmenProfil, ...k.holzrahmenProfil },
       titelStil: { ...basis.titelStil, ...k.titelStil },
       zeilenStil: { ...basis.zeilenStil, ...k.zeilenStil },
     },

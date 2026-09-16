@@ -1,5 +1,7 @@
 import { setzeEingebettet } from "./ecken";
 import { zoomEntsprechung } from "./geo";
+import { ringeInMm } from "./geometrie";
+import { holzrahmenPruefen } from "./holzrahmen";
 import { ladeKartenRohdaten } from "./kacheln";
 import { baueBausteine } from "./lagen";
 import { berechneLayout } from "./layout";
@@ -111,13 +113,20 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
     warnungen.push("Der Ort liegt ausserhalb des Kartenausschnitts – das Standort-Symbol fehlt. Karte zurueckschieben oder zentrieren.");
   }
 
+  const textZonen = textblock.zeilen.map((z) => ({ name: z.name, zone: umgebend(ringeInMm(z.flaeche).flat()) }));
+  const stapelMm = s.lagen.filter((l) => l.key !== "symbol").reduce((summe, l) => summe + l.staerkeMm, 0);
+  const holz = holzrahmenPruefen(k, layout, b.symbolLage, textZonen, stapelMm);
+  warnungen.push(...holz.warnungen);
+
   return {
     vorschauSvg: s.vorschauSvg,
     kartenMitte,
     symbol: b.symbolLage,
     lagen: s.lagen,
     layout,
+    rahmen: holz.rahmen,
     texte: textblock.texte,
+    textZonen,
     ausschnittMeter: roh.ausschnittMeter,
     kennzahlen: {
       ...b.kennzahlen,
@@ -126,8 +135,22 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
       loseTextteile: s.loseTextteile,
       hintergrundTeile: s.hintergrundTeile,
       symbolUeberNetzMm,
+      randImRahmenMm: holz.randImRahmenMm,
       rechenzeitMs: Date.now() - start,
     },
     warnungen,
   };
+}
+
+// Schleife statt Math.min(...): eine Schreibschrift-Zeile hat zehntausende Punkte.
+function umgebend(punkte: { x: number; y: number }[]) {
+  if (!punkte.length) return { xMm: 0, yMm: 0, breiteMm: 0, hoeheMm: 0 };
+  let [x0, y0, x1, y1] = [Infinity, Infinity, -Infinity, -Infinity];
+  for (const p of punkte) {
+    x0 = Math.min(x0, p.x);
+    y0 = Math.min(y0, p.y);
+    x1 = Math.max(x1, p.x);
+    y1 = Math.max(y1, p.y);
+  }
+  return { xMm: x0, yMm: y0, breiteMm: x1 - x0, hoeheMm: y1 - y0 };
 }

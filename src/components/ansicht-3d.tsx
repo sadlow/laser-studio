@@ -1,36 +1,51 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import type { SchichtkartenErgebnis } from "@/engine/typen";
+import { Leiste3D, SEITEN, seitenZahl, type Seiten } from "./ansicht-3d-leiste";
 import { baueKulisse } from "./kulisse-3d";
-import { baueSzene, entsorgen, stapeln } from "./szene-3d";
+import { MOTIV_TITEL, motivAnwenden, motivMoeglich, type Motiv } from "./motive-3d";
+import { baueSzene, entsorgen, stapeln, type Stapel } from "./szene-3d";
 
 const AUSEINANDER_MM = 14;
+const ohne = { anwenden: (_m: Motiv) => {}, groesse: () => {}, referenz: () => "" };
 
 /**
  * Drehbare 3D-Ansicht des Lagenstapels. Maus ziehen dreht (auch um die
  * Y-Achse), Rad zoomt, rechte Maustaste verschiebt. "Lagen auseinander" zieht
- * den Stapel auf, damit man sieht, welche Platte was traegt. "Fotoansicht"
- * lehnt die Platte an eine Wand und speichert ein Referenzbild fuer den
- * Leonardo-Skill.
+ * den Stapel auf. Die Motive stellen Buehne und Kamera fuer Referenzbilder ein
+ * (Leonardo-Skill): an der Wand, flach liegend und Nahaufnahmen.
+ *
+ * URL fuer Headless-Aufnahmen: ?ansicht=3d&foto=symbol&seiten=16:9&vollbild=1
+ * (foto=1 ist die Wand), ?lagen=auseinander zieht den Stapel auf.
  */
 export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
   const box = useRef<HTMLDivElement>(null);
-  // ?lagen=auseinander startet aufgezogen – fuer Tests und geteilte Links.
-  const [auseinander, setAuseinander] = useState(() => new URLSearchParams(window.location.search).get("lagen") === "auseinander");
-  // ?foto=1 startet in der Fotoansicht – fuer Referenzbilder aus dem Headless-Browser.
-  const [foto, setFoto] = useState(() => new URLSearchParams(window.location.search).get("foto") === "1");
+  const [url] = useState(() => new URLSearchParams(window.location.search));
+  const [auseinander, setAuseinander] = useState(() => url.get("lagen") === "auseinander");
+  const [motiv, setMotiv] = useState<Motiv>(() => {
+    const f = url.get("foto");
+    return f === "1" ? "wand" : f && f in MOTIV_TITEL ? (f as Motiv) : "frei";
+  });
+  const [seiten, setSeiten] = useState<Seiten>(() => ((SEITEN as readonly string[]).includes(url.get("seiten") ?? "") ? (url.get("seiten") as Seiten) : "4:3"));
+  const vollbild = url.get("vollbild") === "1";
   const [baut, setBaut] = useState(true);
+  const motive = useMemo(() => (Object.keys(MOTIV_TITEL) as Motiv[]).filter((m) => motivMoeglich(m, ergebnis)), [ergebnis]);
+  const aktiv = motive.includes(motiv) ? motiv : "frei";
   const ziel = useRef(0);
-  const startansicht = useRef<() => void>(() => {});
-  const fotoSetzen = useRef<(an: boolean) => void>(() => {});
-  const referenz = useRef<() => string>(() => "");
+  const verhaeltnis = useRef<number | null>(null);
+  const steuer = useRef(ohne);
   ziel.current = auseinander ? AUSEINANDER_MM : 0;
+  // Im Fotomotiv zeigt die Leinwand genau das Seitenverhaeltnis des Referenzbilds.
+  verhaeltnis.current = aktiv === "frei" ? null : seitenZahl(seiten);
 
-  useEffect(() => fotoSetzen.current(foto), [foto, baut]);
+  useEffect(() => {
+    steuer.current.groesse();
+    steuer.current.anwenden(aktiv);
+  }, [aktiv, seiten, baut]);
 
   useEffect(() => {
     const el = box.current;
@@ -40,14 +55,14 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
     setBaut(true);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const pixel = Math.min(window.devicePixelRatio, 2);
+    renderer.setPixelRatio(pixel);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     el.appendChild(renderer.domElement);
 
     const szene = new THREE.Scene();
-    szene.background = new THREE.Color(0xeceae4);
     const pmrem = new THREE.PMREMGenerator(renderer);
     szene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
     szene.environmentIntensity = 0.7;
@@ -58,71 +73,61 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
     const steuerung = new OrbitControls(kamera, renderer.domElement);
     steuerung.enableDamping = true;
     steuerung.dampingFactor = 0.08;
+    steuerung.minDistance = 20;
 
     const licht = new THREE.DirectionalLight(0xffffff, 1.6);
-    licht.position.set(-gross * 0.6, gross * 0.8, gross * 1.2);
     licht.castShadow = true;
     licht.shadow.mapSize.set(2048, 2048);
-    Object.assign(licht.shadow.camera, { left: -gross * 0.7, right: gross * 0.7, top: gross * 0.7, bottom: -gross * 0.7, near: 1, far: gross * 4 });
     licht.shadow.bias = -0.0004;
     licht.shadow.normalBias = 0.3;
-    szene.add(licht, new THREE.HemisphereLight(0xffffff, 0xd8d4ca, 0.6));
-    const kulisse = baueKulisse(szene, h, gross);
+    szene.add(licht, licht.target, new THREE.HemisphereLight(0xffffff, 0xd8d4ca, 0.6));
+    const kulisse = baueKulisse(szene, gross);
 
-    let abstand = ziel.current;
-    let ansichtFoto = false;
-    let stapel: ReturnType<typeof baueSzene> | null = null;
-    // Erst malen, dann bauen: die Triangulierung dauert bei dichten Karten spuerbar.
-    const bauen = window.setTimeout(() => {
-      if (aus) return;
-      stapel = baueSzene(ergebnis);
-      stapeln(stapel.platten, abstand);
-      // Im Halter sitzt die Unterkante auf dessen Drehpunkt; gerade stehend liegt die Mitte im Ursprung.
-      stapel.gruppe.position.y = h / 2;
-      kulisse.halter.add(stapel.gruppe);
-      const d = (h / 2 / Math.tan((15 * Math.PI) / 180)) * 1.25;
-      startansicht.current = () => {
-        if (ansichtFoto) {
-          steuerung.target.set(0, -h * 0.04, -h * 0.1);
-          kamera.position.set(d * 0.55, h * 0.1, d * 1.12);
-        } else {
-          steuerung.target.set(0, 0, stapel!.hoehe / 2);
-          kamera.position.set(d * 0.42, -d * 0.22, d * 0.88);
-        }
-        steuerung.update();
-      };
-      fotoSetzen.current = (an) => {
-        ansichtFoto = an;
-        kulisse.setze(an);
-        startansicht.current();
-      };
-      referenz.current = () => {
-        // Doppelte Aufloesung fuer das Referenzbild, danach zurueck.
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2) * 2);
-        groesse();
-        renderer.render(szene, kamera);
-        const bild = renderer.domElement.toDataURL("image/png");
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        groesse();
-        return bild;
-      };
-      startansicht.current();
-      steuerung.minDistance = d * 0.25;
-      steuerung.maxDistance = d * 3;
-      setBaut(false);
-    }, 30);
-
+    // Gezeichnet wird nur, wenn sich etwas geaendert hat – im Headless-Browser
+    // (Software-Grafik) kostet ein Bild mit Schatten Sekunden.
+    let neu = true;
     const groesse = () => {
-      const w = el.clientWidth;
-      const hh = el.clientHeight;
+      let [w, hh] = [el.clientWidth, el.clientHeight];
       if (!w || !hh) return;
+      const v = verhaeltnis.current;
+      if (v && w / hh > v) w = Math.round(hh * v);
+      else if (v) hh = Math.round(w / v);
       renderer.setSize(w, hh);
       kamera.aspect = w / hh;
       kamera.updateProjectionMatrix();
+      neu = true;
     };
     const beobachter = new ResizeObserver(groesse);
     beobachter.observe(el);
     groesse();
+
+    let abstand = ziel.current;
+    let stapel: Stapel | null = null;
+    // Erst malen, dann bauen: die Triangulierung dauert bei dichten Karten spuerbar.
+    const bauen = window.setTimeout(() => {
+      if (aus) return;
+      const s = baueSzene(ergebnis);
+      stapel = s;
+      stapeln(s.platten, abstand);
+      kulisse.halter.add(s.gruppe);
+      steuer.current = {
+        groesse,
+        anwenden: (m) => {
+          motivAnwenden(m, ergebnis, s, { kamera, steuerung, licht, kulisse });
+          neu = true;
+        },
+        referenz: () => {
+          // Referenzbild mit rund 2800 px an der langen Kante, danach zurueck.
+          const g = renderer.getSize(new THREE.Vector2());
+          renderer.setPixelRatio(Math.min(4, 2800 / Math.max(g.x, g.y)));
+          renderer.render(szene, kamera);
+          const png = renderer.domElement.toDataURL("image/png");
+          renderer.setPixelRatio(pixel);
+          return png;
+        },
+      };
+      setBaut(false);
+    }, 30);
 
     const zeichnen = () => {
       if (aus) return;
@@ -130,14 +135,18 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
       if (stapel && Math.abs(abstand - ziel.current) > 0.01) {
         abstand += (ziel.current - abstand) * 0.15;
         stapeln(stapel.platten, abstand);
+        neu = true;
       }
-      steuerung.update();
-      renderer.render(szene, kamera);
+      if (steuerung.update() || neu) {
+        renderer.render(szene, kamera);
+        neu = false;
+      }
     };
     zeichnen();
 
     return () => {
       aus = true;
+      steuer.current = ohne;
       window.clearTimeout(bauen);
       cancelAnimationFrame(bild);
       beobachter.disconnect();
@@ -151,38 +160,28 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
     };
   }, [ergebnis]);
 
+  const speichern = () => {
+    const a = document.createElement("a");
+    a.href = steuer.current.referenz();
+    a.download = `schichtkarte-${aktiv}-${seiten.replace(":", "x")}.png`;
+    a.click();
+  };
+  const r = ergebnis.rahmen;
+
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-md">
-      <div ref={box} className="absolute inset-0" data-ansicht="3d" />
-      <div className="absolute top-3 right-3 flex gap-1.5 text-xs">
-        <button type="button" onClick={() => setAuseinander((a) => !a)} className="rounded-md border px-2.5 py-1 shadow-sm"
-          style={auseinander ? { background: "var(--akzent)", borderColor: "var(--akzent)", color: "#fff" } : { background: "var(--karte)", borderColor: "var(--linie)" }}>
-          Lagen auseinander
-        </button>
-        <button type="button" onClick={() => setFoto((f) => !f)} className="rounded-md border px-2.5 py-1 shadow-sm"
-          style={foto ? { background: "var(--akzent)", borderColor: "var(--akzent)", color: "#fff" } : { background: "var(--karte)", borderColor: "var(--linie)" }}>
-          Fotoansicht
-        </button>
-        {foto && (
-          <button type="button" className="rounded-md border px-2.5 py-1 shadow-sm" style={{ background: "var(--karte)", borderColor: "var(--linie)" }}
-            onClick={() => {
-              const a = document.createElement("a");
-              a.href = referenz.current();
-              a.download = "schichtkarte-referenz.png";
-              a.click();
-            }}>
-            Referenzbild speichern
-          </button>
-        )}
-        <button type="button" onClick={() => startansicht.current()} className="rounded-md border px-2.5 py-1 shadow-sm"
-          style={{ background: "var(--karte)", borderColor: "var(--linie)" }}>
-          Ansicht zuruecksetzen
-        </button>
-      </div>
+    <div className={vollbild ? "fixed inset-0 z-50" : "relative h-full w-full overflow-hidden rounded-md"} style={vollbild ? { background: "#f3f0ea" } : undefined}>
+      {/* Die Next-Entwickleranzeige gehoert nicht ins Referenzbild. */}
+      {vollbild && <style>{"nextjs-portal{display:none!important}"}</style>}
+      <div ref={box} className="absolute inset-0 flex items-center justify-center" data-ansicht="3d" data-motiv={aktiv} data-bereit={baut ? undefined : "1"} />
+      {!vollbild && (
+        <Leiste3D auseinander={auseinander} umschalten={() => setAuseinander((x) => !x)} motiv={aktiv} motive={motive} setzeMotiv={setMotiv}
+          seiten={seiten} setzeSeiten={setSeiten} speichern={speichern} zuruecksetzen={() => steuer.current.anwenden(aktiv)} />
+      )}
       {baut && <p className="absolute inset-0 flex items-center justify-center text-sm" style={{ color: "var(--gedaempft)" }}>baut 3D…</p>}
-      <p className="pointer-events-none absolute bottom-3 left-3 text-xs" style={{ color: "var(--gedaempft)", display: foto ? "none" : undefined }}>
+      <p className="pointer-events-none absolute bottom-3 left-3 text-xs" style={{ color: "var(--gedaempft)", display: aktiv !== "frei" || vollbild ? "none" : undefined }}>
         Ziehen dreht · Rad zoomt · rechte Maustaste verschiebt · {ergebnis.lagen.map((l) => `${l.titel} ${l.staerkeMm} mm`).join(" · ")}
         {" "}· Symbol auf dem Hintergrund, {ergebnis.kennzahlen.symbolUeberNetzMm.toFixed(1)} mm ueber dem Netz
+        {r && ` · Holzrahmen ${r.farbe}, ${r.breiteMm} × ${r.tiefeMm} mm, Bild ${r.einlassMm} mm tief`}
       </p>
     </div>
   );

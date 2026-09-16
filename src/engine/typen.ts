@@ -35,6 +35,22 @@ export interface Kundeneingabe {
   /** Standort-Symbol und seine Groesse – die Masse legt die Vorlage fest. */
   symbol: SymbolArt;
   symbolGroesse: SymbolGroesse;
+  /** Optionaler Holzrahmen – das Profil legt die Vorlage fest. */
+  holzrahmen: Holzrahmen;
+}
+
+export type Holzrahmen = "ohne" | "schwarz" | "weiss" | "eiche";
+
+/**
+ * Profil der Holzrahmen, bei jeder Groesse gleich (Marcel 16.09.2026): von vorn
+ * 14 mm breit, 28 mm tief, die Bildoberflaeche liegt 6 mm hinter der Front, und
+ * innen steht der Rahmen 4 mm ueber das Motiv.
+ */
+export interface HolzrahmenProfil {
+  breiteMm: number;
+  tiefeMm: number;
+  einlassMm: number;
+  ueberstandMm: number;
 }
 
 /**
@@ -109,7 +125,7 @@ export interface Schichtkarte {
   breiteMm?: number;
   hoeheMm?: number;
 
-  /** Weisser Rahmen rundum, soll im Falz des Bilderrahmens verschwinden. */
+  /** Rand rundum ums Kartenfenster. Im Holzrahmen liegt davon der Ueberstand unter dem Rahmen. */
   rahmenMm: number;
 
   aufbau: Aufbau;
@@ -173,6 +189,7 @@ export interface Schichtkarte {
    * Symbol wird auf den Hintergrund geklebt und steht ueber das Netz hinaus.
    */
   staerkenMm: { acryl: number; spiegel: number };
+  holzrahmenProfil: HolzrahmenProfil;
 
   /** Lose Teile der weissen Lage in der Vorschau markieren. */
   loseTeileMarkieren: boolean;

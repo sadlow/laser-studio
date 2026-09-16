@@ -23,11 +23,12 @@ const schriftOptionen = (liste: string[]) =>
 export function EingabePlatte({ karte, aendern }: Props) {
   const frei = karte.format === "frei";
   const groessen = karte.symbolBreitenMm;
+  const profil = karte.holzrahmenProfil;
   return (
     <Block
       titel="Platte und Ausschnitt"
       zu={true}
-      hinweis="A3 zeigt denselben Ausschnitt wie A5, nur groesser – wie beim Poster. Strassenbreiten, Schrift und Symbol wachsen mit. Fest bleiben Rahmen (Falz des Bilderrahmens) und Stege."
+      hinweis="A3 zeigt denselben Ausschnitt wie A5, nur groesser – wie beim Poster. Strassenbreiten, Schrift und Symbol wachsen mit. Fest bleiben Rand, Stege und das Profil des Holzrahmens."
     >
       <div className="grid grid-cols-3 gap-3">
         <div className="col-span-3">
@@ -44,8 +45,17 @@ export function EingabePlatte({ karte, aendern }: Props) {
             <div />
           </>
         )}
-        <Zahl titel="Rahmen" einheit="mm" schritt={0.5} wert={karte.rahmenMm} aendern={(v) => aendern({ rahmenMm: v })} />
+        <Zahl titel="Rand" einheit="mm" schritt={0.5} wert={karte.rahmenMm} aendern={(v) => aendern({ rahmenMm: v })} />
         <div className="col-span-2" />
+        <div className="col-span-3">
+          <span className="beschriftung">Holzrahmen-Profil (alle Groessen)</span>
+          <div className="grid grid-cols-4 gap-2">
+            <Zahl titel="Breite" einheit="mm" schritt={0.5} min={1} wert={profil.breiteMm} aendern={(v) => aendern({ holzrahmenProfil: { ...profil, breiteMm: v } })} />
+            <Zahl titel="Tiefe" einheit="mm" schritt={0.5} min={1} wert={profil.tiefeMm} aendern={(v) => aendern({ holzrahmenProfil: { ...profil, tiefeMm: v } })} />
+            <Zahl titel="Einlass" einheit="mm" schritt={0.5} min={0} wert={profil.einlassMm} aendern={(v) => aendern({ holzrahmenProfil: { ...profil, einlassMm: v } })} />
+            <Zahl titel="Ueberstand" einheit="mm" schritt={0.5} min={0} wert={profil.ueberstandMm} aendern={(v) => aendern({ holzrahmenProfil: { ...profil, ueberstandMm: v } })} />
+          </div>
+        </div>
         <Zahl titel="Acryl weiss/schwarz" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.acryl}
           aendern={(v) => aendern({ staerkenMm: { ...karte.staerkenMm, acryl: v } })} />
         <Zahl titel="Spiegelacryl" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.spiegel}

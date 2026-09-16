@@ -19,8 +19,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Wasserschnitt (Test: Herz zu 70 % ueber der Spree, Klebeflaeche voll). Netz und
   Deckschicht haben exakt die Aussenkontur als Ausschnitt (Pin ohne sein Loch).
 - **Staerken nach Material:** Acrylglas weiss/schwarz 2 mm, Spiegelacryl 3 mm.
-- **Unter Bruecken wird der Hintergrund nicht geschnitten.** Er haelt dann ueber
-  die Bruecke zusammen, statt am Fluss zu zerfallen.
+- **Holzrahmen optional, schwarz oder weiss** (Marcel 16.09.2026), ein Profil fuer
+  alle Groessen: 14 mm breit, 28 mm tief, Bild 6 mm eingelassen, innen 4 mm
+  Ueberstand. Die Wahl steht in `kunde`, das Profil in der Vorlage. Bei 7 mm Rand
+  bleiben im Rahmen 3 mm sichtbar (Kennzahl). Warnung, wenn Karte, Symbol oder
+  Text unter den Rahmen reichen oder der Stapel nicht in den Falz passt.
+- **Unter Bruecken kein Wasserschnitt:** der Hintergrund haelt ueber die Bruecke zusammen.
 - **Unter Texten kein Wasser, keine Gravur**, im schwarzen Netz volles Material –
   sonst helle Striche in den Buchstaben und keine Klebeflaeche.
 - **Gravur nie unter dem Netz, nie ueber Wasser.** Unter dem Netz unsichtbar:
@@ -48,13 +52,14 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 ## Vorlagen (`src/server/vorlagen.ts`, `vorlagen/*.json`)
 
 - **Vorlage = Produkt, Kundeneingabe = Bestellung.** Eine Vorlage enthaelt alles
-  ausser `kunde`, `lon`, `lat`, `kartenMitte`. JSON im Repo: versioniert, lesbar.
+  ausser `kunde`, `lon`, `lat`, `kartenMitte`. JSON im Repo: versioniert, lesbar;
+  beim Laden mit Standardwerten aufgefuellt (neue Parameter).
 
 ## Massstab und Formate
 
 - **Ausschnitt in km statt Zoom.** A3 zeigt denselben Kiez wie A5, nur groesser.
   Strassenbreiten und Herz gelten fuer A4 und wachsen mit
-  (`REFERENZ_KARTENBREITE_MM`). Fest bleiben Rahmen (Falz) und Stege. Ergebnis:
+  (`REFERENZ_KARTENBREITE_MM`). Fest bleiben Rand und Stege. Ergebnis:
   22-24 % Netz im Fenster auf allen Formaten.
 - **Mindestbreite im Netz 0,8 mm**, **kleine Bloecke (< 4 mm²) bleiben Material.**
 
@@ -66,16 +71,15 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Standort als Adresse oder Dezimal-Koordinaten** (Google-Format, auch mit
   deutschem Komma); der Ortsname kommt aus der Rueckwaerts-Suche.
 - **3D-Reiter** (`ansicht-3d.tsx`, `szene-3d.ts`, three.js): Lagen mit ihrer
-  Staerke extrudiert, frei drehbar; auseinandergezogen schwebt das Symbol ueber
-  dem Stapel. `?ansicht=3d&lagen=auseinander` oeffnet direkt.
-- **Fotoansicht fuer KI-Produktfotos** (`kulisse-3d.ts`, `?foto=1`): Platte 12°
-  an eine Wand gelehnt, Schatten auf Boden/Wand, PNG in doppelter Aufloesung.
-  Test mit Leonardo Nano Banana 2 (Referenz MID und HIGH, 1K, je 0,039 $): Szene
-  fotorealistisch, Karte und alle drei Zeilen korrekt; Details werden aber neu
-  gezeichnet – fuer Listing-Bilder, nicht als Kundenvorschau. Mit Referenzbild
-  verlangt die API `prompt_enhance: OFF` (das Skill-Skript sendet ON).
-- **Kundeneingaben werden feldweise gemischt** – zwei schnelle Klicks (Symbol,
-  dann Groesse) machten sich sonst gegenseitig rueckgaengig.
+  Staerke extrudiert, Holzrahmen mit Gehrung, frei drehbar. Gezeichnet wird nur
+  bei Aenderung – headless mit Software-Grafik dauerte ein Bild sonst Minuten.
+- **Motive fuer KI-Produktfotos** (`motive-3d.ts`, `?ansicht=3d&foto=wand|flach|
+  symbol|titel|wasser|kante&seiten=16:9&vollbild=1`): an der Wand, flach liegend,
+  Nahaufnahmen auf echte Stellen der Karte, Streiflicht von links hinten, feine
+  Gravur im Bildausschnitt. Leonardo Nano Banana 2 zeichnet Details neu – fuer
+  Listing-Bilder, nicht als Kundenvorschau. Mit Referenzbild verlangt die API
+  `prompt_enhance: OFF` (das Skill-Skript sendet ON).
+- **Kundeneingaben werden feldweise gemischt** (zwei schnelle Klicks hoben sich sonst auf).
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)
 
@@ -95,9 +99,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Bis neu gerechnet ist, zeigt die Vorschau die alte Karte skaliert. Das Rad
   zoomt nur noch mit Strg/Cmd oder als Trackpad-Pinch – sonst kaperte es das
   Scrollen der Seite ueber der grossen Vorschau.
-- Umrechnung mm <-> Ort (`ortZuMm`, `mmZuOrt`) wie beim Kachelabruf: Karte 30 mm
-  verschoben -> Symbol 30,000 mm; 20 mm tiefer -> 357 m, 12 Bogensekunden.
-- Rechenzeit: Berlin 3,5 km 0,6 s, 5,5 km 1,6 s, 8,6 km 5,3 s.
+- `ortZuMm`/`mmZuOrt` rechnen wie der Kachelabruf (Karte 30 mm verschoben -> Symbol
+  30,000 mm). Rechenzeit Berlin 3,5 km 0,6 s, 5,5 km 1,6 s, 8,6 km 5,3 s.
 
 ## Layout
 
@@ -181,7 +184,6 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   zu nahen Stuecken waeren die Alternative, bisher nicht gebaut.
 - **Textreiter zaehlen zur Landflaeche** (sonst Quadrat 38 statt 33 %). Megastaedte
   wirken lichter (Tokio 15 % Netz): parallele Fahrbahnen zaehlen doppelt.
-- **Vorlagen werden beim Laden mit Standardwerten aufgefuellt** (neue Parameter).
 
 ## Prototyp-Platten (`src/server/bogen.ts`)
 
@@ -192,8 +194,6 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   brauchen 296 von 297 mm, und 210 mm Hoehe laegen exakt auf der Plattenkante.
   Mit 2,5 mm Rand und 2 mm Abstand bleibt das A-Seitenverhaeltnis (98 % von A5).
 - **30 x 30 traegt einen Prototyp 296 x 296 mm** – aus demselben Grund mit Rand.
-- Materialbedarf je Exemplar: weisses Netz und schwarzes Netz dreilagig je
-  1 weiss / 1 schwarz / 1 blau,
-  schwarzes Netz 2 weiss / 1 schwarz / 1 blau (Stand Lager 16.09.2026: je 2 A4 in
-  weiss, schwarz, blau und je 1 x 30x30 – reicht fuer 4 A4-Prototypen dreilagig
-  oder 2 vierlagig, das Quadrat nur dreilagig).
+- Material je Exemplar: dreilagig 1 weiss / 1 schwarz / 1 blau, vierlagig 2 weiss.
+  Lager 16.09.2026: je 2 A4 weiss, schwarz, blau und je 1 x 30x30 – 4 A4-Prototypen
+  dreilagig oder 2 vierlagig, das Quadrat nur dreilagig.

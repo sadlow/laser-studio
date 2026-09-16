@@ -26,6 +26,7 @@ function KennzahlenRaster({ kz }: { kz: Kennzahlen }) {
       <Kennzahl titel="Wasserflaechen" wert={String(kz.wasserFlaechenGeschnitten)} />
       <Kennzahl titel="Inseln zu Wasser" wert={String(kz.wasserInselnGeflutet)} />
       <Kennzahl titel="Symbol ueber Netz" wert={`${kz.symbolUeberNetzMm >= 0 ? "+" : ""}${kz.symbolUeberNetzMm.toFixed(1)} mm`} />
+      <Kennzahl titel="Rand im Holzrahmen" wert={`${kz.randImRahmenMm.toFixed(1)} mm`} />
     </div>
   );
 }
