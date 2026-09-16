@@ -68,7 +68,8 @@ export function standardSchichtkarte(): Schichtkarte {
     // "Super fein": 0,7 mm wie die Spardosen-Stege im Bulk-Script – auch dort
     // halten sie nur, bis das Teil verklebt ist, danach traegt der Kleber.
     stegMm: 0.7,
-    stencilMinInselAnteil: 0.02,
+    // Steg 0,7 mm plus je 0,15 mm, die links und rechts stehen bleiben muessen.
+    stencilMinInselBreiteMm: 1.0,
     herzBreiteMm: 11,
     loseTeileMarkieren: true,
   };

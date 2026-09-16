@@ -79,14 +79,11 @@ export function baueLagen(
   // Die Woerter werden ausgeschnitten, ihre Innenflaechen haengen an Stegen.
   const weissBasis = vereinige(ziehAb(plattenFl, fensterFl), netz);
 
-  // Stege je Zeile: ob eine Innenflaeche zu klein fuer einen Steg ist, haengt
-  // an der Schriftgroesse. Eine feste mm2-Grenze fuellte bei A5 die Punzen der
-  // A zu und liess bei A3 das Gradzeichen wieder in zwei Halbmonde zerfallen.
+  // Stege je Zeile, damit die Strahlen einer Zeile nie an einer anderen enden.
   const ausschnitte: Flaeche[] = [];
   const st = { anzahl: 0, ohneSteg: 0, zugefuelltAnzahl: 0 };
   for (const zeile of textzeilen) {
-    const minInsel = k.stencilMinInselAnteil * zeile.versalhoeheMm * zeile.versalhoeheMm;
-    const z = stencilStege(zeile.flaeche, k.stegMm, minInsel);
+    const z = stencilStege(zeile.flaeche, k.stegMm, k.stencilMinInselBreiteMm);
     ausschnitte.push(ziehAb(vereinige(zeile.flaeche, z.zugefuellt), z.stege));
     st.anzahl += z.anzahl;
     st.ohneSteg += z.ohneSteg;

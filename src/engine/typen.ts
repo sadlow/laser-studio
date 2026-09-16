@@ -109,12 +109,12 @@ export interface Schichtkarte {
   /** Breite der Stencil-Stege, die freiliegende Innenflaechen im Text halten. */
   stegMm: number;
   /**
-   * Innenflaechen unter diesem Anteil bekommen keine Stege, sondern werden
-   * zugefuellt. Bezug: Quadrat mit der Versalhoehe der Zeile als Kante – so
-   * gilt die Grenze bei jedem Format gleich. Gemessen in Josefin Sans:
-   * Gradzeichen 1,3 %, obere 8 2,9 %, A 4,3 %.
+   * Schmalere Innenflaechen bekommen keine Stege, sondern werden zugefuellt –
+   * neben einem senkrechten Steg bliebe nichts stehen. Gemessen in Avant Garde
+   * Demi bei A4: Gradzeichen 0,97 mm, obere 8 1,07, A 1,16; Bacalisties-
+   * Schleifen 2,66-8,78 mm.
    */
-  stencilMinInselAnteil: number;
+  stencilMinInselBreiteMm: number;
 
   /** Breite des Herzens bei A4, waechst mit dem Format wie die Strassen. */
   herzBreiteMm: number;

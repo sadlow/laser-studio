@@ -17,7 +17,7 @@ import { rechteck, vereinige, type Flaeche } from "./geometrie";
 export function stencilStege(
   text: Flaeche,
   stegMm: number,
-  minInselMm2: number,
+  minInselBreiteMm: number,
 ): { stege: Flaeche; zugefuellt: Flaeche; anzahl: number; ohneSteg: number; zugefuelltAnzahl: number } {
   const leer = { stege: [], zugefuellt: [], anzahl: 0, ohneSteg: 0, zugefuelltAnzahl: 0 };
   if (!text.length) return leer;
@@ -37,12 +37,17 @@ export function stencilStege(
       const kontur = kind.Contour();
       const ring = kontur.map((p) => ({ x: p.X / S, y: p.Y / S }));
       // Ein Loch im ausgeschnittenen Text ist Material, das stehen bleibt: die Insel.
-      if (kind.IsHole() && Math.abs(ClipperLib.Clipper.Area(kontur)) / (S * S) < minInselMm2) {
-        // Gradzeichen (0,34 mm2) und feine Schleifen (e in Amalfi Coast, 0,31 mm2):
-        // ein 1-mm-Steg ueberdeckt sie ganz, das Zeichen zerfiele in zwei
-        // Halbmonde. Zugefuellt wird aus dem Ring ein Punkt – nichts faellt
-        // heraus, und das Zeichen bleibt lesbar. Ihre Kante zaehlt dann auch
-        // nicht mehr fuer die Strahlen der Nachbarinseln.
+      if (kind.IsHole() && umriss(ring).x1 - umriss(ring).x0 < minInselBreiteMm) {
+        // Der Steg laeuft senkrecht durch die Insel. Ist sie kaum breiter als
+        // er, bleibt links und rechts nichts stehen – das Gradzeichen (0,97 mm
+        // in Avant Garde Demi bei A4) zerfiele in zwei Halbmonde. Zugefuellt
+        // wird daraus ein Punkt: nichts faellt heraus, das Zeichen bleibt lesbar.
+        //
+        // Bewusst die Breite und kein Anteil der Schriftgroesse: an der
+        // Versalhoehe gemessen landeten die Schleifen der Schreibschrift
+        // (2,7-8,8 mm breit, aber 0,5-1,6 % der Versalhoehe) unter der Grenze
+        // und wurden schwarz, waehrend das Gradzeichen (3,0 %) Stege bekam.
+        // Ihre Kante zaehlt danach nicht mehr fuer die Strahlen der Nachbarn.
         zuklein.push(kontur.slice().reverse());
       } else {
         alleRinge.push(ring);

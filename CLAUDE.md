@@ -39,9 +39,12 @@ Produktion unbemerkt auseinander.
 - **Stencil-Stege 0,7 mm**, wie die Spardosen-Stege im Bulk-Script: halten nur
   bis zum Verkleben. Steg-Laenge am Strich gemessen, nie ueber den Buchstaben
   hinaus.
-- **Kleine Innenflaechen werden zugefuellt**, Grenze relativ zur Versalhoehe
-  (2 %). Eine feste mm²-Grenze fuellte auf A5 die A zu und zerteilte auf A3 das
-  Gradzeichen. Josefin/Avant Garde: ° 1,3 %, obere 8 2,9 %, A 4,3 %.
+- **Innenflaechen unter 1,0 mm Breite werden zugefuellt** – neben dem senkrechten
+  Steg bliebe nichts stehen. Zwei Irrwege davor: eine mm²-Grenze (zerteilte auf
+  A3 das Gradzeichen) und ein Anteil der Versalhoehe (machte die Schleifen der
+  Schreibschrift schwarz, 2,7-8,8 mm breit, aber nur 0,5-1,6 %). A4 Demi:
+  ° 0,97 mm, obere 8 1,07, A 1,16. Folge: auf A5 werden auch A und obere 8 voll,
+  auf A3 bekommt das ° Stege – beides physikalisch ehrlich (`scripts/inseln-titel.ts`).
 - **Kleine Bloecke im Netz bleiben weiss** (< 4 mm²) – loesen sich nicht sauber.
 - **Zeilenschrift Avant Garde Demi statt ExtraLight** (Poster): Strich bei 5 mm
   Versalhoehe ExtraLight 0,20 / Book 0,50 / Demi 0,93 / Bold 1,36 mm. 0,20 ist
@@ -66,7 +69,7 @@ npm install && npm run dev   # http://localhost:3010
 ```
 
 Pruefskripte: `npx tsx scripts/formatvergleich.ts`, `ausschnittvergleich.ts`,
-`strichstaerke.ts`, `inseln-messen.ts`, `titel-lage.ts`.
+`strichstaerke.ts`, `inseln-titel.ts`, `titel-lage.ts`.
 
 ## Offen
 

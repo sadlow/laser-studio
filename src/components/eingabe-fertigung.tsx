@@ -77,18 +77,18 @@ export function EingabeFertigung({ karte, aendern }: Props) {
   return (
     <Block
       titel="Fertigung"
-      hinweis="Kleine Innenflaechen wuerde ein Steg ganz ueberdecken. Sie werden zugefuellt: aus dem ° wird ein Punkt. Bezug ist die Schriftgroesse der Zeile – Gradzeichen 1,3 %, obere 8 2,9 %, A 4,3 %."
+      hinweis="Innenflaechen, die kaum breiter als der Steg sind, werden zugefuellt – daneben bliebe nichts stehen. Aus dem ° wird ein Punkt. Bei A4 gemessen: ° 0,97 mm, obere 8 1,07, A 1,16, Titel-Schleifen ab 2,66 mm."
     >
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <Zahl titel="Stencil-Steg" einheit="mm" schritt={0.1} min={0} wert={karte.stegMm} aendern={(v) => aendern({ stegMm: v })} />
           <Zahl
-            titel="Zufuellen unter"
-            einheit="%"
-            schritt={0.1}
+            titel="Zufuellen schmaler als"
+            einheit="mm"
+            schritt={0.05}
             min={0}
-            wert={Math.round(karte.stencilMinInselAnteil * 1000) / 10}
-            aendern={(v) => aendern({ stencilMinInselAnteil: v / 100 })}
+            wert={karte.stencilMinInselBreiteMm}
+            aendern={(v) => aendern({ stencilMinInselBreiteMm: v })}
           />
         </div>
         <Haken titel="Wasserflaechen aus Schwarz schneiden" wert={karte.wasser} aendern={(v) => aendern({ wasser: v })} />
