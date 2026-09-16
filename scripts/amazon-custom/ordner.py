@@ -47,4 +47,5 @@ if __name__ == "__main__":
         kopiere(os.path.join(QUELLE, "bilder", "kontrolle", f"{f}.jpg"), os.path.join(ZIEL, f"Kontrollbild Textfelder {name}.jpg"))
     for datei in ["textfelder.md", "textfelder.json"]:
         kopiere(os.path.join(QUELLE, datei), os.path.join(ZIEL, datei))
+    kopiere(os.path.join(QUELLE, "UEBERSICHT.md"), os.path.join(ZIEL, "Übersicht.md"))
     print("Ordner:", ZIEL)
