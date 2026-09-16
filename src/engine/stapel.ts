@@ -1,5 +1,6 @@
 import { enthaelt, schwerpunkt, teile, vereinige, ziehAb } from "./geometrie";
-import { SPLITTER_MM2, type Bausteine } from "./lagen";
+import type { Bausteine } from "./lagen";
+import { SPLITTER_MM2 } from "./wasser";
 import { FARBE_LOSE, FARBE_SCHWARZ, FARBE_WEISS, laserSvg, vorschauSvg, type Gravur, type Malschritt } from "./svg";
 import type { LagenKey, Lage, Layout, Schichtkarte, Teil } from "./typen";
 

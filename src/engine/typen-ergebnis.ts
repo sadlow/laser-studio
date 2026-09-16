@@ -43,13 +43,21 @@ export interface Kennzahlen {
   /** Strassengruppen, deren Breite durch das Format unter die Mindestbreite fiele. */
   netzAnMindestbreite: string[];
   formatfaktor: number;
-  /** Anteil der Breite, der aus dem Ausschnitt kommt (1 ohne Generalisierung). */
-  ausschnittfaktor: number;
-  /** Netzklassen, die bei diesem Ausschnitt nicht schneidbar waeren und graviert werden. */
+  /** Anteil der Breite, der aus der Dichte vor Ort kommt (1 ohne Generalisierung). */
+  dichtefaktor: number;
+  /** Strassenlaenge x Vorlagenbreite / Land – so dicht waere das Netz ohne Anpassung. */
+  deckungVorOrt: number;
+  /** Netzklassen, die hier zu dicht fuer schneidbare Breiten waeren und graviert werden. */
   herabgestuft: string[];
+  /** Gravurklassen, die mitgeschnitten werden, weil der Ort licht ist. */
+  nachgerueckt: string[];
+  /** Waeren nachgerueckt, zerfielen aber in lose Stuecke und bleiben Gravur. */
+  nachrueckenVerworfen: string[];
   zoomEntsprechung: number;
   /** Strassenstuecke, die nicht am Netz haengen und lose herausfallen. */
   loseNetzstuecke: number;
+  /** Lose Stuecke, die deshalb graviert statt geschnitten werden. */
+  loseZurGravur: number;
   /** Innenflaechen im Text, die trotz Stegen lose sind. */
   loseTextteile: number;
   /** Teile der Hintergrund-Lage – mehr als eins, wenn Wasser sie teilt. */
@@ -58,6 +66,8 @@ export interface Kennzahlen {
   punzenOhneSteg: number;
   inselnZugefuellt: number;
   wasserFlaechenGeschnitten: number;
+  /** Kleine Inseln, die Wasser wurden statt Einzelteil. */
+  wasserInselnGeflutet: number;
   rechenzeitMs: number;
 }
 

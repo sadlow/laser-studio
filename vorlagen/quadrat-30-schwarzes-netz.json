@@ -102,15 +102,34 @@
           "service"
         ],
         "ziel": "gravur",
-        "breiteMm": 0.3
+        "breiteMm": 0.3,
+        "nachruecken": true
+      },
+      {
+        "id": "fussgaenger",
+        "titel": "Fussgaengerzonen",
+        "klassen": [
+          "pedestrian"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.25,
+        "nachruecken": true
+      },
+      {
+        "id": "feldwege",
+        "titel": "Feldwege",
+        "klassen": [
+          "track"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.25,
+        "nachruecken": true
       },
       {
         "id": "fuss",
         "titel": "Fuss- und Radwege",
         "klassen": [
-          "path",
-          "pedestrian",
-          "track"
+          "path"
         ],
         "ziel": "gravur",
         "breiteMm": 0.25
@@ -129,16 +148,18 @@
     "netzMinBreiteMm": 0.8,
     "generalisierung": {
       "aktiv": true,
-      "referenzKm": 3.5,
-      "exponent": 1,
+      "zielDeckung": 0.33,
       "maxFaktor": 1.4,
-      "maxAufdickung": 1.25
+      "maxAufdickung": 1.4,
+      "nachruecken": true
     },
     "netzMinLochMm2": 4,
     "wasser": true,
     "wasserlaeufe": false,
     "wasserlaufBreiteMm": 1.2,
     "wasserMinFlaecheMm2": 6,
+    "wasserMinBreiteMm": 1,
+    "wasserInselMinMm2": 15,
     "stegMm": 0.5,
     "stencilMinInselBreiteMm": 1,
     "herzBreiteMm": 11,

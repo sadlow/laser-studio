@@ -145,17 +145,17 @@ export function ohneLoecher(flaeche: Flaeche, minFlaecheMm2 = 0.05): Flaeche {
 }
 
 /**
- * Linien, soweit sie ausserhalb der Flaeche liegen. Gebraucht fuer die Gravur:
- * unter einer weissen Schutzkontur ist sie unsichtbar, in den ausgeschnittenen
- * Buchstaben aber schon – dort stoerten helle Striche im Schwarz.
+ * Linien, soweit sie ausserhalb (`innen` = false) oder innerhalb der Flaeche
+ * liegen. Gebraucht fuer die Gravur: unter einer weissen Schutzkontur ist sie
+ * unsichtbar, in den ausgeschnittenen Buchstaben stoerten helle Striche.
  */
-export function ziehLinienAb(linien: Punkt[][], flaeche: Flaeche): Punkt[][] {
-  if (!flaeche.length || !linien.length) return linien;
+export function ziehLinienAb(linien: Punkt[][], flaeche: Flaeche, innen = false): Punkt[][] {
+  if (!flaeche.length || !linien.length) return innen ? [] : linien;
   const c = new ClipperLib.Clipper();
   c.AddPaths(linien.filter((l) => l.length >= 2).map(zuPfad), ClipperLib.PolyType.ptSubject, false);
   c.AddPaths(flaeche, ClipperLib.PolyType.ptClip, true);
   const baum = new ClipperLib.PolyTree();
-  c.Execute(ClipperLib.ClipType.ctDifference, baum, NONZERO, NONZERO);
+  c.Execute(innen ? ClipperLib.ClipType.ctIntersection : ClipperLib.ClipType.ctDifference, baum, NONZERO, NONZERO);
   return ClipperLib.Clipper.OpenPathsFromPolyTree(baum).map(vonPfad);
 }
 

@@ -22,6 +22,11 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Stadtkacheln: Gehwege 32,5 %, Einfahrten 6,7 %, Ueberwege 2,3 %, Gassen 1,7 %.
   Gehwege lagen als dicke Doppellinie neben jeder Hauptstrasse.
 - **Tunnel nie, Bruecken immer.** Berlin-Tiergarten: 21 Tunnelstuecke.
+- **Wasser schmaler als 1 mm wird nicht geschnitten** (`wasser.ts`, Oeffnen vor
+  dem Beschnitt). Venedig: Hintergrund 107 -> 5 Teile, die Grachten Amsterdams
+  (1,4-1,7 mm) bleiben.
+- **Inseln unter 15 mm2 werden Wasser.** Berlin-Tiergarten: 18 Splitter, die
+  meisten unter 3 mm2, jetzt 1 Hintergrundteil.
 
 ## Exportdateien (`produktion.ts`)
 
@@ -49,8 +54,6 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Strassenbreiten und Herz gelten fuer A4 und wachsen mit
   (`REFERENZ_KARTENBREITE_MM`). Fest bleiben Rahmen (Falz) und Stege. Ergebnis:
   22-24 % Netz im Fenster auf allen Formaten.
-- **Ausschnitt entscheidet die Dichte.** A4: 2 km 13 %, 3,5 km 22 %, 6 km 37 %
-  mit 5 losen Netzstuecken (`ausschnittvergleich.ts`).
 - **Mindestbreite im Netz 0,8 mm**, **kleine Bloecke (< 4 mm²) bleiben Material.**
 
 ## Layout
@@ -99,17 +102,35 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **opentype.js ist gepatcht** (`patches/`, `postinstall`): CFF-Encoding mit
   Zusatzbit (Format 129) warf einen Fehler, betroffen AvantGardeCE-Demi.otf.
 
-## Generalisierung (`lagen.ts`, `ausschnittFaktor`)
+## Dichte vor Ort (`dichte.ts`, `netz.ts`, Referenzorte)
 
-- **Strassenbreite folgt dem Ausschnitt** (Exponent 1: doppelter Ausschnitt,
-  halbe Breite), hineinzoomen hoechstens 1,4-fach. Eine Netzklasse, die mehr als
-  25 % aufgedickt werden muesste, um schneidbar zu sein, wird graviert statt
-  geschnitten. A4 Berlin: 2 km 17 % Netz, 3,5 km 22 %, 6 km 15 % (Wohnstrassen
-  graviert), 9 km 11 % (Tertiaer, Bahn, Wohnstrassen graviert) – ueberall 0 lose
-  Netzstuecke. Ohne Regel: 6 km 37 % mit 5 losen Stuecken.
-- Das Bild wird beim Herauszoomen lichter, nicht gleich dicht: weniger Klassen
-  werden geschnitten. Gewollt – ein Netzstreifen unter der Mindestbreite ist
-  nicht verhandelbar.
+- **Referenzorte statt nur Berlin** (`src/referenzorte.ts`, im Studio anklickbar,
+  `referenzorte.ts` rechnet alle mit Kennzahlen): Berlin, Allgaeu, Hamburg,
+  Amsterdam, New York, Bogota, Tokio, Venedig. Grenzwerte muessen weltweit tragen
+  (Marcel 16.09.2026).
+- **Breite folgt der Dichte, nicht dem Ausschnitt.** Deckung = Strassenlaenge x
+  Vorlagenbreite / Land im Fenster; alle Netzbreiten werden auf 33 % skaliert
+  (Berlin-Tiergarten 3,5 km, fuer das die Breiten entworfen sind, bleibt
+  unveraendert). Die alte Regel steckt darin: doppelter Ausschnitt, doppelte
+  Laenge auf der Platte. Gemessen bei 3,5 km: Kreuzberg 33 %, Maxvorstadt 35,
+  Prenzlauer Berg 39, Paris 45, Hamburg 49, Bogota 50, London/Koeln 60,
+  Tokio 64, New York 75, Allgaeu 7, Venedig 3.
+- **Erst werden die Hauptstrassen schmaler, dann die Wohnstrassen graviert.**
+  Aufdicken bis 1,4: Hamburg, Bogota, Paris behalten ihre Wohnstrassen; Tokio,
+  New York, Amsterdam, Koeln, London gravieren sie. Bei 1,25 verloren Koeln und
+  New York bei 6 km auch die Bahn (17 Orte x 2/3,5/6 km, Simulation).
+- **Lichte Orte: Gravurklassen ruecken nach** (Zufahrten, Fussgaengerzonen,
+  Feldwege), erst unter der halben Zieldeckung und bis 10 % darueber. Allgaeu
+  6 -> 12 % Netz. Liegt danach mehr als 10 % der Netzflaeche lose, bleibt es bei
+  der Gravur: Venedigs Gassen bei 2 km (Bruecken sind Fusswege) 78 %.
+- **Lose Netzstuecke werden graviert statt geschnitten** (Marcel 16.09.2026:
+  "meist nur Artefakte"). Vorher 1-13 mm2 gross, orange markiert; Ursache meist
+  Anschluss nur ueber Fussweg, Treppe oder Tunnel. Stege zu nahen Stuecken
+  waeren die Alternative, bisher nicht gebaut.
+- **Textreiter zaehlen zur Landflaeche** – die Strassen darunter stecken in den
+  Laengen. Sonst Quadrat 38 statt 33 %.
+- Das Bild wird in Megastaedten lichter als in Berlin (Tokio 15, New York 13 %
+  Netz): die Deckung zaehlt parallele Fahrbahnen und Hochstrassen doppelt.
 - **Vorlagen werden beim Laden mit den Standardwerten aufgefuellt** – neue
   Parameter fehlen in aelteren Dateien, und die Engine braeche sonst ab.
 

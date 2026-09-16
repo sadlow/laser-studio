@@ -16,7 +16,8 @@ async function main() {
     console.log(
       `${km} km`.padEnd(8),
       `Zoom ${k.zoomEntsprechung.toFixed(1)} | Netz ${Math.round(k.netzAnteilFenster * 100)}%`,
-      `| Breite x${k.ausschnittfaktor.toFixed(2)} | graviert statt geschnitten: ${k.herabgestuft.join(", ") || "-"}`,
+      `| Breite x${k.dichtefaktor.toFixed(2)} (Deckung vor Ort ${Math.round(k.deckungVorOrt * 100)} %)`,
+      `| graviert statt geschnitten: ${k.herabgestuft.join(", ") || "-"} | nachgerueckt: ${k.nachgerueckt.join(", ") || "-"}`,
       `| Bloecke zu ${k.netzLoecherZugefuellt} | lose Netzstuecke ${k.loseNetzstuecke} | Hintergrund ${k.hintergrundTeile}T`,
     );
   }

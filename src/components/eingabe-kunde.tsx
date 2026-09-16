@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Kundeneingabe, Schichtkarte } from "@/engine/typen";
+import { REFERENZORTE } from "@/referenzorte";
 import { Block, Text } from "./felder";
 
 interface Props {
@@ -64,6 +65,30 @@ export function EingabeKunde({ karte, aendern }: Props) {
               {meldung} · {karte.lat.toFixed(5)}, {karte.lon.toFixed(5)}
             </p>
           )}
+        </div>
+
+        <div>
+          <span className="beschriftung">Referenzorte – Grenzwerte weltweit pruefen</span>
+          <div className="flex flex-wrap gap-1.5">
+            {REFERENZORTE.map((ort) => {
+              const aktiv = Math.abs(karte.lon - ort.lon) < 1e-6 && Math.abs(karte.lat - ort.lat) < 1e-6;
+              return (
+                <button
+                  key={ort.id}
+                  type="button"
+                  title={ort.pruefung}
+                  onClick={() => {
+                    setMeldung(ort.pruefung);
+                    aendern({ lon: ort.lon, lat: ort.lat, kunde: { ...k, adresse: ort.name, ortText: ort.ortText } });
+                  }}
+                  className="rounded-full border px-2.5 py-0.5 text-xs"
+                  style={aktiv ? { background: "var(--akzent)", borderColor: "var(--akzent)", color: "#fff" } : { borderColor: "var(--linie)" }}
+                >
+                  {ort.name}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <Text titel="Titel" wert={k.titel} aendern={(v) => setze({ titel: v })} />

@@ -16,8 +16,12 @@ export const STRASSEN_STANDARD: StrassenGruppe[] = [
   { id: "tertiaer", titel: "Tertiaer", klassen: ["tertiary", "tertiary_link"], ziel: "netz", breiteMm: 1.4 },
   { id: "bahn", titel: "Bahn", klassen: ["major_rail"], ziel: "netz", breiteMm: 1.2 },
   { id: "wohn", titel: "Wohnstrassen", klassen: ["street", "street_limited"], ziel: "netz", breiteMm: 1.0 },
-  { id: "service", titel: "Zufahrten", klassen: ["service"], ziel: "gravur", breiteMm: 0.3 },
-  { id: "fuss", titel: "Fuss- und Radwege", klassen: ["path", "pedestrian", "track"], ziel: "gravur", breiteMm: 0.25 },
+  { id: "service", titel: "Zufahrten", klassen: ["service"], ziel: "gravur", breiteMm: 0.3, nachruecken: true },
+  // Eigene Zeilen, weil sie verschieden nachruecken: Venedigs Gassen sind
+  // "pedestrian" (185 km im 3,5-km-Ausschnitt), die Wege im Allgaeu "track".
+  { id: "fussgaenger", titel: "Fussgaengerzonen", klassen: ["pedestrian"], ziel: "gravur", breiteMm: 0.25, nachruecken: true },
+  { id: "feldwege", titel: "Feldwege", klassen: ["track"], ziel: "gravur", breiteMm: 0.25, nachruecken: true },
+  { id: "fuss", titel: "Fuss- und Radwege", klassen: ["path"], ziel: "gravur", breiteMm: 0.25 },
   { id: "nebenbahn", titel: "Nebengleise", klassen: ["minor_rail", "service_rail"], ziel: "gravur", breiteMm: 0.25 },
 ];
 
@@ -83,15 +87,19 @@ export function standardSchichtkarte(): Schichtkarte {
     zeilenStil: { schrift: "AvantGarde-Book.otf", hoeheAnteil: 0.01825, sperrung: 0.14, versalien: true },
     strassen: STRASSEN_STANDARD.map((g) => ({ ...g, klassen: [...g.klassen] })),
     netzMinBreiteMm: 0.8,
-    // Exponent 1: doppelter Ausschnitt, halbe Breite – das Bild bleibt gleich
-    // dicht. Hineinzoomen hoechstens 1,4-fach breiter, sonst klobig. Eine zu
-    // schmale Netzklasse wird bis 25 % aufgedickt, darueber graviert.
-    generalisierung: { aktiv: true, referenzKm: 3.5, exponent: 1, maxFaktor: 1.4, maxAufdickung: 1.25 },
+    // Ziel 33 %: Berlin-Tiergarten bei 3,5 km, fuer das die Breiten entworfen
+    // sind, bleibt unveraendert. Hoechstens 1,4-fach breiter, sonst klobig.
+    // Aufdicken bis 1,4: dann behalten Hamburg, Bogota und Paris ihre
+    // Wohnstrassen, und die breiten Hauptstrassen geben nach. Bei 1,25 verloren
+    // Koeln und New York bei 6 km zusaetzlich die Bahn (17 Orte, 2/3,5/6 km).
+    generalisierung: { aktiv: true, zielDeckung: 0.33, maxFaktor: 1.4, maxAufdickung: 1.4, nachruecken: true },
     netzMinLochMm2: 4,
     wasser: true,
     wasserlaeufe: false,
     wasserlaufBreiteMm: 1.2,
     wasserMinFlaecheMm2: 6,
+    wasserMinBreiteMm: 1,
+    wasserInselMinMm2: 15,
     // "Super fein": hoechstens 0,5 mm und nie breiter als der halbe Strich.
     // 0,7 mm (wie die Spardosen-Stege) wirkte bei Avant Garde Demi zu dick –
     // der Strich ist dort bei A4 selbst nur 0,93 mm.

@@ -9,52 +9,9 @@
 // Alles, was das Produkt beschreibt, steht hier. Die UI ist ein Formular auf
 // diese Typen, die Produktion ruft dieselbe Funktion auf. Kein React, kein Next.
 
+import type { Generalisierung, StrassenGruppe } from "./typen-strassen";
+
 export type FormatKey = "a5" | "a4" | "a3" | "quadrat30" | "frei";
-
-/** Wohin eine Strassenklasse gehoert. */
-export type StrassenZiel = "netz" | "gravur" | "aus";
-
-/**
- * Eine Zeile der Strassentabelle. `klassen` fasst die Mapbox-Klassen zusammen,
- * die gleich behandelt werden (primary + primary_link).
- */
-export interface StrassenGruppe {
-  id: string;
-  titel: string;
-  klassen: string[];
-  ziel: StrassenZiel;
-  /**
-   * Breite bei A4 in mm. Waechst mit dem Format (A3 = 1,44-fach, A5 = 0,68-fach),
-   * damit jedes Format dasselbe Bild zeigt. Im Netz = Acrylstreifen, in der
-   * Gravur = Strich.
-   */
-  breiteMm: number;
-}
-
-/** Kartenbreite von A4 mit 7 mm Rahmen – der Bezug aller Strassenbreiten. */
-export const REFERENZ_KARTENBREITE_MM = 196;
-
-/**
- * Strassenbreite folgt dem Ausschnitt, damit das Bild beim Zoomen gleich dicht
- * bleibt – und das Netz trotzdem schneidbar (Marcel 16.09.2026: der Kunde soll
- * spaeter selbst ziehen und zoomen).
- *
- * Breite = Vorlagenbreite x Formatfaktor x (referenzKm / ausschnittKm)^exponent,
- * nach oben gedeckelt. Faellt eine Netzklasse unter die Mindestbreite, wird sie
- * hoechstens um maxAufdickung verbreitert; reicht das nicht, wird sie graviert
- * statt geschnitten.
- */
-export interface Generalisierung {
-  aktiv: boolean;
-  /** Ausschnitt, fuer den die Breiten der Vorlage entworfen sind. */
-  referenzKm: number;
-  /** 1 = Breite umgekehrt proportional zum Ausschnitt (gleiche Dichte). */
-  exponent: number;
-  /** So viel breiter als entworfen darf eine Strasse beim Hineinzoomen werden. */
-  maxFaktor: number;
-  /** So viel darf eine zu schmale Netzstrasse aufgedickt werden, bevor sie graviert wird. */
-  maxAufdickung: number;
-}
 
 export type LetzteZeile = "koordinaten" | "wunschtext";
 
@@ -172,6 +129,13 @@ export interface Schichtkarte {
   wasserlaufBreiteMm: number;
   /** Kleinere Wasserflaechen werden nicht geschnitten – nicht montierbar. */
   wasserMinFlaecheMm2: number;
+  /**
+   * Schmaleres Wasser wird nicht geschnitten. Venedigs Kanaele zerlegten den
+   * Hintergrund sonst in 107 Inseln, die einzeln zu kleben waeren.
+   */
+  wasserMinBreiteMm: number;
+  /** Kleinere Inseln, die nirgends anhaengen, werden Wasser statt Einzelteil. */
+  wasserInselMinMm2: number;
 
   /**
    * Hoechstbreite der Stencil-Stege. Tatsaechlich nie breiter als der halbe
@@ -194,3 +158,4 @@ export interface Schichtkarte {
 }
 
 export * from "./typen-ergebnis";
+export * from "./typen-strassen";

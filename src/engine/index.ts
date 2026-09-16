@@ -57,14 +57,27 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
 
   if (b.kennzahlen.herabgestuft.length > 0) {
     warnungen.push(
-      `Bei ${k.ausschnittKm.toFixed(1)} km waeren ${b.kennzahlen.herabgestuft.join(", ")} nicht mehr schneidbar ` +
+      `Das Strassennetz ist hier sehr dicht (${Math.round(b.kennzahlen.deckungVorOrt * 100)} % Deckung bei ` +
+        `${k.ausschnittKm.toFixed(1)} km): ${b.kennzahlen.herabgestuft.join(", ")} waeren nicht mehr schneidbar ` +
         "und werden graviert statt geschnitten.",
+    );
+  }
+  if (b.kennzahlen.nachgerueckt.length > 0) {
+    warnungen.push(
+      `Der Ort ist licht (${Math.round(b.kennzahlen.deckungVorOrt * 100)} % Deckung): ` +
+        `${b.kennzahlen.nachgerueckt.join(", ")} werden mitgeschnitten statt graviert.`,
+    );
+  }
+  if (b.kennzahlen.nachrueckenVerworfen.length > 0) {
+    warnungen.push(
+      `Der Ort ist licht, aber ${b.kennzahlen.nachrueckenVerworfen.join(", ")} bilden hier kein zusammenhaengendes ` +
+        "Netz (Bruecken oder Anschluesse fehlen) und bleiben graviert. Ein engerer Ausschnitt kann helfen.",
     );
   }
   if (b.kennzahlen.netzAnMindestbreite.length > 0) {
     warnungen.push(
-      `Auf diesem Format waeren ${b.kennzahlen.netzAnMindestbreite.join(", ")} schmaler als ${k.netzMinBreiteMm} mm ` +
-        "und werden auf die Mindestbreite gehalten – sie wirken dadurch kraeftiger als auf A4.",
+      `${b.kennzahlen.netzAnMindestbreite.join(", ")} waeren hier schmaler als ${k.netzMinBreiteMm} mm ` +
+        "und werden auf die Mindestbreite gehalten – sie wirken dadurch kraeftiger als die uebrigen Strassen.",
     );
   }
   if (s.loseNetzstuecke > 0) {

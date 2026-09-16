@@ -1,6 +1,6 @@
 "use client";
 
-import type { Schichtkarte, StrassenGruppe, StrassenZiel } from "@/engine/typen";
+import type { Generalisierung, Schichtkarte, StrassenGruppe, StrassenZiel } from "@/engine/typen";
 import { Block, Haken, Zahl } from "./felder";
 
 interface Props {
@@ -17,6 +17,8 @@ const ZIELE: { wert: StrassenZiel; titel: string }[] = [
 export function EingabeStrassen({ karte, aendern }: Props) {
   const setze = (id: string, teil: Partial<StrassenGruppe>) =>
     aendern({ strassen: karte.strassen.map((g) => (g.id === id ? { ...g, ...teil } : g)) });
+  const gen = karte.generalisierung;
+  const setzeGen = (teil: Partial<Generalisierung>) => aendern({ generalisierung: { ...gen, ...teil } });
 
   return (
     <Block
@@ -37,7 +39,7 @@ export function EingabeStrassen({ karte, aendern }: Props) {
           aendern={(v) => aendern({ netzMinBreiteMm: v })}
         />
         <Zahl
-          titel="Kleine Bloecke zu unter"
+          titel="Bloecke zu unter"
           einheit="mm²"
           schritt={0.5}
           min={0}
@@ -46,31 +48,29 @@ export function EingabeStrassen({ karte, aendern }: Props) {
         />
       </div>
       <div className="mb-3 space-y-2 rounded-md p-3" style={{ background: "var(--grund)" }}>
-        <Haken
-          titel="Breite folgt dem Ausschnitt"
-          wert={karte.generalisierung.aktiv}
-          aendern={(v) => aendern({ generalisierung: { ...karte.generalisierung, aktiv: v } })}
-        />
-        {karte.generalisierung.aktiv && (
+        <Haken titel="Breite folgt der Dichte vor Ort" wert={gen.aktiv} aendern={(v) => setzeGen({ aktiv: v })} />
+        {gen.aktiv && (
           <>
             <div className="grid grid-cols-3 gap-2">
-              <Zahl titel="Entworfen fuer" einheit="km" schritt={0.1} min={0.5} wert={karte.generalisierung.referenzKm}
-                aendern={(v) => aendern({ generalisierung: { ...karte.generalisierung, referenzKm: v } })} />
-              <Zahl titel="hoechstens" einheit="x" schritt={0.05} min={1} wert={karte.generalisierung.maxFaktor}
-                aendern={(v) => aendern({ generalisierung: { ...karte.generalisierung, maxFaktor: v } })} />
-              <Zahl titel="Aufdicken bis" einheit="x" schritt={0.05} min={1} wert={karte.generalisierung.maxAufdickung}
-                aendern={(v) => aendern({ generalisierung: { ...karte.generalisierung, maxAufdickung: v } })} />
+              <Zahl titel="Ziel-Deckung" einheit="%" schritt={1} min={5} wert={Math.round(gen.zielDeckung * 100)}
+                aendern={(v) => setzeGen({ zielDeckung: v / 100 })} />
+              <Zahl titel="hoechstens" einheit="x" schritt={0.05} min={1} wert={gen.maxFaktor}
+                aendern={(v) => setzeGen({ maxFaktor: v })} />
+              <Zahl titel="Aufdicken bis" einheit="x" schritt={0.05} min={1} wert={gen.maxAufdickung}
+                aendern={(v) => setzeGen({ maxAufdickung: v })} />
             </div>
+            <Haken titel="Lichte Orte: markierte Wege ruecken ins Netz nach" wert={gen.nachruecken} aendern={(v) => setzeGen({ nachruecken: v })} />
             <p className="text-xs" style={{ color: "var(--gedaempft)" }}>
-              Doppelter Ausschnitt, halbe Breite – das Bild bleibt gleich dicht. Eine Netzklasse, die dafuer mehr als
-              aufgedickt werden muesste, wird graviert statt geschnitten.
+              Deckung = Strassenlaenge × Breite / Land im Fenster. Alle Netzbreiten werden so skaliert, dass sie das Ziel
+              trifft (Berlin-Tiergarten 3,5 km = 33 %). Muesste die feinste Netzklasse dafuer mehr als aufgedickt werden,
+              wird sie graviert. Ist der Ort sehr licht, ruecken die markierten Gravurklassen nach.
             </p>
           </>
         )}
       </div>
       <div className="space-y-1.5">
         {karte.strassen.map((g) => (
-          <div key={g.id} className="grid grid-cols-[1fr_112px_76px] items-center gap-2">
+          <div key={g.id} className="grid grid-cols-[1fr_112px_76px_20px] items-center gap-2">
             <span className="truncate text-sm" title={g.klassen.join(", ")}>
               {g.titel}
             </span>
@@ -93,6 +93,13 @@ export function EingabeStrassen({ karte, aendern }: Props) {
               />
               mm
             </label>
+            <input
+              type="checkbox"
+              title="Darf in lichten Gegenden ins Netz nachruecken"
+              disabled={g.ziel !== "gravur"}
+              checked={!!g.nachruecken}
+              onChange={(e) => setze(g.id, { nachruecken: e.target.checked })}
+            />
           </div>
         ))}
       </div>
@@ -120,18 +127,16 @@ export function EingabeFertigung({ karte, aendern }: Props) {
         </div>
         <Haken titel="Wasserflaechen aus Schwarz schneiden" wert={karte.wasser} aendern={(v) => aendern({ wasser: v })} />
         {karte.wasser && (
-          <div className="grid grid-cols-2 gap-3 pl-6">
-            <Zahl
-              titel="Wasser min."
-              einheit="mm²"
-              schritt={1}
-              min={0}
-              wert={karte.wasserMinFlaecheMm2}
-              aendern={(v) => aendern({ wasserMinFlaecheMm2: v })}
-            />
-            <div className="self-end">
-              <Haken titel="Fluesse als Linie" wert={karte.wasserlaeufe} aendern={(v) => aendern({ wasserlaeufe: v })} />
+          <div className="space-y-2 pl-6">
+            <div className="grid grid-cols-3 gap-3">
+              <Zahl titel="Flaeche min." einheit="mm²" schritt={1} min={0} wert={karte.wasserMinFlaecheMm2}
+                aendern={(v) => aendern({ wasserMinFlaecheMm2: v })} />
+              <Zahl titel="Breite min." einheit="mm" schritt={0.1} min={0} wert={karte.wasserMinBreiteMm}
+                aendern={(v) => aendern({ wasserMinBreiteMm: v })} />
+              <Zahl titel="Inseln weg unter" einheit="mm²" schritt={1} min={0} wert={karte.wasserInselMinMm2}
+                aendern={(v) => aendern({ wasserInselMinMm2: v })} />
             </div>
+            <Haken titel="Fluesse als Linie" wert={karte.wasserlaeufe} aendern={(v) => aendern({ wasserlaeufe: v })} />
           </div>
         )}
         <Haken

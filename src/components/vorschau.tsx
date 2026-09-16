@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { LagenKey, SchichtkartenErgebnis } from "@/engine/typen";
+import type { Kennzahlen, LagenKey, SchichtkartenErgebnis } from "@/engine/typen";
 
 interface Props {
   ergebnis: SchichtkartenErgebnis | null;
@@ -122,19 +122,7 @@ export function Vorschau({ ergebnis, fehler, laedt }: Props) {
             </tbody>
           </table>
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4">
-            <Kennzahl titel="Netz im Fenster" wert={`${Math.round(ergebnis.kennzahlen.netzAnteilFenster * 100)} %`} />
-            <Kennzahl
-              titel="Breitenfaktor"
-              wert={`× ${(ergebnis.kennzahlen.formatfaktor * ergebnis.kennzahlen.ausschnittfaktor).toFixed(2)}`}
-            />
-            <Kennzahl titel="entspricht Zoom" wert={ergebnis.kennzahlen.zoomEntsprechung.toFixed(1)} />
-            <Kennzahl titel="Bloecke zugefuellt" wert={String(ergebnis.kennzahlen.netzLoecherZugefuellt)} />
-            <Kennzahl titel="Stencil-Stege" wert={String(ergebnis.kennzahlen.stencilStege)} />
-            <Kennzahl titel="Innenflaechen zu" wert={String(ergebnis.kennzahlen.inselnZugefuellt)} />
-            <Kennzahl titel="Wasserflaechen" wert={String(ergebnis.kennzahlen.wasserFlaechenGeschnitten)} />
-            <Kennzahl titel="lose Netzstuecke" wert={String(ergebnis.kennzahlen.loseNetzstuecke)} />
-          </div>
+          <KennzahlenRaster kz={ergebnis.kennzahlen} />
 
           {ergebnis.warnungen.length > 0 && (
             <ul className="space-y-1 text-xs" style={{ color: "#9a5b12" }}>
@@ -145,6 +133,23 @@ export function Vorschau({ ergebnis, fehler, laedt }: Props) {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function KennzahlenRaster({ kz }: { kz: Kennzahlen }) {
+  return (
+    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4">
+      <Kennzahl titel="Netz im Fenster" wert={`${Math.round(kz.netzAnteilFenster * 100)} %`} />
+      <Kennzahl titel="Deckung vor Ort" wert={`${Math.round(kz.deckungVorOrt * 100)} %`} />
+      <Kennzahl titel="Breitenfaktor" wert={`× ${(kz.formatfaktor * kz.dichtefaktor).toFixed(2)}`} />
+      <Kennzahl titel="entspricht Zoom" wert={kz.zoomEntsprechung.toFixed(1)} />
+      <Kennzahl titel="Bloecke zugefuellt" wert={String(kz.netzLoecherZugefuellt)} />
+      <Kennzahl titel="lose → Gravur" wert={String(kz.loseZurGravur)} />
+      <Kennzahl titel="Stencil-Stege" wert={String(kz.stencilStege)} />
+      <Kennzahl titel="Innenflaechen zu" wert={String(kz.inselnZugefuellt)} />
+      <Kennzahl titel="Wasserflaechen" wert={String(kz.wasserFlaechenGeschnitten)} />
+      <Kennzahl titel="Inseln zu Wasser" wert={String(kz.wasserInselnGeflutet)} />
     </div>
   );
 }

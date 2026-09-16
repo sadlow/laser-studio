@@ -1,8 +1,8 @@
-import { clipPolyline, type Punkt } from "./clip";
+import type { Punkt } from "./clip";
+import { laengenImFenster, waehleNetz } from "./dichte";
+import { baueNetz } from "./netz";
 import {
-  ausTeilen,
   flaecheMm2,
-  puffereLinien,
   rechteck,
   schneide,
   teile,
@@ -15,7 +15,8 @@ import {
 import { herzRing } from "./herz";
 import type { KartenRohdaten } from "./kacheln";
 import { stencilStege } from "./stencil";
-import { REFERENZ_KARTENBREITE_MM, type Layout, type Schichtkarte, type Teil } from "./typen";
+import { REFERENZ_KARTENBREITE_MM, type Kennzahlen, type Layout, type Schichtkarte, type Teil } from "./typen";
+import { kleineInselnFluten, wasserImFenster } from "./wasser";
 import type { Textblock } from "./zeilen";
 
 /**
@@ -37,84 +38,41 @@ export interface Bausteine {
   gravur: { linien: Punkt[][]; breiteMm: number }[];
   herz: Teil[];
   textBereich: Flaeche;
-  kennzahlen: {
-    netzAnteilFenster: number;
-    netzLoecherZugefuellt: number;
-    netzAnMindestbreite: string[];
-    formatfaktor: number;
-    ausschnittfaktor: number;
-    herabgestuft: string[];
-    stencilStege: number;
-    punzenOhneSteg: number;
-    inselnZugefuellt: number;
-    wasserFlaechenGeschnitten: number;
-  };
+  kennzahlen: Omit<Kennzahlen, "zoomEntsprechung" | "loseNetzstuecke" | "loseTextteile" | "hintergrundTeile" | "rechenzeitMs">;
 }
 
-// Unterhalb dieser Flaeche ist es ein Rechenrest, kein Acrylteil.
-export const SPLITTER_MM2 = 0.3;
-
-// Strichbreite (bei A4), mit der eine zu schmale Netzklasse graviert wird – so
-// breit wie frueher die gravierten Wohnstrassen.
-const GRAVUR_HERABGESTUFT_MM = 0.45;
-
-/** Breitenfaktor aus dem Ausschnitt: herauszoomen macht schmaler, hineinzoomen breiter. */
-export function ausschnittFaktor(k: Schichtkarte): number {
-  const g = k.generalisierung;
-  if (!g.aktiv || k.ausschnittKm <= 0) return 1;
-  return Math.min(g.maxFaktor, Math.pow(g.referenzKm / k.ausschnittKm, g.exponent));
-}
+// Liegt nach dem Nachruecken mehr Netzflaeche lose, bleiben die Wege ganz
+// Gravur – sonst waere das Netz ein Flickenteppich aus geschnittenen und
+// gravierten Gassen. Gemessen: Allgaeu 1,1-1,4 %, Venedig bei 2 km 78 %.
+const NACHRUECKEN_MAX_LOSE_ANTEIL = 0.1;
 
 export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdaten, text: Textblock): Bausteine {
   const { platte, kartenfenster: f } = layout;
   const plattenFl = rechteck(0, 0, platte.breiteMm, platte.hoeheMm);
   const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
   const schutz = schneide(text.schutz, fensterFl);
+  const wasser = wasserImFenster(k, roh, fensterFl, schutz);
 
-  // --- Strassen. Breiten gelten fuer A4 und wachsen mit dem Format – sonst saehe
-  // A3 filigran und A5 klobig aus, obwohl beide denselben Ausschnitt zeigen.
-  // Mit Generalisierung folgen sie zusaetzlich dem Ausschnitt (typen.ts).
+  // --- Strassen. Breiten gelten fuer A4, wachsen mit dem Format und folgen der
+  // Dichte vor Ort (dichte.ts). Gemessen wird auf dem Land: Wasser ist blau,
+  // dort wirkt nichts zu dicht. Die Textreiter zaehlen mit – die Strassen unter
+  // ihnen stecken in den Laengen (Quadrat sonst 38 statt 33 %).
   const faktor = f.breiteMm / REFERENZ_KARTENBREITE_MM;
-  const ausschnittfaktor = ausschnittFaktor(k);
-  const netzTeile: Flaeche[] = [];
-  const gravurRoh: Bausteine["gravur"] = [];
-  const netzAnMindestbreite: string[] = [];
-  const herabgestuft: string[] = [];
-  const zuGravur = (linien: Punkt[][], breiteMm: number) =>
-    gravurRoh.push({
-      linien: linien.flatMap((l) => clipPolyline(l, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm)),
-      breiteMm: Math.max(0.15, breiteMm),
-    });
-
-  for (const gruppe of k.strassen) {
-    if (gruppe.ziel === "aus") continue;
-    const linien = gruppe.klassen.flatMap((kl) => roh.strassen.get(kl) ?? []);
-    if (!linien.length) continue;
-    const skaliert = gruppe.breiteMm * faktor * ausschnittfaktor;
-    if (gruppe.ziel === "gravur") {
-      zuGravur(linien, skaliert);
-      continue;
-    }
-    // Netz: zu schmal zum Schneiden? Dann etwas aufdicken – oder gravieren.
-    if (skaliert < k.netzMinBreiteMm) {
-      const aufdickung = k.netzMinBreiteMm / skaliert;
-      if (k.generalisierung.aktiv && aufdickung > k.generalisierung.maxAufdickung) {
-        herabgestuft.push(gruppe.titel);
-        zuGravur(linien, GRAVUR_HERABGESTUFT_MM * faktor * ausschnittfaktor);
-        continue;
-      }
-      netzAnMindestbreite.push(gruppe.titel);
-    }
-    netzTeile.push(puffereLinien(linien, Math.max(k.netzMinBreiteMm, skaliert)));
+  const land = flaecheMm2(ziehAb(fensterFl, wasser.gesamt));
+  const laengen = laengenImFenster(k, roh, f);
+  let auswahl = waehleNetz(k, laengen, land, faktor);
+  let n = baueNetz(k, roh, layout, schutz, auswahl);
+  // Nachgerueckte Wege muessen ein Netz ergeben, keine losen Stuecke: Venedigs
+  // Gassen bei 2 km liegen auf Inseln, deren Bruecken Fusswege und Treppen
+  // sind – 78 % der Gassenflaeche lose. Dann bleibt es bei der Gravur.
+  const nachrueckenVerworfen: string[] = [];
+  if (auswahl.nachgerueckt.length && n.loseAnteil > NACHRUECKEN_MAX_LOSE_ANTEIL) {
+    nachrueckenVerworfen.push(...auswahl.nachgerueckt);
+    auswahl = waehleNetz({ ...k, generalisierung: { ...k.generalisierung, nachruecken: false } }, laengen, land, faktor);
+    n = baueNetz(k, roh, layout, schutz, auswahl);
   }
-  const strassen = schneide(vereinige(...netzTeile), fensterFl);
+  const { netz, gravur: gravurRoh } = n;
 
-  // Kleine Bloecke zwischen Strassen und Texten loesen sich nicht sauber heraus.
-  // Sie gehen im Netz auf – als Material, egal welche Farbe das Netz hat.
-  const kleineBloecke = teile(ziehAb(fensterFl, vereinige(strassen, schutz)), SPLITTER_MM2).filter(
-    (b) => b.flaecheMm2 < k.netzMinLochMm2,
-  );
-  const netz = kleineBloecke.length ? vereinige(strassen, ausTeilen(kleineBloecke)) : strassen;
   // Dichte ohne die Textflaechen – die sagen nichts ueber "zu dicht".
   const ohneSchutz = ziehAb(fensterFl, schutz);
   const netzAnteilFenster = flaecheMm2(schneide(netz, ohneSchutz)) / Math.max(1, flaecheMm2(ohneSchutz));
@@ -131,29 +89,13 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
     zugefuellt += z.zugefuelltAnzahl;
   }
 
-  // --- Wasser. Unter den Texten nicht: dort unsichtbar, und die Deckflaeche
-  // braucht darunter Material zum Aufkleben. Ein Teich von 3 mm2 ist ein Loch,
-  // das niemand bemerkt, aber jemand sauber machen muss. Unter Bruecken wird
-  // spaeter ebenfalls nicht geschnitten (stapel.ts).
-  let wasser: Flaeche = [];
-  let wasserFlaechen = 0;
-  if (k.wasser) {
-    const roheFlaeche = vereinige(
-      zuFlaeche(roh.wasserFlaechen),
-      k.wasserlaeufe ? puffereLinien(roh.wasserlaeufe, k.wasserlaufBreiteMm) : [],
-    );
-    const behalten = teile(ziehAb(schneide(roheFlaeche, fensterFl), schutz), SPLITTER_MM2).filter(
-      (t) => t.flaecheMm2 >= k.wasserMinFlaecheMm2,
-    );
-    wasserFlaechen = behalten.length;
-    wasser = ausTeilen(behalten);
-  }
+  const inseln = kleineInselnFluten(k, plattenFl, wasser.geschnitten, netz);
 
   // Gravur weder in den ausgeschnittenen Buchstaben (helle Striche im Schwarz)
   // noch ueber Wasser (dort ist kein Material, der Laser graviert Luft) noch
   // unter dem Netz (unsichtbar). Das Netz allein spart gemessen 31 % Gravurweg
   // bei 160 ms Rechenzeit – A4 Berlin: 15,0 m auf 10,4 m.
-  const gravurAus = vereinige(schutz, wasser, netz);
+  const gravurAus = vereinige(schutz, inseln.wasser, netz);
   const gravur = gravurRoh.map((g) => ({ linien: ziehLinienAb(g.linien, gravurAus), breiteMm: g.breiteMm }));
 
   // --- Herz: Mitte auf dem Ort, Groesse fuer A4 und mitwachsend.
@@ -164,22 +106,27 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
     fensterFl,
     netz,
     schutz,
-    wasser,
+    wasser: inseln.wasser,
     textAusschnitt: vereinige(...ausschnitte),
     gravur,
     herz,
     textBereich: text.textBereich,
     kennzahlen: {
       netzAnteilFenster,
-      netzLoecherZugefuellt: kleineBloecke.length,
-      netzAnMindestbreite,
+      netzLoecherZugefuellt: n.kleineBloecke,
+      netzAnMindestbreite: auswahl.anMindestbreite,
       formatfaktor: faktor,
-      ausschnittfaktor,
-      herabgestuft,
+      dichtefaktor: auswahl.dichtefaktor,
+      deckungVorOrt: auswahl.deckungVorOrt,
+      herabgestuft: auswahl.herabgestuft,
+      nachgerueckt: auswahl.nachgerueckt,
+      nachrueckenVerworfen,
+      loseZurGravur: n.loseZurGravur,
       stencilStege: stege,
       punzenOhneSteg: ohneSteg,
       inselnZugefuellt: zugefuellt,
-      wasserFlaechenGeschnitten: wasserFlaechen,
+      wasserFlaechenGeschnitten: wasser.anzahl,
+      wasserInselnGeflutet: inseln.geflutet,
     },
   };
 }

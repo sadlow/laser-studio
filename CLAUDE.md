@@ -26,6 +26,8 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 | `kacheln.ts` | Mapbox-Vector-Tiles -> Linien/Flaechen in mm, Tunnel und Gehwege raus |
 | `layout.ts`, `textblock.ts`, `ecken.ts` | Zonen; Texte im Poster bzw. in Reitern |
 | `stencil.ts` | Stege fuer Innenflaechen im ausgeschnittenen Text |
+| `dichte.ts`, `netz.ts` | Netzklassen und Breiten nach Dichte vor Ort; lose Stuecke -> Gravur |
+| `wasser.ts` | Wasser im Fenster, schmale Kanaele und kleine Inseln raus |
 | `lagen.ts` | Bausteine: Netz, Wasser, Textausschnitt, Gravur, Herz |
 | `stapel.ts` | Lagen je Aufbau (weisses oder schwarzes Netz) + Vorschau |
 | `produktion.ts` | Exportdatei: Ebenen 1 Gravur / 2 Schnitt innen / 3 Schnitt aussen |
@@ -42,7 +44,8 @@ Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Ausschnitt in km, Strassen wachsen mit dem Format; Mindestbreite Netz 0,8 mm
 - Stege am Scheitel, hoechstens 0,5 mm und halber Strich; Inseln < 1 mm zu
 - Gravur als Flaeche nur im Export; nie unter Netz, Text oder Wasser
-- Strassenbreite folgt dem Ausschnitt; nicht schneidbare Klassen werden graviert
+- Strassenbreite folgt der Dichte vor Ort (Ziel 33 %); zu dichte Klassen graviert, lichte ruecken nach
+- Lose Netzstuecke graviert; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
 - Tunnel, Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet
 - Zeilenschrift Avant Garde Book, Sperrung 0,14 (Deckschicht 2 mm; ExtraLight 0,20 mm zu duenn)
 - opentype.js gepatcht (`patches/`) wegen AvantGardeCE-Demi.otf
@@ -60,17 +63,18 @@ cp .env.example .env.local   # MAPBOX_ACCESS_TOKEN wie in shared/config-local.js
 npm install && npm run dev   # http://localhost:3010
 ```
 
-`npx tsc --noEmit` · `npx tsx scripts/formatvergleich.ts` · `quadrat-varianten.ts` ·
+`npx tsc --noEmit` · `npx tsx scripts/referenzorte.ts` (8 Orte weltweit) · `formatvergleich.ts` · `quadrat-varianten.ts` ·
 `ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts`
 
 ## Offen
 
-- Interaktive Karte zum Ziehen/Zoomen (Mapbox GL, Rahmen im Seitenverhaeltnis des Fensters)
+- Drei Strassenstufen fuer Kunden: viel / ausgewogen / wenig geschnitten (Marcel 16.09.2026)
+- Karte ziehen/zoomen, Herz verschiebbar, Koordinaten = Herzspitze (Mapbox GL)
 - Exportdateien noch nicht in xTool Studio geoeffnet
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
 - Standort-Bestaetigung: "Luebeck" fand Luebecker Strasse in Koeln
 - Herz-Auflage: liegt teils auf dem Netz, teils eine Lage tiefer
-- Hintergrund zerfaellt an Inseln im Wasser (A4 Berlin 19 Teile)
+- Megastaedte wirken lichter als Berlin (Tokio 15 % Netz): Deckung zaehlt Hochstrassen doppelt
 - Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten
 
 ## Umfeld
