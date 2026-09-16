@@ -184,6 +184,31 @@ JOBS.update({
         f"objects in the water. Polished laser-cut edges, soft studio light, very shallow depth of field. {QUALITAET_NAH}"),
 })
 
+# Nahaufnahmen waren "so perfekt, dass es nach 3D-Render riecht" (Marcel 16.09.2026). Der
+# Upscaler hilft nicht: Ultra nimmt keinen Prompt, der klassische nimmt ihn, zeigt aber
+# keinen Staub. Die Unvollkommenheit muss in die Generierung.
+QUALITAET_ECHT = (
+    "Real macro photograph taken with a 100 mm macro lens in soft window light, not a 3D render, not CGI: true-to-life "
+    "glossy acrylic and mirror acrylic with natural imperfections - a few tiny dust specks and one thin lint fiber on the "
+    "glossy black surface, faint fingerprint smudges and hairline micro scratches visible in the reflections, laser-cut "
+    "edges with a very fine, slightly irregular texture and a hint of matte burr, natural sensor grain and subtle lens "
+    "vignetting. Keep the geometry exactly as in the reference image. No extra text, no logos, no people."
+)
+
+
+def echt(prompt):
+    """Nahaufnahme ohne Render-Glanz: Studiolicht und Makellosigkeit raus, echte Spuren rein."""
+    return prompt.replace("soft studio light, ", "").replace(QUALITAET_NAH, QUALITAET_ECHT)
+
+
+for _name in ["06-features-koeln-herz", "06-features-mallorca-lagen", "06-features-koeln-schrift", "features-paris-herz", "features-starnberg-ufer"]:
+    JOBS[_name + "-echt"] = (JOBS[_name][0], echt(JOBS[_name][1]))
+
+# Paris: ohne Hinweis wurden die gravierten Wege rot – die Gravur ist immer hellgrau.
+JOBS["features-paris-herz-echt"] = (JOBS["features-paris-herz-echt"][0], JOBS["features-paris-herz-echt"][1].replace(
+    "fine engraved paths,", "fine engraved paths that appear as light grey lines (never red),"))
+
+
 if __name__ == "__main__":
     gen, up = modul("generate"), modul("upload_ref")
     config = gen.load_config()

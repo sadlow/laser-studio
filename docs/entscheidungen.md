@@ -68,11 +68,9 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   (Standort, Texte, Design mit Vorschaubild, Format, Strassenstufe, Symbol und
   Groesse), Mitte der Komposer, rechts Technik und Prototypenbau, aufklappbar.
 - **Standort als Adresse oder Dezimal-Koordinaten** (Google-Format, auch mit Komma), Ortsname per Rueckwaertssuche.
-- **3D-Reiter** (`ansicht-3d.tsx`, `szene-3d.ts`, three.js): Lagen mit ihrer
-  Staerke extrudiert, Holzrahmen mit Gehrung, frei drehbar, gezeichnet nur bei
-  Aenderung. Acryl hochglaenzend (stumpf wirkte Schwarz wie frosted), Kanten
-  farbiges Acryl, das Blau spiegelt echt (`Reflector` mit Studio nur im
-  Spiegelbild – die Raumumgebung als Hintergrund wurde dort schwarz).
+- **3D-Reiter** (`ansicht-3d.tsx`, `szene-3d.ts`, three.js): Lagen mit ihrer Staerke extrudiert,
+  Holzrahmen mit Gehrung, drehbar, gezeichnet nur bei Aenderung. Acryl hochglaenzend, Kanten
+  farbiges Acryl, das Blau spiegelt echt (`Reflector`, Studio nur im Spiegelbild).
 - **Motive fuer KI-Produktfotos** (`motive-3d.ts`, `aufnahme-3d.ts`): `?ansicht=3d&foto=
   wand|flach|symbol|titel|wasser|kante&vollbild=1`, dazu `entwurf={json}`, `zoom`,
   `versatz`, `grund`, `frontal`, `umgebung`, Schatten- und Softbox-Schalter; `referenzbilder.sh`.
@@ -80,6 +78,9 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   OFF`). Gelernt: Titel nur als "thin, delicate … laser-cut flush" fein statt fett;
   Wandschatten wurde zum Standfuss, Softbox im Spiegel zur Glasplatte, schraege
   Einzelaufnahmen nebeneinander zum Escher-Bild (darum frontal auf gezeichneter Kommode).
+  Nahaufnahmen wirkten zu perfekt: Staub, Kratzer, Laserriefen gehoeren in den Generierungs-
+  Prompt; Ultra-Upscale (2x, 0,05 $) nimmt keinen Prompt, der klassische zeigt trotz Prompt
+  keinen Staub. Paris bei 3,5 km wurde zu schwarzen "Strassen" im Weiss: dichte Staedte 2 km.
 - **Kundeneingaben werden feldweise gemischt** (zwei schnelle Klicks hoben sich sonst auf).
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)

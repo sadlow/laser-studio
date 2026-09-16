@@ -70,7 +70,8 @@ ORTE.update({
                  "kunde": {"adresse": "Muenchen", "titel": "Mia", "namen": "Geboren am 04.03.2026",
                            "letzteZeile": "koordinaten", "ortText": "München", "holzrahmen": "weiss"}},
     # Heiratsantrag
-    "paris": {"lon": 2.3375, "lat": 48.8583, "kartenMitte": {"lon": 2.3450, "lat": 48.8566}, "aufbau": "netz-weiss",
+    # 2 km statt 3,5: dichter wurden zugefuellte Kleinbloecke im KI-Foto zu schwarzen "Strassen" im Weiss
+    "paris": {"lon": 2.3375, "lat": 48.8583, "kartenMitte": {"lon": 2.3450, "lat": 48.8566}, "aufbau": "netz-weiss", "ausschnittKm": 2.0,
               "kunde": {"adresse": "Paris", "titel": "Paris", "namen": "Julia & Tom",
                         "letzteZeile": "wunschtext", "wunschtext": "Hier hat sie Ja gesagt", "holzrahmen": "schwarz"}},
     # Auswandern
@@ -101,6 +102,20 @@ AUFNAHMEN.update({
     "barcelona-flatlay": (ORTE["barcelona"], "flach", 0.72, None, None),
     "paris-herz": (ohne("paris"), "symbol", 1, (0.1, 0), None),
     "starnberg-ufer": (ohne("starnberg"), "wasser", 1, None, None, {"softboxen": "0"}),
+})
+def variante(ort, **felder):
+    e = json.loads(json.dumps(ORTE[ort]))
+    kunde = felder.pop("kunde", {})
+    e.update(felder)
+    e["kunde"].update(kunde)
+    return e
+
+# Paris bei 3,5 km zu dicht: zugefuellte Kleinbloecke mit winzigen Loechern wurden im
+# KI-Foto zu schwarzen "Strassen" im weissen Netz (Marcel 16.09.2026).
+AUFNAHMEN.update({
+    "test-paris-2km": (variante("paris", ausschnittKm=2.0), "wand", 1.3, None, None),
+    "test-paris-2-5km-wenig": (variante("paris", ausschnittKm=2.5, kunde={"strassenStufe": "wenig"}), "wand", 1.3, None, None),
+    "test-paris-3-5km": (ORTE["paris"], "wand", 1.3, None, None),
 })
 AUFNAHMEN.update({f"test-{o}": (ORTE[o], "wand", 1, None, None) for o in
                   ["heidelberg", "starnberg", "muenchen", "paris", "berlin", "dresden", "sylt", "barcelona"]})
