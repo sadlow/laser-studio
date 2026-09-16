@@ -191,9 +191,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   anderer Wert fuer genau einen Parameter (Ausschnitt oder Stegbreite), je
   Material eine Datei. Verkleinert (Zeilen 3,7 statt 5,4 mm) – fuer Schriftfragen
   taugt nur Originalgroesse.
-- **A4 traegt zwei Prototypen 145 x 205 mm**, nicht zwei A5: 2 x 148 mm
-  brauchen 296 von 297 mm, und 210 mm Hoehe laegen exakt auf der Plattenkante.
-  Mit 2,5 mm Rand und 2 mm Abstand bleibt das A-Seitenverhaeltnis (98 % von A5).
+- **A4 traegt zwei Prototypen 145 x 205 mm**, nicht zwei A5 (2 x 148 mm auf 297, 210 mm
+  exakt auf der Plattenkante). 2,5 mm Rand, 2 mm Abstand, 98 % von A5.
 - **30 x 30 traegt einen Prototyp 296 x 296 mm** – aus demselben Grund mit Rand.
 - Material je Exemplar: dreilagig 1 weiss / 1 schwarz / 1 blau, vierlagig 2 weiss.
   Lager 16.09.2026: je 2 A4 weiss, schwarz, blau und je 1 x 30x30 – 4 A4-Prototypen
