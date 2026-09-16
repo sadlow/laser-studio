@@ -66,7 +66,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Gezogen wird auf der gerenderten Vorschau**, nicht in einer zweiten
   Mapbox-GL-Karte: man sieht, was geschnitten wird, und der Token bleibt auf dem
   Server. Beim Ziehen wird die letzte Vorschau verschoben gezeigt, gerechnet wird
-  beim Loslassen. Mausrad zoomt nur ueber dem Kartenfenster.
+  beim Loslassen.
+- **Zoom mit Plus/Minus im Kartenfenster** (Marcel 16.09.2026: intuitiver als
+  das Mausrad) in festen Stufen 0,8-12 km, rund 1,25-fach, 3,5 km liegt darauf.
+  Bis neu gerechnet ist, zeigt die Vorschau die alte Karte skaliert. Das Rad
+  zoomt nur noch mit Strg/Cmd oder als Trackpad-Pinch – sonst kaperte es das
+  Scrollen der Seite ueber der grossen Vorschau.
 - Umrechnung mm <-> Ort (`ortZuMm`, `mmZuOrt`) ist dieselbe Abbildung wie beim
   Kachelabruf: Karte 30 mm verschoben -> Herz 30,000 mm; Herz 20 mm tiefer ->
   357 m, 12 Bogensekunden in der Koordinatenzeile.

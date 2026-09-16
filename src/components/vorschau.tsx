@@ -97,7 +97,7 @@ export function Vorschau({ ergebnis, fehler, laedt, karte, aendern }: Props) {
                 Karte wieder um das Herz zentrieren
               </button>
             )}
-            <span>Karte ziehen verschiebt den Ausschnitt · Herz ziehen versetzt den Ort · Mausrad zoomt</span>
+            <span>Karte ziehen verschiebt den Ausschnitt · Herz ziehen versetzt den Ort · Plus/Minus zoomt (Trackpad: Pinch)</span>
           </div>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <span style={{ color: "var(--gedaempft)" }}>
