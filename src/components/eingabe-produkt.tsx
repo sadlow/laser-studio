@@ -135,7 +135,7 @@ export function EingabeLayout({ karte, aendern }: Props) {
           <Auswahl titel="Titelschrift" wert={karte.titelStil.schrift} optionen={schriftOptionen(TITELSCHRIFTEN)} aendern={(v) => stil("titelStil", { schrift: v })} />
           <Zahl titel="Hoehe" einheit="%" schritt={0.1} wert={round(karte.titelStil.hoeheAnteil * 100)} aendern={(v) => stil("titelStil", { hoeheAnteil: v / 100 })} />
           <Auswahl titel="Zeilenschrift" wert={karte.zeilenStil.schrift} optionen={schriftOptionen(ZEILENSCHRIFTEN)} aendern={(v) => stil("zeilenStil", { schrift: v })} />
-          <Zahl titel="Hoehe" einheit="%" schritt={0.1} wert={round(karte.zeilenStil.hoeheAnteil * 100)} aendern={(v) => stil("zeilenStil", { hoeheAnteil: v / 100 })} />
+          <Zahl titel="Hoehe" einheit="%" schritt={0.01} wert={round(karte.zeilenStil.hoeheAnteil * 100)} aendern={(v) => stil("zeilenStil", { hoeheAnteil: v / 100 })} />
         </div>
         <Zahl titel="Sperrung der Zeilen" einheit="em" schritt={0.01} wert={karte.zeilenStil.sperrung} aendern={(v) => stil("zeilenStil", { sperrung: v })} />
       </div>
@@ -143,4 +143,4 @@ export function EingabeLayout({ karte, aendern }: Props) {
   );
 }
 
-const round = (n: number) => Math.round(n * 100) / 100;
+const round = (n: number) => Math.round(n * 1000) / 1000;

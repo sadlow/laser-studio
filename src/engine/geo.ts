@@ -57,5 +57,7 @@ export function gms(wert: number, art: "breite" | "laenge"): string {
     grad += 1;
   }
   const richtung = art === "breite" ? (wert >= 0 ? "N" : "S") : wert >= 0 ? "O" : "W";
-  return `${grad}°${minuten}'${sekunden}"${richtung}`;
+  // ‘ und “ wie auf dem Poster: InDesign macht aus ' und " typografische
+  // Anfuehrungszeichen, in Avant Garde schraege Striche statt senkrechter.
+  return `${grad}°${minuten}‘${sekunden}“${richtung}`;
 }

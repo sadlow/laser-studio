@@ -55,9 +55,15 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Layout
 
-- **Poster (A-Formate):** Anteile der Plattenhoehe, vermessen am Poster
-  "Zuhause". Titel Bacalisties 7 %, Mitte 74,3 %; die Versalien schwingen
-  gleichmaessig 9,7-10,1 % unter die Mitte (`titel-lage.ts`).
+- **Poster (A-Formate), Richtwert A4:** Anteile der Plattenhoehe, vermessen am
+  A4-Muster des Posters (`Familienposter/8 Zuhause Map/Musterdaten/A4`, 300 und
+  600 dpi auf 0,05 mm gleich, `poster-abgleich.ts`). Karte endet 68,0 %, Titel
+  Bacalisties 7,40 % Versalhoehe mit Mitte 75,64 %, Zeilen 1,825 % (5,42 mm)
+  mit Mitte 89,09 % und 92,36 %. Titel aus Hoehe und Breite der Tintenbox
+  unabhaengig bestimmt: 21,97 und 21,98 mm. Die Schaetzung am schraegen
+  Listing-Foto lag 5-7 % zu klein und 3,5 mm zu hoch.
+- **Koordinaten mit ‘ und “** wie auf dem Poster: InDesign macht aus ' und "
+  typografische Zeichen. Nur damit trifft die zweite Zeile die Posterbreite.
 - **Quadrat = eingebettet** (`ecken.ts`). Zeilen mit gleichem Anker stehen
   uebereinander wie auf der DIN-Version, jeder Block in einem abgerundeten
   Reiter mit ausgerundetem Uebergang zum Rand. Die Kontur um die Buchstaben
@@ -78,7 +84,11 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Schrift
 
-- **Avant Garde Book, Sperrung 0,14** – nicht ExtraLight (Poster), nicht Demi.
+- **Die Sperrung 0,14 ist eine Zugabe, das Poster hat keine.** ExtraLight ohne
+  Sperrung trifft die Namenbreite auf 0,01 mm; luftig wirkt es durch den duennen
+  Strich. Book 0,14 laeuft bei gleicher Versalhoehe 27-32 % breiter (A4:
+  Namen 84 statt 66 mm, Koordinaten 133 statt 100 mm). Marcel mag die Luft.
+- **Avant Garde Book** – nicht ExtraLight (Poster), nicht Demi.
   Strich bei 5 mm Versalhoehe: ExtraLight 0,20 / Book 0,50 / Demi 0,93 / Bold
   1,36 mm (`strichstaerke.ts`). ExtraLight: die beiden Schnittkanten eines Strichs
   fielen bei 0,1-0,2 mm Schnittfuge praktisch zusammen. Demi war zuerst Standard,

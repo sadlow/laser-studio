@@ -24,16 +24,23 @@ export const STRASSEN_STANDARD: StrassenGruppe[] = [
 /**
  * Startwerte: das Amazon-Poster "Zuhause" (Family Motiv 8) als Laserprodukt.
  *
- * Hoehen-Anteile am Listing-Foto vermessen: Karte endet bei 68 %, Titelmitte
- * 77,5 %, Namen 87,8 %, Ort 91 %. Der Titel steht dort ueber rund 52 % der
- * Breite – das erreicht Bacalisties bei 7 % Versalhoehe.
+ * Richtwert ist A4 (Marcel 16.09.2026). Groessen und Lagen am A4-Muster des
+ * Posters vermessen (Musterdaten, 300 und 600 dpi, auf 0,05 mm gleich;
+ * `scripts/poster-abgleich.ts`): Karte endet bei 202,0 mm, Titel 21,97 mm
+ * Versalhoehe mit Mitte bei 224,7 mm, beide Zeilen 5,42 mm Versalhoehe mit
+ * Mitte bei 264,6 und 274,3 mm.
  *
  * Zeilen in ITC Avant Garde Gothic wie das Poster, aber Book statt ExtraLight.
  * Strich bei 5 mm Versalhoehe: ExtraLight 0,20 mm (kaum breiter als die
  * Schnittfuge – die beiden Kanten eines Strichs fielen zusammen), Book 0,50,
  * Demi 0,93, Bold 1,36. Demi war zuerst gewaehlt, wirkte aber nicht edel;
  * die Deckschicht ist nur 2 mm stark, dort loest sich ein 0,5-mm-Schlitz sauber
- * (Marcel 16.09.2026). Sperrung 0,14 wie auf dem Poster.
+ * (Marcel 16.09.2026).
+ *
+ * Die Sperrung 0,14 ist eine Zugabe, das Poster hat keine: ExtraLight ohne
+ * Sperrung trifft die Namenbreite dort auf 0,01 mm. Luftig wirkt es durch den
+ * duennen Strich. Book ist kraeftiger und bekommt die Luft ueber die Sperrung
+ * ("ein bisschen Spacing tut der Schrift gut", Marcel 16.09.2026).
  */
 export function standardSchichtkarte(): Schichtkarte {
   return {
@@ -66,15 +73,14 @@ export function standardSchichtkarte(): Schichtkarte {
       rahmenUntenMm: 14,
     },
     kartenEndeAnteil: 0.68,
-    // Bacalisties-Versalien schwingen gleichmaessig 9,7-10,1 % unter die
-    // Versalhoehen-Mitte (gemessen: Zuhause, Home, Unser Nest, Familie). Bei
-    // 74,3 % endet der Schwung wie auf dem Poster bei 84,3 % – 2,4 % Luft zu
-    // den Namen, sonst verschmelzen die Ausschnitte.
-    titelMitteAnteil: 0.743,
-    zeile1MitteAnteil: 0.878,
-    zeile2MitteAnteil: 0.912,
-    titelStil: { schrift: "Bacalisties.ttf", hoeheAnteil: 0.07, sperrung: 0, versalien: false },
-    zeilenStil: { schrift: "AvantGarde-Book.otf", hoeheAnteil: 0.017, sperrung: 0.14, versalien: true },
+    // Der Schwung von "Zuhause" endet auf dem Poster bei 255,2 mm, 6,7 mm ueber
+    // den Namen. Bacalisties-Versalien schwingen gleichmaessig 9,7-10,1 % unter
+    // die Versalhoehen-Mitte (Zuhause, Home, Unser Nest, Familie).
+    titelMitteAnteil: 0.7564,
+    zeile1MitteAnteil: 0.8909,
+    zeile2MitteAnteil: 0.9236,
+    titelStil: { schrift: "Bacalisties.ttf", hoeheAnteil: 0.074, sperrung: 0, versalien: false },
+    zeilenStil: { schrift: "AvantGarde-Book.otf", hoeheAnteil: 0.01825, sperrung: 0.14, versalien: true },
     strassen: STRASSEN_STANDARD.map((g) => ({ ...g, klassen: [...g.klassen] })),
     netzMinBreiteMm: 0.8,
     // Exponent 1: doppelter Ausschnitt, halbe Breite – das Bild bleibt gleich
