@@ -42,6 +42,8 @@ export interface Bausteine {
     netzLoecherZugefuellt: number;
     netzAnMindestbreite: string[];
     formatfaktor: number;
+    ausschnittfaktor: number;
+    herabgestuft: string[];
     stencilStege: number;
     punzenOhneSteg: number;
     inselnZugefuellt: number;
@@ -52,6 +54,17 @@ export interface Bausteine {
 // Unterhalb dieser Flaeche ist es ein Rechenrest, kein Acrylteil.
 export const SPLITTER_MM2 = 0.3;
 
+// Strichbreite (bei A4), mit der eine zu schmale Netzklasse graviert wird – so
+// breit wie frueher die gravierten Wohnstrassen.
+const GRAVUR_HERABGESTUFT_MM = 0.45;
+
+/** Breitenfaktor aus dem Ausschnitt: herauszoomen macht schmaler, hineinzoomen breiter. */
+export function ausschnittFaktor(k: Schichtkarte): number {
+  const g = k.generalisierung;
+  if (!g.aktiv || k.ausschnittKm <= 0) return 1;
+  return Math.min(g.maxFaktor, Math.pow(g.referenzKm / k.ausschnittKm, g.exponent));
+}
+
 export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdaten, text: Textblock): Bausteine {
   const { platte, kartenfenster: f } = layout;
   const plattenFl = rechteck(0, 0, platte.breiteMm, platte.hoeheMm);
@@ -60,22 +73,39 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
 
   // --- Strassen. Breiten gelten fuer A4 und wachsen mit dem Format – sonst saehe
   // A3 filigran und A5 klobig aus, obwohl beide denselben Ausschnitt zeigen.
+  // Mit Generalisierung folgen sie zusaetzlich dem Ausschnitt (typen.ts).
   const faktor = f.breiteMm / REFERENZ_KARTENBREITE_MM;
+  const ausschnittfaktor = ausschnittFaktor(k);
   const netzTeile: Flaeche[] = [];
   const gravurRoh: Bausteine["gravur"] = [];
   const netzAnMindestbreite: string[] = [];
+  const herabgestuft: string[] = [];
+  const zuGravur = (linien: Punkt[][], breiteMm: number) =>
+    gravurRoh.push({
+      linien: linien.flatMap((l) => clipPolyline(l, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm)),
+      breiteMm: Math.max(0.15, breiteMm),
+    });
+
   for (const gruppe of k.strassen) {
     if (gruppe.ziel === "aus") continue;
     const linien = gruppe.klassen.flatMap((kl) => roh.strassen.get(kl) ?? []);
     if (!linien.length) continue;
-    if (gruppe.ziel === "netz") {
-      const skaliert = gruppe.breiteMm * faktor;
-      if (skaliert < k.netzMinBreiteMm) netzAnMindestbreite.push(gruppe.titel);
-      netzTeile.push(puffereLinien(linien, Math.max(k.netzMinBreiteMm, skaliert)));
-    } else {
-      const exakt = linien.flatMap((l) => clipPolyline(l, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm));
-      gravurRoh.push({ linien: exakt, breiteMm: Math.max(0.15, gruppe.breiteMm * faktor) });
+    const skaliert = gruppe.breiteMm * faktor * ausschnittfaktor;
+    if (gruppe.ziel === "gravur") {
+      zuGravur(linien, skaliert);
+      continue;
     }
+    // Netz: zu schmal zum Schneiden? Dann etwas aufdicken – oder gravieren.
+    if (skaliert < k.netzMinBreiteMm) {
+      const aufdickung = k.netzMinBreiteMm / skaliert;
+      if (k.generalisierung.aktiv && aufdickung > k.generalisierung.maxAufdickung) {
+        herabgestuft.push(gruppe.titel);
+        zuGravur(linien, GRAVUR_HERABGESTUFT_MM * faktor * ausschnittfaktor);
+        continue;
+      }
+      netzAnMindestbreite.push(gruppe.titel);
+    }
+    netzTeile.push(puffereLinien(linien, Math.max(k.netzMinBreiteMm, skaliert)));
   }
   const strassen = schneide(vereinige(...netzTeile), fensterFl);
 
@@ -144,6 +174,8 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
       netzLoecherZugefuellt: kleineBloecke.length,
       netzAnMindestbreite,
       formatfaktor: faktor,
+      ausschnittfaktor,
+      herabgestuft,
       stencilStege: stege,
       punzenOhneSteg: ohneSteg,
       inselnZugefuellt: zugefuellt,

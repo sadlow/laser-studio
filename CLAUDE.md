@@ -41,6 +41,7 @@ Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Ausschnitt in km, Strassen wachsen mit dem Format; Mindestbreite Netz 0,8 mm
 - Stege am Scheitel, hoechstens 0,5 mm und halber Strich; Inseln < 1 mm zu
 - Gravur als Flaeche nur im Export; nie unter Netz, Text oder Wasser
+- Strassenbreite folgt dem Ausschnitt; nicht schneidbare Klassen werden graviert
 - Tunnel, Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet
 - Zeilenschrift Avant Garde Demi (ExtraLight hat 0,20 mm Strich)
 - opentype.js gepatcht (`patches/`) wegen AvantGardeCE-Demi.otf
@@ -63,7 +64,7 @@ npm install && npm run dev   # http://localhost:3010
 
 ## Offen
 
-- Automatische Strassenbreite je Ausschnitt; interaktive Karte zum Ziehen/Zoomen
+- Interaktive Karte zum Ziehen/Zoomen; Plattenbelegung fuer Prototypen
 - Exportdateien noch nicht in xTool Studio geoeffnet
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
 - Standort-Bestaetigung: "Luebeck" fand Luebecker Strasse in Koeln

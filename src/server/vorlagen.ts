@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { standardSchichtkarte } from "@/engine/standard";
 import type { Schichtkarte } from "@/engine/typen";
 
 /**
@@ -26,13 +27,35 @@ export function listeVorlagen(): Vorlage[] {
   return fs
     .readdirSync(VORLAGEN_ORDNER)
     .filter((d) => d.endsWith(".json"))
-    .map((d) => JSON.parse(fs.readFileSync(path.join(VORLAGEN_ORDNER, d), "utf8")) as Vorlage)
+    .map((d) => lese(path.join(VORLAGEN_ORDNER, d)))
     .sort((a, b) => a.name.localeCompare(b.name, "de"));
 }
 
 export function ladeVorlage(id: string): Vorlage | null {
   const datei = path.join(VORLAGEN_ORDNER, `${pruefeId(id)}.json`);
-  return fs.existsSync(datei) ? (JSON.parse(fs.readFileSync(datei, "utf8")) as Vorlage) : null;
+  return fs.existsSync(datei) ? lese(datei) : null;
+}
+
+/**
+ * Vorlagen altern: kommt ein Parameter dazu, fehlt er in allen aelteren
+ * Dateien, und die Engine bricht beim Laden ab. Darum wird mit den
+ * Standardwerten aufgefuellt – auch in den verschachtelten Gruppen.
+ */
+function lese(datei: string): Vorlage {
+  const v = JSON.parse(fs.readFileSync(datei, "utf8")) as Vorlage;
+  const { kunde: _k, lon: _lo, lat: _la, ...basis } = standardSchichtkarte();
+  const k = v.karte as Partial<Produktparameter>;
+  return {
+    ...v,
+    karte: {
+      ...basis,
+      ...k,
+      eingebettet: { ...basis.eingebettet, ...k.eingebettet },
+      generalisierung: { ...basis.generalisierung, ...k.generalisierung },
+      titelStil: { ...basis.titelStil, ...k.titelStil },
+      zeilenStil: { ...basis.zeilenStil, ...k.zeilenStil },
+    },
+  };
 }
 
 /** Speichert unter einer id aus dem Namen. Gleicher Name ueberschreibt – gewollt beim Nachjustieren. */

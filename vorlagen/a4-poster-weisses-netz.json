@@ -127,6 +127,13 @@
       }
     ],
     "netzMinBreiteMm": 0.8,
+    "generalisierung": {
+      "aktiv": true,
+      "referenzKm": 3.5,
+      "exponent": 1,
+      "maxFaktor": 1.4,
+      "maxAufdickung": 1.25
+    },
     "netzMinLochMm2": 4,
     "wasser": true,
     "wasserlaeufe": false,

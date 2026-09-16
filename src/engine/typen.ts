@@ -34,6 +34,28 @@ export interface StrassenGruppe {
 /** Kartenbreite von A4 mit 7 mm Rahmen – der Bezug aller Strassenbreiten. */
 export const REFERENZ_KARTENBREITE_MM = 196;
 
+/**
+ * Strassenbreite folgt dem Ausschnitt, damit das Bild beim Zoomen gleich dicht
+ * bleibt – und das Netz trotzdem schneidbar (Marcel 16.09.2026: der Kunde soll
+ * spaeter selbst ziehen und zoomen).
+ *
+ * Breite = Vorlagenbreite x Formatfaktor x (referenzKm / ausschnittKm)^exponent,
+ * nach oben gedeckelt. Faellt eine Netzklasse unter die Mindestbreite, wird sie
+ * hoechstens um maxAufdickung verbreitert; reicht das nicht, wird sie graviert
+ * statt geschnitten.
+ */
+export interface Generalisierung {
+  aktiv: boolean;
+  /** Ausschnitt, fuer den die Breiten der Vorlage entworfen sind. */
+  referenzKm: number;
+  /** 1 = Breite umgekehrt proportional zum Ausschnitt (gleiche Dichte). */
+  exponent: number;
+  /** So viel breiter als entworfen darf eine Strasse beim Hineinzoomen werden. */
+  maxFaktor: number;
+  /** So viel darf eine zu schmale Netzstrasse aufgedickt werden, bevor sie graviert wird. */
+  maxAufdickung: number;
+}
+
 export type LetzteZeile = "koordinaten" | "wunschtext";
 
 /** Kundeneingaben – dieselben Felder wie Family Motiv 8 "Zuhause Map". */
@@ -134,8 +156,9 @@ export interface Schichtkarte {
   zeilenStil: TextStil;
 
   strassen: StrassenGruppe[];
-  /** Schmaler wird kein Netzstreifen, auch wenn das Format ihn schrumpfen liesse. */
+  /** Schmaler wird kein Netzstreifen, auch wenn Format oder Ausschnitt ihn schrumpfen liessen. */
   netzMinBreiteMm: number;
+  generalisierung: Generalisierung;
   /**
    * Bloecke zwischen Netzstrassen, die kleiner sind, bleiben weiss. Ein Stueck
    * von 2 x 2 mm loest sich beim Schneiden nicht sauber heraus.

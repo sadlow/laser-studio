@@ -37,13 +37,36 @@ export function EingabeStrassen({ karte, aendern }: Props) {
           aendern={(v) => aendern({ netzMinBreiteMm: v })}
         />
         <Zahl
-          titel="Kleine Bloecke weiss unter"
+          titel="Kleine Bloecke zu unter"
           einheit="mm²"
           schritt={0.5}
           min={0}
           wert={karte.netzMinLochMm2}
           aendern={(v) => aendern({ netzMinLochMm2: v })}
         />
+      </div>
+      <div className="mb-3 space-y-2 rounded-md p-3" style={{ background: "var(--grund)" }}>
+        <Haken
+          titel="Breite folgt dem Ausschnitt"
+          wert={karte.generalisierung.aktiv}
+          aendern={(v) => aendern({ generalisierung: { ...karte.generalisierung, aktiv: v } })}
+        />
+        {karte.generalisierung.aktiv && (
+          <>
+            <div className="grid grid-cols-3 gap-2">
+              <Zahl titel="Entworfen fuer" einheit="km" schritt={0.1} min={0.5} wert={karte.generalisierung.referenzKm}
+                aendern={(v) => aendern({ generalisierung: { ...karte.generalisierung, referenzKm: v } })} />
+              <Zahl titel="hoechstens" einheit="x" schritt={0.05} min={1} wert={karte.generalisierung.maxFaktor}
+                aendern={(v) => aendern({ generalisierung: { ...karte.generalisierung, maxFaktor: v } })} />
+              <Zahl titel="Aufdicken bis" einheit="x" schritt={0.05} min={1} wert={karte.generalisierung.maxAufdickung}
+                aendern={(v) => aendern({ generalisierung: { ...karte.generalisierung, maxAufdickung: v } })} />
+            </div>
+            <p className="text-xs" style={{ color: "var(--gedaempft)" }}>
+              Doppelter Ausschnitt, halbe Breite – das Bild bleibt gleich dicht. Eine Netzklasse, die dafuer mehr als
+              aufgedickt werden muesste, wird graviert statt geschnitten.
+            </p>
+          </>
+        )}
       </div>
       <div className="space-y-1.5">
         {karte.strassen.map((g) => (

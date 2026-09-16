@@ -55,6 +55,12 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
   const s = stapleLagen(k, layout, b);
   const netzFarbe = k.aufbau === "netz-schwarz" ? "schwarzen" : "weissen";
 
+  if (b.kennzahlen.herabgestuft.length > 0) {
+    warnungen.push(
+      `Bei ${k.ausschnittKm.toFixed(1)} km waeren ${b.kennzahlen.herabgestuft.join(", ")} nicht mehr schneidbar ` +
+        "und werden graviert statt geschnitten.",
+    );
+  }
   if (b.kennzahlen.netzAnMindestbreite.length > 0) {
     warnungen.push(
       `Auf diesem Format waeren ${b.kennzahlen.netzAnMindestbreite.join(", ")} schmaler als ${k.netzMinBreiteMm} mm ` +

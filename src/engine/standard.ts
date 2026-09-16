@@ -75,6 +75,10 @@ export function standardSchichtkarte(): Schichtkarte {
     zeilenStil: { schrift: "AvantGardeCE-Demi.otf", hoeheAnteil: 0.017, sperrung: 0.06, versalien: true },
     strassen: STRASSEN_STANDARD.map((g) => ({ ...g, klassen: [...g.klassen] })),
     netzMinBreiteMm: 0.8,
+    // Exponent 1: doppelter Ausschnitt, halbe Breite – das Bild bleibt gleich
+    // dicht. Hineinzoomen hoechstens 1,4-fach breiter, sonst klobig. Eine zu
+    // schmale Netzklasse wird bis 25 % aufgedickt, darueber graviert.
+    generalisierung: { aktiv: true, referenzKm: 3.5, exponent: 1, maxFaktor: 1.4, maxAufdickung: 1.25 },
     netzMinLochMm2: 4,
     wasser: true,
     wasserlaeufe: false,

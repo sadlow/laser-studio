@@ -82,3 +82,17 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   ExtraLight 0,20 / Book 0,50 / Demi 0,93 / Bold 1,36 mm (`strichstaerke.ts`).
 - **opentype.js ist gepatcht** (`patches/`, `postinstall`): CFF-Encoding mit
   Zusatzbit (Format 129) warf einen Fehler, betroffen AvantGardeCE-Demi.otf.
+
+## Generalisierung (`lagen.ts`, `ausschnittFaktor`)
+
+- **Strassenbreite folgt dem Ausschnitt** (Exponent 1: doppelter Ausschnitt,
+  halbe Breite), hineinzoomen hoechstens 1,4-fach. Eine Netzklasse, die mehr als
+  25 % aufgedickt werden muesste, um schneidbar zu sein, wird graviert statt
+  geschnitten. A4 Berlin: 2 km 17 % Netz, 3,5 km 22 %, 6 km 15 % (Wohnstrassen
+  graviert), 9 km 11 % (Tertiaer, Bahn, Wohnstrassen graviert) – ueberall 0 lose
+  Netzstuecke. Ohne Regel: 6 km 37 % mit 5 losen Stuecken.
+- Das Bild wird beim Herauszoomen lichter, nicht gleich dicht: weniger Klassen
+  werden geschnitten. Gewollt – ein Netzstreifen unter der Mindestbreite ist
+  nicht verhandelbar.
+- **Vorlagen werden beim Laden mit den Standardwerten aufgefuellt** – neue
+  Parameter fehlen in aelteren Dateien, und die Engine braeche sonst ab.

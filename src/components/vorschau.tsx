@@ -124,7 +124,10 @@ export function Vorschau({ ergebnis, fehler, laedt }: Props) {
 
           <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4">
             <Kennzahl titel="Netz im Fenster" wert={`${Math.round(ergebnis.kennzahlen.netzAnteilFenster * 100)} %`} />
-            <Kennzahl titel="Formatfaktor" wert={`× ${ergebnis.kennzahlen.formatfaktor.toFixed(2)}`} />
+            <Kennzahl
+              titel="Breitenfaktor"
+              wert={`× ${(ergebnis.kennzahlen.formatfaktor * ergebnis.kennzahlen.ausschnittfaktor).toFixed(2)}`}
+            />
             <Kennzahl titel="entspricht Zoom" wert={ergebnis.kennzahlen.zoomEntsprechung.toFixed(1)} />
             <Kennzahl titel="Bloecke zugefuellt" wert={String(ergebnis.kennzahlen.netzLoecherZugefuellt)} />
             <Kennzahl titel="Stencil-Stege" wert={String(ergebnis.kennzahlen.stencilStege)} />

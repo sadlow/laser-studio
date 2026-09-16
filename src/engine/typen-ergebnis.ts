@@ -43,6 +43,10 @@ export interface Kennzahlen {
   /** Strassengruppen, deren Breite durch das Format unter die Mindestbreite fiele. */
   netzAnMindestbreite: string[];
   formatfaktor: number;
+  /** Anteil der Breite, der aus dem Ausschnitt kommt (1 ohne Generalisierung). */
+  ausschnittfaktor: number;
+  /** Netzklassen, die bei diesem Ausschnitt nicht schneidbar waeren und graviert werden. */
+  herabgestuft: string[];
   zoomEntsprechung: number;
   /** Strassenstuecke, die nicht am Netz haengen und lose herausfallen. */
   loseNetzstuecke: number;
