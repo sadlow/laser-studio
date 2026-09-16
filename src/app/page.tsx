@@ -55,7 +55,7 @@ export default function Seite() {
         <div>
           <h1 className="text-xl font-semibold">Laser Studio · Schichtkarte</h1>
           <p className="text-sm" style={{ color: "var(--gedaempft)" }}>
-            Weiss mit Strassennetz und Stencil-Text · Schwarz mit Gravur · Wasser in blauem Spiegel · Herz in rotem Spiegel
+            Acrylschichten mit geschnittenem Strassennetz und Stencil-Text · feine Wege graviert · Wasser in blauem Spiegel · Herz in rotem Spiegel
           </p>
         </div>
       </header>

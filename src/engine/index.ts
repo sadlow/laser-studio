@@ -53,7 +53,7 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
 
   const b = baueBausteine(k, layout, roh, textblock);
   const s = stapleLagen(k, layout, b);
-  const netzFarbe = k.aufbau === "netz-schwarz" ? "schwarzen" : "weissen";
+  const netzFarbe = k.aufbau === "netz-weiss" ? "weissen" : "schwarzen";
 
   if (b.kennzahlen.herabgestuft.length > 0) {
     warnungen.push(

@@ -25,9 +25,9 @@ export function EingabeStrassen({ karte, aendern }: Props) {
     <Block
       titel="Strassen"
       hinweis={`Breiten gelten fuer A4 und wachsen mit dem Format. Netz = Strassen als ${
-        karte.aufbau === "netz-schwarz" ? "schwarzes" : "weisses"
+        karte.aufbau === "netz-weiss" ? "weisses" : "schwarzes"
       } Acryl, die Bloecke fallen heraus. Gravur = Linie auf dem ${
-        karte.aufbau === "netz-schwarz" ? "weissen" : "schwarzen"
+        karte.aufbau === "netz-weiss" ? "schwarzen" : "weissen"
       } Hintergrund. Tunnel werden nie gezeichnet, Bruecken immer.`}
     >
       <div className="mb-3 grid grid-cols-2 gap-3">

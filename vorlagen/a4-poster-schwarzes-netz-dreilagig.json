@@ -1,0 +1,182 @@
+{
+  "id": "a4-poster-schwarzes-netz-dreilagig",
+  "name": "A4 Poster – schwarzes Netz dreilagig",
+  "beschreibung": "Karte oben, Text darunter. Schwarzes Strassennetz mit Rahmen und Text auf weissem Hintergrund mit Gravur, darunter Blau – drei Lagen, ohne Deckschicht.",
+  "karte": {
+    "ausschnittKm": 3.5,
+    "format": "a4",
+    "rahmenMm": 7,
+    "aufbau": "netz-schwarz-dreilagig",
+    "layoutArt": "poster",
+    "eingebettet": {
+      "titelAnker": "oben-mitte",
+      "zeile1Anker": "unten-mitte",
+      "zeile2Anker": "unten-mitte",
+      "form": "rechteck",
+      "schutzMm": 5,
+      "eckenRadiusMm": 6,
+      "rahmenUntenMm": 14
+    },
+    "kartenEndeAnteil": 0.68,
+    "titelMitteAnteil": 0.7564,
+    "zeile1MitteAnteil": 0.8909,
+    "zeile2MitteAnteil": 0.9236,
+    "titelStil": {
+      "schrift": "Bacalisties.ttf",
+      "hoeheAnteil": 0.074,
+      "sperrung": 0,
+      "versalien": false
+    },
+    "zeilenStil": {
+      "schrift": "AvantGarde-Book.otf",
+      "hoeheAnteil": 0.01825,
+      "sperrung": 0.14,
+      "versalien": true
+    },
+    "strassen": [
+      {
+        "id": "fern",
+        "titel": "Autobahn / Schnellstrasse",
+        "klassen": [
+          "motorway",
+          "motorway_link",
+          "trunk",
+          "trunk_link"
+        ],
+        "ziel": "netz",
+        "breiteMm": 2.6
+      },
+      {
+        "id": "primaer",
+        "titel": "Primaer",
+        "klassen": [
+          "primary",
+          "primary_link"
+        ],
+        "ziel": "netz",
+        "breiteMm": 2.2
+      },
+      {
+        "id": "sekundaer",
+        "titel": "Sekundaer",
+        "klassen": [
+          "secondary",
+          "secondary_link"
+        ],
+        "ziel": "netz",
+        "breiteMm": 1.8
+      },
+      {
+        "id": "tertiaer",
+        "titel": "Tertiaer",
+        "klassen": [
+          "tertiary",
+          "tertiary_link"
+        ],
+        "ziel": "netz",
+        "breiteMm": 1.4
+      },
+      {
+        "id": "bahn",
+        "titel": "Bahn",
+        "klassen": [
+          "major_rail"
+        ],
+        "ziel": "netz",
+        "breiteMm": 1.2
+      },
+      {
+        "id": "wohn",
+        "titel": "Wohnstrassen",
+        "klassen": [
+          "street",
+          "street_limited"
+        ],
+        "ziel": "netz",
+        "breiteMm": 1
+      },
+      {
+        "id": "service",
+        "titel": "Zufahrten",
+        "klassen": [
+          "service"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.3,
+        "nachruecken": true
+      },
+      {
+        "id": "fussgaenger",
+        "titel": "Fussgaengerzonen",
+        "klassen": [
+          "pedestrian"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.25,
+        "nachruecken": true
+      },
+      {
+        "id": "feldwege",
+        "titel": "Feldwege",
+        "klassen": [
+          "track"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.25,
+        "nachruecken": true
+      },
+      {
+        "id": "fuss",
+        "titel": "Fuss- und Radwege",
+        "klassen": [
+          "path"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.25
+      },
+      {
+        "id": "nebenbahn",
+        "titel": "Nebengleise",
+        "klassen": [
+          "minor_rail",
+          "service_rail"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.25
+      }
+    ],
+    "netzMinBreiteMm": 0.8,
+    "generalisierung": {
+      "aktiv": true,
+      "maxFaktor": 1.4,
+      "stufen": {
+        "viel": {
+          "zielDeckung": 0.42,
+          "maxAufdickung": 2,
+          "nachruecken": "immer"
+        },
+        "ausgewogen": {
+          "zielDeckung": 0.33,
+          "maxAufdickung": 1.4,
+          "nachruecken": "licht"
+        },
+        "wenig": {
+          "zielDeckung": 0.26,
+          "maxAufdickung": 1,
+          "nachruecken": "nie"
+        }
+      }
+    },
+    "netzMinLochMm2": 4,
+    "wasser": true,
+    "wasserlaeufe": false,
+    "wasserlaufBreiteMm": 1.2,
+    "wasserMinFlaecheMm2": 6,
+    "wasserMinBreiteMm": 1,
+    "wasserInselMinMm2": 15,
+    "stegMm": 0.5,
+    "stencilMinInselBreiteMm": 1,
+    "herzBreiteMm": 11,
+    "loseTeileMarkieren": true
+  }
+}

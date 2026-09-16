@@ -5,12 +5,13 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Aufbau und Lagen
 
-- **Zwei Aufbauten, eine Struktur** (`stapel.ts`). Netz-Lage (Rahmen + Strassen
+- **Drei Aufbauten, eine Struktur** (`stapel.ts`). Netz-Lage (Rahmen + Strassen
   als Material, die Bloecke fallen heraus) ueber Hintergrund-Lage (Wasser
-  geschnitten, feine Wege graviert) ueber Blau. `netz-weiss`: Netz weiss,
-  Hintergrund schwarz, Texte im Netz. `netz-schwarz`: Netz schwarz, Hintergrund
-  weiss (Positiv-Look des Posters), darueber weisse Deckschicht mit Rahmen und
-  Text. Die Bausteine (`lagen.ts`) sind fuer beide identisch.
+  geschnitten, feine Wege graviert) ueber Blau. Zwei dreilagige mit Text im Netz:
+  `netz-weiss` (weiss-schwarz-blau) und `netz-schwarz-dreilagig`
+  (schwarz-weiss-blau, Marcel 16.09.2026). Eine vierlagige: `netz-schwarz`
+  (weiss-schwarz-weiss-blau), Positiv-Look des Posters mit weisser Deckschicht
+  fuer Rahmen und Text. Die Bausteine (`lagen.ts`) sind fuer alle identisch.
 - **Unter Bruecken wird der Hintergrund nicht geschnitten.** Er haelt dann ueber
   die Bruecke zusammen, statt am Fluss zu zerfallen.
 - **Unter Texten kein Wasser, keine Gravur**, im schwarzen Netz volles Material –
@@ -150,7 +151,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   brauchen 296 von 297 mm, und 210 mm Hoehe laegen exakt auf der Plattenkante.
   Mit 2,5 mm Rand und 2 mm Abstand bleibt das A-Seitenverhaeltnis (98 % von A5).
 - **30 x 30 traegt einen Prototyp 296 x 296 mm** – aus demselben Grund mit Rand.
-- Materialbedarf je Exemplar: weisses Netz 1 weiss / 1 schwarz / 1 blau,
+- Materialbedarf je Exemplar: weisses Netz und schwarzes Netz dreilagig je
+  1 weiss / 1 schwarz / 1 blau,
   schwarzes Netz 2 weiss / 1 schwarz / 1 blau (Stand Lager 16.09.2026: je 2 A4 in
   weiss, schwarz, blau und je 1 x 30x30 – reicht fuer 4 A4-Prototypen mit weissem
   Netz oder 2 mit schwarzem, das Quadrat nur mit weissem Netz).

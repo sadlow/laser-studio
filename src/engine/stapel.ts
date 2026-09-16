@@ -61,7 +61,15 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
     };
   }
 
-  // netz-weiss: die Texte sitzen im weissen Netz selbst.
+  // Dreilagig: die Texte sitzen im Netz selbst. Weisses oder schwarzes Netz
+  // sind dieselbe Geometrie mit getauschten Farben.
+  const schwarz = k.aufbau === "netz-schwarz-dreilagig";
+  const [netzFarbe, netzTitel, netzMaterial] = schwarz
+    ? [FARBE_SCHWARZ, "Schwarz (Netz)", "Acrylglas schwarz"]
+    : [FARBE_WEISS, "Weiss (Netz)", "Acrylglas weiss"];
+  const [grundFarbe, grundTitel, grundMaterial] = schwarz
+    ? [FARBE_WEISS, "Weiss", "Acrylglas weiss"]
+    : [FARBE_SCHWARZ, "Schwarz", "Acrylglas schwarz"];
   const netz = teile(ziehAb(vereinige(rahmen, b.netz, b.schutz), b.textAusschnitt), SPLITTER_MM2);
   const [netzHaupt, ...lose] = netz;
   const loseText = lose.filter((t) => enthaelt(b.textBereich, schwerpunkt(t)));
@@ -69,17 +77,17 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
 
   const schritte: Malschritt[] = [
     { art: "flaeche", teile: blau, fuellung: "url(#blau)" },
-    { art: "flaeche", teile: hintergrund, fuellung: FARBE_SCHWARZ, schatten: true },
-    { art: "gravur", gravur: b.gravur, farbe: GRAVUR_AUF_SCHWARZ },
-    { art: "flaeche", teile: netzHaupt ? [netzHaupt, ...loseText] : [], fuellung: FARBE_WEISS, schatten: true },
-    { art: "flaeche", teile: loseNetz, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : FARBE_WEISS },
+    { art: "flaeche", teile: hintergrund, fuellung: grundFarbe, schatten: true },
+    { art: "gravur", gravur: b.gravur, farbe: schwarz ? GRAVUR_AUF_WEISS : GRAVUR_AUF_SCHWARZ },
+    { art: "flaeche", teile: netzHaupt ? [netzHaupt, ...loseText] : [], fuellung: netzFarbe, schatten: true },
+    { art: "flaeche", teile: loseNetz, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : netzFarbe },
     { art: "flaeche", teile: b.herz, fuellung: "url(#rot)", schatten: true },
   ];
   return {
     lagen: [
       lage(layout, "herz", "Herz", "Spiegelacryl rot", b.herz),
-      lage(layout, "netz", "Weiss (Netz)", "Acrylglas weiss", netz),
-      lage(layout, "hintergrund", "Schwarz", "Acrylglas schwarz", hintergrund, b.gravur),
+      lage(layout, "netz", netzTitel, netzMaterial, netz),
+      lage(layout, "hintergrund", grundTitel, grundMaterial, hintergrund, b.gravur),
       lage(layout, "blau", "Blau", "Spiegelacryl blau", blau),
     ],
     vorschauSvg: vorschauSvg(layout, schritte),

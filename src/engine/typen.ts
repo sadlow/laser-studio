@@ -58,16 +58,18 @@ export interface EingebettetesLayout {
 }
 
 /**
- * Welche Farbe das Strassennetz hat. Beide Aufbauten sind gleich gebaut: eine
+ * Welche Farbe das Strassennetz hat. Alle Aufbauten sind gleich gebaut: eine
  * Netz-Lage (Rahmen + Strassen als Material, die Bloecke fallen heraus) ueber
  * einer Hintergrund-Lage (Wasser geschnitten, feine Wege graviert) ueber Blau.
  *
- * netz-weiss:   Netz weiss, Hintergrund schwarz. Die Texte sitzen im Netz.
- * netz-schwarz: Netz schwarz, Hintergrund weiss – der Positiv-Look des Posters.
- *               Darueber eine weisse Deckschicht nur mit Rahmen und Text
- *               (Marcel 16.09.2026). Gravur auf Weiss sieht man kaum.
+ * netz-weiss:             weiss-schwarz-blau. Die Texte sitzen im Netz.
+ * netz-schwarz-dreilagig: schwarz-weiss-blau – dasselbe mit getauschten Farben,
+ *                         die Texte im schwarzen Netz (Marcel 16.09.2026).
+ * netz-schwarz:           weiss-schwarz-weiss-blau – Positiv-Look des Posters,
+ *                         darueber eine weisse Deckschicht nur mit Rahmen und
+ *                         Text (Marcel 16.09.2026). Gravur auf Weiss sieht man kaum.
  */
-export type Aufbau = "netz-weiss" | "netz-schwarz";
+export type Aufbau = "netz-weiss" | "netz-schwarz-dreilagig" | "netz-schwarz";
 
 export interface TextStil {
   /** Dateiname in ~/Library/Fonts oder /Library/Fonts. */

@@ -24,8 +24,9 @@ const FORM_OPTIONEN: { wert: TextForm; titel: string }[] = [
 ];
 
 const AUFBAU_OPTIONEN: { wert: Aufbau; titel: string }[] = [
-  { wert: "netz-weiss", titel: "Weisses Netz auf Schwarz (Gravur hell)" },
-  { wert: "netz-schwarz", titel: "Schwarzes Netz auf Weiss, weisse Deckschicht" },
+  { wert: "netz-weiss", titel: "Weiss–Schwarz–Blau: weisses Netz, Gravur hell" },
+  { wert: "netz-schwarz-dreilagig", titel: "Schwarz–Weiss–Blau: schwarzes Netz, Text im Schwarz" },
+  { wert: "netz-schwarz", titel: "Weiss–Schwarz–Weiss–Blau: schwarzes Netz, weisse Deckschicht" },
 ];
 
 const schriftOptionen = (liste: string[]) =>
