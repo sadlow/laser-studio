@@ -9,8 +9,7 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   fallen heraus) ueber Hintergrund-Lage (Wasser geschnitten, feine Wege graviert) ueber Blau. Zwei
   dreilagige mit Text im Netz: `netz-weiss` (weiss-schwarz-blau) und `netz-schwarz-dreilagig`
   (schwarz-weiss-blau, Marcel 16.09.2026). Eine vierlagige: `netz-schwarz` (weiss-schwarz-weiss-blau),
-  Positiv-Look des Posters mit weisser Deckschicht fuer Rahmen und Text. Die Bausteine (`lagen.ts`) sind
-  fuer alle identisch.
+  Positiv-Look des Posters mit weisser Deckschicht fuer Rahmen und Text. Die Bausteine (`lagen.ts`) sind fuer alle identisch.
 - **Das Standort-Symbol wird auf den Hintergrund geklebt** (die Lage auf dem
   Wasser) und steht 1 mm ueber das Netz hinaus – schoener als vertieft auf Blau,
   wie zuerst geplant (Marcel 16.09.2026). Klebemarke: Umriss 0,3 mm nach innen
@@ -79,7 +78,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   zeichnet das Bildmodell nicht (`schrift_einsetzen.py`); aufgezogen spiegelt Blau Flecken (`spiegel=0`). Kamera-near 50 mm
   in Motiven: bei 1 mm fehlten ab gut 2 m Abstand Gravur und Spiegel (Tiefengenauigkeit).
 - **Amazon Custom** (`scripts/amazon-custom/`, `amazon-container.ts`): Vorschau ohne Text gerade von vorn; Container 400 px =
-  Platte + 10 mm Rahmenzugabe je Seite x 1,06, auch ohne Rahmen. Textfelder aus Layoutwerten und Schriftmassen.
+  Platte + 10 mm Rahmenzugabe je Seite x 1,06, auch ohne Rahmen; Textfelder aus Layoutwerten und Schriftmassen. Jedes Format
+  fuellt die Kachel (oft nur 400 px), Rahmen und Massstab je Format (Leiste ueberall 14 mm, klein mehr Gravur); Quadrat eigener Artikel.
 - **Kundeneingaben werden feldweise gemischt** (zwei schnelle Klicks hoben sich sonst auf).
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)
