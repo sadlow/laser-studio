@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { SchichtkartenErgebnis } from "@/engine/typen";
+import { HOLZ_MM, holzLeinwand, type Holz } from "./holz-muster";
 
 type Rahmen = NonNullable<SchichtkartenErgebnis["rahmen"]>;
 
@@ -50,50 +51,20 @@ export function rahmenGeometrie(r: Rahmen, b: number, h: number): THREE.BufferGe
   return ganz;
 }
 
-/**
- * Eichenmaserung (Marcel 16.09.2026: "etwas staerker gemasert und leicht
- * dunkler"): Jahresringe als lange, leicht wellige Linien, dazu kurze Poren.
- * Waagerecht nahtlos, damit lange Leisten keine Stossstelle zeigen.
- */
-function eichenTextur(): THREE.CanvasTexture {
-  const leinwand = document.createElement("canvas");
-  [leinwand.width, leinwand.height] = [2048, 512];
-  const ctx = leinwand.getContext("2d")!;
-  ctx.fillStyle = "#9c7147";
-  ctx.fillRect(0, 0, 2048, 512);
-  let saat = 11;
-  const zufall = () => (saat = (saat * 16807) % 2147483647) / 2147483647;
-  // Zurueckhaltend: kraeftiger wirkte es wie Zebrano statt Eiche.
-  for (let i = 0; i < 140; i++) {
-    const [y0, welle, wellen, phase, ton] = [zufall() * 512, 1 + zufall() * 6, 1 + Math.floor(zufall() * 3), zufall() * 6.28, zufall()];
-    ctx.strokeStyle = `rgba(${86 + ton * 30}, ${58 + ton * 20}, ${32 + ton * 10}, ${0.08 + zufall() * 0.2})`;
-    ctx.lineWidth = 0.6 + zufall() * 1.8;
-    for (const versatz of [-512, 0, 512]) {
-      ctx.beginPath();
-      for (let x = 0; x <= 2048; x += 16) {
-        const y = y0 + versatz + Math.sin((x / 2048) * 6.283 * wellen + phase) * welle;
-        if (x) ctx.lineTo(x, y);
-        else ctx.moveTo(x, y);
-      }
-      ctx.stroke();
-    }
-  }
-  for (let i = 0; i < 2200; i++) {
-    ctx.fillStyle = `rgba(62, 40, 20, ${0.1 + zufall() * 0.22})`;
-    ctx.fillRect(zufall() * 2048, zufall() * 512, 3 + zufall() * 16, 1);
-  }
-  const textur = new THREE.CanvasTexture(leinwand);
+/** Maserung als Textur – Eiche oder dunkelbraun (holz-muster.ts), Koordinaten in mm. */
+function holzTextur(holz: Holz): THREE.CanvasTexture {
+  const textur = new THREE.CanvasTexture(holzLeinwand(holz));
   textur.wrapS = textur.wrapT = THREE.RepeatWrapping;
   textur.colorSpace = THREE.SRGBColorSpace;
   textur.anisotropy = 8;
-  // Texturkoordinaten sind mm: ein Bild = 240 mm entlang, 60 mm quer zur Maserung.
-  textur.repeat.set(1 / 240, 1 / 60);
+  textur.repeat.set(1 / HOLZ_MM.entlang, 1 / HOLZ_MM.quer);
   return textur;
 }
 
-/** Holz matt: schwarz und weiss lackiert, Eiche natur. Schwarz mit wenig Spiegelanteil, sonst wirkt es grau. */
+/** Holz matt: schwarz und weiss lackiert, Eiche natur, dunkelbraun geoelt. Schwarz mit wenig Spiegelanteil, sonst wirkt es grau. */
 export function rahmenMaterial(farbe: Rahmen["farbe"]): THREE.Material {
   if (farbe === "schwarz") return new THREE.MeshPhysicalMaterial({ color: 0x131211, roughness: 0.62, specularIntensity: 0.35, envMapIntensity: 0.4 });
-  if (farbe === "eiche") return new THREE.MeshPhysicalMaterial({ map: eichenTextur(), roughness: 0.7, specularIntensity: 0.4 });
+  if (farbe === "eiche") return new THREE.MeshPhysicalMaterial({ map: holzTextur("eiche"), roughness: 0.7, specularIntensity: 0.4 });
+  if (farbe === "dunkelbraun") return new THREE.MeshPhysicalMaterial({ map: holzTextur("dunkelbraun"), roughness: 0.6, specularIntensity: 0.45 });
   return new THREE.MeshPhysicalMaterial({ color: 0xefece5, roughness: 0.66 });
 }

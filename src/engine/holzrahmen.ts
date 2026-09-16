@@ -1,9 +1,9 @@
 import type { Holzrahmen, Layout, Schichtkarte, SchichtkartenErgebnis, Zone } from "./typen";
 
-export const HOLZRAHMEN_TITEL: Record<Holzrahmen, string> = { ohne: "ohne", schwarz: "Holz schwarz", weiss: "Holz weiss", eiche: "Eiche" };
+export const HOLZRAHMEN_TITEL: Record<Holzrahmen, string> = { ohne: "ohne", schwarz: "Holz schwarz", weiss: "Holz weiss", eiche: "Eiche", dunkelbraun: "Holz dunkelbraun" };
 
 /**
- * Holzrahmen (Marcel 16.09.2026): Holz schwarz, Holz weiss oder Eiche, bei allen
+ * Holzrahmen (Marcel 16.09.2026): Holz schwarz, weiss, dunkelbraun oder Eiche, bei allen
  * Groessen dasselbe Profil. Die Platte liegt im Falz, innen steht der Rahmen ueber das Motiv. An
  * den Schnittdateien aendert er nichts – aber er deckt einen Streifen am Rand ab,
  * und der Stapel muss in den Falz passen.

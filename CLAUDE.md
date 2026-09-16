@@ -50,7 +50,7 @@ Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 42/33/26 %)
 - Lose Netzstuecke graviert; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
 - Symbol auf Hintergrund geklebt (Gravurmarke), Ausschnitt im Netz, steht 1 mm vor; Acryl 2, Spiegel 3 mm
-- Holzrahmen optional (Holz schwarz/weiss, Eiche), ein Profil: 14 x 28 mm, Bild 6 mm tief, 4 mm Ueberstand
+- Holzrahmen optional (Holz schwarz/weiss/dunkelbraun, Eiche), ein Profil: 14 x 28 mm, Bild 6 mm tief, 4 mm Ueberstand
 - 3D (`ansicht-3d.tsx`): Hochglanz, echter Spiegel, Motive fuer KI-Produktfotos (`motive-3d.ts`)
 - Tunnel, Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet
 - Zeilenschrift Avant Garde Book, Sperrung 0,14 (Deckschicht 2 mm; ExtraLight 0,20 mm zu duenn)

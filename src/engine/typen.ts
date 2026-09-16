@@ -40,7 +40,7 @@ export interface Kundeneingabe {
   holzrahmen: Holzrahmen;
 }
 
-export type Holzrahmen = "ohne" | "schwarz" | "weiss" | "eiche";
+export type Holzrahmen = "ohne" | "schwarz" | "weiss" | "eiche" | "dunkelbraun";
 
 /**
  * Profil der Holzrahmen, bei jeder Groesse gleich (Marcel 16.09.2026): von vorn

@@ -18,7 +18,7 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Wasserschnitt (Test: Herz zu 70 % ueber der Spree, Klebeflaeche voll). Netz und
   Deckschicht haben exakt die Aussenkontur als Ausschnitt (Pin ohne sein Loch).
 - **Staerken nach Material:** Acrylglas weiss/schwarz 2 mm, Spiegelacryl 3 mm.
-- **Holzrahmen optional: Holz schwarz, Holz weiss, Eiche** (Marcel 16.09.2026), ein Profil:
+- **Holzrahmen optional: Holz schwarz, weiss, dunkelbraun, Eiche** (Marcel 16.09.2026), ein Profil:
   14 mm breit, 28 mm tief, Bild 6 mm eingelassen, 4 mm Ueberstand; Wahl in `kunde`, Profil
   in der Vorlage. Bei 7 mm Rand bleiben 3 mm sichtbar (Kennzahl). Warnung, wenn Karte,
   Symbol oder Text unter den Rahmen reichen oder der Stapel nicht in den Falz passt.

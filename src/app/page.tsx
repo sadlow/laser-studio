@@ -71,7 +71,7 @@ export default function Seite() {
       teil = {};
     }
     const rahmen = url.get("holzrahmen");
-    if (rahmen === "schwarz" || rahmen === "weiss" || rahmen === "eiche") teil = { ...teil, kunde: { ...teil.kunde, holzrahmen: rahmen } };
+    if (rahmen === "schwarz" || rahmen === "weiss" || rahmen === "eiche" || rahmen === "dunkelbraun") teil = { ...teil, kunde: { ...teil.kunde, holzrahmen: rahmen } };
     if (Object.keys(teil).length) setKarte((alt) => mischen(alt, teil));
   }, []);
 
