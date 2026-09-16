@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { EingabeFertigung, EingabeStrassen } from "@/components/eingabe-fertigung";
 import { EingabeKunde } from "@/components/eingabe-kunde";
 import { EingabeLayout, EingabePlatte } from "@/components/eingabe-produkt";
+import { PrototypPlatten } from "@/components/prototyp-platten";
 import { VorlagenExport } from "@/components/vorlagen-export";
 import { Vorschau } from "@/components/vorschau";
 import { standardSchichtkarte } from "@/engine/standard";
@@ -62,6 +63,7 @@ export default function Seite() {
       <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
         <div className="space-y-4">
           <VorlagenExport karte={karte} aendern={aendern} />
+          <PrototypPlatten karte={karte} />
           <EingabeKunde karte={karte} aendern={aendern} />
           <EingabePlatte karte={karte} aendern={aendern} />
           <EingabeLayout karte={karte} aendern={aendern} />

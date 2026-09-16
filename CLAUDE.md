@@ -32,7 +32,8 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 | `geometrie.ts` | Clipper-Wrapper in mm |
 
 Server (`src/server/`): `vorlagen.ts` (JSON lesen/schreiben), `export.ts`
-(Testexemplare nach `export/<zeit>_<ort>/<vorlage>/`).
+(Testexemplare nach `export/<zeit>_<ort>/<vorlage>/`), `bogen.ts` (Prototyp-Platten: mehrere
+Exemplare je Rohplatte, ein Parameter variiert).
 
 ## Entscheidungen
 
@@ -64,7 +65,7 @@ npm install && npm run dev   # http://localhost:3010
 
 ## Offen
 
-- Interaktive Karte zum Ziehen/Zoomen; Plattenbelegung fuer Prototypen
+- Interaktive Karte zum Ziehen/Zoomen (Mapbox GL, Rahmen im Seitenverhaeltnis des Fensters)
 - Exportdateien noch nicht in xTool Studio geoeffnet
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
 - Standort-Bestaetigung: "Luebeck" fand Luebecker Strasse in Koeln

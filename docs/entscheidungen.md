@@ -96,3 +96,17 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   nicht verhandelbar.
 - **Vorlagen werden beim Laden mit den Standardwerten aufgefuellt** – neue
   Parameter fehlen in aelteren Dateien, und die Engine braeche sonst ab.
+
+## Prototyp-Platten (`src/server/bogen.ts`)
+
+- **Testreihe statt Einzelexport:** eine Vorlage, je Platz ein anderer Wert fuer
+  genau einen Parameter (Ausschnitt oder Stegbreite), je Material eine Datei mit
+  allen Exemplaren nebeneinander.
+- **A4 traegt zwei Prototypen 145 x 205 mm**, nicht zwei A5: 2 x 148 mm
+  brauchen 296 von 297 mm, und 210 mm Hoehe laegen exakt auf der Plattenkante.
+  Mit 2,5 mm Rand und 2 mm Abstand bleibt das A-Seitenverhaeltnis (98 % von A5).
+- **30 x 30 traegt einen Prototyp 296 x 296 mm** – aus demselben Grund mit Rand.
+- Materialbedarf je Exemplar: weisses Netz 1 weiss / 1 schwarz / 1 blau,
+  schwarzes Netz 2 weiss / 1 schwarz / 1 blau (Stand Lager 16.09.2026: je 2 A4 in
+  weiss, schwarz, blau und je 1 x 30x30 – reicht fuer 4 A4-Prototypen mit weissem
+  Netz oder 2 mit schwarzem, das Quadrat nur mit weissem Netz).
