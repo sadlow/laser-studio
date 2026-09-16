@@ -149,10 +149,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Dichte vor Ort (`dichte.ts`, `netz.ts`, Referenzorte)
 
-- **Referenzorte statt nur Berlin** (`src/referenzorte.ts`, im Studio anklickbar,
-  `referenzorte.ts` rechnet alle mit Kennzahlen): Berlin, Allgaeu, Hamburg,
-  Amsterdam, New York, Bogota, Tokio, Venedig. Grenzwerte muessen weltweit tragen
-  (Marcel 16.09.2026).
+- **Referenzorte statt nur Berlin** (`src/referenzorte.ts`, Skript `referenzorte.ts`):
+  Berlin, Allgaeu, Hamburg, Amsterdam, New York, Bogota, Tokio, Venedig.
 - **Breite folgt der Dichte, nicht dem Ausschnitt.** Deckung = Strassenlaenge x
   Vorlagenbreite / Land im Fenster; alle Netzbreiten werden auf 33 % skaliert
   (Berlin-Tiergarten 3,5 km, fuer das die Breiten entworfen sind, bleibt
@@ -175,16 +173,14 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Netz im Fenster bei 3,5 km: Berlin 27/22/16 %, Hamburg 23/18/12, Bogota
   30/25/18, Tokio 32/15/12, Allgaeu 11/11/8. Rechenzeit A4 hoechstens 1,2 s –
   live ohne Aktualisieren-Knopf.
-- **Lose Netzstuecke werden graviert statt geschnitten** (Marcel 16.09.2026:
-  "meist nur Artefakte"). Vorher 1-13 mm2 gross, orange markiert; Ursache meist
-  Anschluss nur ueber Fussweg, Treppe oder Tunnel. Stege zu nahen Stuecken
-  waeren die Alternative, bisher nicht gebaut.
+- **Lose Netzstuecke werden graviert statt geschnitten** (Marcel: "meist nur
+  Artefakte", 1-13 mm2, angebunden nur ueber Fussweg, Treppe oder Tunnel). Stege
+  zu nahen Stuecken waeren die Alternative, bisher nicht gebaut.
 - **Textreiter zaehlen zur Landflaeche** – die Strassen darunter stecken in den
   Laengen. Sonst Quadrat 38 statt 33 %.
 - Das Bild wird in Megastaedten lichter als in Berlin (Tokio 15, New York 13 %
   Netz): die Deckung zaehlt parallele Fahrbahnen und Hochstrassen doppelt.
-- **Vorlagen werden beim Laden mit den Standardwerten aufgefuellt** – neue
-  Parameter fehlen in aelteren Dateien, und die Engine braeche sonst ab.
+- **Vorlagen werden beim Laden mit Standardwerten aufgefuellt** (neue Parameter).
 
 ## Prototyp-Platten (`src/server/bogen.ts`)
 
