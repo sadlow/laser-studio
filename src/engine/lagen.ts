@@ -94,7 +94,7 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   const land = flaecheMm2(ziehAb(fensterFl, wasser.gesamt));
   const laengen = laengenImFenster(k, roh, f);
   let auswahl = waehleNetz(k, laengen, land, faktor);
-  let n = baueNetz(k, roh, layout, schutz, auswahl, symbolLoch);
+  let n = baueNetz(k, roh, layout, schutz, auswahl, symbolLoch, wasser.geschnitten);
   // Nachgerueckte Wege muessen ein Netz ergeben, keine losen Stuecke: Venedigs
   // Gassen bei 2 km liegen auf Inseln, deren Bruecken Fusswege und Treppen
   // sind – 78 % der Gassenflaeche lose. Dann bleibt es bei der Gravur.
@@ -102,7 +102,7 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   if (auswahl.nachgerueckt.length && n.loseAnteil > NACHRUECKEN_MAX_LOSE_ANTEIL) {
     nachrueckenVerworfen.push(...auswahl.nachgerueckt);
     auswahl = waehleNetz(k, laengen, land, faktor, true);
-    n = baueNetz(k, roh, layout, schutz, auswahl, symbolLoch);
+    n = baueNetz(k, roh, layout, schutz, auswahl, symbolLoch, wasser.geschnitten);
   }
   const { netz, gravur: gravurRoh } = n;
 

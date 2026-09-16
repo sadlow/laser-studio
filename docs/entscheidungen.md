@@ -22,7 +22,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   14 mm breit, 28 mm tief, Bild 6 mm eingelassen, 4 mm Ueberstand; Wahl in `kunde`, Profil
   in der Vorlage. Bei 7 mm Rand bleiben 3 mm sichtbar (Kennzahl). Warnung, wenn Karte,
   Symbol oder Text unter den Rahmen reichen oder der Stapel nicht in den Falz passt.
-- **Unter Bruecken kein Wasserschnitt:** der Hintergrund haelt ueber die Bruecke zusammen.
+- **Unter Bruecken kein Wasserschnitt:** der Hintergrund haelt ueber die Bruecke zusammen. **Bruecken ueber Wasser bleiben
+  geschnitten**, auch wenn ihre Klasse graviert wird (Koeln „wenig“: Bahn als Gravur, die Hohenzollernbruecke fehlte).
 - **Unter Texten kein Wasser, keine Gravur**, im schwarzen Netz volles Material –
   sonst helle Striche in den Buchstaben und keine Klebeflaeche.
 - **Gravur nie unter dem Netz, nie ueber Wasser.** Unter dem Netz unsichtbar:

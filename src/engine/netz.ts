@@ -20,8 +20,15 @@ export interface Netz {
   loseAnteil: number;
 }
 
-/** Puffert die gewaehlten Netzklassen, alle anderen gehen in die Gravur. */
-export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, schutz: Flaeche, auswahl: NetzAuswahl, symbolLoch: Flaeche = []): Netz {
+/**
+ * Puffert die gewaehlten Netzklassen, alle anderen gehen in die Gravur.
+ *
+ * Bruecken ueber Wasser bleiben geschnitten, auch wenn ihre Klasse gerade graviert wird
+ * (Marcel 17.09.2026: bei "wenig geschnitten" verschwanden in Koeln die Rheinbruecken).
+ * Gravur ueber Wasser gibt es nicht – die Bahn als Gravurklasse hatte ueber dem Rhein
+ * schlicht keinen Strich mehr. Gilt fuer Netzklassen, nicht fuer Fusswege.
+ */
+export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, schutz: Flaeche, auswahl: NetzAuswahl, symbolLoch: Flaeche = [], wasser: Flaeche = []): Netz {
   const { platte, kartenfenster: f } = layout;
   const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
   const imFenster = (linien: Punkt[][]) =>
@@ -39,6 +46,13 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
       netzTeile.push(puffereLinien(linien, breite));
       netzLinien.push(...linien);
       continue;
+    }
+    const bruecken = gruppe.ziel === "netz" && wasser.length
+      ? gruppe.klassen.flatMap((kl) => roh.bruecken.get(kl) ?? []).filter((l) => ziehLinienAb([l], wasser, true).length > 0)
+      : [];
+    if (bruecken.length) {
+      netzTeile.push(puffereLinien(bruecken, Math.max(k.netzMinBreiteMm, gruppe.breiteMm * (f.breiteMm / REFERENZ_KARTENBREITE_MM) * auswahl.dichtefaktor)));
+      netzLinien.push(...bruecken);
     }
     const strich = gruppe.ziel === "netz"
       ? strichHerabgestuft

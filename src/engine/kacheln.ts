@@ -9,6 +9,8 @@ import type { Zone } from "./typen";
 export interface KartenRohdaten {
   /** Linien je Mapbox-Strassenklasse. Tunnel sind bereits entfernt. */
   strassen: Map<string, Punkt[][]>;
+  /** Davon die Brueckenstuecke (structure=bridge), ebenfalls je Klasse. */
+  bruecken: Map<string, Punkt[][]>;
   wasserFlaechen: Punkt[][];
   wasserlaeufe: Punkt[][];
   ausschnittMeter: { breite: number; hoehe: number };
@@ -119,6 +121,7 @@ export async function ladeKartenRohdaten(opts: {
   const cy1 = fenster.yMm + fenster.hoeheMm + zugabeMm;
 
   const strassen = new Map<string, Punkt[][]>();
+  const bruecken = new Map<string, Punkt[][]>();
   const wasserFlaechen: Punkt[][] = [];
   const wasserlaeufe: Punkt[][] = [];
 
@@ -135,11 +138,17 @@ export async function ladeKartenRohdaten(opts: {
         if (WEGETYPEN_OHNE.has(String(f.properties.type ?? ""))) continue;
         const klasse = String(f.properties.class ?? "");
         const liste = strassen.get(klasse) ?? [];
+        const brueckenListe = bruecken.get(klasse) ?? [];
+        const bruecke = f.properties.structure === "bridge";
         for (const ring of f.loadGeometry()) {
           const coords = ring.map((p) => nachMm(p, k.x, k.y));
-          for (const stueck of clipPolyline(coords, cx0, cy0, cx1, cy1)) liste.push(stueck);
+          for (const stueck of clipPolyline(coords, cx0, cy0, cx1, cy1)) {
+            liste.push(stueck);
+            if (bruecke) brueckenListe.push(stueck);
+          }
         }
         strassen.set(klasse, liste);
+        if (bruecke) bruecken.set(klasse, brueckenListe);
       }
     }
 
@@ -171,5 +180,5 @@ export async function ladeKartenRohdaten(opts: {
     }
   }
 
-  return { strassen, wasserFlaechen, wasserlaeufe, ausschnittMeter };
+  return { strassen, bruecken, wasserFlaechen, wasserlaeufe, ausschnittMeter };
 }
