@@ -61,23 +61,23 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Oberflaeche (Marcel 16.09.2026)
 
-- **Vollbild in drei Spalten:** links, was der Kunde spaeter selbst einstellt (Standort, Texte, Design mit
-  Vorschaubild, Format, Strassenstufe, Symbol und Groesse), Mitte der Komposer, rechts Technik, aufklappbar.
+- **Drei Spalten:** links, was der Kunde einstellt (Standort bis Symbolgroesse), Mitte der Komposer, rechts Technik, aufklappbar.
 - **Standort als Adresse oder Dezimal-Koordinaten** (Google-Format, auch mit Komma), Ortsname per Rueckwaertssuche.
 - **3D-Reiter** (`ansicht-3d.tsx`, `szene-3d.ts`, three.js): Lagen mit ihrer Staerke extrudiert, Holzrahmen
   mit Gehrung, drehbar, gezeichnet nur bei Aenderung. Acryl hochglaenzend, Kanten farbiges Acryl, das Blau
   spiegelt echt und dunkel (`Reflector`, weiche Softboxen nur im Spiegelbild); Schwarz ohne grellen Lichtfleck.
   Lichtstimmungen (`licht-3d.ts`, `?licht=`): Studio, Sonne durch Blaetter, Sonne durchs Fenster – SpotLight mit
   gezeichneter Maske, Wand und Boden dann beleuchtet, im Hochglanz spiegelt ein Fenster statt eines Leuchtkastens.
-- **Motive fuer KI-Produktfotos** (`motive-3d.ts`, `aufnahme-3d.ts`): `?ansicht=3d&foto=
-  wand|flach|symbol|titel|wasser|kante&vollbild=1`, dazu `entwurf={json}`, `zoom`,
-  `versatz`, `grund`, `frontal`, `umgebung`, Schatten- und Softbox-Schalter; `referenzbilder.sh`.
-  Listing-Set: `scripts/listing-fotos/` (Leonardo 1K, Referenz HIGH, `prompt_enhance:
-  OFF`). Gelernt: Wandschatten wurde zum Standfuss, Softbox im Spiegel zur Glasplatte oder zu weissem
-  Wasser (Nahaufnahmen `softboxen=0`), schraege Einzelaufnahmen nebeneinander zum Escher-Bild (frontal
-  auf gezeichneter Kommode), Paris 3,5 km zu dicht (Grossstaedte 2 km). Nahaufnahmen zu perfekt: wenig
-  Staub und Kantenstruktur in den Prompt, keine Fussel (wurden ein Haar), dann Ultra 2x. Schrift in
-  Szenen: Stege unter 1 px zeichnet das Bildmodell nicht, `schrift_einsetzen.py` setzt die echte ein.
+- **Motive fuer KI-Produktfotos** (`motive-3d.ts`, `aufnahme-3d.ts`, `referenzbilder.sh`): `?ansicht=3d&foto=wand|flach|
+  symbol|titel|wasser|kante|layout|explosion&vollbild=1&entwurf={json}`, dazu `zoom`, `versatz`, `grund`, `frontal`,
+  `umgebung`, `spiegel`, `abstand`, Schatten- und Softbox-Schalter. Listing-Set `scripts/listing-fotos/` (Leonardo 1K,
+  Referenz HIGH, `prompt_enhance: OFF`). Gelernt: Wandschatten wurde Standfuss, Softbox im Spiegel Glasplatte oder weisses
+  Wasser (Nahaufnahmen `softboxen=0`), schraeg nebeneinander Escher-Bild (frontal auf gezeichneter Kommode), Paris 3,5 km
+  zu dicht (2 km). Nahaufnahmen: wenig Staub in den Prompt, keine Fussel (wurden ein Haar), dann Ultra 2x. Stege in Szenen
+  zeichnet das Bildmodell nicht (`schrift_einsetzen.py`); aufgezogen spiegelt Blau Flecken (`spiegel=0`). Kamera-near 50 mm
+  in Motiven: bei 1 mm fehlten ab gut 2 m Abstand Gravur und Spiegel (Tiefengenauigkeit).
+- **Amazon Custom** (`scripts/amazon-custom/`, `amazon-container.ts`): Vorschau ohne Text gerade von vorn; Container 400 px =
+  Platte + 10 mm Rahmenzugabe je Seite x 1,06, auch ohne Rahmen. Textfelder aus Layoutwerten und Schriftmassen.
 - **Kundeneingaben werden feldweise gemischt** (zwei schnelle Klicks hoben sich sonst auf).
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)

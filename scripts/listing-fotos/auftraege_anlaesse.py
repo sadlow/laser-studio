@@ -99,6 +99,19 @@ JOBS["features-paris-herz-echt"] = (JOBS["features-paris-herz-echt"][0], JOBS["f
     "fine engraved paths,", "fine engraved paths that appear as light grey lines (never red),"))
 
 
+# Erklaerbild (Marcel 16.09.2026): "damit jeder versteht, was er kauft". Beschriftet wird danach
+# (explosion_beschriften.py) – Schrift erfindet das Bildmodell.
+JOBS["08-explosion-koeln"] = ("explosion-koeln",
+    "Clean studio product visualization, an exploded view of a personalized layered acrylic city map artwork of "
+    "Köln: its separate layers float one behind another with generous even space between them, seen from the front "
+    "right. In front: a glossy white laser-cut acrylic street network with a white lower panel into which the script "
+    "word 'Zuhause' and two small uppercase lines are laser-cut; a small glossy red mirror acrylic heart floats just in "
+    "front of it. Behind it: a glossy black acrylic layer with fine light engraved streets, the Rhine river cut out. At "
+    "the back: a deep dark blue mirror acrylic sheet. Seamless light grey studio background, soft even studio light, "
+    "subtle soft shadows below the layers, crisp polished laser-cut edges, true-to-life materials. Keep the geometry "
+    "exactly as in the reference image. No labels, no arrows, no extra text, no logos, no people.")
+
+
 # Zweite Referenz je Foto (Marcel 16.09.2026: "die Schriftzuege sind nicht mehr eingelassen,
 # sondern schwarz aufgedruckt"). In der kleinen Produktansicht sieht man die Tiefe der
 # 0,5-mm-Schlitze nicht; eine Nahaufnahme derselben Schrift zeigt sie. Der Skill kann nur

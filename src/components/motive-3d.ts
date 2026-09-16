@@ -2,6 +2,8 @@ import * as THREE from "three";
 import type { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import type { SchichtkartenErgebnis, Zone } from "@/engine/typen";
 import type { Anordnung, Kulisse } from "./kulisse-3d";
+import { layoutFeldMm } from "@/engine/amazon-container";
+import { standardSchichtkarte } from "@/engine/standard";
 import { gravurDetail, type Stapel } from "./szene-3d";
 
 /**
@@ -10,7 +12,7 @@ import { gravurDetail, type Stapel } from "./szene-3d";
  * und die Tiefe der Lagen sieht – Vorlagen fuer Produktfotos und spaeter Videos.
  * Die Kamera zielt auf echte Stellen dieser Karte, nicht auf feste Punkte.
  */
-export type Motiv = "frei" | "wand" | "flach" | "symbol" | "titel" | "wasser" | "kante";
+export type Motiv = "frei" | "wand" | "flach" | "symbol" | "titel" | "wasser" | "kante" | "layout" | "explosion";
 
 export const MOTIV_TITEL: Record<Motiv, string> = {
   frei: "Freie Ansicht",
@@ -20,6 +22,8 @@ export const MOTIV_TITEL: Record<Motiv, string> = {
   titel: "Nah: Titel",
   wasser: "Nah: Uferkante",
   kante: "Nah: Rand",
+  layout: "Layout: gerade von vorn",
+  explosion: "Explosionszeichnung",
 };
 
 interface Aufnahme {
@@ -34,7 +38,7 @@ interface Aufnahme {
   /** Was mindestens ins Bild muss, in mm am Ziel. */
   feld: { breite: number; hoehe: number };
   fov: number;
-  licht: { hoehe: number; bereichMm: number };
+  licht: { hoehe: number; bereichMm: number; richtung?: number };
   detail?: Zone;
 }
 
@@ -60,8 +64,21 @@ function uferPunkt(e: SchichtkartenErgebnis): { x: number; y: number } | null {
   return bester;
 }
 
-function aufnahme(motiv: Motiv, e: SchichtkartenErgebnis, s: Stapel): Aufnahme | null {
+function aufnahme(motiv: Motiv, e: SchichtkartenErgebnis, s: Stapel, abstandMm: number): Aufnahme | null {
   const { breiteMm: b, hoeheMm: h } = e.layout.platte;
+  if (motiv === "layout") {
+    // Amazon-Custom-Vorschau (Marcel 16.09.2026): gerade von vorn, kaum Perspektive, Platz fuer
+    // den Rahmen auch ohne Rahmen – so steht die Platte bei jeder Rahmenwahl an derselben Stelle.
+    const feld = layoutFeldMm(b, h, standardSchichtkarte().holzrahmenProfil);
+    return { anordnung: "frei", x: b / 2, y: h / 2, z: s.hoehe, hoehe: 0, richtung: 0, fov: 10, feld: { breite: feld, hoehe: feld }, licht: { hoehe: 35, richtung: -30, bereichMm: feld * 0.7 } };
+  }
+  if (motiv === "explosion") {
+    // Lagen weit auseinander (?abstand=), schraeg von vorn rechts – Ziel ist die Mitte des aufgezogenen Stapels.
+    const tiefe = s.hoehe + (s.platten.length - 1) * abstandMm;
+    const gross = Math.max(b, h);
+    return { anordnung: "frei", x: b / 2, y: h / 2, z: tiefe / 2, hoehe: 18, richtung: 36, fov: 24, feld: { breite: gross * 0.8 + tiefe * 0.8, hoehe: gross * 1.2 },
+      licht: { hoehe: 40, richtung: -25, bereichMm: gross + tiefe } };
+  }
   const f = e.layout.kartenfenster;
   const nah = (x: number, y: number, feld: number, hoehe: number, richtung: number, z = s.hoehe): Aufnahme => ({
     anordnung: "liegend", x, y, z, hoehe, richtung, feld: { breite: feld, hoehe: 0 }, fov: 20,
@@ -109,6 +126,8 @@ export interface Buehne {
   steuerung: OrbitControls;
   licht: THREE.DirectionalLight;
   kulisse: Kulisse;
+  /** Abstand der aufgezogenen Lagen – die Explosionszeichnung zielt auf ihre Mitte. */
+  abstandMm?: number;
 }
 
 const richtung = (hoeheGrad: number, richtungGrad: number) => {
@@ -117,8 +136,8 @@ const richtung = (hoeheGrad: number, richtungGrad: number) => {
 };
 
 /** Stellt Buehne, Kamera, Licht und feine Gravur fuer ein Motiv ein. */
-export function motivAnwenden(motiv: Motiv, e: SchichtkartenErgebnis, s: Stapel, { kamera, steuerung, licht, kulisse }: Buehne) {
-  const a = aufnahme(motiv, e, s);
+export function motivAnwenden(motiv: Motiv, e: SchichtkartenErgebnis, s: Stapel, { kamera, steuerung, licht, kulisse, abstandMm = 0 }: Buehne) {
+  const a = aufnahme(motiv, e, s, abstandMm);
   const anordnung: Anordnung = a?.anordnung ?? (motiv === "wand" ? "wand" : "frei");
   kulisse.anordnen(anordnung, s);
   kulisse.halter.updateMatrixWorld(true);
@@ -128,6 +147,9 @@ export function motivAnwenden(motiv: Motiv, e: SchichtkartenErgebnis, s: Stapel,
   const gross = Math.max(s.aussen.breiteMm, hoch);
   const d = (hoch / 2 / Math.tan((15 * Math.PI) / 180)) * 1.25;
   kamera.fov = a?.fov ?? 30;
+  // Spiegel und Gravur liegen 0,02-0,05 mm ueber ihrer Platte. Mit near = 1 mm reichte die
+  // Tiefengenauigkeit ab gut 2 m Abstand nicht: im A3-Layoutbild fehlte die Gravur, der Spiegel flimmerte weg.
+  kamera.near = a ? 50 : 5;
   kamera.updateProjectionMatrix();
   let bereich = gross * 0.7;
   if (!a) {
@@ -148,7 +170,7 @@ export function motivAnwenden(motiv: Motiv, e: SchichtkartenErgebnis, s: Stapel,
     const abstand = Math.max(a.feld.breite / 2 / Math.tan(hfov / 2), a.feld.hoehe / 2 / Math.tan(vfov / 2));
     steuerung.target.copy(ziel);
     kamera.position.copy(ziel).add(richtung(a.hoehe, a.richtung).multiplyScalar(abstand));
-    licht.position.copy(ziel).add(richtung(a.licht.hoehe, LICHT_RICHTUNG).multiplyScalar(gross * 1.5));
+    licht.position.copy(ziel).add(richtung(a.licht.hoehe, a.licht.richtung ?? LICHT_RICHTUNG).multiplyScalar(gross * 1.5));
     licht.target.position.copy(ziel);
     bereich = a.licht.bereichMm;
   }

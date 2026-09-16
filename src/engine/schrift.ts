@@ -32,6 +32,17 @@ function ladeSchrift(datei: string): opentype.Font {
   throw new Error(`Schrift "${datei}" nicht gefunden (gesucht in ~/Library/Fonts und /Library/Fonts).`);
 }
 
+/** Masse einer Schrift in Font-Einheiten – fuer Textfelder anderer Systeme (Amazon Custom). */
+export function schriftMasse(datei: string) {
+  const font = ladeSchrift(datei);
+  return {
+    unitsPerEm: font.unitsPerEm,
+    versalhoehe: font.tables.os2?.sCapHeight || font.unitsPerEm * 0.7,
+    oberlaenge: font.ascender,
+    unterlaenge: -font.descender,
+  };
+}
+
 export interface GesetzterText {
   ringe: Punkt[][];
   breiteMm: number;

@@ -6,6 +6,8 @@ import * as THREE from "three";
  *
  *   grund=ffffff     Buehnenfarbe, reinweiss fuer das Amazon-Hauptbild
  *   wandschatten=0   nur der Bodenschatten, kein Schatten an der Wand
+ *   spiegel=0        Blau ohne echte Spiegelung – aufgezogen spiegelte es die Lagen davor als
+ *                    zackige Flecken, die das Bildmodell fuer Ausschnitte hielt
  *   softboxen=0      keine Softboxen im Spiegelbild – in Nahaufnahmen vom Wasser wurden
  *                    sie im KI-Foto zu Glasplatten im See
  *   zoom=0.7         Produkt kleiner im Bild (1 = wie das Motiv es rahmt)
@@ -27,6 +29,7 @@ export function aufnahmeParameter(url: URLSearchParams) {
     grund: /^[0-9a-f]{6}$/i.test(farbe) ? parseInt(farbe, 16) : undefined,
     wandschatten: url.get("wandschatten") !== "0",
     softboxen: url.get("softboxen") !== "0",
+    spiegel: url.get("spiegel") !== "0",
     bodenschatten: url.get("bodenschatten") !== "0",
     umgebung: url.get("umgebung") === null ? undefined : Number(url.get("umgebung")),
     ausschnitt: (kamera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, ziel: THREE.Vector3) => {

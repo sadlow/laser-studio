@@ -106,6 +106,8 @@ AUFNAHMEN.update({
     # Zweite Referenz: eingeschnittene Schrift mit Tiefe, sonst wirkt sie im Foto aufgedruckt
     "paris-schrift": (ohne("paris"), "titel", 1, None, None),
     "starnberg-ufer": (ohne("starnberg"), "wasser", 1, None, None, {"softboxen": "0"}),
+    # Erklaerbild (Marcel 16.09.2026): Lagen weit auseinander, das Herz schwebt vor dem Netz
+    "explosion-koeln": (ohne("koeln"), "explosion", 1, None, None, {"lagen": "auseinander", "abstand": "90", "spiegel": "0"}),
     # Vorlage fuer schrift_einsetzen.py: gerade von vorn, ohne Spiegelungen, gross genug fuer die Stege
     "paris-schrift-frontal": (ORTE["paris"], "wand", 1.25, None, None,
                               {"frontal": "1", "umgebung": "0", "softboxen": "0", "wandschatten": "0", "bodenschatten": "0", "px": "2400"}),

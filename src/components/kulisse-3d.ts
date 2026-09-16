@@ -31,14 +31,14 @@ export interface Kulisse {
  * wandschatten: auf Weiss zeichnete der Schatten an der Wand ein graues Dreieck
  * hinter die Platte – im KI-Foto sah sie aus wie ein Tischaufsteller.
  */
-export function baueKulisse(szene: THREE.Scene, gross: number, grund = 0xf3f0ea, wandschatten = true, bodenschatten = true): Kulisse {
+export function baueKulisse(szene: THREE.Scene, gross: number, grund?: number, wandschatten = true, bodenschatten = true): Kulisse {
   const halter = new THREE.Group();
   szene.add(halter);
 
   // Eine ShadowMaterial-Flaeche zeigt nur Schatten, keine Lichtmaske. In der Sonne sind
   // Wand und Boden darum mattes Material in der Buehnenfarbe.
   const [schattenBoden, schattenWand] = [new THREE.ShadowMaterial({ opacity: 0.14 }), new THREE.ShadowMaterial({ opacity: 0.07 })];
-  const matt = new THREE.MeshStandardMaterial({ color: grund, roughness: 0.95 });
+  const matt = new THREE.MeshStandardMaterial({ color: grund ?? 0xf3f0ea, roughness: 0.95 });
   const boden = new THREE.Mesh<THREE.PlaneGeometry, THREE.Material>(new THREE.PlaneGeometry(gross * 5, gross * 5), schattenBoden);
   boden.rotation.x = -Math.PI / 2;
   boden.receiveShadow = true;
@@ -74,7 +74,8 @@ export function baueKulisse(szene: THREE.Scene, gross: number, grund = 0xf3f0ea,
         boden.position.y = -0.05;
         if (bodenschatten) szene.add(boden);
       }
-      szene.background = new THREE.Color(art === "frei" ? 0xeceae4 : grund);
+      // Ohne Vorgabe: frei etwas kuehler als die Buehne. Amazon-Vorschau (Motiv layout) will reinweiss.
+      szene.background = new THREE.Color(grund ?? (art === "frei" ? 0xeceae4 : 0xf3f0ea));
       // Flach liegend spiegelte das Hochglanz-Schwarz die Deckenleuchte der
       // Raumumgebung als weisses Rechteck mitten in der Karte. Gekippt steht
       // ueber der Platte eine Wand statt der Leuchte.

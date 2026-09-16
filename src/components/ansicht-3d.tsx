@@ -21,9 +21,8 @@ const ohne = { anwenden: (_m: Motiv) => {}, licht: (_s: Stimmung) => {}, groesse
  * den Stapel auf. Die Motive stellen Buehne und Kamera fuer Referenzbilder ein
  * (Leonardo-Skill): an der Wand, flach liegend und Nahaufnahmen.
  *
- * URL fuer Headless-Aufnahmen: ?ansicht=3d&foto=symbol&seiten=16:9&vollbild=1
- * (foto=1 ist die Wand), ?lagen=auseinander zieht den Stapel auf, ?licht=blaetter|fenster
- * waehlt eine Sonnenstimmung (licht-3d.ts).
+ * URL fuer Headless-Aufnahmen: ?ansicht=3d&foto=symbol&seiten=16:9&vollbild=1 (foto=1 ist die Wand),
+ * ?lagen=auseinander&abstand=45 zieht den Stapel auf (mm), ?licht=blaetter|fenster waehlt die Stimmung.
  */
 export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
   const box = useRef<HTMLDivElement>(null);
@@ -43,7 +42,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
   const ziel = useRef(0);
   const verhaeltnis = useRef<number | null>(null);
   const steuer = useRef(ohne);
-  ziel.current = auseinander ? AUSEINANDER_MM : 0;
+  ziel.current = auseinander ? Number(url.get("abstand")) || AUSEINANDER_MM : 0;
   // Im Fotomotiv zeigt die Leinwand genau das Seitenverhaeltnis des Referenzbilds.
   verhaeltnis.current = aktiv === "frei" ? null : seitenZahl(seiten);
 
@@ -112,10 +111,11 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
       stapeln(s.platten, abstand);
       kulisse.halter.add(s.gruppe);
       const studio = s.gruppe.getObjectByName("spiegelstudio") as THREE.Group | undefined;
+      for (const p of s.platten) if (p.spiegel) p.spiegel.visible = aufnahme.spiegel;
       steuer.current = {
         groesse,
         anwenden: (m) => {
-          motivAnwenden(m, ergebnis, s, { kamera, steuerung, licht, kulisse });
+          motivAnwenden(m, ergebnis, s, { kamera, steuerung, licht, kulisse, abstandMm: ziel.current });
           beleuchtung.ausrichten();
           aufnahme.ausschnitt(kamera, renderer, steuerung.target);
           neu = true;
