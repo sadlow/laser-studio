@@ -86,14 +86,33 @@ export function Zahl(props: {
   );
 }
 
-export function Text(props: { titel: string; wert: string; aendern: (v: string) => void; platzhalter?: string }) {
+export function Text(props: {
+  titel: string;
+  wert: string;
+  aendern: (v: string) => void;
+  platzhalter?: string;
+  /** Laengste Eingabe im Feld. */
+  maxLaenge?: number;
+  /** Zeichen der Zeile auf dem Poster, rechts neben der Beschriftung. */
+  zaehler?: { zeichen: number; max: number };
+}) {
+  const zuLang = props.zaehler && props.zaehler.zeichen > props.zaehler.max;
   return (
     <label className="block">
-      <span className="beschriftung">{props.titel}</span>
+      {/* Flex als Inline-Style: .beschriftung ist ungeschichtetes CSS und schlaegt Tailwind-Klassen */}
+      <span className="beschriftung" style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+        <span>{props.titel}</span>
+        {props.zaehler && (
+          <span style={zuLang ? { color: "#8a4b0a" } : undefined}>
+            {props.zaehler.zeichen}/{props.zaehler.max}
+          </span>
+        )}
+      </span>
       <input
         className="feld"
         value={props.wert}
         placeholder={props.platzhalter}
+        maxLength={props.maxLaenge}
         onChange={(e) => props.aendern(e.target.value)}
       />
     </label>

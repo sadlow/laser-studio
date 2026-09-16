@@ -1,6 +1,6 @@
-import { gms } from "./geo";
 import { flaecheMm2, schneide, type Flaeche } from "./geometrie";
 import type { Schichtkarte, TextStil } from "./typen";
+import { letzteZeileText } from "./zeichen";
 
 export interface GesetzteZeile {
   name: string;
@@ -20,14 +20,10 @@ export interface Textblock {
 
 /** Die drei Zeilen so, wie sie auf dem Poster stehen. */
 export function zeilenAusEingabe(k: Schichtkarte) {
-  const zeile2 =
-    k.kunde.letzteZeile === "koordinaten"
-      ? [k.kunde.ortText.trim(), gms(k.lat, "breite"), gms(k.lon, "laenge")].filter(Boolean).join(" ")
-      : k.kunde.wunschtext.trim();
   return {
     titel: stil(k.kunde.titel.trim(), k.titelStil),
     zeile1: stil(k.kunde.namen.trim(), k.zeilenStil),
-    zeile2: stil(zeile2, k.zeilenStil),
+    zeile2: stil(letzteZeileText(k), k.zeilenStil),
   };
 }
 

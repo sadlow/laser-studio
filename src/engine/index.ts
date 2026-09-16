@@ -8,6 +8,7 @@ import { berechneLayout } from "./layout";
 import { stapleLagen } from "./stapel";
 import { setzePosterText } from "./textblock";
 import { REFERENZ_KARTENBREITE_MM, type Schichtkarte, type SchichtkartenErgebnis } from "./typen";
+import { zeichenWarnungen } from "./zeichen";
 
 export * from "./typen";
 export { FORMATE, masseAusFormat } from "./formate";
@@ -53,7 +54,7 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
   });
 
   const textblock = k.layoutArt === "eingebettet" ? setzeEingebettet(k, layout) : setzePosterText(k, layout);
-  warnungen.push(...textblock.warnungen);
+  warnungen.push(...zeichenWarnungen(k), ...textblock.warnungen);
 
   const b = baueBausteine(k, layout, roh, textblock);
   const s = stapleLagen(k, layout, b);

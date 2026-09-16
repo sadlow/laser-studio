@@ -5,13 +5,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Aufbau und Lagen
 
-- **Drei Aufbauten, eine Struktur** (`stapel.ts`). Netz-Lage (Rahmen + Strassen
-  als Material, die Bloecke fallen heraus) ueber Hintergrund-Lage (Wasser
-  geschnitten, feine Wege graviert) ueber Blau. Zwei dreilagige mit Text im Netz:
-  `netz-weiss` (weiss-schwarz-blau) und `netz-schwarz-dreilagig`
-  (schwarz-weiss-blau, Marcel 16.09.2026). Eine vierlagige: `netz-schwarz`
-  (weiss-schwarz-weiss-blau), Positiv-Look des Posters mit weisser Deckschicht
-  fuer Rahmen und Text. Die Bausteine (`lagen.ts`) sind fuer alle identisch.
+- **Drei Aufbauten, eine Struktur** (`stapel.ts`). Netz-Lage (Rahmen + Strassen als Material, die Bloecke
+  fallen heraus) ueber Hintergrund-Lage (Wasser geschnitten, feine Wege graviert) ueber Blau. Zwei
+  dreilagige mit Text im Netz: `netz-weiss` (weiss-schwarz-blau) und `netz-schwarz-dreilagig`
+  (schwarz-weiss-blau, Marcel 16.09.2026). Eine vierlagige: `netz-schwarz` (weiss-schwarz-weiss-blau),
+  Positiv-Look des Posters mit weisser Deckschicht fuer Rahmen und Text. Die Bausteine (`lagen.ts`) sind
+  fuer alle identisch.
 - **Das Standort-Symbol wird auf den Hintergrund geklebt** (die Lage auf dem
   Wasser) und steht 1 mm ueber das Netz hinaus – schoener als vertieft auf Blau,
   wie zuerst geplant (Marcel 16.09.2026). Klebemarke: Umriss 0,3 mm nach innen
@@ -56,9 +55,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Massstab und Formate
 
-- **Ausschnitt in km statt Zoom.** A3 zeigt denselben Kiez wie A5, nur groesser.
-  Strassenbreiten und Herz gelten fuer A4 und wachsen mit
-  (`REFERENZ_KARTENBREITE_MM`). Fest bleiben Rand und Stege. Ergebnis:
+- **Ausschnitt in km statt Zoom.** A3 zeigt denselben Kiez wie A5, nur groesser. Strassenbreiten und Herz
+  gelten fuer A4 und wachsen mit (`REFERENZ_KARTENBREITE_MM`). Fest bleiben Rand und Stege. Ergebnis:
   22-24 % Netz im Fenster auf allen Formaten.
 - **Mindestbreite im Netz 0,8 mm**, **kleine Bloecke (< 4 mm²) bleiben Material.**
 
@@ -124,7 +122,10 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   bleibt waehlbar, wirkte aber unruhig; drei Texte in drei Ecken ebenso.
   Positioniert nach Umriss. Der Reiter waechst mit dem Text, mittige Bloecke
   bis 70 % der Kartenbreite.
-- Beruehren sich Zeilen, meldet die Engine es – das haengt am Kundentext.
+- **Titel hoechstens 20 Zeichen, jede Zeile darunter 30** (Marcel 16.09.2026, `zeichen.ts`), gezaehlt wie
+  auf dem Poster: Koordinaten zaehlen mit, dem Ort bleiben 8-9 Zeichen. Felder mit Zaehler, zu lange
+  Entwuerfe nur als Warnung. 20 Zeichen Schreibschrift: 54-63 % Groesse (voll passen rund 11). Beruehren
+  sich Zeilen, meldet die Engine es – das haengt am Kundentext.
 
 ## Stencil (`stencil.ts`)
 
@@ -194,6 +195,5 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **A4 traegt zwei Prototypen 145 x 205 mm**, nicht zwei A5 (2 x 148 mm auf 297, 210 mm
   exakt auf der Plattenkante). 2,5 mm Rand, 2 mm Abstand, 98 % von A5.
 - **30 x 30 traegt einen Prototyp 296 x 296 mm** – aus demselben Grund mit Rand.
-- Material je Exemplar: dreilagig 1 weiss / 1 schwarz / 1 blau, vierlagig 2 weiss.
-  Lager 16.09.2026: je 2 A4 weiss, schwarz, blau und je 1 x 30x30 – 4 A4-Prototypen
-  dreilagig oder 2 vierlagig, das Quadrat nur dreilagig.
+- Material je Exemplar: dreilagig 1 weiss / 1 schwarz / 1 blau, vierlagig 2 weiss. Lager 16.09.2026: je
+  2 A4 weiss, schwarz, blau, je 1 x 30x30 – 4 A4-Prototypen dreilagig oder 2 vierlagig, Quadrat nur dreilagig.
