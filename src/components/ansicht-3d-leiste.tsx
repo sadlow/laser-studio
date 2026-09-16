@@ -1,5 +1,6 @@
 "use client";
 
+import { STIMMUNG_TITEL, type Stimmung } from "./licht-3d";
 import { MOTIV_TITEL, type Motiv } from "./motive-3d";
 
 /** Seitenverhaeltnisse, die der Leonardo-Skill erzeugen kann – 16:9 und 9:16 fuer Videos. */
@@ -20,6 +21,8 @@ interface Props {
   motiv: Motiv;
   motive: Motiv[];
   setzeMotiv: (m: Motiv) => void;
+  stimmung: Stimmung;
+  setzeStimmung: (s: Stimmung) => void;
   seiten: Seiten;
   setzeSeiten: (s: Seiten) => void;
   speichern: () => void;
@@ -38,6 +41,13 @@ export function Leiste3D(p: Props) {
         {p.motive.map((m) => (
           <option key={m} value={m} style={{ color: "#000", background: "#fff" }}>
             {MOTIV_TITEL[m]}
+          </option>
+        ))}
+      </select>
+      <select value={p.stimmung} onChange={(e) => p.setzeStimmung(e.target.value as Stimmung)} className={knopf} style={p.stimmung === "studio" ? aus : an} aria-label="Licht">
+        {(Object.keys(STIMMUNG_TITEL) as Stimmung[]).map((st) => (
+          <option key={st} value={st} style={{ color: "#000", background: "#fff" }}>
+            {STIMMUNG_TITEL[st]}
           </option>
         ))}
       </select>

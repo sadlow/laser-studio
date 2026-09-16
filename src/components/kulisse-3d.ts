@@ -19,6 +19,10 @@ export interface Kulisse {
   /** Traeger fuer den Stapel: Drehpunkt an der Rueckseite (bei "wand" an der Unterkante). */
   halter: THREE.Group;
   anordnen: (art: Anordnung, stapel: Stapel) => void;
+  /** Drehung der Raumumgebung, die zur Anordnung gehoert – die Sonnenstimmungen drehen selbst. */
+  umgebungDrehung: THREE.Euler;
+  /** Sonnenstimmung: Wand und Boden werden beleuchtete Flaechen, damit die Lichtmuster darauf fallen. */
+  sonnig: (an: boolean) => void;
   entsorgen: () => void;
 }
 
@@ -31,15 +35,24 @@ export function baueKulisse(szene: THREE.Scene, gross: number, grund = 0xf3f0ea,
   const halter = new THREE.Group();
   szene.add(halter);
 
-  const schatten = (deckkraft: number) => new THREE.ShadowMaterial({ opacity: deckkraft });
-  const boden = new THREE.Mesh(new THREE.PlaneGeometry(gross * 5, gross * 5), schatten(0.14));
+  // Eine ShadowMaterial-Flaeche zeigt nur Schatten, keine Lichtmaske. In der Sonne sind
+  // Wand und Boden darum mattes Material in der Buehnenfarbe.
+  const [schattenBoden, schattenWand] = [new THREE.ShadowMaterial({ opacity: 0.14 }), new THREE.ShadowMaterial({ opacity: 0.07 })];
+  const matt = new THREE.MeshStandardMaterial({ color: grund, roughness: 0.95 });
+  const boden = new THREE.Mesh<THREE.PlaneGeometry, THREE.Material>(new THREE.PlaneGeometry(gross * 5, gross * 5), schattenBoden);
   boden.rotation.x = -Math.PI / 2;
   boden.receiveShadow = true;
-  const wand = new THREE.Mesh(new THREE.PlaneGeometry(gross * 5, gross * 5), schatten(0.07));
+  const wand = new THREE.Mesh<THREE.PlaneGeometry, THREE.Material>(new THREE.PlaneGeometry(gross * 5, gross * 5), schattenWand);
   wand.receiveShadow = true;
+  const umgebungDrehung = new THREE.Euler();
 
   return {
     halter,
+    umgebungDrehung,
+    sonnig: (an) => {
+      boden.material = an ? matt : schattenBoden;
+      wand.material = an ? matt : schattenWand;
+    },
     anordnen: (art, stapel) => {
       const { hoeheMm: hoch, hintenMm } = stapel.aussen;
       const neigung = (NEIGUNG_GRAD * Math.PI) / 180;
@@ -65,13 +78,12 @@ export function baueKulisse(szene: THREE.Scene, gross: number, grund = 0xf3f0ea,
       // Flach liegend spiegelte das Hochglanz-Schwarz die Deckenleuchte der
       // Raumumgebung als weisses Rechteck mitten in der Karte. Gekippt steht
       // ueber der Platte eine Wand statt der Leuchte.
-      szene.environmentRotation.set(art === "liegend" ? 0.9 : 0, 0, 0);
+      umgebungDrehung.set(art === "liegend" ? 0.9 : 0, 0, 0);
+      szene.environmentRotation.copy(umgebungDrehung);
     },
     entsorgen: () => {
-      for (const m of [boden, wand]) {
-        m.geometry.dispose();
-        (m.material as THREE.Material).dispose();
-      }
+      for (const m of [boden, wand]) m.geometry.dispose();
+      for (const m of [schattenBoden, schattenWand, matt]) m.dispose();
     },
   };
 }

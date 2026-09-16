@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { Reflector } from "three/examples/jsm/objects/Reflector.js";
+import type { Stimmung } from "./licht-3d";
+import { fensterBild } from "./licht-muster";
 
 /**
  * Echte Spiegelung fuer das blaue Spiegelacryl (Marcel 16.09.2026: "sieht noch
@@ -19,8 +21,9 @@ import { Reflector } from "three/examples/jsm/objects/Reflector.js";
  * wirklich ist", die harten Spiegelungen verdeckten Details): Toenung 0x7fb2ea ->
  * 0x2d4f8e, Softboxen mit weichem Verlauf statt harter Kante und 1,3 -> 0,7.
  */
-// Hell wie ein Raum: bei 0x6f7378 wirkte das Wasser fast schwarz.
+// Hell wie ein Raum: bei 0x6f7378 wirkte das Wasser fast schwarz. In der Sonne waermer.
 const UMFELD = new THREE.Color(0xb4b9bf);
+const UMFELD_SONNE = new THREE.Color(0xbdb3a6);
 
 /** Lichtfleck, der zum Rand hin im Umfeld verschwindet. */
 function verlauf(): THREE.CanvasTexture {
@@ -52,6 +55,36 @@ function softbox(breite: number, hoehe: number, x: number, y: number, z: number)
   return box;
 }
 
+/** Sonnenstimmung: statt der Softboxen spiegelt sich ein Fenster, von vorn links oben wie die Sonne. */
+function fenster(): THREE.Mesh {
+  const glas = new THREE.Mesh(
+    new THREE.PlaneGeometry(520, 440),
+    new THREE.MeshBasicMaterial({ color: new THREE.Color(1.6, 1.55, 1.45), map: fensterBild(), side: THREE.DoubleSide }),
+  );
+  glas.position.set(-350, 470, 690);
+  glas.lookAt(0, 0, 0);
+  return glas;
+}
+
+/** Softboxen oder Fenster ins Spiegelstudio – je nach Lichtstimmung (licht-3d.ts). */
+export function studioEinrichten(studio: THREE.Group, stimmung: Stimmung) {
+  for (const kind of [...studio.children]) {
+    studio.remove(kind);
+    if (kind instanceof THREE.Mesh) {
+      kind.geometry.dispose();
+      (kind.material as THREE.MeshBasicMaterial).map?.dispose();
+      (kind.material as THREE.Material).dispose();
+    }
+  }
+  if (stimmung === "studio") {
+    // Direkt darueber fuer das Flat-Lay, schraeg dahinter fuer Nahaufnahmen von vorn, seitlich als Streifen.
+    studio.add(softbox(420, 260, 0, 40, 700), softbox(520, 220, 0, 620, 430), softbox(140, 520, -520, 120, 380));
+  } else {
+    studio.add(fenster());
+  }
+  studio.userData.umfeld = stimmung === "studio" ? UMFELD : UMFELD_SONNE;
+}
+
 /** Spiegel und Studio in Plattenkoordinaten (Mitte im Ursprung, z aus der Platte heraus). */
 export function spiegelFlaeche(b: number, h: number): { spiegel: Reflector; studio: THREE.Group } {
   const spiegel = new Reflector(new THREE.PlaneGeometry(b, h), {
@@ -62,14 +95,13 @@ export function spiegelFlaeche(b: number, h: number): { spiegel: Reflector; stud
   });
   const studio = new THREE.Group();
   studio.name = "spiegelstudio";
-  // Direkt darueber fuer das Flat-Lay, schraeg dahinter fuer Nahaufnahmen von vorn, seitlich als Streifen.
-  studio.add(softbox(420, 260, 0, 40, 700), softbox(520, 220, 0, 620, 430), softbox(140, 520, -520, 120, 380));
+  studioEinrichten(studio, "studio");
   studio.visible = false;
 
   const zeichnen = spiegel.onBeforeRender;
   spiegel.onBeforeRender = function (renderer, szene, ...rest) {
     const hintergrund = szene.background;
-    szene.background = UMFELD;
+    szene.background = studio.userData.umfeld ?? UMFELD;
     studio.visible = true;
     zeichnen.call(this, renderer, szene, ...rest);
     studio.visible = false;

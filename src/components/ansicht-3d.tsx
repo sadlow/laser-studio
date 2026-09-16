@@ -3,16 +3,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import type { SchichtkartenErgebnis } from "@/engine/typen";
 import { Leiste3D, SEITEN, seitenZahl, type Seiten } from "./ansicht-3d-leiste";
 import { aufnahmeParameter } from "./aufnahme-3d";
 import { baueKulisse } from "./kulisse-3d";
+import { baueBeleuchtung, STIMMUNG_TITEL, type Stimmung } from "./licht-3d";
 import { MOTIV_TITEL, motivAnwenden, motivMoeglich, type Motiv } from "./motive-3d";
+import { studioEinrichten } from "./spiegel-3d";
 import { baueSzene, entsorgen, stapeln, type Stapel } from "./szene-3d";
 
 const AUSEINANDER_MM = 14;
-const ohne = { anwenden: (_m: Motiv) => {}, groesse: () => {}, referenz: () => "" };
+const ohne = { anwenden: (_m: Motiv) => {}, licht: (_s: Stimmung) => {}, groesse: () => {}, referenz: () => "" };
 
 /**
  * Drehbare 3D-Ansicht des Lagenstapels. Maus ziehen dreht (auch um die
@@ -21,7 +22,8 @@ const ohne = { anwenden: (_m: Motiv) => {}, groesse: () => {}, referenz: () => "
  * (Leonardo-Skill): an der Wand, flach liegend und Nahaufnahmen.
  *
  * URL fuer Headless-Aufnahmen: ?ansicht=3d&foto=symbol&seiten=16:9&vollbild=1
- * (foto=1 ist die Wand), ?lagen=auseinander zieht den Stapel auf.
+ * (foto=1 ist die Wand), ?lagen=auseinander zieht den Stapel auf, ?licht=blaetter|fenster
+ * waehlt eine Sonnenstimmung (licht-3d.ts).
  */
 export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
   const box = useRef<HTMLDivElement>(null);
@@ -32,6 +34,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
     return f === "1" ? "wand" : f && f in MOTIV_TITEL ? (f as Motiv) : "frei";
   });
   const [seiten, setSeiten] = useState<Seiten>(() => ((SEITEN as readonly string[]).includes(url.get("seiten") ?? "") ? (url.get("seiten") as Seiten) : "4:3"));
+  const [stimmung, setStimmung] = useState<Stimmung>(() => ((url.get("licht") ?? "") in STIMMUNG_TITEL ? (url.get("licht") as Stimmung) : "studio"));
   const vollbild = url.get("vollbild") === "1";
   const aufnahme = useMemo(() => aufnahmeParameter(url), [url]);
   const [baut, setBaut] = useState(true);
@@ -48,6 +51,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
     steuer.current.groesse();
     steuer.current.anwenden(aktiv);
   }, [aktiv, seiten, baut]);
+  useEffect(() => steuer.current.licht(stimmung), [stimmung, baut]);
 
   useEffect(() => {
     const el = box.current;
@@ -60,14 +64,12 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
     const pixel = Math.min(window.devicePixelRatio, 2);
     renderer.setPixelRatio(pixel);
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // PCFSoftShadowMap gibt es in three nicht mehr; weiche Kanten ueber shadow.radius.
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     el.appendChild(renderer.domElement);
 
     const szene = new THREE.Scene();
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    szene.environment = pmrem.fromScene(new RoomEnvironment()).texture;
-    szene.environmentIntensity = 0.7;
 
     const { breiteMm: b, hoeheMm: h } = ergebnis.layout.platte;
     const gross = Math.max(b, h);
@@ -77,13 +79,9 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
     steuerung.dampingFactor = 0.08;
     steuerung.minDistance = 20;
 
-    const licht = new THREE.DirectionalLight(0xffffff, 1.6);
-    licht.castShadow = true;
-    licht.shadow.mapSize.set(2048, 2048);
-    licht.shadow.bias = -0.0004;
-    licht.shadow.normalBias = 0.3;
-    szene.add(licht, licht.target, new THREE.HemisphereLight(0xffffff, 0xd8d4ca, 0.6));
     const kulisse = baueKulisse(szene, gross, aufnahme.grund, aufnahme.wandschatten, aufnahme.bodenschatten);
+    const beleuchtung = baueBeleuchtung(szene, renderer, kulisse);
+    const licht = beleuchtung.licht;
     if (aufnahme.umgebung !== undefined) szene.environmentIntensity = aufnahme.umgebung;
 
     // Gezeichnet wird nur, wenn sich etwas geaendert hat – im Headless-Browser
@@ -113,12 +111,20 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
       stapel = s;
       stapeln(s.platten, abstand);
       kulisse.halter.add(s.gruppe);
-      if (!aufnahme.softboxen) s.gruppe.getObjectByName("spiegelstudio")?.clear();
+      const studio = s.gruppe.getObjectByName("spiegelstudio") as THREE.Group | undefined;
       steuer.current = {
         groesse,
         anwenden: (m) => {
           motivAnwenden(m, ergebnis, s, { kamera, steuerung, licht, kulisse });
+          beleuchtung.ausrichten();
           aufnahme.ausschnitt(kamera, renderer, steuerung.target);
+          neu = true;
+        },
+        licht: (st) => {
+          beleuchtung.setze(st);
+          if (aufnahme.umgebung !== undefined) szene.environmentIntensity = aufnahme.umgebung;
+          if (studio && aufnahme.softboxen) studioEinrichten(studio, st);
+          else studio?.clear();
           neu = true;
         },
         referenz: () => {
@@ -158,8 +164,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
       steuerung.dispose();
       if (stapel) entsorgen(stapel.gruppe);
       kulisse.entsorgen();
-      szene.environment?.dispose();
-      pmrem.dispose();
+      beleuchtung.entsorgen();
       renderer.dispose();
       renderer.domElement.remove();
     };
@@ -180,6 +185,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
       <div ref={box} className="absolute inset-0 flex items-center justify-center" data-ansicht="3d" data-motiv={aktiv} data-bereit={baut ? undefined : "1"} />
       {!vollbild && (
         <Leiste3D auseinander={auseinander} umschalten={() => setAuseinander((x) => !x)} motiv={aktiv} motive={motive} setzeMotiv={setMotiv}
+          stimmung={stimmung} setzeStimmung={setStimmung}
           seiten={seiten} setzeSeiten={setSeiten} speichern={speichern} zuruecksetzen={() => steuer.current.anwenden(aktiv)} />
       )}
       {baut && <p className="absolute inset-0 flex items-center justify-center text-sm" style={{ color: "var(--gedaempft)" }}>baut 3D…</p>}
