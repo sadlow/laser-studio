@@ -120,8 +120,10 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   }
 
   // Gravur weder in den ausgeschnittenen Buchstaben (helle Striche im Schwarz)
-  // noch ueber Wasser – dort ist kein Material, der Laser graviert Luft.
-  const gravurAus = vereinige(schutz, wasser);
+  // noch ueber Wasser (dort ist kein Material, der Laser graviert Luft) noch
+  // unter dem Netz (unsichtbar). Das Netz allein spart gemessen 31 % Gravurweg
+  // bei 160 ms Rechenzeit – A4 Berlin: 15,0 m auf 10,4 m.
+  const gravurAus = vereinige(schutz, wasser, netz);
   const gravur = gravurRoh.map((g) => ({ linien: ziehLinienAb(g.linien, gravurAus), breiteMm: g.breiteMm }));
 
   // --- Herz: Mitte auf dem Ort, Groesse fuer A4 und mitwachsend.

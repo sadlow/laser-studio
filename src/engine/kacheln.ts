@@ -18,6 +18,22 @@ export interface KartenRohdaten {
 // sind im Massstab einer Wandkarte Rauschen.
 const WASSERLAUF_KLASSEN = new Set(["river", "canal"]);
 
+// Wegetypen, die in einer stilisierten Karte nur Rauschen sind. Gemessen an der
+// Laenge aller Fuss- und Nebenwege in drei Stadtkacheln (Berlin, Muenchen,
+// 16.09.2026): Gehwege 32,5 %, Einfahrten 6,7 %, Ueberwege 2,3 %, Parkplatz-
+// gassen 1,7 %. Gehwege laufen parallel zu jeder Strasse und lagen als dicke
+// Doppellinie in der Gravur, Ueberwege sind Stummel quer ueber die Fahrbahn.
+const WEGETYPEN_OHNE = new Set([
+  "sidewalk",
+  "crossing",
+  "service:driveway",
+  "service:parking_aisle",
+  "service:drive_through",
+  "service:parking",
+  "platform",
+  "corridor",
+]);
+
 // Kacheln aendern sich nicht, waehrend jemand am Titel tippt. Ohne Cache laedt
 // jede Aenderung im Formular die ganze Karte neu von Mapbox.
 const KACHEL_CACHE = new Map<string, ArrayBuffer | null>();
@@ -116,6 +132,7 @@ export async function ladeKartenRohdaten(opts: {
         // Tunnel liegen unter der Erde – als Acrylstreifen laegen sie mitten
         // auf einem Stadtblock. Gemessen: Berlin-Tiergarten hat 21 Tunnelstuecke.
         if (f.properties.structure === "tunnel") continue;
+        if (WEGETYPEN_OHNE.has(String(f.properties.type ?? ""))) continue;
         const klasse = String(f.properties.class ?? "");
         const liste = strassen.get(klasse) ?? [];
         for (const ring of f.loadGeometry()) {

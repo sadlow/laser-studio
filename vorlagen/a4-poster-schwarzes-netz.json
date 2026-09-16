@@ -1,0 +1,140 @@
+{
+  "id": "a4-poster-schwarzes-netz",
+  "name": "A4 Poster – schwarzes Netz",
+  "beschreibung": "Karte oben, Text darunter. Weisse Deckschicht, schwarzes Strassennetz, weisser Hintergrund mit Gravur – Positiv-Look des Posters.",
+  "karte": {
+    "ausschnittKm": 3.5,
+    "format": "a4",
+    "rahmenMm": 7,
+    "aufbau": "netz-schwarz",
+    "layoutArt": "poster",
+    "eingebettet": {
+      "titelAnker": "oben-mitte",
+      "zeile1Anker": "unten-mitte",
+      "zeile2Anker": "unten-mitte",
+      "form": "rechteck",
+      "schutzMm": 5,
+      "eckenRadiusMm": 6,
+      "rahmenUntenMm": 14
+    },
+    "kartenEndeAnteil": 0.68,
+    "titelMitteAnteil": 0.743,
+    "zeile1MitteAnteil": 0.878,
+    "zeile2MitteAnteil": 0.912,
+    "titelStil": {
+      "schrift": "Bacalisties.ttf",
+      "hoeheAnteil": 0.07,
+      "sperrung": 0,
+      "versalien": false
+    },
+    "zeilenStil": {
+      "schrift": "AvantGardeCE-Demi.otf",
+      "hoeheAnteil": 0.017,
+      "sperrung": 0.06,
+      "versalien": true
+    },
+    "strassen": [
+      {
+        "id": "fern",
+        "titel": "Autobahn / Schnellstrasse",
+        "klassen": [
+          "motorway",
+          "motorway_link",
+          "trunk",
+          "trunk_link"
+        ],
+        "ziel": "netz",
+        "breiteMm": 2.6
+      },
+      {
+        "id": "primaer",
+        "titel": "Primaer",
+        "klassen": [
+          "primary",
+          "primary_link"
+        ],
+        "ziel": "netz",
+        "breiteMm": 2.2
+      },
+      {
+        "id": "sekundaer",
+        "titel": "Sekundaer",
+        "klassen": [
+          "secondary",
+          "secondary_link"
+        ],
+        "ziel": "netz",
+        "breiteMm": 1.8
+      },
+      {
+        "id": "tertiaer",
+        "titel": "Tertiaer",
+        "klassen": [
+          "tertiary",
+          "tertiary_link"
+        ],
+        "ziel": "netz",
+        "breiteMm": 1.4
+      },
+      {
+        "id": "bahn",
+        "titel": "Bahn",
+        "klassen": [
+          "major_rail"
+        ],
+        "ziel": "netz",
+        "breiteMm": 1.2
+      },
+      {
+        "id": "wohn",
+        "titel": "Wohnstrassen",
+        "klassen": [
+          "street",
+          "street_limited"
+        ],
+        "ziel": "netz",
+        "breiteMm": 1
+      },
+      {
+        "id": "service",
+        "titel": "Zufahrten",
+        "klassen": [
+          "service"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.3
+      },
+      {
+        "id": "fuss",
+        "titel": "Fuss- und Radwege",
+        "klassen": [
+          "path",
+          "pedestrian",
+          "track"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.25
+      },
+      {
+        "id": "nebenbahn",
+        "titel": "Nebengleise",
+        "klassen": [
+          "minor_rail",
+          "service_rail"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.25
+      }
+    ],
+    "netzMinBreiteMm": 0.8,
+    "netzMinLochMm2": 4,
+    "wasser": true,
+    "wasserlaeufe": false,
+    "wasserlaufBreiteMm": 1.2,
+    "wasserMinFlaecheMm2": 6,
+    "stegMm": 0.5,
+    "stencilMinInselBreiteMm": 1,
+    "herzBreiteMm": 11,
+    "loseTeileMarkieren": true
+  }
+}
