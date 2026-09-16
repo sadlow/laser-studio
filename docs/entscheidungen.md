@@ -19,9 +19,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Gravur nie unter dem Netz, nie ueber Wasser.** Unter dem Netz unsichtbar:
   A4 Berlin 15,0 m auf 10,4 m Gravurweg, 160 ms.
 - **Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet**
-  (`WEGETYPEN_OHNE`, `kacheln.ts`). Anteil an allen Nebenwegen in drei
-  Stadtkacheln: Gehwege 32,5 %, Einfahrten 6,7 %, Ueberwege 2,3 %, Gassen 1,7 %.
-  Gehwege lagen als dicke Doppellinie neben jeder Hauptstrasse.
+  (`WEGETYPEN_OHNE`): Gehwege 32,5 % aller Nebenwege in drei Stadtkacheln, als
+  Doppellinie neben jeder Hauptstrasse; Einfahrten 6,7, Ueberwege 2,3, Gassen 1,7.
 - **Tunnel nie, Bruecken immer.** Berlin-Tiergarten: 21 Tunnelstuecke.
 - **Wasser schmaler als 1 mm wird nicht geschnitten** (`wasser.ts`, Oeffnen vor
   dem Beschnitt). Venedig: Hintergrund 107 -> 5 Teile, die Grachten Amsterdams
@@ -75,11 +74,9 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   HERZ/KREUZ/PFEIL), klein/mittel/gross = 8/11/15 mm bei A4, mitwachsend. Der
   Anker sitzt auf dem Ort: Spitze bei Herz und Pin, Fussmitte beim Haus, Mitte
   beim X. Die Lage heisst nach dem Symbol, Material rotes Spiegelacryl.
-
-- **Die Koordinaten zeigen den Symbol-Anker** (Marcel 16.09.2026: die
-  Herzspitze), nicht mehr die Herzmitte. `lon/lat` ist der Ort, `kartenMitte` die Mitte des Ausschnitts,
-  wenn die Karte verschoben wurde. Neue Adresse oder Referenzort setzt die Mitte
-  zurueck. Liegt der Ort ausserhalb des Ausschnitts, fehlt das Herz mit Warnung.
+- **Die Koordinaten zeigen den Symbol-Anker** (Marcel: die Herzspitze). `lon/lat`
+  ist der Ort, `kartenMitte` die Mitte eines verschobenen Ausschnitts; neue
+  Adresse oder Referenzort setzt sie zurueck. Ort ausserhalb: kein Symbol, Warnung.
 - **Gezogen wird auf der gerenderten Vorschau**, nicht in einer zweiten
   Mapbox-GL-Karte: man sieht, was geschnitten wird, und der Token bleibt auf dem
   Server. Beim Ziehen wird die letzte Vorschau verschoben gezeigt, gerechnet wird
@@ -89,9 +86,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Bis neu gerechnet ist, zeigt die Vorschau die alte Karte skaliert. Das Rad
   zoomt nur noch mit Strg/Cmd oder als Trackpad-Pinch – sonst kaperte es das
   Scrollen der Seite ueber der grossen Vorschau.
-- Umrechnung mm <-> Ort (`ortZuMm`, `mmZuOrt`) ist dieselbe Abbildung wie beim
-  Kachelabruf: Karte 30 mm verschoben -> Herz 30,000 mm; Herz 20 mm tiefer ->
-  357 m, 12 Bogensekunden in der Koordinatenzeile.
+- Umrechnung mm <-> Ort (`ortZuMm`, `mmZuOrt`) wie beim Kachelabruf: Karte 30 mm
+  verschoben -> Symbol 30,000 mm; 20 mm tiefer -> 357 m, 12 Bogensekunden.
 - Rechenzeit waechst mit dem Ausschnitt: Berlin 3,5 km 0,6 s, 5,5 km 1,6 s,
   8,6 km 5,3 s.
 
