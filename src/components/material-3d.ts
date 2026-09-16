@@ -12,14 +12,17 @@ import type { Lage } from "@/engine/typen";
 export function materialien(lage: Lage): [THREE.Material, THREE.Material] {
   const m = lage.material.toLowerCase();
   const kante = (farbe: number) => new THREE.MeshPhysicalMaterial({ color: farbe, roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.03 });
-  if (m.includes("blau")) return [new THREE.MeshPhysicalMaterial({ color: 0x6aa3e0, metalness: 1, roughness: 0.02 }), kante(0x3f73ad)];
+  // Dunkelblaues Spiegelacryl, die Kante dunkles Blau (die Spiegelschicht liegt nur auf der Flaeche).
+  if (m.includes("blau")) return [new THREE.MeshPhysicalMaterial({ color: 0x2d4f8e, metalness: 1, roughness: 0.02 }), kante(0x1f3d6e)];
   // Rotes Spiegelacryl nicht voll metallisch: sonst haengt seine Farbe allein an
   // der Umgebung, flach liegend vor einer dunklen Wand war das Herz schwarzrot.
   if (m.includes("rot")) return [new THREE.MeshPhysicalMaterial({ color: 0xd01f2e, metalness: 0.55, roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.02 }), kante(0xa3141f)];
-  // Schwarzes Hochglanz-Acryl: scharfe Spiegelung mit wenig Anteil. Stumpf
-  // (roughness 0,4) verschmierte die helle Raumumgebung zu Grau.
+  // Schwarzes Hochglanz-Acryl: Spiegelung mit wenig Anteil. Stumpf (roughness 0,4)
+  // verschmierte die helle Raumumgebung zu Grau. Das gerichtete Licht stand als greller
+  // Fleck auf der Gravur (Marcel 16.09.2026): kleiner Spiegelanteil fuer das Licht, die
+  // Raumspiegelung ueber envMapIntensity ausgeglichen. Rauer (0,12) machte den Fleck groesser.
   const einfarbig = m.includes("schwarz")
-    ? new THREE.MeshPhysicalMaterial({ color: 0x030303, roughness: 0.05, specularIntensity: 0.5, envMapIntensity: 0.6 })
+    ? new THREE.MeshPhysicalMaterial({ color: 0x030303, roughness: 0.05, specularIntensity: 0.02, envMapIntensity: 10 })
     : new THREE.MeshPhysicalMaterial({ color: 0xf2f0ea, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.03 });
   return [einfarbig, einfarbig];
 }

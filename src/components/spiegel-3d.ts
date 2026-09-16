@@ -14,14 +14,38 @@ import { Reflector } from "three/examples/jsm/objects/Reflector.js";
  * nur fuer das Spiegelbild sichtbar. Die Raumumgebung als Hintergrund lieferte
  * dort Schwarz (die schraege Schnittebene des Spiegels schneidet den Himmel weg),
  * die helle Buehnenfarbe ein blasses Grau.
+ *
+ * Dunkelblaues Spiegelacryl (Marcel 16.09.2026: "das Blau wirkt heller, als es
+ * wirklich ist", die harten Spiegelungen verdeckten Details): Toenung 0x7fb2ea ->
+ * 0x2d4f8e, Softboxen mit weichem Verlauf statt harter Kante und 1,3 -> 0,7.
  */
 // Hell wie ein Raum: bei 0x6f7378 wirkte das Wasser fast schwarz.
 const UMFELD = new THREE.Color(0xb4b9bf);
 
+/** Lichtfleck, der zum Rand hin im Umfeld verschwindet. */
+function verlauf(): THREE.CanvasTexture {
+  const leinwand = document.createElement("canvas");
+  leinwand.width = leinwand.height = 128;
+  const g = leinwand.getContext("2d")!;
+  const r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  r.addColorStop(0, "rgba(255,255,255,1)");
+  r.addColorStop(0.4, "rgba(255,255,255,0.7)");
+  r.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = r;
+  g.fillRect(0, 0, 128, 128);
+  return new THREE.CanvasTexture(leinwand);
+}
+
 function softbox(breite: number, hoehe: number, x: number, y: number, z: number): THREE.Mesh {
   const box = new THREE.Mesh(
     new THREE.PlaneGeometry(breite, hoehe),
-    new THREE.MeshBasicMaterial({ color: new THREE.Color(1.3, 1.3, 1.3), side: THREE.DoubleSide }),
+    new THREE.MeshBasicMaterial({
+      color: new THREE.Color(0.7, 0.7, 0.7),
+      map: verlauf(),
+      transparent: true,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    }),
   );
   box.position.set(x, y, z);
   box.lookAt(0, 0, 0);
@@ -31,7 +55,7 @@ function softbox(breite: number, hoehe: number, x: number, y: number, z: number)
 /** Spiegel und Studio in Plattenkoordinaten (Mitte im Ursprung, z aus der Platte heraus). */
 export function spiegelFlaeche(b: number, h: number): { spiegel: Reflector; studio: THREE.Group } {
   const spiegel = new Reflector(new THREE.PlaneGeometry(b, h), {
-    color: 0x7fb2ea,
+    color: 0x2d4f8e,
     textureWidth: 2048,
     textureHeight: 2048,
     clipBias: 0.003,

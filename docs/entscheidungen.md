@@ -66,9 +66,9 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   (Standort, Texte, Design mit Vorschaubild, Format, Strassenstufe, Symbol und
   Groesse), Mitte der Komposer, rechts Technik und Prototypenbau, aufklappbar.
 - **Standort als Adresse oder Dezimal-Koordinaten** (Google-Format, auch mit Komma), Ortsname per Rueckwaertssuche.
-- **3D-Reiter** (`ansicht-3d.tsx`, `szene-3d.ts`, three.js): Lagen mit ihrer Staerke extrudiert,
-  Holzrahmen mit Gehrung, drehbar, gezeichnet nur bei Aenderung. Acryl hochglaenzend, Kanten
-  farbiges Acryl, das Blau spiegelt echt (`Reflector`, Studio nur im Spiegelbild).
+- **3D-Reiter** (`ansicht-3d.tsx`, `szene-3d.ts`, three.js): Lagen mit ihrer Staerke extrudiert, Holzrahmen
+  mit Gehrung, drehbar, gezeichnet nur bei Aenderung. Acryl hochglaenzend, Kanten farbiges Acryl, das Blau
+  spiegelt echt und dunkel (`Reflector`, weiche Softboxen nur im Spiegelbild); Schwarz ohne grellen Lichtfleck.
 - **Motive fuer KI-Produktfotos** (`motive-3d.ts`, `aufnahme-3d.ts`): `?ansicht=3d&foto=
   wand|flach|symbol|titel|wasser|kante&vollbild=1`, dazu `entwurf={json}`, `zoom`,
   `versatz`, `grund`, `frontal`, `umgebung`, Schatten- und Softbox-Schalter; `referenzbilder.sh`.
