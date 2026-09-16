@@ -83,7 +83,9 @@ der Holzrahmen als Fußnote.
 Das Quadrat hat ein eigenes Layout (Titel und Zeilen in Reitern in der Karte) und steht darum
 nicht im Konfigurator der Hochformate. Eigene Bilder: Vorschau ohne Text (3 Designs x 5 Rahmen),
 Design, Rahmen, Maßstab und ein Kontrollbild. Die Reiter wachsen mit dem Text, feste Textfelder
-gibt es nicht; `textfelder.md` nennt die Lage für den Beispieltext.
+gibt es nicht; `textfelder.md` nennt die Lage für den Beispieltext. Ohne Text fehlen auch die
+Reiter: in der Vorschau ohne Text läge Amazons Titel direkt auf der Karte. Für eine Live-Vorschau
+bräuchte das Quadrat Reiter in fester Größe.
 
 ## Kosten
 
