@@ -89,8 +89,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Anker sitzt auf dem Ort: Spitze bei Herz und Pin, Fussmitte beim Haus, Mitte
   beim X. Die Lage heisst nach dem Symbol, Material rotes Spiegelacryl.
 - **Die Koordinaten zeigen den Symbol-Anker** (Marcel: die Herzspitze). `lon/lat`
-  ist der Ort, `kartenMitte` die Mitte eines verschobenen Ausschnitts; neue
-  Adresse oder Referenzort setzt sie zurueck. Ort ausserhalb: kein Symbol, Warnung.
+  ist der Ort, `kartenMitte` die Mitte eines verschobenen Ausschnitts; zurueck auf den
+  Ort: neue Adresse, Referenzort oder Knopf "Standort zentrieren" im Kartenfenster.
 - **Gezogen wird auf der gerenderten Vorschau**, nicht in einer zweiten
   Mapbox-GL-Karte: man sieht, was geschnitten wird, und der Token bleibt auf dem
   Server. Beim Ziehen wird die letzte Vorschau verschoben gezeigt, gerechnet wird

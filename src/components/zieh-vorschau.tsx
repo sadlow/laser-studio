@@ -7,6 +7,7 @@ import { FARBE_SCHWARZ, FARBE_WEISS } from "@/engine/svg";
 import type { Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
 import { RahmenUmriss, rahmenPlatz } from "./holzrahmen-2d";
 import { KartenKopie } from "./karten-kopie";
+import { StandortZentrieren } from "./standort-zentrieren";
 import { useSvgLage } from "./svg-lage";
 import { ZOOM_STUFEN_KM, ZoomKnoepfe } from "./zoom-knoepfe";
 import type { Aenderung } from "./aenderung";
@@ -179,6 +180,12 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
           setzeKm={(km) => aendern({ ausschnittKm: km })}
           style={{ left: lage.links + (f.xMm + f.breiteMm) * s - 44 - 8, top: lage.oben + f.yMm * s + 8 }}
         />
+      )}
+      {lage && (
+        // Unter Plus/Minus, rechtsbuendig mit ihnen.
+        <StandortZentrieren karte={karte} ergebnis={ergebnis} lage={lage} aendern={aendern}
+          vorschieben={(dx, dy) => (setZug({ art: "karte", startX: 0, startY: 0, dx, dy }), setGezogen(true), setHaltenFuer(ergebnis))}
+          style={{ left: lage.links + (f.xMm + f.breiteMm) * s - 8, top: lage.oben + f.yMm * s + 8 + 90, transform: "translateX(-100%)" }} />
       )}
     </div>
   );

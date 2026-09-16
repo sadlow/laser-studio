@@ -94,12 +94,7 @@ export function Komposer({ ergebnis, fehler, laedt, karte, aendern }: Props) {
             <span className="font-medium" style={{ color: "var(--text)" }}>
               Symbol-Anker {karte.lat.toFixed(5)}, {karte.lon.toFixed(5)}
             </span>
-            {karte.kartenMitte && (
-              <button type="button" className="underline" onClick={() => aendern({ kartenMitte: undefined })}>
-                Karte wieder um das Symbol zentrieren
-              </button>
-            )}
-            <span>Karte ziehen verschiebt den Ausschnitt · Symbol ziehen versetzt den Ort · Plus/Minus zoomt</span>
+            <span>Karte ziehen verschiebt den Ausschnitt · Symbol ziehen versetzt den Ort · Plus/Minus zoomt · „Standort zentrieren" holt das Herz in die Mitte</span>
           </>
         ) : (
           lage && (
