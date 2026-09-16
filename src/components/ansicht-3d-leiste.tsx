@@ -1,5 +1,6 @@
 "use client";
 
+import type { SchichtkartenErgebnis } from "@/engine/typen";
 import { STIMMUNG_TITEL, type Stimmung } from "./licht-3d";
 import { MOTIV_TITEL, type Motiv } from "./motive-3d";
 
@@ -69,5 +70,17 @@ export function Leiste3D(p: Props) {
         Ansicht zuruecksetzen
       </button>
     </div>
+  );
+}
+
+/** Bedienung und Aufbau unten links in der freien Ansicht. */
+export function Hinweis3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
+  const r = ergebnis.rahmen;
+  return (
+    <p className="pointer-events-none absolute bottom-3 left-3 text-xs" style={{ color: "var(--gedaempft)" }}>
+      Ziehen dreht · Rad zoomt · rechte Maustaste verschiebt · {ergebnis.lagen.map((l) => `${l.titel} ${l.staerkeMm} mm`).join(" · ")}
+      {" "}· Symbol auf dem Hintergrund, {ergebnis.kennzahlen.symbolUeberNetzMm.toFixed(1)} mm ueber dem Netz
+      {r && ` · Holzrahmen ${r.farbe}, ${r.breiteMm} × ${r.tiefeMm} mm, Bild ${r.einlassMm} mm tief`}
+    </p>
   );
 }

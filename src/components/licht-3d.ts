@@ -32,12 +32,12 @@ function sonnenRaum(bild: THREE.Texture): THREE.Scene {
   const raum = new THREE.Scene();
   const flaeche = (b: number, h: number, farbe: THREE.Color, map?: THREE.Texture) =>
     new THREE.Mesh(new THREE.PlaneGeometry(b, h), new THREE.MeshBasicMaterial({ color: farbe, map, side: THREE.DoubleSide }));
-  const waende = new THREE.Mesh(new THREE.BoxGeometry(20, 14, 20), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.3, 0.27, 0.24), side: THREE.BackSide }));
+  const waende = new THREE.Mesh(new THREE.BoxGeometry(20, 14, 20), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.29, 0.285, 0.275), side: THREE.BackSide }));
   waende.position.y = 5;
-  const boden = flaeche(20, 20, new THREE.Color(0.36, 0.3, 0.24));
+  const boden = flaeche(20, 20, new THREE.Color(0.34, 0.32, 0.3));
   boden.rotation.x = -Math.PI / 2;
   boden.position.y = -1.9;
-  const fenster = flaeche(6.5, 5.5, new THREE.Color(3.2, 3.05, 2.8), bild);
+  const fenster = flaeche(6.5, 5.5, new THREE.Color(3.1, 3.08, 3.02), bild);
   fenster.position.copy(FENSTER);
   fenster.lookAt(0, FENSTER.y * 0.6, 0);
   raum.add(waende, boden, fenster);
@@ -49,6 +49,14 @@ export interface Beleuchtung {
   setze: (s: Stimmung) => void;
   /** Nach jedem Motiv: Sonne und gespiegeltes Fenster folgen dem Hauptlicht. */
   ausrichten: () => void;
+  /** Lage von Licht und Raum zur Kamera merken – Ausgang fuer folgen(). */
+  merken: (kamera: THREE.Camera, ziel: THREE.Vector3) => void;
+  /**
+   * Dreht die Kamera um das Produkt, dreht der Raum mit (Marcel 16.09.2026: "das Sonnenlicht
+   * dreht sich mit den Objekten, die Schatten bleiben gleich"). So wirkt Drehen wie das Produkt
+   * in der Hand wenden: Licht und Schattenmuster wandern ueber die Platte.
+   */
+  folgen: (kamera: THREE.Camera, ziel: THREE.Vector3) => void;
   entsorgen: () => void;
 }
 
@@ -71,7 +79,7 @@ export function baueBeleuchtung(szene: THREE.Scene, renderer: THREE.WebGLRendere
   licht.shadow.bias = -0.0004;
   licht.shadow.normalBias = 0.3;
   const himmel = new THREE.HemisphereLight(0xffffff, 0xd8d4ca, 0.6);
-  const sonne = new THREE.SpotLight(0xffecd4, 0, 0, 0.3, 0.45, 0);
+  const sonne = new THREE.SpotLight(0xfff6ec, 0, 0, 0.3, 0.45, 0);
   sonne.castShadow = true;
   sonne.shadow.mapSize.set(2048, 2048);
   sonne.shadow.bias = -0.0003;
@@ -80,6 +88,24 @@ export function baueBeleuchtung(szene: THREE.Scene, renderer: THREE.WebGLRendere
   szene.add(licht, licht.target, himmel, sonne, sonne.target);
 
   let stimmung: Stimmung = "studio";
+  const basis = { licht: new THREE.Vector3(), sonne: new THREE.Vector3(), ziel: new THREE.Vector3(), umgebung: new THREE.Euler(), azimut: 0 };
+  const azimut = (kamera: THREE.Camera, ziel: THREE.Vector3) => Math.atan2(kamera.position.x - ziel.x, kamera.position.z - ziel.z);
+  const merken = (kamera: THREE.Camera, ziel: THREE.Vector3) => {
+    basis.licht.copy(licht.position);
+    basis.sonne.copy(sonne.position);
+    basis.ziel.copy(ziel);
+    basis.umgebung.copy(szene.environmentRotation);
+    basis.azimut = azimut(kamera, ziel);
+  };
+  const achse = new THREE.Vector3(0, 1, 0);
+  const folgen = (kamera: THREE.Camera, ziel: THREE.Vector3) => {
+    const winkel = azimut(kamera, ziel) - basis.azimut;
+    for (const [lampe, von] of [[licht, basis.licht], [sonne, basis.sonne]] as const) {
+      lampe.position.copy(von).sub(basis.ziel).applyAxisAngle(achse, winkel).add(basis.ziel);
+    }
+    // YXZ: erst die Neigung der Anordnung, dann die Drehung um die Senkrechte.
+    szene.environmentRotation.set(basis.umgebung.x, basis.umgebung.y + winkel, basis.umgebung.z, "YXZ");
+  };
   const ausrichten = () => {
     if (stimmung === "studio") {
       szene.environmentRotation.copy(kulisse.umgebungDrehung);
@@ -96,7 +122,7 @@ export function baueBeleuchtung(szene: THREE.Scene, renderer: THREE.WebGLRendere
     Object.assign(sonne.shadow.camera, { near: Math.max(1, abstand - bereich * 4), far: abstand + bereich * 4 });
     sonne.shadow.camera.updateProjectionMatrix();
     // Das Fenster im Raum dorthin drehen, wo die Sonne steht – Spiegelung und Licht passen zusammen.
-    szene.environmentRotation.set(0, Math.atan2(richtung.x, richtung.z) - Math.atan2(FENSTER.x, FENSTER.z), 0);
+    szene.environmentRotation.set(0, Math.atan2(richtung.x, richtung.z) - Math.atan2(FENSTER.x, FENSTER.z), 0, "YXZ");
   };
 
   const setze = (s: Stimmung) => {
@@ -104,11 +130,11 @@ export function baueBeleuchtung(szene: THREE.Scene, renderer: THREE.WebGLRendere
     const studio = s === "studio";
     szene.environment = studio ? umgebung.studio : umgebung.sonne;
     szene.environmentIntensity = studio ? 0.7 : 0.55;
-    licht.color.set(studio ? 0xffffff : 0xfff4e8);
+    licht.color.set(studio ? 0xffffff : 0xfffaf5);
     licht.intensity = studio ? 1.6 : 0.3;
     licht.castShadow = studio;
-    himmel.color.set(studio ? 0xffffff : 0xfff8f0);
-    himmel.groundColor.set(studio ? 0xd8d4ca : 0xc8b8a4);
+    himmel.color.set(studio ? 0xffffff : 0xfcfcfb);
+    himmel.groundColor.set(studio ? 0xd8d4ca : 0xd0cbc4);
     himmel.intensity = studio ? 0.6 : 0.35;
     sonne.visible = !studio;
     sonne.intensity = studio ? 0 : 3.4;
@@ -122,6 +148,8 @@ export function baueBeleuchtung(szene: THREE.Scene, renderer: THREE.WebGLRendere
     licht,
     setze,
     ausrichten,
+    merken,
+    folgen,
     entsorgen: () => {
       umgebung.studio.dispose();
       umgebung.sonne.dispose();

@@ -38,7 +38,8 @@ export function baueKulisse(szene: THREE.Scene, gross: number, grund?: number, w
   // Eine ShadowMaterial-Flaeche zeigt nur Schatten, keine Lichtmaske. In der Sonne sind
   // Wand und Boden darum mattes Material in der Buehnenfarbe.
   const [schattenBoden, schattenWand] = [new THREE.ShadowMaterial({ opacity: 0.14 }), new THREE.ShadowMaterial({ opacity: 0.07 })];
-  const matt = new THREE.MeshStandardMaterial({ color: grund ?? 0xf3f0ea, roughness: 0.95 });
+  // Neutral statt Buehnenbeige: im Sonnenlicht wirkte die Wand sonst gelb.
+  const matt = new THREE.MeshStandardMaterial({ color: grund ?? 0xf2f1ee, roughness: 0.95 });
   const boden = new THREE.Mesh<THREE.PlaneGeometry, THREE.Material>(new THREE.PlaneGeometry(gross * 5, gross * 5), schattenBoden);
   boden.rotation.x = -Math.PI / 2;
   boden.receiveShadow = true;

@@ -67,7 +67,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   mit Gehrung, drehbar, gezeichnet nur bei Aenderung. Acryl hochglaenzend, Kanten farbiges Acryl, das Blau
   spiegelt echt und dunkel (`Reflector`, weiche Softboxen nur im Spiegelbild); Schwarz ohne grellen Lichtfleck.
   Lichtstimmungen (`licht-3d.ts`, `?licht=`): Studio, Sonne durch Blaetter, Sonne durchs Fenster – SpotLight mit
-  gezeichneter Maske, Wand und Boden dann beleuchtet, im Hochglanz spiegelt ein Fenster statt eines Leuchtkastens.
+  gezeichneter Maske, Wand und Boden beleuchtet, im Hochglanz ein Fenster statt Leuchtkasten; neutral, nicht gelb.
+  Licht und Raum drehen mit der Kamera: Ziehen wirkt wie das Produkt wenden, die Muster wandern (`?drehen=`).
 - **Motive fuer KI-Produktfotos** (`motive-3d.ts`, `aufnahme-3d.ts`, `referenzbilder.sh`): `?ansicht=3d&foto=wand|flach|
   symbol|titel|wasser|kante|layout|explosion&vollbild=1&entwurf={json}`, dazu `zoom`, `versatz`, `grund`, `frontal`,
   `umgebung`, `spiegel`, `abstand`, Schatten- und Softbox-Schalter. Listing-Set `scripts/listing-fotos/` (Leonardo 1K,
@@ -89,10 +90,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Die Koordinaten zeigen den Symbol-Anker** (Marcel: die Herzspitze). `lon/lat`
   ist der Ort, `kartenMitte` die Mitte eines verschobenen Ausschnitts; zurueck auf den
   Ort: neue Adresse, Referenzort oder Knopf "Standort zentrieren" im Kartenfenster.
-- **Gezogen wird auf der gerenderten Vorschau**, nicht in einer zweiten
-  Mapbox-GL-Karte: man sieht, was geschnitten wird, und der Token bleibt auf dem
-  Server. Beim Ziehen wird die letzte Vorschau verschoben gezeigt, gerechnet wird
-  beim Loslassen.
+- **Gezogen wird auf der gerenderten Vorschau**, nicht in einer zweiten Mapbox-GL-Karte: man sieht, was
+  geschnitten wird, und der Token bleibt auf dem Server. Beim Ziehen die letzte Vorschau verschoben, gerechnet beim Loslassen.
 - **Zoom mit Plus/Minus im Kartenfenster** (Marcel 16.09.2026) in festen Stufen
   0,8-12 km, rund 1,25-fach. Bis neu gerechnet ist, zeigt die Vorschau die alte
   Karte skaliert. Das Rad zoomt nur mit Strg/Cmd oder als Trackpad-Pinch – sonst

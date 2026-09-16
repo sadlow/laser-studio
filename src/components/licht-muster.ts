@@ -100,8 +100,8 @@ export function fensterBild(): THREE.CanvasTexture {
   const [c, g] = leinwand(n);
   const himmel = g.createLinearGradient(0, 0, 0, n);
   himmel.addColorStop(0, "#dce8f4");
-  himmel.addColorStop(0.55, "#fff7ea");
-  himmel.addColorStop(1, "#ffe6c4");
+  himmel.addColorStop(0.55, "#fffaf3");
+  himmel.addColorStop(1, "#fff4e6");
   g.fillStyle = himmel;
   g.fillRect(0, 0, n, n);
   g.filter = "blur(6px)";

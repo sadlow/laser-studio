@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import type { SchichtkartenErgebnis } from "@/engine/typen";
-import { Leiste3D, SEITEN, seitenZahl, type Seiten } from "./ansicht-3d-leiste";
+import { Hinweis3D, Leiste3D, SEITEN, seitenZahl, type Seiten } from "./ansicht-3d-leiste";
 import { aufnahmeParameter } from "./aufnahme-3d";
 import { baueKulisse } from "./kulisse-3d";
 import { baueBeleuchtung, STIMMUNG_TITEL, type Stimmung } from "./licht-3d";
@@ -118,10 +118,13 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
           motivAnwenden(m, ergebnis, s, { kamera, steuerung, licht, kulisse, abstandMm: ziel.current });
           beleuchtung.ausrichten();
           aufnahme.ausschnitt(kamera, renderer, steuerung.target);
+          beleuchtung.merken(kamera, steuerung.target);
+          aufnahme.drehen(kamera, steuerung.target);
           neu = true;
         },
         licht: (st) => {
           beleuchtung.setze(st);
+          beleuchtung.merken(kamera, steuerung.target);
           if (aufnahme.umgebung !== undefined) szene.environmentIntensity = aufnahme.umgebung;
           if (studio && aufnahme.softboxen) studioEinrichten(studio, st);
           else studio?.clear();
@@ -149,6 +152,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
         neu = true;
       }
       if (steuerung.update() || neu) {
+        beleuchtung.folgen(kamera, steuerung.target);
         renderer.render(szene, kamera);
         neu = false;
       }
@@ -176,8 +180,6 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
     a.download = `schichtkarte-${aktiv}-${seiten.replace(":", "x")}.png`;
     a.click();
   };
-  const r = ergebnis.rahmen;
-
   return (
     <div className={vollbild ? "fixed inset-0 z-50" : "relative h-full w-full overflow-hidden rounded-md"} style={vollbild ? { background: "#f3f0ea" } : undefined}>
       {/* Die Next-Entwickleranzeige gehoert nicht ins Referenzbild. */}
@@ -189,11 +191,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
           seiten={seiten} setzeSeiten={setSeiten} speichern={speichern} zuruecksetzen={() => steuer.current.anwenden(aktiv)} />
       )}
       {baut && <p className="absolute inset-0 flex items-center justify-center text-sm" style={{ color: "var(--gedaempft)" }}>baut 3D…</p>}
-      <p className="pointer-events-none absolute bottom-3 left-3 text-xs" style={{ color: "var(--gedaempft)", display: aktiv !== "frei" || vollbild ? "none" : undefined }}>
-        Ziehen dreht · Rad zoomt · rechte Maustaste verschiebt · {ergebnis.lagen.map((l) => `${l.titel} ${l.staerkeMm} mm`).join(" · ")}
-        {" "}· Symbol auf dem Hintergrund, {ergebnis.kennzahlen.symbolUeberNetzMm.toFixed(1)} mm ueber dem Netz
-        {r && ` · Holzrahmen ${r.farbe}, ${r.breiteMm} × ${r.tiefeMm} mm, Bild ${r.einlassMm} mm tief`}
-      </p>
+      {aktiv === "frei" && !vollbild && <Hinweis3D ergebnis={ergebnis} />}
     </div>
   );
 }

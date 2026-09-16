@@ -23,7 +23,7 @@ import { fensterBild } from "./licht-muster";
  */
 // Hell wie ein Raum: bei 0x6f7378 wirkte das Wasser fast schwarz. In der Sonne waermer.
 const UMFELD = new THREE.Color(0xb4b9bf);
-const UMFELD_SONNE = new THREE.Color(0xbdb3a6);
+const UMFELD_SONNE = new THREE.Color(0xbab8b3);
 
 /** Lichtfleck, der zum Rand hin im Umfeld verschwindet. */
 function verlauf(): THREE.CanvasTexture {

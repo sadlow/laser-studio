@@ -6,6 +6,8 @@ import * as THREE from "three";
  *
  *   grund=ffffff     Buehnenfarbe, reinweiss fuer das Amazon-Hauptbild
  *   wandschatten=0   nur der Bodenschatten, kein Schatten an der Wand
+ *   drehen=40        Kamera nach dem Motiv um so viele Grad um das Produkt drehen – Licht und
+ *                    Raum drehen mit, wie beim Ziehen mit der Maus
  *   spiegel=0        Blau ohne echte Spiegelung – aufgezogen spiegelte es die Lagen davor als
  *                    zackige Flecken, die das Bildmodell fuer Ausschnitte hielt
  *   softboxen=0      keine Softboxen im Spiegelbild – in Nahaufnahmen vom Wasser wurden
@@ -25,6 +27,7 @@ export function aufnahmeParameter(url: URLSearchParams) {
   const zoom = Number(url.get("zoom")) || 1;
   const [dx, dy] = (url.get("versatz") ?? "").split(",").map((v) => Number(v) || 0);
   const frontal = url.get("frontal") === "1";
+  const drehen = ((Number(url.get("drehen")) || 0) * Math.PI) / 180;
   return {
     grund: /^[0-9a-f]{6}$/i.test(farbe) ? parseInt(farbe, 16) : undefined,
     wandschatten: url.get("wandschatten") !== "0",
@@ -32,6 +35,9 @@ export function aufnahmeParameter(url: URLSearchParams) {
     spiegel: url.get("spiegel") !== "0",
     bodenschatten: url.get("bodenschatten") !== "0",
     umgebung: url.get("umgebung") === null ? undefined : Number(url.get("umgebung")),
+    drehen: (kamera: THREE.Camera, ziel: THREE.Vector3) => {
+      if (drehen) kamera.position.sub(ziel).applyAxisAngle(new THREE.Vector3(0, 1, 0), drehen).add(ziel);
+    },
     ausschnitt: (kamera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, ziel: THREE.Vector3) => {
       if (frontal) {
         const abstand = kamera.position.distanceTo(ziel);
