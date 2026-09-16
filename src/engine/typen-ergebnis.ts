@@ -74,6 +74,9 @@ export interface Kennzahlen {
   symbolUeberNetzMm: number;
   /** So viel vom Rand bleibt im Holzrahmen sichtbar (Rand minus Ueberstand). */
   randImRahmenMm: number;
+  /** Laenge aller Gravurlinien in m (so faehrt der Laser bei Mittellinie) und ihre Flaeche in mm². */
+  gravurWegM: number;
+  gravurFlaecheMm2: number;
   rechenzeitMs: number;
 }
 

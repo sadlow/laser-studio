@@ -10,6 +10,7 @@
 // diese Typen, die Produktion ruft dieselbe Funktion auf. Kein React, kein Next.
 
 import type { SymbolArt, SymbolGroesse } from "./symbole";
+import type { GravurExport } from "./typen-fertigung";
 import type { Generalisierung, StrassenGruppe, StrassenStufe } from "./typen-strassen";
 
 export type FormatKey = "a5" | "a4" | "a3" | "quadrat30" | "frei";
@@ -147,10 +148,7 @@ export interface Schichtkarte {
   /** Schmaler wird kein Netzstreifen, auch wenn Format oder Ausschnitt ihn schrumpfen liessen. */
   netzMinBreiteMm: number;
   generalisierung: Generalisierung;
-  /**
-   * Bloecke zwischen Netzstrassen, die kleiner sind, bleiben weiss. Ein Stueck
-   * von 2 x 2 mm loest sich beim Schneiden nicht sauber heraus.
-   */
+  /** Kleinere Bloecke zwischen Netzstrassen bleiben Material – 2 x 2 mm loesen sich nicht sauber. */
   netzMinLochMm2: number;
 
   /** Wasserflaechen aus Schwarz schneiden. */
@@ -160,10 +158,7 @@ export interface Schichtkarte {
   wasserlaufBreiteMm: number;
   /** Kleinere Wasserflaechen werden nicht geschnitten – nicht montierbar. */
   wasserMinFlaecheMm2: number;
-  /**
-   * Schmaleres Wasser wird nicht geschnitten. Venedigs Kanaele zerlegten den
-   * Hintergrund sonst in 107 Inseln, die einzeln zu kleben waeren.
-   */
+  /** Schmaleres Wasser wird nicht geschnitten – Venedig zerfiel sonst in 107 einzeln zu klebende Inseln. */
   wasserMinBreiteMm: number;
   /** Kleinere Inseln, die nirgends anhaengen, werden Wasser statt Einzelteil. */
   wasserInselMinMm2: number;
@@ -193,7 +188,10 @@ export interface Schichtkarte {
 
   /** Lose Teile der weissen Lage in der Vorschau markieren. */
   loseTeileMarkieren: boolean;
+  /** Gravur in der Laserdatei als Flaeche, Mittellinie oder Kontur (typen-fertigung.ts). */
+  gravurExport: GravurExport;
 }
 
 export * from "./typen-ergebnis";
+export * from "./typen-fertigung";
 export * from "./typen-strassen";

@@ -27,6 +27,9 @@ function KennzahlenRaster({ kz }: { kz: Kennzahlen }) {
       <Kennzahl titel="Inseln zu Wasser" wert={String(kz.wasserInselnGeflutet)} />
       <Kennzahl titel="Symbol ueber Netz" wert={`${kz.symbolUeberNetzMm >= 0 ? "+" : ""}${kz.symbolUeberNetzMm.toFixed(1)} mm`} />
       <Kennzahl titel="Rand im Holzrahmen" wert={`${kz.randImRahmenMm.toFixed(1)} mm`} />
+      {/* Weg = was der Laser als Mittellinie abfaehrt; Flaeche = was er als Fuellung rastert. */}
+      <Kennzahl titel="Gravurweg" wert={`${(kz.gravurWegM ?? 0).toFixed(1)} m`} />
+      <Kennzahl titel="Gravurflaeche" wert={`${((kz.gravurFlaecheMm2 ?? 0) / 100).toFixed(1)} cm²`} />
     </div>
   );
 }

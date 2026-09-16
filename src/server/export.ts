@@ -2,7 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { rendereSchichtkarte } from "@/engine";
 import { HOLZRAHMEN_TITEL } from "@/engine/holzrahmen";
-import { produktionsSvg } from "@/engine/produktion";
+import { gravurBeschreibung, produktionsSvg } from "@/engine/produktion";
+import { standardSchichtkarte } from "@/engine/standard";
 import type { GeoPunkt, Kundeneingabe, Schichtkarte } from "@/engine/typen";
 import { slug, type Produktparameter } from "./vorlagen";
 
@@ -46,6 +47,8 @@ export async function exportiere(auftrag: ExportAuftrag, token: string): Promise
 
   for (const v of auftrag.varianten) {
     const karte: Schichtkarte = { ...v.karte, kunde: auftrag.kunde, lon: auftrag.lon, lat: auftrag.lat, kartenMitte: auftrag.kartenMitte };
+    // Ein Entwurf aus einem offenen Browserfenster kennt die Einstellung vielleicht noch nicht.
+    karte.gravurExport ??= standardSchichtkarte().gravurExport;
     const r = await rendereSchichtkarte(karte, token);
     const ziel = path.join(ordner, v.id);
     fs.mkdirSync(ziel, { recursive: true });
@@ -60,7 +63,7 @@ export async function exportiere(auftrag: ExportAuftrag, token: string): Promise
     r.lagen.forEach((lage, i) => {
       const nummer = i + 1;
       const name = `${String(nummer).padStart(2, "0")}-${slug(lage.titel)}.svg`;
-      schreibe(name, produktionsSvg(r.layout, lage, { vorlage: v.name, datum, nummer }));
+      schreibe(name, produktionsSvg(r.layout, lage, { vorlage: v.name, datum, nummer, gravurExport: karte.gravurExport }));
     });
     schreibe("parameter.json", JSON.stringify(karte, null, 2) + "\n");
     schreibe("uebersicht.txt", uebersicht(v.name, datum, karte, r));
@@ -95,7 +98,8 @@ function uebersicht(name: string, datum: string, karte: Schichtkarte, r: Awaited
       ? `Holzrahmen: ${HOLZRAHMEN_TITEL[r.rahmen.farbe]}, Profil ${r.rahmen.breiteMm} mm breit / ${r.rahmen.tiefeMm} mm tief, Bild ${r.rahmen.einlassMm} mm eingelassen, ${r.rahmen.ueberstandMm} mm Ueberstand – sichtbarer Rand ${r.kennzahlen.randImRahmenMm.toFixed(1)} mm.`
       : `Holzrahmen: ohne`,
     ``,
-    `Jede Datei: Ebene "1 Gravur" (Flaeche), "2 Schnitt innen" (rot), "3 Schnitt aussen" (blau).`,
+    `Jede Datei: Ebene "1 Gravur" (${gravurBeschreibung(karte.gravurExport)}), "2 Schnitt innen" (rot), "3 Schnitt aussen" (blau).`,
+    `Gravurweg: ${r.kennzahlen.gravurWegM.toFixed(1)} m als Mittellinie, Flaeche ${Math.round(r.kennzahlen.gravurFlaecheMm2)} mm²`,
     `Stencil-Stege: ${r.kennzahlen.stencilStege}, zugefuellte Innenflaechen: ${r.kennzahlen.inselnZugefuellt}`,
     `Netz im Fenster: ${Math.round(r.kennzahlen.netzAnteilFenster * 100)} %, lose Netzstuecke: ${r.kennzahlen.loseNetzstuecke}`,
   ];

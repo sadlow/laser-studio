@@ -1,7 +1,8 @@
 "use client";
 
+import { GRAVUR_ART_TITEL, type GravurArt } from "@/engine/typen-fertigung";
 import type { Generalisierung, Schichtkarte, StrassenGruppe, StrassenZiel } from "@/engine/typen";
-import { Block, Haken, Zahl } from "./felder";
+import { Auswahl, Block, Haken, Zahl } from "./felder";
 import { StufenTabelle } from "./stufen-tabelle";
 import type { Aenderung } from "./aenderung";
 
@@ -143,7 +144,33 @@ export function EingabeFertigung({ karte, aendern }: Props) {
           wert={karte.loseTeileMarkieren}
           aendern={(v) => aendern({ loseTeileMarkieren: v })}
         />
+        <GravurWahl karte={karte} aendern={aendern} />
       </div>
     </Block>
+  );
+}
+
+/** Gravur in der Laserdatei – Flaeche rastert, Linien fahren den Weg nur ab (typen-fertigung.ts). */
+function GravurWahl({ karte, aendern }: Props) {
+  const g = karte.gravurExport;
+  return (
+    <div className="space-y-2">
+      <Auswahl<GravurArt>
+        titel="Gravur in der Laserdatei"
+        wert={g.art}
+        optionen={(Object.keys(GRAVUR_ART_TITEL) as GravurArt[]).map((art) => ({ wert: art, titel: GRAVUR_ART_TITEL[art] }))}
+        aendern={(art) => aendern({ gravurExport: { ...g, art } })}
+      />
+      {g.art === "kontur" && (
+        <Zahl titel="Strahlbreite mit Defokus" einheit="mm" schritt={0.01} min={0.02} wert={g.strahlMm}
+          aendern={(v) => aendern({ gravurExport: { ...g, strahlMm: v } })} />
+      )}
+      <p className="text-xs" style={{ color: "var(--gedaempft)" }}>
+        {g.art === "flaeche" && "Gefuellte Flaechen in Sollbreite – die Lasersoftware rastert sie Zeile fuer Zeile."}
+        {g.art === "mittellinie" && "Jeder Weg einmal als Linie. Die Breite macht der Strahl: mit leichtem Defokus breiter."}
+        {g.art === "kontur" &&
+          "Eng anliegende Ringe um jeden Weg, um den halben Strahl nach innen; breite Wege bekommen so viele Durchgaenge, bis die Sollbreite gedeckt ist. Wege schmaler als der Strahl bleiben Mittellinie."}
+      </p>
+    </div>
   );
 }

@@ -1,6 +1,7 @@
 import { setzeEingebettet } from "./ecken";
 import { zoomEntsprechung } from "./geo";
 import { ringeInMm } from "./geometrie";
+import { gravurMasse } from "./gravur-export";
 import { holzrahmenPruefen } from "./holzrahmen";
 import { ladeKartenRohdaten } from "./kacheln";
 import { baueBausteine } from "./lagen";
@@ -117,6 +118,7 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
   const textZonen = textblock.zeilen.map((z) => ({ name: z.name, zone: umgebend(ringeInMm(z.flaeche).flat()) }));
   const stapelMm = s.lagen.filter((l) => l.key !== "symbol").reduce((summe, l) => summe + l.staerkeMm, 0);
   const holz = holzrahmenPruefen(k, layout, b.symbolLage, textZonen, stapelMm);
+  const gravur = gravurMasse(s.lagen);
   warnungen.push(...holz.warnungen);
 
   return {
@@ -137,6 +139,8 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
       hintergrundTeile: s.hintergrundTeile,
       symbolUeberNetzMm,
       randImRahmenMm: holz.randImRahmenMm,
+      gravurWegM: gravur.wegM,
+      gravurFlaecheMm2: gravur.flaecheMm2,
       rechenzeitMs: Date.now() - start,
     },
     warnungen,

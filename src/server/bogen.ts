@@ -1,7 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { rendereSchichtkarte } from "@/engine";
-import { bogenSvg, f } from "@/engine/produktion";
+import { bogenSvg, f, gravurBeschreibung } from "@/engine/produktion";
+import { standardSchichtkarte } from "@/engine/standard";
 import type { GeoPunkt, Kundeneingabe, Schichtkarte } from "@/engine/typen";
 import { EXPORT_ORDNER } from "./export";
 import { slug, type Vorlage } from "./vorlagen";
@@ -72,6 +73,8 @@ export async function erzeugeBogen(a: BogenAuftrag, token: string) {
 
   // Je Lage eine Datei; die Stuecke aller Plaetze liegen nebeneinander darauf.
   const dateien: { datei: string; material: string; lage: string }[] = [];
+  // Aeltere Entwuerfe ("aktuell" aus dem Browser) kennen die Einstellung noch nicht.
+  const gravurExport = a.vorlage.karte.gravurExport ?? standardSchichtkarte().gravurExport;
   plaetze[0].r.lagen.forEach((lage, index) => {
     const datei = `${String(index + 1).padStart(2, "0")}-${slug(lage.titel)}.svg`;
     const stuecke = plaetze.map((pl) => ({ lage: pl.r.lagen[index], dx: pl.ort.dx, dy: pl.ort.dy }));
@@ -81,7 +84,7 @@ export async function erzeugeBogen(a: BogenAuftrag, token: string) {
         titel: `Prototyp ${a.vorlage.name} – ${lage.titel}`,
         beschreibung: `Rohplatte ${lage.material} ${f(p.platte.breiteMm)} x ${f(p.platte.hoeheMm)} mm; ` +
           `Plaetze: ${plaetze.map((pl) => pl.kennung).join(", ")}; erstellt ${datum}`,
-      }),
+      }, gravurExport),
     );
     dateien.push({ datei, material: lage.material, lage: lage.titel });
   });
@@ -96,7 +99,7 @@ export async function erzeugeBogen(a: BogenAuftrag, token: string) {
     `Dateien, eine Rohplatte je Datei:`,
     ...dateien.map((d) => `  ${d.datei.padEnd(26)} ${d.material}`),
     ``,
-    `Jede Datei: Ebene "1 Gravur" (Flaeche), "2 Schnitt innen" (rot), "3 Schnitt aussen" (blau).`,
+    `Jede Datei: Ebene "1 Gravur" (${gravurBeschreibung(gravurExport)}), "2 Schnitt innen" (rot), "3 Schnitt aussen" (blau).`,
     ...plaetze.flatMap((pl, i) => (pl.r.warnungen.length ? [``, `Hinweise Platz ${i + 1}:`, ...pl.r.warnungen.map((w) => `  - ${w}`)] : [])),
   ];
   fs.writeFileSync(path.join(ordner, "uebersicht.txt"), uebersicht.join("\n") + "\n");

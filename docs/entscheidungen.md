@@ -39,12 +39,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Exportdateien (`produktion.ts`)
 
-- **Drei benannte Ebenen in Bearbeitungsreihenfolge:** 1 Gravur (Flaeche,
-  schwarz), 2 Schnitt innen (rot), 3 Schnitt aussen (blau, zuletzt – sonst
-  verschiebt sich die Platte vor den Innenschnitten). Namen als id, data-name
+- **Drei benannte Ebenen in Bearbeitungsreihenfolge:** 1 Gravur (schwarz), 2 Schnitt innen (rot), 3 Schnitt
+  aussen (blau, zuletzt – sonst verschiebt sich die Platte vor den Innenschnitten). Namen als id, data-name
   (Illustrator) und inkscape:label; Farben nach LightBurn-Palette.
-- **Gravur als gepufferte Flaeche** (SVG-Strichbreite uebernimmt Lasersoftware
-  nicht zuverlaessig; 1,6 s je Lage, nur im Export). Jeder Schnittring ein Pfad.
+- **Gravur waehlbar** (`gravurExport`, Marcel 16.09.2026: Liniengravur spart Laserzeit): Flaeche (gepuffert,
+  wird gerastert), Mittellinie (einmal abfahren, Breite ueber Defokus) oder Kontur (Ringe im Strahlabstand bis
+  zur Sollbreite). Berlin A4: 10,4 m Mittellinie, 18,3 m Kontur, 27 cm² Flaeche. Jeder Schnittring ein Pfad.
 - **Parameter liegen jedem Export bei** (`parameter.json`) – Prototypen bleiben nachbaubar.
 
 ## Vorlagen (`src/server/vorlagen.ts`, `vorlagen/*.json`)

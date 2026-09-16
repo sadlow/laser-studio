@@ -52,7 +52,7 @@ export interface Bausteine {
   /** Aussenkontur des Symbols – in den Lagen ueber dem Hintergrund ausgeschnitten. */
   symbolLoch: Flaeche;
   textBereich: Flaeche;
-  kennzahlen: Omit<Kennzahlen, "zoomEntsprechung" | "loseNetzstuecke" | "loseTextteile" | "hintergrundTeile" | "rechenzeitMs" | "symbolUeberNetzMm" | "randImRahmenMm">;
+  kennzahlen: Omit<Kennzahlen, "zoomEntsprechung" | "loseNetzstuecke" | "loseTextteile" | "hintergrundTeile" | "rechenzeitMs" | "symbolUeberNetzMm" | "randImRahmenMm" | "gravurWegM" | "gravurFlaecheMm2">;
 }
 
 // Liegt nach dem Nachruecken mehr Netzflaeche lose, bleiben die Wege ganz

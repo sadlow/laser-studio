@@ -111,6 +111,8 @@ export function standardSchichtkarte(): Schichtkarte {
     // 4 mm Ueberstand bleiben im Rahmen 3 mm Rand sichtbar.
     holzrahmenProfil: { breiteMm: 14, tiefeMm: 28, einlassMm: 6, ueberstandMm: 4 },
     loseTeileMarkieren: true,
+    // Flaeche bleibt Standard, bis der Probeschnitt zeigt, wie breit der Strahl mit Defokus wird.
+    gravurExport: { art: "flaeche", strahlMm: 0.15 },
   };
 }
 

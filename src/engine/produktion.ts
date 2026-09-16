@@ -1,13 +1,13 @@
 import type { Punkt } from "./clip";
-import { ausTeilen, puffereLinien, schneide, teile, vereinige } from "./geometrie";
-import type { Lage, Layout, Teil } from "./typen";
+import { gravurFuerExport } from "./gravur-export";
+import type { GravurExport, Lage, Layout } from "./typen";
 
 /**
  * Laserdatei fuer die Fertigung – eine Rohplatte je Datei, darauf ein oder
  * mehrere Stuecke derselben Lage.
  *
  * Drei benannte Ebenen in Bearbeitungsreihenfolge:
- *   1 Gravur         Flaechen, schwarz gefuellt
+ *   1 Gravur         schwarz: gefuellte Flaechen oder Linien (gravurExport)
  *   2 Schnitt innen  rot, alle Loecher und Teile innerhalb eines Stuecks
  *   3 Schnitt aussen blau, nur die Umrisse der Stuecke – zuletzt, sonst
  *                    verschiebt sich ein Stueck, bevor die Innenschnitte fertig sind
@@ -16,10 +16,10 @@ import type { Lage, Layout, Teil } from "./typen";
  * die Farben entsprechen der LightBurn-Palette (00 schwarz, 01 blau, 02 rot),
  * damit Programme, die nach Farbe sortieren, dieselben drei Gaenge sehen.
  *
- * Gravur ist hier eine gepufferte Flaeche, keine Linie mit Strichbreite: die
- * Breite einer SVG-Linie uebernimmt Lasersoftware nicht zuverlaessig, sie
- * faehrt sonst nur die Mittellinie in Strahlbreite ab. In der Live-Vorschau
- * bleibt es beim Strich – dieselben Linien, nur 1,6 s schneller.
+ * Als Flaeche ist die Gravur gepuffert, keine Linie mit Strichbreite: die Breite
+ * einer SVG-Linie uebernimmt Lasersoftware nicht zuverlaessig, sie faehrt nur die
+ * Mittellinie in Strahlbreite ab. Genau das ist bei "mittellinie" gewollt – die
+ * Breite kommt dann vom Strahl. In der Live-Vorschau bleibt es beim Strich.
  */
 export interface Stueck {
   lage: Lage;
@@ -38,14 +38,17 @@ export interface Dateiinfo {
   beschreibung: string;
 }
 
-export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo): string {
-  const gravur: Punkt[][][] = [];
+export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo, gravurExport: GravurExport): string {
+  const flaechen: Punkt[][][] = [];
+  const linien: string[] = [];
   const innen: Punkt[][] = [];
   const aussen: Punkt[][] = [];
 
   for (const { lage, dx, dy } of stuecke) {
     const schiebe = (r: Punkt[]) => r.map((p) => ({ x: p.x + dx, y: p.y + dy }));
-    for (const t of gravurFlaeche(lage)) gravur.push([t.aussen, ...t.loecher].map(schiebe));
+    const gravur = gravurFuerExport(lage, gravurExport);
+    for (const t of gravur.flaechen) flaechen.push([t.aussen, ...t.loecher].map(schiebe));
+    for (const p of gravur.pfade) linien.push(linie(schiebe(p.punkte), p.geschlossen, p.breiteMm));
     // Umriss des groessten Teils zuletzt; alles andere liegt innerhalb.
     const [haupt, ...rest] = lage.teile;
     if (haupt) {
@@ -56,12 +59,16 @@ export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo):
   }
 
   const { breiteMm: b, hoeheMm: h } = platte;
+  const gravurEbene =
+    gravurExport.art === "flaeche"
+      ? ebene("Gravur", "1 Gravur", `fill="#000000" stroke="none"`, flaechen.map((ringe) => pfad(ringe, true)))
+      : ebene("Gravur", "1 Gravur", `fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"`, linien);
   return (
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" ` +
     `version="1.1" width="${f(b)}mm" height="${f(h)}mm" viewBox="0 0 ${f(b)} ${f(h)}">\n` +
-    `<title>${esc(info.titel)}</title>\n<desc>${esc(info.beschreibung)}</desc>\n` +
-    ebene("Gravur", "1 Gravur", `fill="#000000" stroke="none"`, gravur.map((ringe) => pfad(ringe, true))) +
+    `<title>${esc(info.titel)}</title>\n<desc>${esc(`${info.beschreibung}; Gravur: ${gravurBeschreibung(gravurExport)}`)}</desc>\n` +
+    gravurEbene +
     ebene("Schnitt_innen", "2 Schnitt innen", `fill="none" stroke="#FF0000" stroke-width="0.1"`, innen.map((r) => pfad([r], false))) +
     ebene("Schnitt_aussen", "3 Schnitt aussen", `fill="none" stroke="#0000FF" stroke-width="0.1"`, aussen.map((r) => pfad([r], false))) +
     `</svg>\n`
@@ -69,21 +76,20 @@ export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo):
 }
 
 /** Eine Lage als eigene Platte – die Rohplatte ist das Produkt selbst. */
-export function produktionsSvg(layout: Layout, lage: Lage, meta: { vorlage: string; datum: string; nummer: number }): string {
+export function produktionsSvg(layout: Layout, lage: Lage, meta: { vorlage: string; datum: string; nummer: number; gravurExport: GravurExport }): string {
   const { breiteMm, hoeheMm } = layout.platte;
   return bogenSvg({ breiteMm, hoeheMm }, [{ lage, dx: 0, dy: 0 }], {
     titel: `Schichtkarte – Lage ${meta.nummer} ${lage.titel}`,
     beschreibung:
       `Vorlage: ${meta.vorlage}; Material: ${lage.material}; Platte ${f(breiteMm)} x ${f(hoeheMm)} mm; ` +
       `Reihenfolge: Gravur, Schnitt innen, Schnitt aussen; erstellt ${meta.datum}`,
-  });
+  }, meta.gravurExport);
 }
 
-/** Gravurlinien als Flaechen ihrer Breite, beschnitten auf das Material der Lage. */
-function gravurFlaeche(lage: Lage): Teil[] {
-  if (!lage.gravur.length) return [];
-  const gepuffert = vereinige(...lage.gravur.map((g) => puffereLinien(g.linien, g.breiteMm)));
-  return teile(schneide(gepuffert, ausTeilen(lage.teile)), 0.01);
+export function gravurBeschreibung(e: GravurExport): string {
+  if (e.art === "flaeche") return "Flaeche, gefuellt";
+  if (e.art === "mittellinie") return "Mittellinie, Breite ueber Fokus/Defokus";
+  return `Kontur, eng anliegende Linien, Strahl ${f(e.strahlMm)} mm`;
 }
 
 function ebene(id: string, name: string, stil: string, pfade: string[]): string {
@@ -98,6 +104,11 @@ function pfad(ringe: Punkt[][], evenodd: boolean): string {
     .map((r) => `M${r.map((p) => `${f(p.x)},${f(p.y)}`).join("L")}Z`)
     .join("");
   return `<path d="${d}"${evenodd ? ` fill-rule="evenodd"` : ""}/>`;
+}
+
+/** Gravur als Linie: offen fuer Wege, geschlossen fuer Umrisse. */
+function linie(punkte: Punkt[], geschlossen: boolean, breiteMm: number): string {
+  return `<path d="M${punkte.map((p) => `${f(p.x)},${f(p.y)}`).join("L")}${geschlossen ? "Z" : ""}" stroke-width="${f(breiteMm)}"/>`;
 }
 
 export function f(n: number): string {
