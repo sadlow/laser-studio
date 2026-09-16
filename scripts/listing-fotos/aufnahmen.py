@@ -54,9 +54,60 @@ AUFNAHMEN = {
     "frames-eiche": (ORTE["koeln"], "wand", 1, None, None),
 }
 
+
+# Weitere Anlaesse (Marcel 16.09.2026: "finde noch ein paar Anlaesse dazu")
+ORTE.update({
+    # Hochzeit am Neckar
+    "heidelberg": {"lon": 8.7102, "lat": 49.4120, "kartenMitte": {"lon": 8.6980, "lat": 49.4100}, "aufbau": "netz-schwarz",
+                   "kunde": {"adresse": "Heidelberg", "titel": "Für immer", "namen": "Laura & David",
+                             "letzteZeile": "wunschtext", "wunschtext": "Heidelberg 12.06.2026", "holzrahmen": "weiss"}},
+    # Hausbau am See
+    "starnberg": {"lon": 11.3330, "lat": 48.0040, "kartenMitte": {"lon": 11.3400, "lat": 47.9990}, "aufbau": "netz-weiss",
+                  "kunde": {"adresse": "Starnberg", "titel": "Unser Haus", "namen": "Familie Wagner",
+                            "letzteZeile": "koordinaten", "ortText": "Starnberg", "holzrahmen": "eiche"}},
+    # Geburt
+    "muenchen": {"lon": 11.5860, "lat": 48.1620, "aufbau": "netz-weiss",
+                 "kunde": {"adresse": "Muenchen", "titel": "Mia", "namen": "Geboren am 04.03.2026",
+                           "letzteZeile": "koordinaten", "ortText": "München", "holzrahmen": "weiss"}},
+    # Heiratsantrag
+    "paris": {"lon": 2.3375, "lat": 48.8583, "kartenMitte": {"lon": 2.3450, "lat": 48.8566}, "aufbau": "netz-weiss",
+              "kunde": {"adresse": "Paris", "titel": "Paris", "namen": "Julia & Tom",
+                        "letzteZeile": "wunschtext", "wunschtext": "Hier hat sie Ja gesagt", "holzrahmen": "schwarz"}},
+    # Auswandern
+    "berlin": {"lon": 13.4230, "lat": 52.4960, "kartenMitte": {"lon": 13.4200, "lat": 52.4990}, "aufbau": "netz-weiss",
+               "kunde": {"adresse": "Berlin Kreuzberg", "titel": "Berlin", "namen": "Für Lukas",
+                         "letzteZeile": "wunschtext", "wunschtext": "Heimat im Gepäck", "holzrahmen": "ohne"}},
+    # Elternhaus zu Weihnachten
+    "dresden": {"lon": 13.7560, "lat": 51.0600, "kartenMitte": {"lon": 13.7420, "lat": 51.0550}, "aufbau": "netz-weiss",
+                "kunde": {"adresse": "Dresden", "titel": "Elternhaus", "namen": "Für Mama & Papa",
+                          "letzteZeile": "koordinaten", "ortText": "Dresden", "holzrahmen": "eiche"}},
+    # Urlaubsort an der Nordsee
+    "sylt": {"lon": 8.3070, "lat": 54.9080, "kartenMitte": {"lon": 8.3150, "lat": 54.9060}, "aufbau": "netz-schwarz",
+             "kunde": {"adresse": "Westerland", "titel": "Sylt", "namen": "Unser Lieblingsort",
+                       "letzteZeile": "koordinaten", "ortText": "Westerland", "holzrahmen": "weiss"}},
+    # Hochzeitsreise
+    "barcelona": {"lon": 2.1770, "lat": 41.3830, "kartenMitte": {"lon": 2.1820, "lat": 41.3860}, "aufbau": "netz-weiss",
+                  "kunde": {"adresse": "Barcelona", "titel": "Barcelona", "namen": "Unsere Hochzeitsreise",
+                            "letzteZeile": "koordinaten", "ortText": "Barcelona", "holzrahmen": "ohne"}},
+})
+AUFNAHMEN.update({
+    "heidelberg-hochzeit": (ORTE["heidelberg"], "wand", 0.72, (0, 0.06), None),
+    "starnberg-hausbau": (ORTE["starnberg"], "wand", 0.62, (0.16, 0.1), None),
+    "muenchen-geburt": (ORTE["muenchen"], "wand", 0.62, (-0.15, 0.1), None),
+    "paris-antrag": (ORTE["paris"], "wand", 0.68, (0.1, 0.08), None),
+    "berlin-auswandern": (ORTE["berlin"], "wand", 0.6, (-0.12, 0.12), None),
+    "dresden-weihnachten": (ORTE["dresden"], "wand", 0.66, (0, 0.1), None),
+    "sylt-urlaub": (ORTE["sylt"], "wand", 0.62, (0.15, 0.1), None),
+    "barcelona-flatlay": (ORTE["barcelona"], "flach", 0.72, None, None),
+    "paris-herz": (ohne("paris"), "symbol", 1, (0.1, 0), None),
+    "starnberg-ufer": (ohne("starnberg"), "wasser", 1, None, None, {"softboxen": "0"}),
+})
+AUFNAHMEN.update({f"test-{o}": (ORTE[o], "wand", 1, None, None) for o in
+                  ["heidelberg", "starnberg", "muenchen", "paris", "berlin", "dresden", "sylt", "barcelona"]})
+
 def aufnehmen(name):
-    entwurf, motiv, zoom, versatz, grund = AUFNAHMEN[name]
-    teile = {"entwurf": json.dumps(entwurf, ensure_ascii=False), "foto": motiv, "seiten": "1:1"}
+    entwurf, motiv, zoom, versatz, grund, *extra = AUFNAHMEN[name]
+    teile = {"entwurf": json.dumps(entwurf, ensure_ascii=False), "foto": motiv, "seiten": "1:1", **(extra[0] if extra else {})}
     if zoom != 1: teile["zoom"] = str(zoom)
     if versatz: teile["versatz"] = f"{versatz[0]},{versatz[1]}"
     if grund:

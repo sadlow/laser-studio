@@ -112,6 +112,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
       stapel = s;
       stapeln(s.platten, abstand);
       kulisse.halter.add(s.gruppe);
+      if (!aufnahme.softboxen) s.gruppe.getObjectByName("spiegelstudio")?.clear();
       steuer.current = {
         groesse,
         anwenden: (m) => {

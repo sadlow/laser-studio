@@ -37,6 +37,7 @@ export function spiegelFlaeche(b: number, h: number): { spiegel: Reflector; stud
     clipBias: 0.003,
   });
   const studio = new THREE.Group();
+  studio.name = "spiegelstudio";
   // Direkt darueber fuer das Flat-Lay, schraeg dahinter fuer Nahaufnahmen von vorn, seitlich als Streifen.
   studio.add(softbox(420, 260, 0, 40, 700), softbox(520, 220, 0, 620, 430), softbox(140, 520, -520, 120, 380));
   studio.visible = false;

@@ -76,10 +76,10 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Spiegelbild – die Raumumgebung als Hintergrund wurde dort schwarz).
 - **Motive fuer KI-Produktfotos** (`motive-3d.ts`, `aufnahme-3d.ts`): `?ansicht=3d&foto=
   wand|flach|symbol|titel|wasser|kante&vollbild=1`, dazu `entwurf={json}`, `zoom`,
-  `versatz`, `grund`, `wandschatten=0`; `scripts/referenzbilder.sh` (Metal-GPU, 6-8 s).
+  `versatz`, `grund`, `wandschatten=0`, `softboxen=0`; `referenzbilder.sh` (6-8 s).
   Listing-Set: `scripts/listing-fotos/` (Leonardo 1K, Referenz HIGH, `prompt_enhance:
   OFF`). Gelernt: Titel nur als "thin, delicate … laser-cut flush" fein statt fett und
-  erhaben; auf Weiss mit Wandschatten erfand es einen Standfuss. Details neu gezeichnet.
+  erhaben; Wandschatten wurde zum Standfuss, gespiegelte Softbox zur Glasplatte im See.
 - **Kundeneingaben werden feldweise gemischt** (zwei schnelle Klicks hoben sich sonst auf).
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)
