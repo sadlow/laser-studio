@@ -42,7 +42,7 @@ Exemplare je Rohplatte, ein Parameter variiert).
 Alle mit Messwert in **`docs/entscheidungen.md`** – vor Aenderungen an Breiten,
 Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Ausschnitt in km, Strassen wachsen mit dem Format; Mindestbreite Netz 0,8 mm
-- Stege am Scheitel, hoechstens 0,5 mm und halber Strich; Inseln < 1 mm zu
+- Stege am Scheitel, hoechstens 0,5 mm und halber Strich; Inseln < 0,8 mm zu
 - Gravur als Flaeche nur im Export; nie unter Netz, Text oder Wasser
 - Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 42/33/26 %)
 - Lose Netzstuecke graviert; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten

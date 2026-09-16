@@ -102,10 +102,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Stege am hoechsten und tiefsten Punkt jeder Innenflaeche**, hoechstens
   0,5 mm, nie breiter als der halbe Strich (Direktsatz: `STEG_ANTEIL_STRICH`),
   mindestens 0,3 mm. 0,7 mm wirkte bei Demi (Strich 0,93 mm) wie eine Luecke.
-- **Innenflaechen unter 1,0 mm Breite werden zugefuellt.** Irrwege davor: eine
-  mm²-Grenze (zerteilte auf A3 das Gradzeichen), ein Anteil der Versalhoehe
-  (machte Schreibschrift-Schleifen schwarz). A4 Demi: ° 0,97 mm, obere 8 1,07,
-  A 1,16 (`inseln-titel.ts`).
+- **Innenflaechen unter 0,8 mm Breite werden zugefuellt.** 1,0 mm (aus der
+  Demi-Zeit, A4 Demi: ° 0,97 mm) machte bei A5 aus dem Gradzeichen einen
+  ausgeschnittenen Punkt ohne Innenkreis (Marcel 16.09.2026). In Book: ° innen
+  A5 0,97 mm, Prototyp 145 x 205 0,95, A4 1,38. Irrwege davor: eine mm²-Grenze
+  (zerteilte auf A3 das Gradzeichen), ein Anteil der Versalhoehe (machte
+  Schreibschrift-Schleifen schwarz) (`inseln-titel.ts`).
 
 ## Schrift
 

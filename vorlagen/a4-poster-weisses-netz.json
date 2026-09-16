@@ -175,7 +175,7 @@
     "wasserMinBreiteMm": 1,
     "wasserInselMinMm2": 15,
     "stegMm": 0.5,
-    "stencilMinInselBreiteMm": 1,
+    "stencilMinInselBreiteMm": 0.8,
     "herzBreiteMm": 11,
     "loseTeileMarkieren": true
   }

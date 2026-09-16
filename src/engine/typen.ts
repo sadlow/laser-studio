@@ -155,8 +155,8 @@ export interface Schichtkarte {
   stegMm: number;
   /**
    * Schmalere Innenflaechen bekommen keine Stege, sondern werden zugefuellt –
-   * neben einem senkrechten Steg bliebe nichts stehen. Gemessen in Avant Garde
-   * Demi bei A4: Gradzeichen 0,97 mm, obere 8 1,07, A 1,16; Bacalisties-
+   * neben einem senkrechten Steg bliebe nichts stehen. Innenkreis des
+   * Gradzeichens in Avant Garde Book: A5 0,97 mm, A4 1,38 mm; Bacalisties-
    * Schleifen 2,66-8,78 mm.
    */
   stencilMinInselBreiteMm: number;

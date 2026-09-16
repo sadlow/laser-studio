@@ -107,7 +107,7 @@ export function EingabeFertigung({ karte, aendern }: Props) {
   return (
     <Block
       titel="Fertigung"
-      hinweis="Stege sitzen am hoechsten und tiefsten Punkt jeder Innenflaeche und sind nie breiter als der halbe Schriftstrich (mindestens 0,3 mm). Zu schmale Innenflaechen werden zugefuellt – aus dem ° wird ein Punkt. Bei A4 gemessen: ° 0,97 mm, A 1,16, Titel-Schleifen ab 2,66 mm."
+      hinweis="Stege sitzen am hoechsten und tiefsten Punkt jeder Innenflaeche und sind nie breiter als der halbe Schriftstrich (mindestens 0,3 mm). Schmalere Innenflaechen als die Grenze werden zugefuellt – das Zeichen faellt dann als Ganzes heraus. Innenkreis des Gradzeichens: A5 0,97 mm, A4 1,38 mm; Titel-Schleifen ab 2,66 mm."
     >
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">

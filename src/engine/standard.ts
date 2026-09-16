@@ -115,9 +115,11 @@ export function standardSchichtkarte(): Schichtkarte {
     // 0,7 mm (wie die Spardosen-Stege) wirkte bei Avant Garde Demi zu dick –
     // der Strich ist dort bei A4 selbst nur 0,93 mm.
     stegMm: 0.5,
-    // Darunter bliebe neben dem Steg kaum sichtbares Material. Gemessen bei A4:
-    // Gradzeichen 0,97 mm (wird Punkt), obere 8 1,07, A 1,16 (bekommen Stege).
-    stencilMinInselBreiteMm: 1.0,
+    // Darunter bliebe neben dem Steg kaum sichtbares Material. 1,0 mm stammte aus
+    // der Demi-Zeit und machte bei A5 aus dem Gradzeichen einen Punkt (Marcel
+    // 16.09.2026). Innenkreis des Gradzeichens in Book: A5 0,97, Prototyp 145 x
+    // 205 0,95, A4 1,38 mm – alle behalten Innenkreis und Stege.
+    stencilMinInselBreiteMm: 0.8,
     herzBreiteMm: 11,
     loseTeileMarkieren: true,
   };
