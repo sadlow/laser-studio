@@ -21,7 +21,7 @@ export interface ExportErgebnis {
     id: string;
     name: string;
     dateien: string[];
-    lagen: { titel: string; material: string; teile: number }[];
+    lagen: { titel: string; material: string; staerkeMm: number; teile: number }[];
     warnungen: string[];
   }[];
 }
@@ -68,7 +68,7 @@ export async function exportiere(auftrag: ExportAuftrag, token: string): Promise
       id: v.id,
       name: v.name,
       dateien,
-      lagen: r.lagen.map((l) => ({ titel: l.titel, material: l.material, teile: l.teile.length })),
+      lagen: r.lagen.map((l) => ({ titel: l.titel, material: l.material, staerkeMm: l.staerkeMm, teile: l.teile.length })),
       warnungen: r.warnungen,
     });
   }
@@ -87,7 +87,9 @@ function uebersicht(name: string, datum: string, karte: Schichtkarte, r: Awaited
     `Texte:      ${r.texte.titel} / ${r.texte.zeile1} / ${r.texte.zeile2}`,
     ``,
     `Lagen von oben nach unten (Dateinummer = Reihenfolge):`,
-    ...r.lagen.map((l, i) => `  ${String(i + 1).padStart(2, "0")}  ${l.titel.padEnd(16)} ${l.material.padEnd(20)} ${l.teile.length} Teil(e)`),
+    ...r.lagen.map((l, i) => `  ${String(i + 1).padStart(2, "0")}  ${l.titel.padEnd(16)} ${l.material.padEnd(20)} ${String(l.staerkeMm).padStart(3)} mm  ${l.teile.length} Teil(e)`),
+    // Das Symbol wird zuletzt eingesetzt: auf Blau geklebt, durch die Ausschnitte der Lagen darueber.
+    `Symbol: sitzt auf Blau (Tropfen Sekundenkleber), alle Lagen darueber haben den Ausschnitt; ${r.kennzahlen.symbolVertiefungMm.toFixed(1)} mm vertieft.`,
     ``,
     `Jede Datei: Ebene "1 Gravur" (Flaeche), "2 Schnitt innen" (rot), "3 Schnitt aussen" (blau).`,
     `Stencil-Stege: ${r.kennzahlen.stencilStege}, zugefuellte Innenflaechen: ${r.kennzahlen.inselnZugefuellt}`,
