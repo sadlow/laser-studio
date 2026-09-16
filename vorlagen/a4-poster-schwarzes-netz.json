@@ -181,6 +181,10 @@
       "mittel": 11,
       "gross": 15
     },
+    "staerkenMm": {
+      "acryl": 2,
+      "spiegel": 3
+    },
     "loseTeileMarkieren": true
   }
 }

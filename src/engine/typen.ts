@@ -167,6 +167,13 @@ export interface Schichtkarte {
 
   /** Breite des Standort-Symbols je Groesse bei A4, waechst mit dem Format. */
   symbolBreitenMm: Record<SymbolGroesse, number>;
+  /**
+   * Plattenstaerke nach Material (Marcel 16.09.2026): weisses und schwarzes
+   * Acrylglas immer gleich, Spiegelacryl (Blau und Symbol) immer gleich. Das
+   * Symbol liegt direkt auf Blau und ist dort geklebt; jede Lage darueber hat an
+   * seiner Stelle einen Ausschnitt in Symbolform.
+   */
+  staerkenMm: { acryl: number; spiegel: number };
 
   /** Lose Teile der weissen Lage in der Vorschau markieren. */
   loseTeileMarkieren: boolean;

@@ -30,6 +30,7 @@ export interface Lage {
   titel: string;
   material: string;
   teile: Teil[];
+  staerkeMm: number;
   /** Nur Hintergrund: feine Wege als Linien (mm) mit Strichbreite. */
   gravur: { linien: Punkt[][]; breiteMm: number }[];
   /** SVG fuer den Laser: Schnitt rot, Gravur schwarz, Einheit mm. */
@@ -68,6 +69,8 @@ export interface Kennzahlen {
   wasserFlaechenGeschnitten: number;
   /** Kleine Inseln, die Wasser wurden statt Einzelteil. */
   wasserInselnGeflutet: number;
+  /** So tief liegt die Oberseite des Symbols unter der Oberflaeche (negativ: steht vor). */
+  symbolVertiefungMm: number;
   rechenzeitMs: number;
 }
 

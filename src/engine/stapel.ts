@@ -19,23 +19,27 @@ const GRAVUR_AUF_SCHWARZ = "#b9b6ae";
 const GRAVUR_AUF_WEISS = "#c7c2b6";
 
 /**
- * Setzt aus den Bausteinen die Lagen des gewaehlten Aufbaus zusammen. Beide
+ * Setzt aus den Bausteinen die Lagen des gewaehlten Aufbaus zusammen. Alle
  * Aufbauten sind gleich gebaut – Netz-Lage ueber Hintergrund-Lage ueber Blau –,
- * nur die Farben von Netz und Hintergrund tauschen. Beim schwarzen Netz kommt
- * eine weisse Deckschicht mit Rahmen und Text dazu.
+ * nur die Farben von Netz und Hintergrund tauschen. Beim vierlagigen kommt eine
+ * weisse Deckschicht mit Rahmen und Text dazu.
+ *
+ * Das Symbol liegt auf Blau und ist dort geklebt: jede Lage darueber hat an
+ * seiner Stelle einen Ausschnitt in Symbolform (Marcel 16.09.2026).
  */
 export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stapel {
   const rahmen = ziehAb(b.plattenFl, b.fensterFl);
   // Unter Bruecken wird nicht geschnitten: dort liegt Netz darueber, und der
   // Hintergrund haelt ueber die Bruecke zusammen, statt am Fluss zu zerfallen.
-  const hintergrund = teile(ziehAb(b.plattenFl, ziehAb(b.wasser, b.netz)), SPLITTER_MM2);
+  const hintergrund = teile(ziehAb(b.plattenFl, vereinige(ziehAb(b.wasser, b.netz), b.symbolLoch)), SPLITTER_MM2);
   const blau = teile(b.plattenFl);
+  const symbolTitel = SYMBOL_TITEL[k.kunde.symbol] ?? "Symbol";
 
   if (k.aufbau === "netz-schwarz") {
-    const deck = teile(ziehAb(vereinige(rahmen, b.schutz), b.textAusschnitt), SPLITTER_MM2);
+    const deck = teile(ziehAb(vereinige(rahmen, b.schutz), vereinige(b.textAusschnitt, b.symbolLoch)), SPLITTER_MM2);
     // Unter den Texten bleibt das Schwarz voll: die Buchstaben zeigen schwarz,
     // und die Deckschicht hat dort Flaeche zum Aufkleben.
-    const netz = teile(vereinige(rahmen, b.netz, b.schutz), SPLITTER_MM2);
+    const netz = teile(ziehAb(vereinige(rahmen, b.netz, b.schutz), b.symbolLoch), SPLITTER_MM2);
     const [netzHaupt, ...netzLose] = netz;
 
     const schritte: Malschritt[] = [
@@ -49,11 +53,11 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
     ];
     return {
       lagen: [
-        lage(layout, "symbol", SYMBOL_TITEL[k.kunde.symbol] ?? "Symbol", "Spiegelacryl rot", b.symbol),
-        lage(layout, "deck", "Weiss oben", "Acrylglas weiss", deck),
-        lage(layout, "netz", "Schwarz (Netz)", "Acrylglas schwarz", netz),
-        lage(layout, "hintergrund", "Weiss unten", "Acrylglas weiss", hintergrund, b.gravur),
-        lage(layout, "blau", "Blau", "Spiegelacryl blau", blau),
+        lage(k, layout, "symbol", symbolTitel, "Spiegelacryl rot", b.symbol),
+        lage(k, layout, "deck", "Weiss oben", "Acrylglas weiss", deck),
+        lage(k, layout, "netz", "Schwarz (Netz)", "Acrylglas schwarz", netz),
+        lage(k, layout, "hintergrund", "Weiss unten", "Acrylglas weiss", hintergrund, b.gravur),
+        lage(k, layout, "blau", "Blau", "Spiegelacryl blau", blau),
       ],
       vorschauSvg: vorschauSvg(layout, schritte),
       loseNetzstuecke: netzLose.length,
@@ -71,7 +75,7 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
   const [grundFarbe, grundTitel, grundMaterial] = schwarz
     ? [FARBE_WEISS, "Weiss", "Acrylglas weiss"]
     : [FARBE_SCHWARZ, "Schwarz", "Acrylglas schwarz"];
-  const netz = teile(ziehAb(vereinige(rahmen, b.netz, b.schutz), b.textAusschnitt), SPLITTER_MM2);
+  const netz = teile(ziehAb(vereinige(rahmen, b.netz, b.schutz), vereinige(b.textAusschnitt, b.symbolLoch)), SPLITTER_MM2);
   const [netzHaupt, ...lose] = netz;
   const loseText = lose.filter((t) => enthaelt(b.textBereich, schwerpunkt(t)));
   const loseNetz = lose.filter((t) => !loseText.includes(t));
@@ -86,10 +90,10 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
   ];
   return {
     lagen: [
-      lage(layout, "symbol", SYMBOL_TITEL[k.kunde.symbol] ?? "Symbol", "Spiegelacryl rot", b.symbol),
-      lage(layout, "netz", netzTitel, netzMaterial, netz),
-      lage(layout, "hintergrund", grundTitel, grundMaterial, hintergrund, b.gravur),
-      lage(layout, "blau", "Blau", "Spiegelacryl blau", blau),
+      lage(k, layout, "symbol", symbolTitel, "Spiegelacryl rot", b.symbol),
+      lage(k, layout, "netz", netzTitel, netzMaterial, netz),
+      lage(k, layout, "hintergrund", grundTitel, grundMaterial, hintergrund, b.gravur),
+      lage(k, layout, "blau", "Blau", "Spiegelacryl blau", blau),
     ],
     vorschauSvg: vorschauSvg(layout, schritte),
     loseNetzstuecke: loseNetz.length,
@@ -98,6 +102,8 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
   };
 }
 
-function lage(layout: Layout, key: LagenKey, titel: string, material: string, t: Teil[], gravur: Gravur = []): Lage {
-  return { key, titel, material, teile: t, gravur, laserSvg: laserSvg(layout, `Lage ${titel} – ${material}`, t, gravur) };
+function lage(k: Schichtkarte, layout: Layout, key: LagenKey, titel: string, material: string, t: Teil[], gravur: Gravur = []): Lage {
+  const staerkeMm = material.startsWith("Spiegelacryl") ? k.staerkenMm.spiegel : k.staerkenMm.acryl;
+  const beschreibung = `Lage ${titel} – ${material}, ${staerkeMm} mm`;
+  return { key, titel, material, staerkeMm, teile: t, gravur, laserSvg: laserSvg(layout, beschreibung, t, gravur) };
 }

@@ -102,6 +102,12 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
     );
   }
 
+  // Symbol auf Blau, Lagen darueber mit Ausschnitt: so tief sitzt es.
+  const ueberBlau = s.lagen.filter((l) => l.key !== "symbol" && l.key !== "blau").reduce((summe, l) => summe + l.staerkeMm, 0);
+  const symbolVertiefungMm = ueberBlau - k.staerkenMm.spiegel;
+  if (symbolVertiefungMm < 0) {
+    warnungen.push(`Das Symbol (${k.staerkenMm.spiegel} mm) steht ${(-symbolVertiefungMm).toFixed(1)} mm ueber die Oberflaeche hinaus.`);
+  }
   if (!b.symbolLage) {
     warnungen.push("Der Ort liegt ausserhalb des Kartenausschnitts – das Standort-Symbol fehlt. Karte zurueckschieben oder zentrieren.");
   }
@@ -120,6 +126,7 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
       loseNetzstuecke: s.loseNetzstuecke,
       loseTextteile: s.loseTextteile,
       hintergrundTeile: s.hintergrundTeile,
+      symbolVertiefungMm,
       rechenzeitMs: Date.now() - start,
     },
     warnungen,

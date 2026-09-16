@@ -21,7 +21,7 @@ export interface Netz {
 }
 
 /** Puffert die gewaehlten Netzklassen, alle anderen gehen in die Gravur. */
-export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, schutz: Flaeche, auswahl: NetzAuswahl): Netz {
+export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, schutz: Flaeche, auswahl: NetzAuswahl, symbolLoch: Flaeche = []): Netz {
   const { platte, kartenfenster: f } = layout;
   const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
   const imFenster = (linien: Punkt[][]) =>
@@ -52,13 +52,14 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
   const kleineBloecke = teile(ziehAb(fensterFl, vereinige(strassen, schutz)), SPLITTER_MM2).filter(
     (b) => b.flaecheMm2 < k.netzMinLochMm2,
   );
-  const mitBloecken = kleineBloecke.length ? vereinige(strassen, ausTeilen(kleineBloecke)) : strassen;
+  const mitBloecken = ziehAb(kleineBloecke.length ? vereinige(strassen, ausTeilen(kleineBloecke)) : strassen, symbolLoch);
 
   // Lose Stuecke haengen nirgends am Netz (meist nur ueber einen gravierten Weg,
   // eine Treppe oder einen Tunnel) und fielen beim Schneiden heraus. Sie werden
   // graviert statt geschnitten – "meist nur Artefakte" (Marcel 16.09.2026).
   const rahmen = ziehAb(rechteck(0, 0, platte.breiteMm, platte.hoeheMm), fensterFl);
-  const [, ...lose] = teile(vereinige(rahmen, mitBloecken, schutz), SPLITTER_MM2);
+  // Das Symbol-Loch zaehlt mit: was es vom Netz abtrennt, faellt sonst lose heraus.
+  const [, ...lose] = teile(ziehAb(vereinige(rahmen, mitBloecken, schutz), symbolLoch), SPLITTER_MM2);
   if (!lose.length) return { netz: mitBloecken, gravur, kleineBloecke: kleineBloecke.length, loseZurGravur: 0, loseAnteil: 0 };
 
   const loseFl = ausTeilen(lose);

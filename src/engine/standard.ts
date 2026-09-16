@@ -104,6 +104,8 @@ export function standardSchichtkarte(): Schichtkarte {
     stencilMinInselBreiteMm: 0.8,
     // Herz bisher 11 mm = mittel.
     symbolBreitenMm: { klein: 8, mittel: 11, gross: 15 },
+    // Marcel 16.09.2026: weiss und schwarz immer 2 mm, Spiegelacryl immer 3 mm.
+    staerkenMm: { acryl: 2, spiegel: 3 },
     loseTeileMarkieren: true,
   };
 }

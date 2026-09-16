@@ -47,6 +47,7 @@ Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Gravur als Flaeche nur im Export; nie unter Netz, Text oder Wasser
 - Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 42/33/26 %)
 - Lose Netzstuecke graviert; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
+- Symbol auf Blau geklebt, Ausschnitt in allen Lagen darueber; Acryl 2 mm, Spiegel 3 mm
 - Tunnel, Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet
 - Zeilenschrift Avant Garde Book, Sperrung 0,14 (Deckschicht 2 mm; ExtraLight 0,20 mm zu duenn)
 - opentype.js gepatcht (`patches/`) wegen AvantGardeCE-Demi.otf
@@ -74,7 +75,6 @@ npm install && npm run dev   # http://localhost:3010
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
 - Standort-Bestaetigung: "Luebeck" fand Luebecker Strasse in Koeln
 - Symbol-Auflage: liegt teils auf dem Netz, teils eine Lage tiefer; Anker = Ort, ziehbar in der Vorschau
-- 3D: Materialstaerken ausser Deckschicht (2 mm) angenommen – echte Staerken erfragen
 - Megastaedte wirken lichter als Berlin (Tokio 15 % Netz): Deckung zaehlt Hochstrassen doppelt
 - Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten
 

@@ -46,6 +46,11 @@ export function EingabePlatte({ karte, aendern }: Props) {
         )}
         <Zahl titel="Rahmen" einheit="mm" schritt={0.5} wert={karte.rahmenMm} aendern={(v) => aendern({ rahmenMm: v })} />
         <div className="col-span-2" />
+        <Zahl titel="Acryl weiss/schwarz" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.acryl}
+          aendern={(v) => aendern({ staerkenMm: { ...karte.staerkenMm, acryl: v } })} />
+        <Zahl titel="Spiegelacryl" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.spiegel}
+          aendern={(v) => aendern({ staerkenMm: { ...karte.staerkenMm, spiegel: v } })} />
+        <div />
         <Zahl titel="Symbol klein" einheit="mm" schritt={0.5} wert={groessen.klein} aendern={(v) => aendern({ symbolBreitenMm: { ...groessen, klein: v } })} />
         <Zahl titel="mittel" einheit="mm" schritt={0.5} wert={groessen.mittel} aendern={(v) => aendern({ symbolBreitenMm: { ...groessen, mittel: v } })} />
         <Zahl titel="gross" einheit="mm" schritt={0.5} wert={groessen.gross} aendern={(v) => aendern({ symbolBreitenMm: { ...groessen, gross: v } })} />

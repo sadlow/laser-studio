@@ -25,6 +25,7 @@ function KennzahlenRaster({ kz }: { kz: Kennzahlen }) {
       <Kennzahl titel="Innenflaechen zu" wert={String(kz.inselnZugefuellt)} />
       <Kennzahl titel="Wasserflaechen" wert={String(kz.wasserFlaechenGeschnitten)} />
       <Kennzahl titel="Inseln zu Wasser" wert={String(kz.wasserInselnGeflutet)} />
+      <Kennzahl titel="Symbol vertieft" wert={`${kz.symbolVertiefungMm.toFixed(1)} mm`} />
     </div>
   );
 }
@@ -52,6 +53,7 @@ export function TechnikPruefung({ ergebnis }: { ergebnis: SchichtkartenErgebnis 
             <tr className="text-left">
               <th className="py-1 font-medium">Lage</th>
               <th className="py-1 font-medium">Material</th>
+              <th className="py-1 text-right font-medium">mm</th>
               <th className="py-1 text-right font-medium">Teile</th>
             </tr>
           </thead>
@@ -62,6 +64,7 @@ export function TechnikPruefung({ ergebnis }: { ergebnis: SchichtkartenErgebnis 
                 <td className="py-1" style={{ color: "var(--gedaempft)" }}>
                   {l.material}
                 </td>
+                <td className="py-1 text-right">{l.staerkeMm}</td>
                 <td className="py-1 text-right">{l.teile.length}</td>
               </tr>
             ))}

@@ -12,6 +12,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   (schwarz-weiss-blau, Marcel 16.09.2026). Eine vierlagige: `netz-schwarz`
   (weiss-schwarz-weiss-blau), Positiv-Look des Posters mit weisser Deckschicht
   fuer Rahmen und Text. Die Bausteine (`lagen.ts`) sind fuer alle identisch.
+- **Das Standort-Symbol liegt auf Blau und ist dort geklebt** (Marcel
+  16.09.2026). Jede Lage darueber hat an seiner Stelle einen Ausschnitt mit
+  exakt der Aussenkontur des Symbols (beim Pin ohne dessen Loch, sonst bliebe eine
+  Scheibe). Gleiche Kontur fuer Teil und Loch: der Schnitt gibt eine Fuge Spiel.
+- **Staerken nach Material:** Acrylglas weiss/schwarz 2 mm, Spiegelacryl (Blau,
+  Symbol) 3 mm. Symbol vertieft dreilagig 1 mm, vierlagig 3 mm.
 - **Unter Bruecken wird der Hintergrund nicht geschnitten.** Er haelt dann ueber
   die Bruecke zusammen, statt am Fluss zu zerfallen.
 - **Unter Texten kein Wasser, keine Gravur**, im schwarzen Netz volles Material –
@@ -21,7 +27,7 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet**
   (`WEGETYPEN_OHNE`): Gehwege 32,5 % aller Nebenwege in drei Stadtkacheln, als
   Doppellinie neben jeder Hauptstrasse; Einfahrten 6,7, Ueberwege 2,3, Gassen 1,7.
-- **Tunnel nie, Bruecken immer.** Berlin-Tiergarten: 21 Tunnelstuecke.
+- **Tunnel nie, Bruecken immer** (Berlin-Tiergarten: 21 Tunnelstuecke).
 - **Wasser schmaler als 1 mm wird nicht geschnitten** (`wasser.ts`, Oeffnen vor
   dem Beschnitt). Venedig: Hintergrund 107 -> 5 Teile, die Grachten Amsterdams
   (1,4-1,7 mm) bleiben.
@@ -62,11 +68,9 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Standort als Adresse oder Dezimal-Koordinaten** (Google-Format, auch mit
   deutschem Komma). Eingefuegte Koordinaten bleiben exakt; der Ortsname kommt
   aus der Rueckwaerts-Suche.
-- **3D-Reiter im Komposer** (`ansicht-3d.tsx`, `szene-3d.ts`, three.js): jede Lage
-  aus ihrer Schnittgeometrie extrudiert, frei drehbar, "Lagen auseinander".
-  Staerken bis auf die Deckschicht angenommen: oben 2 mm (Marcel), sonst 3 mm.
-  Schwarzer Lack spiegelte die Raumumgebung und wirkte grau – Spiegelanteil
-  gesenkt. `?ansicht=3d&lagen=auseinander` oeffnet direkt (Tests, Links).
+- **3D-Reiter** (`ansicht-3d.tsx`, `szene-3d.ts`, three.js): Lagen mit ihrer
+  Staerke extrudiert, frei drehbar; auseinandergezogen schwebt das Symbol ueber
+  dem Stapel. `?ansicht=3d&lagen=auseinander` oeffnet direkt.
 - **Kundeneingaben werden feldweise gemischt.** Zwei schnelle Klicks (Symbol,
   dann Groesse) schickten sonst je die ganze alte Kundeneingabe mit, und der
   zweite machte den ersten rueckgaengig.

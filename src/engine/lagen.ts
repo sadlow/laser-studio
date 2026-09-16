@@ -3,6 +3,7 @@ import { laengenImFenster, waehleNetz } from "./dichte";
 import { baueNetz } from "./netz";
 import {
   flaecheMm2,
+  ohneLoecher,
   rechteck,
   schneide,
   teile,
@@ -46,8 +47,10 @@ export interface Bausteine {
   gravur: { linien: Punkt[][]; breiteMm: number }[];
   symbol: Teil[];
   symbolLage: SchichtkartenErgebnis["symbol"];
+  /** Aussenkontur des Symbols – in jeder Lage ueber Blau ausgeschnitten. */
+  symbolLoch: Flaeche;
   textBereich: Flaeche;
-  kennzahlen: Omit<Kennzahlen, "zoomEntsprechung" | "loseNetzstuecke" | "loseTextteile" | "hintergrundTeile" | "rechenzeitMs">;
+  kennzahlen: Omit<Kennzahlen, "zoomEntsprechung" | "loseNetzstuecke" | "loseTextteile" | "hintergrundTeile" | "rechenzeitMs" | "symbolVertiefungMm">;
 }
 
 // Liegt nach dem Nachruecken mehr Netzflaeche lose, bleiben die Wege ganz
@@ -62,15 +65,28 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   const schutz = schneide(text.schutz, fensterFl);
   const wasser = wasserImFenster(k, roh, fensterFl, schutz);
 
+  const faktor = f.breiteMm / REFERENZ_KARTENBREITE_MM;
+
+  // --- Standort-Symbol: Anker auf dem Ort (Spitze bei Herz und Pin), Groesse
+  // fuer A4 und mitwachsend. Liegt der Ort ausserhalb des verschobenen
+  // Ausschnitts, gibt es kein Symbol.
+  const anker = ortZuMm({ lon: k.lon, lat: k.lat }, k.kartenMitte ?? { lon: k.lon, lat: k.lat }, k.ausschnittKm * 1000, f);
+  const imFenster = anker.x >= f.xMm && anker.x <= f.xMm + f.breiteMm && anker.y >= f.yMm && anker.y <= f.yMm + f.hoeheMm;
+  const eingepasst = symbolEinpassen(k.kunde.symbol ?? "herz", anker.x, anker.y, (k.symbolBreitenMm[k.kunde.symbolGroesse] ?? 11) * faktor);
+  const symbol = imFenster ? teile(zuFlaeche(eingepasst.ringe)) : [];
+  const symbolLage = imFenster ? { ankerXMm: anker.x, ankerYMm: anker.y, ...eingepasst.box } : null;
+  // Jede Lage ueber Blau bekommt dort einen Ausschnitt in Symbolform – nur die
+  // Aussenkontur, sonst bliebe im Loch des Pins eine lose Scheibe.
+  const symbolLoch = imFenster ? ohneLoecher(zuFlaeche(eingepasst.ringe)) : [];
+
   // --- Strassen. Breiten gelten fuer A4, wachsen mit dem Format und folgen der
   // Dichte vor Ort (dichte.ts). Gemessen wird auf dem Land: Wasser ist blau,
   // dort wirkt nichts zu dicht. Die Textreiter zaehlen mit – die Strassen unter
   // ihnen stecken in den Laengen (Quadrat sonst 38 statt 33 %).
-  const faktor = f.breiteMm / REFERENZ_KARTENBREITE_MM;
   const land = flaecheMm2(ziehAb(fensterFl, wasser.gesamt));
   const laengen = laengenImFenster(k, roh, f);
   let auswahl = waehleNetz(k, laengen, land, faktor);
-  let n = baueNetz(k, roh, layout, schutz, auswahl);
+  let n = baueNetz(k, roh, layout, schutz, auswahl, symbolLoch);
   // Nachgerueckte Wege muessen ein Netz ergeben, keine losen Stuecke: Venedigs
   // Gassen bei 2 km liegen auf Inseln, deren Bruecken Fusswege und Treppen
   // sind – 78 % der Gassenflaeche lose. Dann bleibt es bei der Gravur.
@@ -78,7 +94,7 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   if (auswahl.nachgerueckt.length && n.loseAnteil > NACHRUECKEN_MAX_LOSE_ANTEIL) {
     nachrueckenVerworfen.push(...auswahl.nachgerueckt);
     auswahl = waehleNetz(k, laengen, land, faktor, true);
-    n = baueNetz(k, roh, layout, schutz, auswahl);
+    n = baueNetz(k, roh, layout, schutz, auswahl, symbolLoch);
   }
   const { netz, gravur: gravurRoh } = n;
 
@@ -104,17 +120,9 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   // noch ueber Wasser (dort ist kein Material, der Laser graviert Luft) noch
   // unter dem Netz (unsichtbar). Das Netz allein spart gemessen 31 % Gravurweg
   // bei 160 ms Rechenzeit – A4 Berlin: 15,0 m auf 10,4 m.
-  const gravurAus = vereinige(schutz, inseln.wasser, netz);
+  const gravurAus = vereinige(schutz, inseln.wasser, netz, symbolLoch);
   const gravur = gravurRoh.map((g) => ({ linien: ziehLinienAb(g.linien, gravurAus), breiteMm: g.breiteMm }));
 
-  // --- Standort-Symbol: Anker auf dem Ort (Spitze bei Herz und Pin), Groesse
-  // fuer A4 und mitwachsend. Liegt der Ort ausserhalb des verschobenen
-  // Ausschnitts, gibt es kein Symbol.
-  const anker = ortZuMm({ lon: k.lon, lat: k.lat }, k.kartenMitte ?? { lon: k.lon, lat: k.lat }, k.ausschnittKm * 1000, f);
-  const imFenster = anker.x >= f.xMm && anker.x <= f.xMm + f.breiteMm && anker.y >= f.yMm && anker.y <= f.yMm + f.hoeheMm;
-  const eingepasst = symbolEinpassen(k.kunde.symbol ?? "herz", anker.x, anker.y, (k.symbolBreitenMm[k.kunde.symbolGroesse] ?? 11) * faktor);
-  const symbol = imFenster ? teile(zuFlaeche(eingepasst.ringe)) : [];
-  const symbolLage = imFenster ? { ankerXMm: anker.x, ankerYMm: anker.y, ...eingepasst.box } : null;
 
   return {
     plattenFl,
@@ -126,6 +134,7 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
     gravur,
     symbol,
     symbolLage,
+    symbolLoch,
     textBereich: text.textBereich,
     kennzahlen: {
       netzAnteilFenster,

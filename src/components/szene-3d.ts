@@ -5,14 +5,15 @@ import type { Lage, SchichtkartenErgebnis } from "@/engine/typen";
 
 /**
  * Die Lagen als Acrylplatten in mm (Marcel 16.09.2026: "echtes 3D, das ich um
- * die Y-Achse drehen kann"). Jede Lage wird aus ihrer Schnittgeometrie
- * extrudiert, von unten nach oben gestapelt; die Gravur liegt als Textur auf
- * dem Hintergrund, die Spiegel spiegeln die Umgebung.
+ * die Y-Achse drehen kann"). Jede Lage wird aus ihrer Schnittgeometrie mit
+ * ihrer Materialstaerke extrudiert und von unten nach oben gestapelt; die Gravur
+ * liegt als Textur auf dem Hintergrund, die Spiegel spiegeln die Umgebung.
  *
- * Staerken sind Annahme bis auf die Deckschicht: oben 2 mm (Marcel), sonst 3 mm.
+ * Das Symbol liegt nicht obenauf, sondern direkt auf Blau – geklebt, in den
+ * Ausschnitten der Lagen darueber. Auseinandergezogen schwebt es ueber dem
+ * Stapel, damit man den Weg durch die Ausschnitte sieht; sonst verdeckten es
+ * die Lagen darueber.
  */
-const STAERKE_OBEN_MM = 2;
-const STAERKE_MM = 3;
 // Punkte naeher als das zusammenfassen – die gepufferten Strassen haben runde
 // Ecken aus sehr vielen kurzen Stuecken, die Triangulierung dauerte sonst Sekunden.
 const PUNKTABSTAND_MM = 0.12;
@@ -89,13 +90,8 @@ export function baueSzene(ergebnis: SchichtkartenErgebnis): { gruppe: THREE.Grou
   const { breiteMm: b, hoeheMm: h } = ergebnis.layout.platte;
   const gruppe = new THREE.Group();
   const platten: Platte[] = [];
-  // Lagen kommen von oben nach unten; gestapelt wird von unten.
-  const vonUnten = [...ergebnis.lagen].reverse();
-  const oberstePlatte = ergebnis.lagen.find((l) => l.key !== "symbol");
-  let z = 0;
-  vonUnten.forEach((lage, index) => {
-    const staerke = lage === oberstePlatte ? STAERKE_OBEN_MM : STAERKE_MM;
-    const geo = platteGeometrie(lage, b, h, staerke);
+  const platzieren = (lage: Lage, z: number, index: number) => {
+    const geo = platteGeometrie(lage, b, h, lage.staerkeMm);
     if (!geo) return;
     const mesh = new THREE.Mesh(geo, material(lage));
     mesh.castShadow = true;
@@ -103,9 +99,18 @@ export function baueSzene(ergebnis: SchichtkartenErgebnis): { gruppe: THREE.Grou
     const gravur = gravurFlaeche(lage, b, h, lage.material.toLowerCase().includes("schwarz"));
     gruppe.add(mesh);
     if (gravur) gruppe.add(gravur);
-    platten.push({ mesh, gravur, z, staerke, index });
-    z += staerke;
+    platten.push({ mesh, gravur, z, staerke: lage.staerkeMm, index });
+  };
+  // Lagen kommen von oben nach unten; gestapelt wird von unten.
+  let z = 0;
+  let blauOben = 0;
+  [...ergebnis.lagen].reverse().filter((l) => l.key !== "symbol").forEach((lage, index) => {
+    platzieren(lage, z, index);
+    if (lage.key === "blau") blauOben = z + lage.staerkeMm;
+    z += lage.staerkeMm;
   });
+  const symbol = ergebnis.lagen.find((l) => l.key === "symbol");
+  if (symbol) platzieren(symbol, blauOben, platten.length);
   return { gruppe, platten, hoehe: z };
 }
 
