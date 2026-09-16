@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import type { SchichtkartenErgebnis } from "@/engine/typen";
+import { baueKulisse } from "./kulisse-3d";
 import { baueSzene, entsorgen, stapeln } from "./szene-3d";
 
 const AUSEINANDER_MM = 14;
@@ -12,16 +13,24 @@ const AUSEINANDER_MM = 14;
 /**
  * Drehbare 3D-Ansicht des Lagenstapels. Maus ziehen dreht (auch um die
  * Y-Achse), Rad zoomt, rechte Maustaste verschiebt. "Lagen auseinander" zieht
- * den Stapel auf, damit man sieht, welche Platte was traegt.
+ * den Stapel auf, damit man sieht, welche Platte was traegt. "Fotoansicht"
+ * lehnt die Platte an eine Wand und speichert ein Referenzbild fuer den
+ * Leonardo-Skill.
  */
 export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
   const box = useRef<HTMLDivElement>(null);
   // ?lagen=auseinander startet aufgezogen – fuer Tests und geteilte Links.
   const [auseinander, setAuseinander] = useState(() => new URLSearchParams(window.location.search).get("lagen") === "auseinander");
+  // ?foto=1 startet in der Fotoansicht – fuer Referenzbilder aus dem Headless-Browser.
+  const [foto, setFoto] = useState(() => new URLSearchParams(window.location.search).get("foto") === "1");
   const [baut, setBaut] = useState(true);
   const ziel = useRef(0);
   const startansicht = useRef<() => void>(() => {});
+  const fotoSetzen = useRef<(an: boolean) => void>(() => {});
+  const referenz = useRef<() => string>(() => "");
   ziel.current = auseinander ? AUSEINANDER_MM : 0;
+
+  useEffect(() => fotoSetzen.current(foto), [foto, baut]);
 
   useEffect(() => {
     const el = box.current;
@@ -58,20 +67,44 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
     licht.shadow.bias = -0.0004;
     licht.shadow.normalBias = 0.3;
     szene.add(licht, new THREE.HemisphereLight(0xffffff, 0xd8d4ca, 0.6));
+    const kulisse = baueKulisse(szene, h, gross);
 
     let abstand = ziel.current;
+    let ansichtFoto = false;
     let stapel: ReturnType<typeof baueSzene> | null = null;
     // Erst malen, dann bauen: die Triangulierung dauert bei dichten Karten spuerbar.
     const bauen = window.setTimeout(() => {
       if (aus) return;
       stapel = baueSzene(ergebnis);
       stapeln(stapel.platten, abstand);
-      szene.add(stapel.gruppe);
+      // Im Halter sitzt die Unterkante auf dessen Drehpunkt; gerade stehend liegt die Mitte im Ursprung.
+      stapel.gruppe.position.y = h / 2;
+      kulisse.halter.add(stapel.gruppe);
       const d = (h / 2 / Math.tan((15 * Math.PI) / 180)) * 1.25;
       startansicht.current = () => {
-        steuerung.target.set(0, 0, stapel!.hoehe / 2);
-        kamera.position.set(d * 0.42, -d * 0.22, d * 0.88);
+        if (ansichtFoto) {
+          steuerung.target.set(0, -h * 0.04, -h * 0.1);
+          kamera.position.set(d * 0.55, h * 0.1, d * 1.12);
+        } else {
+          steuerung.target.set(0, 0, stapel!.hoehe / 2);
+          kamera.position.set(d * 0.42, -d * 0.22, d * 0.88);
+        }
         steuerung.update();
+      };
+      fotoSetzen.current = (an) => {
+        ansichtFoto = an;
+        kulisse.setze(an);
+        startansicht.current();
+      };
+      referenz.current = () => {
+        // Doppelte Aufloesung fuer das Referenzbild, danach zurueck.
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2) * 2);
+        groesse();
+        renderer.render(szene, kamera);
+        const bild = renderer.domElement.toDataURL("image/png");
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        groesse();
+        return bild;
       };
       startansicht.current();
       steuerung.minDistance = d * 0.25;
@@ -110,6 +143,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
       beobachter.disconnect();
       steuerung.dispose();
       if (stapel) entsorgen(stapel.gruppe);
+      kulisse.entsorgen();
       szene.environment?.dispose();
       pmrem.dispose();
       renderer.dispose();
@@ -125,13 +159,28 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
           style={auseinander ? { background: "var(--akzent)", borderColor: "var(--akzent)", color: "#fff" } : { background: "var(--karte)", borderColor: "var(--linie)" }}>
           Lagen auseinander
         </button>
+        <button type="button" onClick={() => setFoto((f) => !f)} className="rounded-md border px-2.5 py-1 shadow-sm"
+          style={foto ? { background: "var(--akzent)", borderColor: "var(--akzent)", color: "#fff" } : { background: "var(--karte)", borderColor: "var(--linie)" }}>
+          Fotoansicht
+        </button>
+        {foto && (
+          <button type="button" className="rounded-md border px-2.5 py-1 shadow-sm" style={{ background: "var(--karte)", borderColor: "var(--linie)" }}
+            onClick={() => {
+              const a = document.createElement("a");
+              a.href = referenz.current();
+              a.download = "schichtkarte-referenz.png";
+              a.click();
+            }}>
+            Referenzbild speichern
+          </button>
+        )}
         <button type="button" onClick={() => startansicht.current()} className="rounded-md border px-2.5 py-1 shadow-sm"
           style={{ background: "var(--karte)", borderColor: "var(--linie)" }}>
           Ansicht zuruecksetzen
         </button>
       </div>
       {baut && <p className="absolute inset-0 flex items-center justify-center text-sm" style={{ color: "var(--gedaempft)" }}>baut 3D…</p>}
-      <p className="pointer-events-none absolute bottom-3 left-3 text-xs" style={{ color: "var(--gedaempft)" }}>
+      <p className="pointer-events-none absolute bottom-3 left-3 text-xs" style={{ color: "var(--gedaempft)", display: foto ? "none" : undefined }}>
         Ziehen dreht · Rad zoomt · rechte Maustaste verschiebt · {ergebnis.lagen.map((l) => `${l.titel} ${l.staerkeMm} mm`).join(" · ")}
         {" "}· Symbol auf dem Hintergrund, {ergebnis.kennzahlen.symbolUeberNetzMm.toFixed(1)} mm ueber dem Netz
       </p>

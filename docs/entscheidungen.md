@@ -64,14 +64,18 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   (Standort, Texte, Design mit Vorschaubild, Format, Strassenstufe, Symbol und
   Groesse), Mitte der Komposer, rechts Technik und Prototypenbau, aufklappbar.
 - **Standort als Adresse oder Dezimal-Koordinaten** (Google-Format, auch mit
-  deutschem Komma). Eingefuegte Koordinaten bleiben exakt; der Ortsname kommt
-  aus der Rueckwaerts-Suche.
+  deutschem Komma); der Ortsname kommt aus der Rueckwaerts-Suche.
 - **3D-Reiter** (`ansicht-3d.tsx`, `szene-3d.ts`, three.js): Lagen mit ihrer
   Staerke extrudiert, frei drehbar; auseinandergezogen schwebt das Symbol ueber
   dem Stapel. `?ansicht=3d&lagen=auseinander` oeffnet direkt.
-- **Kundeneingaben werden feldweise gemischt.** Zwei schnelle Klicks (Symbol,
-  dann Groesse) schickten sonst je die ganze alte Kundeneingabe mit, und der
-  zweite machte den ersten rueckgaengig.
+- **Fotoansicht fuer KI-Produktfotos** (`kulisse-3d.ts`, `?foto=1`): Platte 12°
+  an eine Wand gelehnt, Schatten auf Boden/Wand, PNG in doppelter Aufloesung.
+  Test mit Leonardo Nano Banana 2 (Referenz MID und HIGH, 1K, je 0,039 $): Szene
+  fotorealistisch, Karte und alle drei Zeilen korrekt; Details werden aber neu
+  gezeichnet – fuer Listing-Bilder, nicht als Kundenvorschau. Mit Referenzbild
+  verlangt die API `prompt_enhance: OFF` (das Skill-Skript sendet ON).
+- **Kundeneingaben werden feldweise gemischt** – zwei schnelle Klicks (Symbol,
+  dann Groesse) machten sich sonst gegenseitig rueckgaengig.
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)
 
@@ -93,8 +97,7 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Scrollen der Seite ueber der grossen Vorschau.
 - Umrechnung mm <-> Ort (`ortZuMm`, `mmZuOrt`) wie beim Kachelabruf: Karte 30 mm
   verschoben -> Symbol 30,000 mm; 20 mm tiefer -> 357 m, 12 Bogensekunden.
-- Rechenzeit waechst mit dem Ausschnitt: Berlin 3,5 km 0,6 s, 5,5 km 1,6 s,
-  8,6 km 5,3 s.
+- Rechenzeit: Berlin 3,5 km 0,6 s, 5,5 km 1,6 s, 8,6 km 5,3 s.
 
 ## Layout
 
