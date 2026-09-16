@@ -70,7 +70,8 @@ Platte wären Straßen zu fein zum Schneiden und werden graviert (bei Straßenne
 | 5,5 km | Wohnstraßen und Bahn graviert | Wohnstraßen graviert | Wohnstraßen graviert |
 | 9 km | Wohnstraßen, Bahn und Tertiärstraßen graviert | Wohnstraßen und Bahn graviert | Wohnstraßen graviert |
 
-Brücken über Wasser bleiben immer geschnitten, auch wenn ihre Straßenklasse graviert wird.
+Brücken über Wasser bleiben sichtbar: wird eine Straße oder ein Gleis graviert, läuft die Gravur auf einem
+schmalen Streifen der Hintergrundlage über das Wasser (Hohenzollernbrücke bei „wenig geschnitten“).
 
 ## 3 Erklärbild
 
