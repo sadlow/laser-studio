@@ -36,6 +36,11 @@ const WEGETYPEN_OHNE = new Set([
   "corridor",
 ]);
 
+// Gleise, die es nicht (mehr) gibt: geplant, im Bau, abgerissen, aufgegeben (Schienen entfernt).
+// Mapbox fuehrt sie als Nebengleise; graviert lagen in Frankfurt alte Hafenbahngleise quer ueber den
+// Bloecken (31 cm Gravurweg bei 3,5 km). Stillgelegte Gleise ("disused") liegen noch und bleiben.
+const NICHT_VORHANDEN = new Set(["proposed", "construction", "razed", "abandoned"]);
+
 // Kacheln aendern sich nicht, waehrend jemand am Titel tippt. Ohne Cache laedt
 // jede Aenderung im Formular die ganze Karte neu von Mapbox.
 const KACHEL_CACHE = new Map<string, ArrayBuffer | null>();
@@ -135,7 +140,8 @@ export async function ladeKartenRohdaten(opts: {
         // Tunnel liegen unter der Erde – als Acrylstreifen laegen sie mitten
         // auf einem Stadtblock. Gemessen: Berlin-Tiergarten hat 21 Tunnelstuecke.
         if (f.properties.structure === "tunnel") continue;
-        if (WEGETYPEN_OHNE.has(String(f.properties.type ?? ""))) continue;
+        const typ = String(f.properties.type ?? "");
+        if (WEGETYPEN_OHNE.has(typ) || NICHT_VORHANDEN.has(typ)) continue;
         const klasse = String(f.properties.class ?? "");
         const liste = strassen.get(klasse) ?? [];
         const brueckenListe = bruecken.get(klasse) ?? [];
