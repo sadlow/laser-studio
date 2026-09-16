@@ -148,10 +148,24 @@
     "netzMinBreiteMm": 0.8,
     "generalisierung": {
       "aktiv": true,
-      "zielDeckung": 0.33,
       "maxFaktor": 1.4,
-      "maxAufdickung": 1.4,
-      "nachruecken": true
+      "stufen": {
+        "viel": {
+          "zielDeckung": 0.42,
+          "maxAufdickung": 2,
+          "nachruecken": "immer"
+        },
+        "ausgewogen": {
+          "zielDeckung": 0.33,
+          "maxAufdickung": 1.4,
+          "nachruecken": "licht"
+        },
+        "wenig": {
+          "zielDeckung": 0.26,
+          "maxAufdickung": 1,
+          "nachruecken": "nie"
+        }
+      }
     },
     "netzMinLochMm2": 4,
     "wasser": true,

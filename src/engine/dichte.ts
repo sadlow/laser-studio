@@ -4,16 +4,17 @@ import type { Schichtkarte, StrassenGruppe, Zone } from "./typen";
 
 /**
  * Welche Strassen geschnitten werden und wie breit – aus der Dichte vor Ort
- * (Vertrag: `Generalisierung` in typen-strassen.ts).
+ * und der Stufe, die der Kunde waehlt (Vertrag: `Generalisierung` in
+ * typen-strassen.ts).
  *
  * Gemessen an acht Referenzorten, A4, 3,5 km, Deckung auf dem Land mit den
  * Breiten der Vorlage: Berlin-Tiergarten 33 %, Hamburg 49 %, Bogota 50 %,
  * Amsterdam 61 %, Tokio 64 %, New York 75 %, Allgaeu 7 %, Venedig 3 %. Mit
  * einer festen Breite lief Tokio weiss zu und das Allgaeu blieb schwarz.
  */
-// Nachgerueckt wird erst unter der halben Zieldeckung, dann bis 10 % darueber:
-// eine ganze Klasse auf Mindestbreite laesst sich nicht feiner dosieren.
-// Venedig bei 2 km: Gassen 35 %.
+// "licht" rueckt erst unter der halben Zieldeckung nach. Nachgerueckt wird bis
+// 10 % ueber das Ziel: eine ganze Klasse auf Mindestbreite laesst sich nicht
+// feiner dosieren (Venedig bei 2 km: Gassen 35 %).
 const NACHRUECKEN_UNTER = 0.5;
 const NACHRUECKEN_BIS = 1.1;
 
@@ -23,8 +24,6 @@ export interface NetzAuswahl {
   dichtefaktor: number;
   /** Deckung mit den Breiten der Vorlage (x Format), vor jeder Anpassung. */
   deckungVorOrt: number;
-  /** Deckung mit den gewaehlten Breiten. */
-  deckung: number;
   herabgestuft: string[];
   nachgerueckt: string[];
   anMindestbreite: string[];
@@ -45,36 +44,53 @@ export function laengenImFenster(k: Schichtkarte, roh: KartenRohdaten, f: Zone):
   return laengen;
 }
 
-export function waehleNetz(k: Schichtkarte, laengen: Map<string, number>, landMm2: number, formatfaktor: number): NetzAuswahl {
+export function waehleNetz(
+  k: Schichtkarte,
+  laengen: Map<string, number>,
+  landMm2: number,
+  formatfaktor: number,
+  ohneNachruecken = false,
+): NetzAuswahl {
   const g = k.generalisierung;
+  const stufe = g.stufen[k.kunde.strassenStufe] ?? g.stufen.ausgewogen;
   const land = Math.max(1, landMm2);
   const lang = (s: StrassenGruppe) => (laengen.get(s.id) ?? 0) > 0;
   // Feinste zuerst: sie werden als erste graviert statt geschnitten.
   let netz = k.strassen.filter((s) => s.ziel === "netz" && lang(s)).sort((a, b) => a.breiteMm - b.breiteMm);
+  const nachgerueckt: StrassenGruppe[] = [];
+  const breite = (x: StrassenGruppe, df: number) =>
+    nachgerueckt.includes(x) ? k.netzMinBreiteMm : Math.max(k.netzMinBreiteMm, x.breiteMm * formatfaktor * df);
   const deckungMit = (gruppen: StrassenGruppe[], df: number) =>
-    gruppen.reduce((s, x) => s + laengen.get(x.id)! * Math.max(k.netzMinBreiteMm, x.breiteMm * formatfaktor * df), 0) / land;
+    gruppen.reduce((s, x) => s + laengen.get(x.id)! * breite(x, df), 0) / land;
+  const loeseFuer = (gruppen: StrassenGruppe[]) => loese((d) => deckungMit(gruppen, d), stufe.zielDeckung, g.maxFaktor);
+  const schneidbar = (gruppen: StrassenGruppe[], df: number) => {
+    const feinste = gruppen.find((x) => !nachgerueckt.includes(x));
+    return !feinste || feinste.breiteMm * formatfaktor * df * stufe.maxAufdickung >= k.netzMinBreiteMm;
+  };
   const deckungVorOrt = netz.reduce((s, x) => s + laengen.get(x.id)! * x.breiteMm * formatfaktor, 0) / land;
   const herabgestuft: string[] = [];
-  const nachgerueckt: string[] = [];
 
   let df = 1;
   if (g.aktiv) {
-    df = loese((d) => deckungMit(netz, d), g.zielDeckung, g.maxFaktor);
-    while (netz.length > 1 && netz[0].breiteMm * formatfaktor * df * g.maxAufdickung < k.netzMinBreiteMm) {
+    df = loeseFuer(netz);
+    while (netz.length > 1 && !schneidbar(netz, df)) {
       herabgestuft.push(netz[0].titel);
       netz = netz.slice(1);
-      df = loese((d) => deckungMit(netz, d), g.zielDeckung, g.maxFaktor);
+      df = loeseFuer(netz);
     }
-    // Zu licht: die naechste Gravurklasse rueckt nach, solange das Netz nicht zu
-    // dicht wird. Allgaeu: Zufahrten und Feldwege; Venedig ab 2 km: Gassen.
-    // Kleinstaedte (Deckung 20-28 %) bleiben, wie sie sind.
-    if (g.nachruecken && !herabgestuft.length && deckungMit(netz, df) < g.zielDeckung * NACHRUECKEN_UNTER) {
-      const kandidaten = k.strassen.filter((s) => s.ziel === "gravur" && s.nachruecken && lang(s));
-      for (const kandidat of kandidaten) {
+    const modus = ohneNachruecken || herabgestuft.length ? "nie" : stufe.nachruecken;
+    if (modus === "immer" || (modus === "licht" && deckungMit(netz, df) < stufe.zielDeckung * NACHRUECKEN_UNTER)) {
+      for (const kandidat of k.strassen.filter((s) => s.ziel === "gravur" && s.nachruecken && lang(s))) {
+        nachgerueckt.push(kandidat);
         const probe = [kandidat, ...netz];
-        if (deckungMit(probe, df) > g.zielDeckung * NACHRUECKEN_BIS) break;
+        // "licht": Breiten bleiben, "immer": das Netz gibt fuer die neue Klasse nach.
+        const dfProbe = modus === "immer" ? loeseFuer(probe) : df;
+        if (deckungMit(probe, dfProbe) > stufe.zielDeckung * NACHRUECKEN_BIS || !schneidbar(netz, dfProbe)) {
+          nachgerueckt.pop();
+          break;
+        }
         netz = probe;
-        nachgerueckt.push(kandidat.titel);
+        df = dfProbe;
       }
     }
   }
@@ -82,13 +98,10 @@ export function waehleNetz(k: Schichtkarte, laengen: Map<string, number>, landMm
   const breiten = new Map<string, number>();
   const anMindestbreite: string[] = [];
   for (const x of netz) {
-    // Nachgerueckte Klassen sind fuer die Gravur bemessen – im Netz gilt die Mindestbreite.
-    const breite = nachgerueckt.includes(x.titel) ? k.netzMinBreiteMm : x.breiteMm * formatfaktor * df;
-    if (breite < k.netzMinBreiteMm && !nachgerueckt.includes(x.titel)) anMindestbreite.push(x.titel);
-    breiten.set(x.id, Math.max(k.netzMinBreiteMm, breite));
+    if (!nachgerueckt.includes(x) && x.breiteMm * formatfaktor * df < k.netzMinBreiteMm) anMindestbreite.push(x.titel);
+    breiten.set(x.id, breite(x, df));
   }
-  const deckung = [...breiten.entries()].reduce((s, [id, b]) => s + (laengen.get(id) ?? 0) * b, 0) / land;
-  return { breiten, dichtefaktor: df, deckungVorOrt, deckung, herabgestuft, nachgerueckt, anMindestbreite };
+  return { breiten, dichtefaktor: df, deckungVorOrt, herabgestuft, nachgerueckt: nachgerueckt.map((x) => x.titel), anMindestbreite };
 }
 
 /** Faktor, bei dem die Deckung das Ziel trifft; die Deckung waechst mit dem Faktor. */

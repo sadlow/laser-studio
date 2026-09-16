@@ -63,8 +63,9 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
     );
   }
   if (b.kennzahlen.nachgerueckt.length > 0) {
+    const immer = k.generalisierung.stufen[k.kunde.strassenStufe]?.nachruecken === "immer";
     warnungen.push(
-      `Der Ort ist licht (${Math.round(b.kennzahlen.deckungVorOrt * 100)} % Deckung): ` +
+      (immer ? "Mehr Strassen geschnitten: " : `Der Ort ist licht (${Math.round(b.kennzahlen.deckungVorOrt * 100)} % Deckung): `) +
         `${b.kennzahlen.nachgerueckt.join(", ")} werden mitgeschnitten statt graviert.`,
     );
   }

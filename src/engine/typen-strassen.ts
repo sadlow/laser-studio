@@ -44,12 +44,29 @@ export const REFERENZ_KARTENBREITE_MM = 196;
  */
 export interface Generalisierung {
   aktiv: boolean;
-  /** Deckung, fuer die die Breiten der Vorlage entworfen sind (Berlin-Tiergarten, 3,5 km, A4: 0,33). */
-  zielDeckung: number;
   /** So viel breiter als entworfen darf eine Strasse in lichten Gegenden werden. */
   maxFaktor: number;
-  /** So viel darf eine zu schmale Netzstrasse aufgedickt werden, bevor sie graviert wird. */
+  /** Was die Stufen bedeuten, die der Kunde waehlt. */
+  stufen: Record<StrassenStufe, StufenWerte>;
+}
+
+/**
+ * Kundenwahl, nicht stufenlos (Marcel 16.09.2026): viele Strassen geschnitten,
+ * ausgewogen, oder wenige geschnitten und viel Gravur – je nach Ausschnitt.
+ */
+export type StrassenStufe = "viel" | "ausgewogen" | "wenig";
+
+/**
+ * nie:   keine Gravurklasse rueckt ins Netz.
+ * licht: nur, wenn der Ort unter der halben Zieldeckung bleibt (Allgaeu).
+ * immer: ueberall, solange dafuer keine geschnittene Klasse graviert werden muss.
+ */
+export type Nachruecken = "nie" | "licht" | "immer";
+
+export interface StufenWerte {
+  /** Deckung, auf die die Netzbreiten skaliert werden (ausgewogen: Berlin-Tiergarten 3,5 km = 0,33). */
+  zielDeckung: number;
+  /** So viel darf die feinste Netzklasse aufgedickt werden, bevor sie graviert wird. */
   maxAufdickung: number;
-  /** Bleibt das Netz trotz maxFaktor licht, ruecken markierte Gravurklassen nach. */
-  nachruecken: boolean;
+  nachruecken: Nachruecken;
 }

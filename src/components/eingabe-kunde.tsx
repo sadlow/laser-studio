@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Kundeneingabe, Schichtkarte } from "@/engine/typen";
 import { REFERENZORTE } from "@/referenzorte";
 import { Block, Text } from "./felder";
+import { STUFEN } from "./stufen-tabelle";
 
 interface Props {
   karte: Schichtkarte;
@@ -88,6 +89,23 @@ export function EingabeKunde({ karte, aendern }: Props) {
                 </button>
               );
             })}
+          </div>
+        </div>
+
+        <div>
+          <span className="beschriftung">Strassennetz</span>
+          <div className="grid grid-cols-3 gap-1">
+            {STUFEN.map(({ wert, titel }) => (
+              <button
+                key={wert}
+                type="button"
+                onClick={() => setze({ strassenStufe: wert })}
+                className="rounded-md border px-2 py-1 text-xs leading-tight"
+                style={k.strassenStufe === wert ? { background: "var(--akzent)", borderColor: "var(--akzent)", color: "#fff" } : { borderColor: "var(--linie)" }}
+              >
+                {titel}
+              </button>
+            ))}
           </div>
         </div>
 

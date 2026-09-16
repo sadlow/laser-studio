@@ -123,6 +123,13 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Feldwege), erst unter der halben Zieldeckung und bis 10 % darueber. Allgaeu
   6 -> 12 % Netz. Liegt danach mehr als 10 % der Netzflaeche lose, bleibt es bei
   der Gravur: Venedigs Gassen bei 2 km (Bruecken sind Fusswege) 78 %.
+- **Drei Stufen fuer den Kunden statt eines Reglers** (Marcel 16.09.2026: viel
+  geschnitten / ausgewogen / wenig geschnitten, viel Gravur). Die Wahl steht in
+  der Kundeneingabe, die Bedeutung in der Vorlage: viel 42 % / Aufdicken 2 /
+  Nachruecken immer, ausgewogen 33 % / 1,4 / licht, wenig 26 % / 1 / nie.
+  Netz im Fenster bei 3,5 km: Berlin 27/22/16 %, Hamburg 23/18/12, Bogota
+  30/25/18, Tokio 32/15/12, Allgaeu 11/11/8. Rechenzeit A4 hoechstens 1,2 s –
+  live ohne Aktualisieren-Knopf.
 - **Lose Netzstuecke werden graviert statt geschnitten** (Marcel 16.09.2026:
   "meist nur Artefakte"). Vorher 1-13 mm2 gross, orange markiert; Ursache meist
   Anschluss nur ueber Fussweg, Treppe oder Tunnel. Stege zu nahen Stuecken

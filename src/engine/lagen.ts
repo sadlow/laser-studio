@@ -68,7 +68,7 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   const nachrueckenVerworfen: string[] = [];
   if (auswahl.nachgerueckt.length && n.loseAnteil > NACHRUECKEN_MAX_LOSE_ANTEIL) {
     nachrueckenVerworfen.push(...auswahl.nachgerueckt);
-    auswahl = waehleNetz({ ...k, generalisierung: { ...k.generalisierung, nachruecken: false } }, laengen, land, faktor);
+    auswahl = waehleNetz(k, laengen, land, faktor, true);
     n = baueNetz(k, roh, layout, schutz, auswahl);
   }
   const { netz, gravur: gravurRoh } = n;

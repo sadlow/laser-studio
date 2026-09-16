@@ -55,6 +55,7 @@ export function standardSchichtkarte(): Schichtkarte {
       letzteZeile: "koordinaten",
       ortText: "Berlin",
       wunschtext: "",
+      strassenStufe: "ausgewogen",
     },
     lon: 13.3375,
     lat: 52.5164,
@@ -87,12 +88,22 @@ export function standardSchichtkarte(): Schichtkarte {
     zeilenStil: { schrift: "AvantGarde-Book.otf", hoeheAnteil: 0.01825, sperrung: 0.14, versalien: true },
     strassen: STRASSEN_STANDARD.map((g) => ({ ...g, klassen: [...g.klassen] })),
     netzMinBreiteMm: 0.8,
-    // Ziel 33 %: Berlin-Tiergarten bei 3,5 km, fuer das die Breiten entworfen
-    // sind, bleibt unveraendert. Hoechstens 1,4-fach breiter, sonst klobig.
-    // Aufdicken bis 1,4: dann behalten Hamburg, Bogota und Paris ihre
-    // Wohnstrassen, und die breiten Hauptstrassen geben nach. Bei 1,25 verloren
-    // Koeln und New York bei 6 km zusaetzlich die Bahn (17 Orte, 2/3,5/6 km).
-    generalisierung: { aktiv: true, zielDeckung: 0.33, maxFaktor: 1.4, maxAufdickung: 1.4, nachruecken: true },
+    // Hoechstens 1,4-fach breiter als entworfen, sonst klobig.
+    // ausgewogen – Ziel 33 %: Berlin-Tiergarten bei 3,5 km, fuer das die Breiten
+    // entworfen sind, bleibt unveraendert. Aufdicken bis 1,4: Hamburg, Bogota und
+    // Paris behalten ihre Wohnstrassen, die breiten Hauptstrassen geben nach. Bei
+    // 1,25 verloren Koeln und New York bei 6 km zusaetzlich die Bahn.
+    // wenig – die feinste Klasse wird graviert, sobald sie aufgedickt werden muesste.
+    // viel – dichte Wohnstrassen bleiben, Zufahrten und Fussgaengerzonen ruecken nach.
+    generalisierung: {
+      aktiv: true,
+      maxFaktor: 1.4,
+      stufen: {
+        viel: { zielDeckung: 0.42, maxAufdickung: 2, nachruecken: "immer" },
+        ausgewogen: { zielDeckung: 0.33, maxAufdickung: 1.4, nachruecken: "licht" },
+        wenig: { zielDeckung: 0.26, maxAufdickung: 1, nachruecken: "nie" },
+      },
+    },
     netzMinLochMm2: 4,
     wasser: true,
     wasserlaeufe: false,

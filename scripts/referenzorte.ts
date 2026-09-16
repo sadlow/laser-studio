@@ -1,5 +1,5 @@
 // Rendert dieselbe Vorlage an allen Referenzorten und meldet, wo Grenzwerte brechen.
-// Aufruf: npx tsx scripts/referenzorte.ts [zielordner] [netz-weiss|netz-schwarz] [km]
+// Aufruf: npx tsx scripts/referenzorte.ts [zielordner] [netz-weiss|netz-schwarz] [km] [viel|ausgewogen|wenig]
 import fs from "node:fs";
 import path from "node:path";
 import { berechneLayout, rendereSchichtkarte, standardSchichtkarte, type Schichtkarte, type Teil } from "../src/engine";
@@ -17,6 +17,7 @@ async function main() {
   const ziel = process.argv[2] ?? "export/referenzorte";
   const aufbau = (process.argv[3] ?? "netz-weiss") as Schichtkarte["aufbau"];
   const km = Number(process.argv[4] ?? 3.5);
+  const stufe = (process.argv[5] ?? "ausgewogen") as Schichtkarte["kunde"]["strassenStufe"];
   fs.mkdirSync(ziel, { recursive: true });
   const token = fs.readFileSync(".env.local", "utf8").match(/MAPBOX_ACCESS_TOKEN=(.*)/)?.[1]?.trim() ?? "";
   const zeilen: string[] = [];
@@ -30,7 +31,7 @@ async function main() {
       ausschnittKm: km,
       lon: ort.lon,
       lat: ort.lat,
-      kunde: { ...basis.kunde, adresse: ort.name, ortText: ort.ortText },
+      kunde: { ...basis.kunde, adresse: ort.name, ortText: ort.ortText, strassenStufe: stufe },
     };
     const r = await rendereSchichtkarte(k, token);
     fs.writeFileSync(path.join(ziel, `${ort.id}.svg`), r.vorschauSvg);

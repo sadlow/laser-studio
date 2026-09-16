@@ -2,6 +2,7 @@
 
 import type { Generalisierung, Schichtkarte, StrassenGruppe, StrassenZiel } from "@/engine/typen";
 import { Block, Haken, Zahl } from "./felder";
+import { StufenTabelle } from "./stufen-tabelle";
 
 interface Props {
   karte: Schichtkarte;
@@ -51,19 +52,14 @@ export function EingabeStrassen({ karte, aendern }: Props) {
         <Haken titel="Breite folgt der Dichte vor Ort" wert={gen.aktiv} aendern={(v) => setzeGen({ aktiv: v })} />
         {gen.aktiv && (
           <>
-            <div className="grid grid-cols-3 gap-2">
-              <Zahl titel="Ziel-Deckung" einheit="%" schritt={1} min={5} wert={Math.round(gen.zielDeckung * 100)}
-                aendern={(v) => setzeGen({ zielDeckung: v / 100 })} />
-              <Zahl titel="hoechstens" einheit="x" schritt={0.05} min={1} wert={gen.maxFaktor}
-                aendern={(v) => setzeGen({ maxFaktor: v })} />
-              <Zahl titel="Aufdicken bis" einheit="x" schritt={0.05} min={1} wert={gen.maxAufdickung}
-                aendern={(v) => setzeGen({ maxAufdickung: v })} />
-            </div>
-            <Haken titel="Lichte Orte: markierte Wege ruecken ins Netz nach" wert={gen.nachruecken} aendern={(v) => setzeGen({ nachruecken: v })} />
+            <StufenTabelle gen={gen} setzeGen={setzeGen} />
+            <Zahl titel="Hoechstens breiter als entworfen" einheit="x" schritt={0.05} min={1} wert={gen.maxFaktor}
+              aendern={(v) => setzeGen({ maxFaktor: v })} />
             <p className="text-xs" style={{ color: "var(--gedaempft)" }}>
-              Deckung = Strassenlaenge × Breite / Land im Fenster. Alle Netzbreiten werden so skaliert, dass sie das Ziel
-              trifft (Berlin-Tiergarten 3,5 km = 33 %). Muesste die feinste Netzklasse dafuer mehr als aufgedickt werden,
-              wird sie graviert. Ist der Ort sehr licht, ruecken die markierten Gravurklassen nach.
+              Deckung = Strassenlaenge × Breite / Land im Fenster. Die Netzbreiten werden auf das Ziel der gewaehlten Stufe
+              skaliert (Berlin-Tiergarten 3,5 km = 33 %). Muesste die feinste Netzklasse mehr als aufgedickt werden, wird
+              sie graviert. Nachruecken: markierte Gravurklassen (Haken rechts) – „licht" nur in lichten Gegenden,
+              „immer" solange keine geschnittene Klasse dafuer weichen muss.
             </p>
           </>
         )}
@@ -95,7 +91,7 @@ export function EingabeStrassen({ karte, aendern }: Props) {
             </label>
             <input
               type="checkbox"
-              title="Darf in lichten Gegenden ins Netz nachruecken"
+              title="Darf ins Netz nachruecken (Stufen mit nachruecken licht oder immer)"
               disabled={g.ziel !== "gravur"}
               checked={!!g.nachruecken}
               onChange={(e) => setze(g.id, { nachruecken: e.target.checked })}

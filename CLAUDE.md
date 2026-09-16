@@ -44,7 +44,7 @@ Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Ausschnitt in km, Strassen wachsen mit dem Format; Mindestbreite Netz 0,8 mm
 - Stege am Scheitel, hoechstens 0,5 mm und halber Strich; Inseln < 1 mm zu
 - Gravur als Flaeche nur im Export; nie unter Netz, Text oder Wasser
-- Strassenbreite folgt der Dichte vor Ort (Ziel 33 %); zu dichte Klassen graviert, lichte ruecken nach
+- Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 42/33/26 %)
 - Lose Netzstuecke graviert; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
 - Tunnel, Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet
 - Zeilenschrift Avant Garde Book, Sperrung 0,14 (Deckschicht 2 mm; ExtraLight 0,20 mm zu duenn)
@@ -68,7 +68,6 @@ npm install && npm run dev   # http://localhost:3010
 
 ## Offen
 
-- Drei Strassenstufen fuer Kunden: viel / ausgewogen / wenig geschnitten (Marcel 16.09.2026)
 - Karte ziehen/zoomen, Herz verschiebbar, Koordinaten = Herzspitze (Mapbox GL)
 - Exportdateien noch nicht in xTool Studio geoeffnet
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz

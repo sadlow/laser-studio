@@ -9,7 +9,7 @@
 // Alles, was das Produkt beschreibt, steht hier. Die UI ist ein Formular auf
 // diese Typen, die Produktion ruft dieselbe Funktion auf. Kein React, kein Next.
 
-import type { Generalisierung, StrassenGruppe } from "./typen-strassen";
+import type { Generalisierung, StrassenGruppe, StrassenStufe } from "./typen-strassen";
 
 export type FormatKey = "a5" | "a4" | "a3" | "quadrat30" | "frei";
 
@@ -24,6 +24,8 @@ export interface Kundeneingabe {
   /** Ort vor den Koordinaten ("BERLIN"). */
   ortText: string;
   wunschtext: string;
+  /** Wie viel vom Strassennetz geschnitten wird – die Bedeutung legt die Vorlage fest. */
+  strassenStufe: StrassenStufe;
 }
 
 /**
