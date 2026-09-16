@@ -27,7 +27,7 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 | `layout.ts`, `textblock.ts`, `ecken.ts` | Zonen; Texte im Poster bzw. in Reitern |
 | `poster-masse.ts`, `symbole.ts` | Gemessene Poster-Masse je Format; Standort-Symbole mit Anker |
 | `stencil.ts` | Stege fuer Innenflaechen im ausgeschnittenen Text |
-| `dichte.ts`, `netz.ts` | Netzklassen und Breiten nach Dichte vor Ort; lose Stuecke -> Gravur |
+| `dichte.ts`, `netz.ts`, `bruecken.ts` | Netzklassen und Breiten nach Dichte vor Ort; lose Stuecke -> Gravur; Bruecken gravierter Strassen |
 | `wasser.ts` | Wasser im Fenster, schmale Kanaele und kleine Inseln raus |
 | `lagen.ts` | Bausteine: Netz, Wasser, Textausschnitt, Gravur, Herz |
 | `stapel.ts` | Lagen je Aufbau (weisses oder schwarzes Netz) + Vorschau |

@@ -2,6 +2,7 @@ import { clipPolyline, type Punkt } from "./clip";
 import type { NetzAuswahl } from "./dichte";
 import { ausTeilen, flaecheMm2, puffereLinien, rechteck, schneide, teile, vereinige, ziehAb, ziehLinienAb, type Flaeche } from "./geometrie";
 import type { KartenRohdaten } from "./kacheln";
+import { BRUECKE_RAND_MM, type BrueckenLinien } from "./bruecken";
 import { REFERENZ_KARTENBREITE_MM, type Layout, type Schichtkarte } from "./typen";
 import { SPLITTER_MM2 } from "./wasser";
 
@@ -13,6 +14,8 @@ export interface Netz {
   /** Strassen samt zugefuellter Kleinbloecke, ohne lose Stuecke, im Fenster. */
   netz: Flaeche;
   gravur: { linien: Punkt[][]; breiteMm: number }[];
+  /** Brueckenstuecke je Lage – gravierte traegt ueber Wasser der Hintergrund (bruecken.ts). */
+  bruecken: { graviert: BrueckenLinien[]; netz: BrueckenLinien[] };
   kleineBloecke: number;
   /** Lose Stuecke, die statt geschnitten graviert werden. */
   loseZurGravur: number;
@@ -21,43 +24,42 @@ export interface Netz {
 }
 
 /**
- * Puffert die gewaehlten Netzklassen, alle anderen gehen in die Gravur.
+ * Puffert die gewaehlten Netzklassen, alle anderen gehen in die Gravur. Die Brueckenstuecke
+ * gehen je nach Lage ihres Wegs mit – was davon ueber Wasser steht, entscheidet bruecken.ts.
  *
- * Bruecken ueber Wasser bleiben geschnitten, auch wenn ihre Klasse gerade graviert wird
- * (Marcel 17.09.2026: bei "wenig geschnitten" verschwanden in Koeln die Rheinbruecken).
- * Gravur ueber Wasser gibt es nicht – die Bahn als Gravurklasse hatte ueber dem Rhein
- * schlicht keinen Strich mehr. Gilt fuer Netzklassen, nicht fuer Fusswege.
+ * Gravierte Bruecken nur fuer Strassen und Gleise. Fuss- und Radwege, Fussgaengerzonen,
+ * Zufahrten und Feldwege nicht: in diesen Klassen stecken Stege, Anleger und Pontons – in
+ * Hamburg wurden die Bootsanleger zu schwarzen Kaemmen im Hafenbecken.
  */
-export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, schutz: Flaeche, auswahl: NetzAuswahl, symbolLoch: Flaeche = [], wasser: Flaeche = []): Netz {
+export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, schutz: Flaeche, auswahl: NetzAuswahl, symbolLoch: Flaeche = []): Netz {
   const { platte, kartenfenster: f } = layout;
   const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
   const imFenster = (linien: Punkt[][]) =>
     linien.flatMap((l) => clipPolyline(l, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm));
-  const strichHerabgestuft = Math.max(0.15, GRAVUR_HERABGESTUFT_MM * (f.breiteMm / REFERENZ_KARTENBREITE_MM) * auswahl.dichtefaktor);
+  const massstab = f.breiteMm / REFERENZ_KARTENBREITE_MM;
+  const strichHerabgestuft = Math.max(0.15, GRAVUR_HERABGESTUFT_MM * massstab * auswahl.dichtefaktor);
+  const brueckeFuer = (strich: number) => Math.max(k.netzMinBreiteMm, strich + 2 * BRUECKE_RAND_MM);
   const netzTeile: Flaeche[] = [];
   const netzLinien: Punkt[][] = [];
   const gravur: Netz["gravur"] = [];
+  const netzBruecken: BrueckenLinien[] = [];
+  const gravurBruecken: BrueckenLinien[] = [];
   for (const gruppe of k.strassen) {
     if (gruppe.ziel === "aus") continue;
     const linien = gruppe.klassen.flatMap((kl) => roh.strassen.get(kl) ?? []);
     if (!linien.length) continue;
+    const bruecken = gruppe.klassen.flatMap((kl) => roh.bruecken.get(kl) ?? []);
     const breite = auswahl.breiten.get(gruppe.id);
     if (breite !== undefined) {
       netzTeile.push(puffereLinien(linien, breite));
       netzLinien.push(...linien);
+      if (bruecken.length) netzBruecken.push({ linien: bruecken, breiteMm: breite });
       continue;
     }
-    const bruecken = gruppe.ziel === "netz" && wasser.length
-      ? gruppe.klassen.flatMap((kl) => roh.bruecken.get(kl) ?? []).filter((l) => ziehLinienAb([l], wasser, true).length > 0)
-      : [];
-    if (bruecken.length) {
-      netzTeile.push(puffereLinien(bruecken, Math.max(k.netzMinBreiteMm, gruppe.breiteMm * (f.breiteMm / REFERENZ_KARTENBREITE_MM) * auswahl.dichtefaktor)));
-      netzLinien.push(...bruecken);
-    }
-    const strich = gruppe.ziel === "netz"
-      ? strichHerabgestuft
-      : Math.max(0.15, gruppe.breiteMm * (f.breiteMm / REFERENZ_KARTENBREITE_MM) * auswahl.dichtefaktor);
+    const strich = gruppe.ziel === "netz" ? strichHerabgestuft : Math.max(0.15, gruppe.breiteMm * massstab * auswahl.dichtefaktor);
     gravur.push({ linien: imFenster(linien), breiteMm: strich });
+    const befahren = gruppe.ziel === "netz" || gruppe.klassen.some((kl) => kl.endsWith("_rail"));
+    if (befahren && bruecken.length) gravurBruecken.push({ linien: bruecken, breiteMm: brueckeFuer(strich) });
   }
   const strassen = schneide(vereinige(...netzTeile), fensterFl);
 
@@ -71,16 +73,20 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
   // Lose Stuecke haengen nirgends am Netz (meist nur ueber einen gravierten Weg,
   // eine Treppe oder einen Tunnel) und fielen beim Schneiden heraus. Sie werden
   // graviert statt geschnitten – "meist nur Artefakte" (Marcel 16.09.2026).
+  // Ihre Bruecken werden damit zu Bruecken gravierter Wege.
   const rahmen = ziehAb(rechteck(0, 0, platte.breiteMm, platte.hoeheMm), fensterFl);
   // Das Symbol-Loch zaehlt mit: was es vom Netz abtrennt, faellt sonst lose heraus.
   const [, ...lose] = teile(ziehAb(vereinige(rahmen, mitBloecken, schutz), symbolLoch), SPLITTER_MM2);
-  if (!lose.length) return { netz: mitBloecken, gravur, kleineBloecke: kleineBloecke.length, loseZurGravur: 0, loseAnteil: 0 };
-
-  const loseFl = ausTeilen(lose);
-  gravur.push({ linien: ziehLinienAb(imFenster(netzLinien), loseFl, true), breiteMm: strichHerabgestuft });
+  const loseFl = lose.length ? ausTeilen(lose) : [];
+  if (lose.length) {
+    gravur.push({ linien: ziehLinienAb(imFenster(netzLinien), loseFl, true), breiteMm: strichHerabgestuft });
+    const loseBruecken = netzBruecken.flatMap((b) => ziehLinienAb(b.linien, loseFl, true));
+    if (loseBruecken.length) gravurBruecken.push({ linien: loseBruecken, breiteMm: brueckeFuer(strichHerabgestuft) });
+  }
   return {
-    netz: ziehAb(mitBloecken, loseFl),
+    netz: lose.length ? ziehAb(mitBloecken, loseFl) : mitBloecken,
     gravur,
+    bruecken: { graviert: gravurBruecken, netz: netzBruecken.map((b) => ({ ...b, linien: ziehLinienAb(b.linien, loseFl) })) },
     kleineBloecke: kleineBloecke.length,
     loseZurGravur: lose.length,
     loseAnteil: lose.reduce((a, t) => a + t.flaecheMm2, 0) / Math.max(1, flaecheMm2(mitBloecken)),

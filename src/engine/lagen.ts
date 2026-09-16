@@ -1,5 +1,6 @@
 import type { Punkt } from "./clip";
 import { laengenImFenster, waehleNetz } from "./dichte";
+import { brueckenStreifen } from "./bruecken";
 import { baueNetz } from "./netz";
 import {
   flaecheMm2,
@@ -94,7 +95,7 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   const land = flaecheMm2(ziehAb(fensterFl, wasser.gesamt));
   const laengen = laengenImFenster(k, roh, f);
   let auswahl = waehleNetz(k, laengen, land, faktor);
-  let n = baueNetz(k, roh, layout, schutz, auswahl, symbolLoch, wasser.geschnitten);
+  let n = baueNetz(k, roh, layout, schutz, auswahl, symbolLoch);
   // Nachgerueckte Wege muessen ein Netz ergeben, keine losen Stuecke: Venedigs
   // Gassen bei 2 km liegen auf Inseln, deren Bruecken Fusswege und Treppen
   // sind – 78 % der Gassenflaeche lose. Dann bleibt es bei der Gravur.
@@ -102,7 +103,7 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   if (auswahl.nachgerueckt.length && n.loseAnteil > NACHRUECKEN_MAX_LOSE_ANTEIL) {
     nachrueckenVerworfen.push(...auswahl.nachgerueckt);
     auswahl = waehleNetz(k, laengen, land, faktor, true);
-    n = baueNetz(k, roh, layout, schutz, auswahl, symbolLoch, wasser.geschnitten);
+    n = baueNetz(k, roh, layout, schutz, auswahl, symbolLoch);
   }
   const { netz, gravur: gravurRoh } = n;
 
@@ -122,7 +123,10 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
     zugefuellt += z.zugefuelltAnzahl;
   }
 
-  const inseln = kleineInselnFluten(k, plattenFl, wasser.geschnitten, netz);
+  // Unter den Bruecken gravierter Wege bleibt der Hintergrund stehen (bruecken.ts). Was dabei
+  // an Inseln wieder angebunden wird, bleibt; die Gravur laeuft ueber die Bruecke weiter.
+  const streifen = brueckenStreifen(k, n.bruecken.graviert, n.bruecken.netz, wasser.geschnitten);
+  const inseln = kleineInselnFluten(k, plattenFl, ziehAb(wasser.geschnitten, streifen), netz);
 
   // Gravur weder in den ausgeschnittenen Buchstaben (helle Striche im Schwarz)
   // noch ueber Wasser (dort ist kein Material, der Laser graviert Luft) noch

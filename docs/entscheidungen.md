@@ -21,16 +21,16 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   14 mm breit, 28 mm tief, Bild 6 mm eingelassen, 4 mm Ueberstand; Wahl in `kunde`, Profil
   in der Vorlage. Bei 7 mm Rand bleiben 3 mm sichtbar (Kennzahl). Warnung, wenn Karte,
   Symbol oder Text unter den Rahmen reichen oder der Stapel nicht in den Falz passt.
-- **Unter Bruecken kein Wasserschnitt:** der Hintergrund haelt ueber die Bruecke zusammen. **Bruecken ueber Wasser bleiben
-  geschnitten**, auch wenn ihre Klasse graviert wird (Koeln „wenig“: Bahn als Gravur, die Hohenzollernbruecke fehlte).
 - **Unter Texten kein Wasser, keine Gravur**, im schwarzen Netz volles Material –
   sonst helle Striche in den Buchstaben und keine Klebeflaeche.
-- **Gravur nie unter dem Netz, nie ueber Wasser.** Unter dem Netz unsichtbar:
-  A4 Berlin 15,0 m auf 10,4 m Gravurweg, 160 ms.
+- **Gravur nie unter dem Netz, nie ueber Wasser** (unter dem Netz unsichtbar: A4 Berlin 15,0 m auf 10,4 m Gravurweg, 160 ms).
 - **Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet**
   (`WEGETYPEN_OHNE`): Gehwege 32,5 % aller Nebenwege in drei Stadtkacheln, als
   Doppellinie neben jeder Hauptstrasse; Einfahrten 6,7, Ueberwege 2,3, Gassen 1,7.
-- **Tunnel nie, Bruecken immer** (Berlin-Tiergarten: 21 Tunnelstuecke).
+- **Tunnel nie, Bruecken immer** (Berlin-Tiergarten: 21 Tunnelstuecke). Unter Bruecken kein Wasserschnitt, der Hintergrund haelt
+  ueber sie zusammen. **Eine Bruecke zeigt sich in der Lage ihres Wegs** (`bruecken.ts`, Marcel 17.09.2026): gravierte Strassen und
+  Gleise behalten sie als Streifen Hintergrund, die Gravur laeuft darueber (Koeln „wenig“: Hohenzollernbruecke). Nicht fuer Fuss- und
+  Radwege (Stege, Anleger: Hamburg), nur Ufer zu Ufer, keine, die Wasser unter 6 mm² abtrennt; Gleise auf Strassenbruecken gehoeren dazu.
 - **Wasser schmaler als 1 mm wird nicht geschnitten** (`wasser.ts`, Oeffnen vor
   dem Beschnitt). Venedig: Hintergrund 107 -> 5 Teile, die Grachten Amsterdams
   (1,4-1,7 mm) bleiben.
