@@ -39,14 +39,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   im Export; die Live-Vorschau zeichnet dieselben Linien als Strich.
 - **Jeder Schnittring ein eigener Pfad** – keine zusammengesetzten Pfade mit
   Fuellregel in Schnittebenen.
-- **Parameter liegen jedem Export bei** (`parameter.json`), damit ein Prototyp
-  exakt nachbaubar bleibt, auch wenn die Vorlage weiterentwickelt wurde.
+- **Parameter liegen jedem Export bei** (`parameter.json`) – Prototypen bleiben nachbaubar.
 
 ## Vorlagen (`src/server/vorlagen.ts`, `vorlagen/*.json`)
 
 - **Vorlage = Produkt, Kundeneingabe = Bestellung.** Eine Vorlage enthaelt alles
-  ausser `kunde`, `lon`, `lat`. Dieselbe Trennung braucht spaeter der Shop.
-- JSON im Repo statt Datenbank: versioniert, von anderen Systemen lesbar.
+  ausser `kunde`, `lon`, `lat`, `kartenMitte`. JSON im Repo: versioniert, lesbar.
 
 ## Massstab und Formate
 
@@ -64,6 +62,11 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Standort als Adresse oder Dezimal-Koordinaten** (Google-Format, auch mit
   deutschem Komma). Eingefuegte Koordinaten bleiben exakt; der Ortsname kommt
   aus der Rueckwaerts-Suche.
+- **3D-Reiter im Komposer** (`ansicht-3d.tsx`, `szene-3d.ts`, three.js): jede Lage
+  aus ihrer Schnittgeometrie extrudiert, frei drehbar, "Lagen auseinander".
+  Staerken bis auf die Deckschicht angenommen: oben 2 mm (Marcel), sonst 3 mm.
+  Schwarzer Lack spiegelte die Raumumgebung und wirkte grau – Spiegelanteil
+  gesenkt. `?ansicht=3d&lagen=auseinander` oeffnet direkt (Tests, Links).
 - **Kundeneingaben werden feldweise gemischt.** Zwei schnelle Klicks (Symbol,
   dann Groesse) schickten sonst je die ganze alte Kundeneingabe mit, und der
   zweite machte den ersten rueckgaengig.

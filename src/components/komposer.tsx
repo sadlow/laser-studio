@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 import type { LagenKey, Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
 import { ZiehVorschau } from "./zieh-vorschau";
+
+// three.js braucht das Fenster – nur im Browser laden, erst wenn der Reiter offen ist.
+const Ansicht3D = dynamic(() => import("./ansicht-3d").then((m) => m.Ansicht3D), { ssr: false });
 import type { Aenderung } from "./aenderung";
 
 interface Props {
@@ -13,7 +17,7 @@ interface Props {
   aendern: (teil: Aenderung) => void;
 }
 
-type Ansicht = "gesamt" | LagenKey;
+type Ansicht = "gesamt" | "3d" | LagenKey;
 
 /**
  * Das grosse Arbeitsfeld in der Mitte: zusammengesetzte Karte zum Anfassen,
@@ -21,14 +25,20 @@ type Ansicht = "gesamt" | LagenKey;
  */
 export function Komposer({ ergebnis, fehler, laedt, karte, aendern }: Props) {
   const [ansicht, setAnsicht] = useState<Ansicht>("gesamt");
+  // ?ansicht=3d oeffnet direkt die 3D-Ansicht (fuer Tests und geteilte Links).
+  useEffect(() => {
+    const wunsch = new URLSearchParams(window.location.search).get("ansicht");
+    if (wunsch) setAnsicht(wunsch as Ansicht);
+  }, []);
 
   // Der Aufbau bestimmt, welche Lagen es gibt – die Reiter kommen aus dem Ergebnis.
   const lage = ergebnis?.lagen.find((l) => l.key === ansicht);
-  const aktiv: Ansicht = ansicht !== "gesamt" && ergebnis && !lage ? "gesamt" : ansicht;
+  const aktiv: Ansicht = ansicht !== "gesamt" && ansicht !== "3d" && ergebnis && !lage ? "gesamt" : ansicht;
   const svg = aktiv === "gesamt" ? ergebnis?.vorschauSvg : lage?.laserSvg;
   const reiter: { key: Ansicht; titel: string }[] = [
     { key: "gesamt", titel: "Zusammengesetzt" },
     ...(ergebnis?.lagen ?? []).map((l) => ({ key: l.key as Ansicht, titel: l.titel })),
+    { key: "3d", titel: "3D" },
   ];
 
   const speichern = (inhalt: string, name: string) => {
@@ -58,9 +68,11 @@ export function Komposer({ ergebnis, fehler, laedt, karte, aendern }: Props) {
         </span>
       </div>
 
-      <div className={`karte flex min-h-0 flex-1 items-center justify-center p-4 ${aktiv === "gesamt" ? "" : "laser"}`}>
+      <div className={`karte flex min-h-0 flex-1 items-center justify-center ${aktiv === "3d" ? "p-0" : "p-4"} ${aktiv === "gesamt" || aktiv === "3d" ? "" : "laser"}`}>
         {fehler ? (
           <p className="max-w-md text-sm text-red-700">{fehler}</p>
+        ) : ergebnis && aktiv === "3d" ? (
+          <Ansicht3D ergebnis={ergebnis} />
         ) : svg && ergebnis && aktiv === "gesamt" ? (
           <ZiehVorschau svg={svg} ergebnis={ergebnis} karte={karte} aendern={aendern} />
         ) : svg ? (

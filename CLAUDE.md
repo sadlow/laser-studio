@@ -74,7 +74,7 @@ npm install && npm run dev   # http://localhost:3010
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
 - Standort-Bestaetigung: "Luebeck" fand Luebecker Strasse in Koeln
 - Symbol-Auflage: liegt teils auf dem Netz, teils eine Lage tiefer; Anker = Ort, ziehbar in der Vorschau
-- 3D-Ansicht der Lagen (drehbar) – zugesagt, noch nicht gebaut
+- 3D: Materialstaerken ausser Deckschicht (2 mm) angenommen – echte Staerken erfragen
 - Megastaedte wirken lichter als Berlin (Tokio 15 % Netz): Deckung zaehlt Hochstrassen doppelt
 - Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten
 
