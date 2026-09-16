@@ -3,20 +3,24 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 import type { Lage } from "@/engine/typen";
 
 /**
- * Materialien je Lage, getrennt nach Deckflaeche und Schnittkante. Spiegelacryl
- * spiegelt nur vorn, die gelaserte Kante ist farbiges, glaenzendes Acryl – in
- * Nahaufnahmen sieht man genau diese Kanten.
+ * Materialien je Lage, getrennt nach Deckflaeche und Schnittkante. Alles
+ * hochglaenzend (Marcel 16.09.2026: das Schwarz sah aus wie frosted Acrylglas).
+ * Spiegelacryl spiegelt nur vorn, die gelaserte Kante ist farbiges, glaenzendes
+ * Acryl – in Nahaufnahmen sieht man genau diese Kanten. Die Spiegelung des Blaus
+ * uebernimmt eine echte Spiegelflaeche (spiegel-3d.ts).
  */
 export function materialien(lage: Lage): [THREE.Material, THREE.Material] {
   const m = lage.material.toLowerCase();
-  const kante = (farbe: number) => new THREE.MeshPhysicalMaterial({ color: farbe, roughness: 0.22, clearcoat: 0.8, clearcoatRoughness: 0.1 });
-  if (m.includes("blau")) return [new THREE.MeshPhysicalMaterial({ color: 0x6aa3e0, metalness: 1, roughness: 0.08 }), kante(0x3f73ad)];
-  if (m.includes("rot")) return [new THREE.MeshPhysicalMaterial({ color: 0xd8313d, metalness: 1, roughness: 0.12 }), kante(0xa3141f)];
-  // Schwarz wirkte grau: auch schwarzer Lack spiegelt rund 4 % der hellen
-  // Raumumgebung, der Klarlack noch einmal so viel. Weniger Spiegelanteil, kein Klarlack.
+  const kante = (farbe: number) => new THREE.MeshPhysicalMaterial({ color: farbe, roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.03 });
+  if (m.includes("blau")) return [new THREE.MeshPhysicalMaterial({ color: 0x6aa3e0, metalness: 1, roughness: 0.02 }), kante(0x3f73ad)];
+  // Rotes Spiegelacryl nicht voll metallisch: sonst haengt seine Farbe allein an
+  // der Umgebung, flach liegend vor einer dunklen Wand war das Herz schwarzrot.
+  if (m.includes("rot")) return [new THREE.MeshPhysicalMaterial({ color: 0xd01f2e, metalness: 0.55, roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.02 }), kante(0xa3141f)];
+  // Schwarzes Hochglanz-Acryl: scharfe Spiegelung mit wenig Anteil. Stumpf
+  // (roughness 0,4) verschmierte die helle Raumumgebung zu Grau.
   const einfarbig = m.includes("schwarz")
-    ? new THREE.MeshPhysicalMaterial({ color: 0x020202, roughness: 0.4, specularIntensity: 0.3, envMapIntensity: 0.3 })
-    : new THREE.MeshPhysicalMaterial({ color: 0xf2f0ea, roughness: 0.3, clearcoat: 0.5, clearcoatRoughness: 0.2 });
+    ? new THREE.MeshPhysicalMaterial({ color: 0x030303, roughness: 0.05, specularIntensity: 0.5, envMapIntensity: 0.6 })
+    : new THREE.MeshPhysicalMaterial({ color: 0xf2f0ea, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.03 });
   return [einfarbig, einfarbig];
 }
 

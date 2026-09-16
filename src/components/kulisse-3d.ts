@@ -56,6 +56,10 @@ export function baueKulisse(szene: THREE.Scene, gross: number): Kulisse {
         szene.add(boden);
       }
       szene.background = new THREE.Color(art === "frei" ? 0xeceae4 : 0xf3f0ea);
+      // Flach liegend spiegelte das Hochglanz-Schwarz die Deckenleuchte der
+      // Raumumgebung als weisses Rechteck mitten in der Karte. Gekippt steht
+      // ueber der Platte eine Wand statt der Leuchte.
+      szene.environmentRotation.set(art === "liegend" ? 0.9 : 0, 0, 0);
     },
     entsorgen: () => {
       for (const m of [boden, wand]) {

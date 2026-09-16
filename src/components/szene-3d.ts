@@ -1,15 +1,17 @@
 import * as THREE from "three";
+import { Reflector } from "three/examples/jsm/objects/Reflector.js";
 import type { Punkt } from "@/engine/clip";
 import type { Lage, SchichtkartenErgebnis, Zone } from "@/engine/typen";
 import { gravurFlaeche } from "./gravur-3d";
 import { materialien, nachFlaechen } from "./material-3d";
 import { rahmenGeometrie, rahmenMaterial } from "./rahmen-3d";
+import { spiegelFlaeche } from "./spiegel-3d";
 
 /**
  * Die Lagen als Acrylplatten in mm (Marcel 16.09.2026: "echtes 3D, das ich um
  * die Y-Achse drehen kann"). Jede Lage wird aus ihrer Schnittgeometrie mit
  * ihrer Materialstaerke extrudiert und von unten nach oben gestapelt; die Gravur
- * liegt als Textur auf dem Hintergrund, die Spiegel spiegeln die Umgebung.
+ * liegt als Textur auf dem Hintergrund, das Blau spiegelt echt (spiegel-3d.ts).
  *
  * Das Symbol liegt auf dem Hintergrund (der Lage auf dem Wasser), geklebt an
  * die Gravurmarke, im Ausschnitt der Netzlage – und steht darueber hinaus.
@@ -36,6 +38,8 @@ export interface Platte {
   gravur?: THREE.Mesh;
   /** Fein nachgezeichnete Gravur einer Nahaufnahme – ersetzt dann die grobe. */
   gravurDetail?: THREE.Mesh;
+  /** Echte Spiegelflaeche auf dem blauen Spiegelacryl. */
+  spiegel?: Reflector;
   lage?: Lage;
   /** Unterkante ohne Abstand zwischen den Lagen. */
   z: number;
@@ -83,9 +87,12 @@ export function baueSzene(ergebnis: SchichtkartenErgebnis): Stapel {
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     const gravur = gravurFlaeche(lage, b, h);
+    const echt = lage.key === "blau" ? spiegelFlaeche(b, h) : undefined;
+    const spiegel = echt?.spiegel;
     gruppe.add(mesh);
     if (gravur) gruppe.add(gravur);
-    platten.push({ mesh, gravur, lage, z, staerke: lage.staerkeMm, index });
+    if (echt) gruppe.add(echt.spiegel, echt.studio);
+    platten.push({ mesh, gravur, spiegel, lage, z, staerke: lage.staerkeMm, index });
   };
   // Lagen kommen von oben nach unten; gestapelt wird von unten.
   let z = 0;
@@ -121,6 +128,8 @@ export function stapeln(platten: Platte[], abstandMm: number) {
     p.mesh.position.z = p.z + p.index * abstandMm;
     if (p.gravur) p.gravur.position.z = p.z + p.index * abstandMm + p.staerke + 0.02;
     if (p.gravurDetail) p.gravurDetail.position.z = p.z + p.index * abstandMm + p.staerke + 0.03;
+    // 0,05 mm: bei Flat-Lay-Abstand (70 cm) flimmerten 0,02 mm mit der Deckflaeche.
+    if (p.spiegel) p.spiegel.position.z = p.z + p.index * abstandMm + p.staerke + 0.05;
   }
 }
 
@@ -145,6 +154,8 @@ export function gravurDetail(stapel: Stapel, ergebnis: SchichtkartenErgebnis, be
 
 export function entsorgen(objekt: THREE.Object3D) {
   objekt.traverse((o) => {
+    // Der Spiegel haelt ein eigenes Renderziel.
+    if (o instanceof Reflector) o.dispose();
     if (o instanceof THREE.Mesh) {
       o.geometry.dispose();
       for (const mat of (Array.isArray(o.material) ? o.material : [o.material]) as THREE.MeshStandardMaterial[]) {

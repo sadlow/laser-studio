@@ -64,7 +64,7 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
 
     const szene = new THREE.Scene();
     const pmrem = new THREE.PMREMGenerator(renderer);
-    szene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    szene.environment = pmrem.fromScene(new RoomEnvironment()).texture;
     szene.environmentIntensity = 0.7;
 
     const { breiteMm: b, hoeheMm: h } = ergebnis.layout.platte;

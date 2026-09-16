@@ -36,7 +36,7 @@ export function PrototypPlatten({ karte }: Props) {
   const [platten, setPlatten] = useState<Platte[]>([]);
   const [vorlagen, setVorlagen] = useState<Vorlage[]>([]);
   const [platte, setPlatte] = useState("a4-zwei");
-  const [vorlageId, setVorlageId] = useState("");
+  const [vorlageId, setVorlageId] = useState("aktuell");
   const [variation, setVariation] = useState<(typeof VARIATIONEN)[number]["wert"]>("ausschnittKm");
   const [werte, setWerte] = useState<number[]>([2.5, 5]);
   const [laeuft, setLaeuft] = useState(false);
@@ -55,10 +55,12 @@ export function PrototypPlatten({ karte }: Props) {
     setFehler(null);
     setErgebnis(null);
     try {
+      // Kunde und Ort gehen getrennt mit; der Entwurf selbst ist das Produkt.
+      const { kunde, lon, lat, kartenMitte, ...aktuell } = karte;
       const res = await fetch("/api/bogen", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ platte, vorlageId, variation, werte: werte.slice(0, plaetze), kunde: karte.kunde, lon: karte.lon, lat: karte.lat, kartenMitte: karte.kartenMitte }),
+        body: JSON.stringify({ platte, vorlageId, variation, werte: werte.slice(0, plaetze), kunde, lon, lat, kartenMitte, aktuell: vorlageId === "aktuell" ? aktuell : undefined }),
       });
       const d = await res.json();
       if (!res.ok) setFehler(d.fehler);
@@ -80,7 +82,7 @@ export function PrototypPlatten({ karte }: Props) {
             {platten.map((p) => <option key={p.key} value={p.key}>{p.titel}</option>)}
           </select>
           <select className="feld" value={vorlageId} onChange={(e) => setVorlageId(e.target.value)}>
-            <option value="">Vorlage waehlen…</option>
+            <option value="aktuell">Aktueller Entwurf</option>
             {vorlagen.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
           </select>
         </div>

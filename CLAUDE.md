@@ -48,6 +48,8 @@ Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 42/33/26 %)
 - Lose Netzstuecke graviert; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
 - Symbol auf Hintergrund geklebt (Gravurmarke), Ausschnitt im Netz, steht 1 mm vor; Acryl 2, Spiegel 3 mm
+- Holzrahmen optional (Holz schwarz/weiss, Eiche), ein Profil: 14 x 28 mm, Bild 6 mm tief, 4 mm Ueberstand
+- 3D (`ansicht-3d.tsx`): Hochglanz, echter Spiegel, Motive fuer KI-Produktfotos (`motive-3d.ts`)
 - Tunnel, Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet
 - Zeilenschrift Avant Garde Book, Sperrung 0,14 (Deckschicht 2 mm; ExtraLight 0,20 mm zu duenn)
 - opentype.js gepatcht (`patches/`) wegen AvantGardeCE-Demi.otf
@@ -66,7 +68,8 @@ npm install && npm run dev   # http://localhost:3010
 ```
 
 `npx tsc --noEmit` · `npx tsx scripts/referenzorte.ts` (8 Orte weltweit) · `formatvergleich.ts` · `quadrat-varianten.ts` ·
-`ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts`
+`ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts` ·
+`bash scripts/referenzbilder.sh <name> "foto=symbol"` (3D-Referenzbild, Headless-Chrome)
 
 ## Offen
 
@@ -74,9 +77,10 @@ npm install && npm run dev   # http://localhost:3010
 - Exportdateien noch nicht in xTool Studio geoeffnet
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
 - Standort-Bestaetigung: "Luebeck" fand Luebecker Strasse in Koeln
-- Symbol-Auflage: liegt teils auf dem Netz, teils eine Lage tiefer; Anker = Ort, ziehbar in der Vorschau
+- Holzrahmen: was haelt den Stapel an der Lippe? Hinter 7 mm (9 mm vierlagig) bleiben 15 (13) mm Falz frei
+- Lesbarkeit der Zeilen schraeg: 0,5-mm-Schlitz in 2 mm zeigt Schwarz nur bis 14°; am Prototyp Book vs. Demi
 - Megastaedte wirken lichter als Berlin (Tokio 15 % Netz): Deckung zaehlt Hochstrassen doppelt
-- Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten
+- Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten, Symbol-Passung
 
 ## Umfeld
 

@@ -19,7 +19,7 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Wasserschnitt (Test: Herz zu 70 % ueber der Spree, Klebeflaeche voll). Netz und
   Deckschicht haben exakt die Aussenkontur als Ausschnitt (Pin ohne sein Loch).
 - **Staerken nach Material:** Acrylglas weiss/schwarz 2 mm, Spiegelacryl 3 mm.
-- **Holzrahmen optional, schwarz oder weiss** (Marcel 16.09.2026), ein Profil fuer
+- **Holzrahmen optional: Holz schwarz, Holz weiss, Eiche** (Marcel 16.09.2026), ein Profil fuer
   alle Groessen: 14 mm breit, 28 mm tief, Bild 6 mm eingelassen, innen 4 mm
   Ueberstand. Die Wahl steht in `kunde`, das Profil in der Vorlage. Bei 7 mm Rand
   bleiben im Rahmen 3 mm sichtbar (Kennzahl). Warnung, wenn Karte, Symbol oder
@@ -71,14 +71,15 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Standort als Adresse oder Dezimal-Koordinaten** (Google-Format, auch mit
   deutschem Komma); der Ortsname kommt aus der Rueckwaerts-Suche.
 - **3D-Reiter** (`ansicht-3d.tsx`, `szene-3d.ts`, three.js): Lagen mit ihrer
-  Staerke extrudiert, Holzrahmen mit Gehrung, frei drehbar. Gezeichnet wird nur
-  bei Aenderung – headless mit Software-Grafik dauerte ein Bild sonst Minuten.
+  Staerke extrudiert, Holzrahmen mit Gehrung, frei drehbar, gezeichnet nur bei
+  Aenderung. Acryl hochglaenzend (stumpf wirkte Schwarz wie frosted), Kanten
+  farbiges Acryl, das Blau spiegelt echt (`Reflector` mit Studio nur im
+  Spiegelbild – die Raumumgebung als Hintergrund wurde dort schwarz).
 - **Motive fuer KI-Produktfotos** (`motive-3d.ts`, `?ansicht=3d&foto=wand|flach|
-  symbol|titel|wasser|kante&seiten=16:9&vollbild=1`): an der Wand, flach liegend,
-  Nahaufnahmen auf echte Stellen der Karte, Streiflicht von links hinten, feine
-  Gravur im Bildausschnitt. Leonardo Nano Banana 2 zeichnet Details neu – fuer
-  Listing-Bilder, nicht als Kundenvorschau. Mit Referenzbild verlangt die API
-  `prompt_enhance: OFF` (das Skill-Skript sendet ON).
+  symbol|titel|wasser|kante&vollbild=1`): Wand, Flat-Lay, Nahaufnahmen auf echte
+  Stellen der Karte; `scripts/referenzbilder.sh` mit Metal-GPU 6-8 s je Bild.
+  Leonardo zeichnet Details neu – Listing-Bilder, keine Kundenvorschau; mit
+  Referenzbild verlangt die API `prompt_enhance: OFF` (das Skill-Skript sendet ON).
 - **Kundeneingaben werden feldweise gemischt** (zwei schnelle Klicks hoben sich sonst auf).
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)
@@ -94,11 +95,10 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Mapbox-GL-Karte: man sieht, was geschnitten wird, und der Token bleibt auf dem
   Server. Beim Ziehen wird die letzte Vorschau verschoben gezeigt, gerechnet wird
   beim Loslassen.
-- **Zoom mit Plus/Minus im Kartenfenster** (Marcel 16.09.2026: intuitiver als
-  das Mausrad) in festen Stufen 0,8-12 km, rund 1,25-fach, 3,5 km liegt darauf.
-  Bis neu gerechnet ist, zeigt die Vorschau die alte Karte skaliert. Das Rad
-  zoomt nur noch mit Strg/Cmd oder als Trackpad-Pinch – sonst kaperte es das
-  Scrollen der Seite ueber der grossen Vorschau.
+- **Zoom mit Plus/Minus im Kartenfenster** (Marcel 16.09.2026) in festen Stufen
+  0,8-12 km, rund 1,25-fach. Bis neu gerechnet ist, zeigt die Vorschau die alte
+  Karte skaliert. Das Rad zoomt nur mit Strg/Cmd oder als Trackpad-Pinch – sonst
+  kaperte es das Scrollen der Seite.
 - `ortZuMm`/`mmZuOrt` rechnen wie der Kachelabruf (Karte 30 mm verschoben -> Symbol
   30,000 mm). Rechenzeit Berlin 3,5 km 0,6 s, 5,5 km 1,6 s, 8,6 km 5,3 s.
 
@@ -187,9 +187,10 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Prototyp-Platten (`src/server/bogen.ts`)
 
-- **Testreihe statt Einzelexport:** eine Vorlage, je Platz ein anderer Wert fuer
-  genau einen Parameter (Ausschnitt oder Stegbreite), je Material eine Datei mit
-  allen Exemplaren nebeneinander.
+- **Testreihe statt Einzelexport:** Vorlage oder aktueller Entwurf, je Platz ein
+  anderer Wert fuer genau einen Parameter (Ausschnitt oder Stegbreite), je
+  Material eine Datei. Verkleinert (Zeilen 3,7 statt 5,4 mm) – fuer Schriftfragen
+  taugt nur Originalgroesse.
 - **A4 traegt zwei Prototypen 145 x 205 mm**, nicht zwei A5: 2 x 148 mm
   brauchen 296 von 297 mm, und 210 mm Hoehe laegen exakt auf der Plattenkante.
   Mit 2,5 mm Rand und 2 mm Abstand bleibt das A-Seitenverhaeltnis (98 % von A5).

@@ -41,7 +41,7 @@ const RAHMEN: { wert: Holzrahmen; titel: string; farbe?: string }[] = [
   { wert: "ohne", titel: "ohne" },
   { wert: "schwarz", titel: "schwarz", farbe: "#1d1c1a" },
   { wert: "weiss", titel: "weiss", farbe: "#f4f2ed" },
-  { wert: "eiche", titel: "Eiche", farbe: "#c49a6c" },
+  { wert: "eiche", titel: "Eiche", farbe: "#9c7147" },
 ];
 
 function SymbolBild({ art }: { art: SymbolArt }) {

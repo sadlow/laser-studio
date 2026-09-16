@@ -4,7 +4,7 @@ import type { CSSProperties } from "react";
 import type { SchichtkartenErgebnis } from "@/engine/typen";
 import type { SvgLage } from "./svg-lage";
 
-const FARBEN = { schwarz: "#1d1c1a", weiss: "#f4f2ed", eiche: "#c49a6c" };
+const FARBEN = { schwarz: "#1d1c1a", weiss: "#f4f2ed", eiche: "#9c7147" };
 
 /** Was der Holzrahmen ueber die Platte hinausragt, in mm je Seite. */
 const zugabeMm = (e: SchichtkartenErgebnis) => (e.rahmen ? e.rahmen.breiteMm - e.rahmen.ueberstandMm : 0);
