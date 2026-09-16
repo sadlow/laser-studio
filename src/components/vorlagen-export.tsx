@@ -66,6 +66,7 @@ export function VorlagenExport({ karte, aendern }: Props) {
           kunde: karte.kunde,
           lon: karte.lon,
           lat: karte.lat,
+          kartenMitte: karte.kartenMitte,
         }),
       });
       const d = await res.json();

@@ -21,6 +21,49 @@ export function lonLatToGlobalPx(lon: number, lat: number, z: number) {
   return { x: tx * TILE_EXTENT, y: ty * TILE_EXTENT };
 }
 
+/** Globale Kachel-Einheiten -> Lat/Lon (Umkehrung von lonLatToGlobalPx). */
+export function globalPxToLonLat(x: number, y: number, z: number) {
+  const n = Math.pow(2, z);
+  const lon = (x / TILE_EXTENT / n) * 360 - 180;
+  const lat = (Math.atan(Math.sinh(Math.PI * (1 - (2 * y) / TILE_EXTENT / n))) * 180) / Math.PI;
+  return { lon, lat };
+}
+
+/**
+ * Ort -> mm auf der Platte und zurueck, fuer ein Kartenfenster mit gegebener
+ * Mitte und Breite in Metern. Dieselbe Abbildung wie in kacheln.ts – sonst
+ * saesse das Herz neben der Strasse, die es markiert.
+ */
+export function ortZuMm(
+  ort: { lon: number; lat: number },
+  mitte: { lon: number; lat: number },
+  ausschnittBreiteM: number,
+  fenster: { xMm: number; yMm: number; breiteMm: number; hoeheMm: number },
+) {
+  const mmProEinheit = fenster.breiteMm / (ausschnittBreiteM / meterProEinheit(DATEN_ZOOM, mitte.lat));
+  const c = lonLatToGlobalPx(mitte.lon, mitte.lat, DATEN_ZOOM);
+  const p = lonLatToGlobalPx(ort.lon, ort.lat, DATEN_ZOOM);
+  return {
+    x: fenster.xMm + fenster.breiteMm / 2 + (p.x - c.x) * mmProEinheit,
+    y: fenster.yMm + fenster.hoeheMm / 2 + (p.y - c.y) * mmProEinheit,
+  };
+}
+
+export function mmZuOrt(
+  p: { x: number; y: number },
+  mitte: { lon: number; lat: number },
+  ausschnittBreiteM: number,
+  fenster: { xMm: number; yMm: number; breiteMm: number; hoeheMm: number },
+) {
+  const mmProEinheit = fenster.breiteMm / (ausschnittBreiteM / meterProEinheit(DATEN_ZOOM, mitte.lat));
+  const c = lonLatToGlobalPx(mitte.lon, mitte.lat, DATEN_ZOOM);
+  return globalPxToLonLat(
+    c.x + (p.x - fenster.xMm - fenster.breiteMm / 2) / mmProEinheit,
+    c.y + (p.y - fenster.yMm - fenster.hoeheMm / 2) / mmProEinheit,
+    DATEN_ZOOM,
+  );
+}
+
 /** Meter je Kachel-Einheit bei gegebenem Zoom und Breitengrad. */
 export function meterProEinheit(zoom: number, lat: number) {
   const meterProKachel = (40075016.686 / Math.pow(2, zoom)) * Math.cos((lat * Math.PI) / 180);

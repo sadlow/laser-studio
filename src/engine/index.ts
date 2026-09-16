@@ -39,9 +39,10 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
     ...k.strassen.filter((s) => s.ziel === "netz").map((s) => s.breiteMm * faktor),
   );
 
+  const kartenMitte = k.kartenMitte ?? { lon: k.lon, lat: k.lat };
   const roh = await ladeKartenRohdaten({
-    lon: k.lon,
-    lat: k.lat,
+    lon: kartenMitte.lon,
+    lat: kartenMitte.lat,
     ausschnittBreiteM: k.ausschnittKm * 1000,
     fenster: layout.kartenfenster,
     zugabeMm: breitesteStrasse + 1,
@@ -100,15 +101,21 @@ export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promi
     );
   }
 
+  if (!b.herzLage) {
+    warnungen.push("Der Ort liegt ausserhalb des Kartenausschnitts – das Herz fehlt. Karte zurueckschieben oder Herz neu setzen.");
+  }
+
   return {
     vorschauSvg: s.vorschauSvg,
+    kartenMitte,
+    herz: b.herzLage,
     lagen: s.lagen,
     layout,
     texte: textblock.texte,
     ausschnittMeter: roh.ausschnittMeter,
     kennzahlen: {
       ...b.kennzahlen,
-      zoomEntsprechung: zoomEntsprechung(k.ausschnittKm * 1000, layout.kartenfenster.breiteMm, k.lat),
+      zoomEntsprechung: zoomEntsprechung(k.ausschnittKm * 1000, layout.kartenfenster.breiteMm, kartenMitte.lat),
       loseNetzstuecke: s.loseNetzstuecke,
       loseTextteile: s.loseTextteile,
       hintergrundTeile: s.hintergrundTeile,

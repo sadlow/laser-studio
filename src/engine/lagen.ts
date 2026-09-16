@@ -12,10 +12,18 @@ import {
   zuFlaeche,
   type Flaeche,
 } from "./geometrie";
-import { herzRing } from "./herz";
+import { HERZ_HOEHE_ANTEIL, herzRingAnSpitze } from "./herz";
+import { ortZuMm } from "./geo";
 import type { KartenRohdaten } from "./kacheln";
 import { stencilStege } from "./stencil";
-import { REFERENZ_KARTENBREITE_MM, type Kennzahlen, type Layout, type Schichtkarte, type Teil } from "./typen";
+import {
+  REFERENZ_KARTENBREITE_MM,
+  type Kennzahlen,
+  type Layout,
+  type Schichtkarte,
+  type SchichtkartenErgebnis,
+  type Teil,
+} from "./typen";
 import { kleineInselnFluten, wasserImFenster } from "./wasser";
 import type { Textblock } from "./zeilen";
 
@@ -37,6 +45,7 @@ export interface Bausteine {
   textAusschnitt: Flaeche;
   gravur: { linien: Punkt[][]; breiteMm: number }[];
   herz: Teil[];
+  herzLage: SchichtkartenErgebnis["herz"];
   textBereich: Flaeche;
   kennzahlen: Omit<Kennzahlen, "zoomEntsprechung" | "loseNetzstuecke" | "loseTextteile" | "hintergrundTeile" | "rechenzeitMs">;
 }
@@ -98,8 +107,15 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   const gravurAus = vereinige(schutz, inseln.wasser, netz);
   const gravur = gravurRoh.map((g) => ({ linien: ziehLinienAb(g.linien, gravurAus), breiteMm: g.breiteMm }));
 
-  // --- Herz: Mitte auf dem Ort, Groesse fuer A4 und mitwachsend.
-  const herz = teile(zuFlaeche([herzRing(f.xMm + f.breiteMm / 2, f.yMm + f.hoeheMm / 2, k.herzBreiteMm * faktor)]));
+  // --- Herz: Spitze auf dem Ort, Groesse fuer A4 und mitwachsend. Liegt der Ort
+  // ausserhalb des verschobenen Ausschnitts, gibt es kein Herz.
+  const herzBreite = k.herzBreiteMm * faktor;
+  const spitze = ortZuMm({ lon: k.lon, lat: k.lat }, k.kartenMitte ?? { lon: k.lon, lat: k.lat }, k.ausschnittKm * 1000, f);
+  const imFenster = spitze.x >= f.xMm && spitze.x <= f.xMm + f.breiteMm && spitze.y >= f.yMm && spitze.y <= f.yMm + f.hoeheMm;
+  const herz = imFenster ? teile(zuFlaeche([herzRingAnSpitze(spitze.x, spitze.y, herzBreite)])) : [];
+  const herzLage = imFenster
+    ? { spitzeXMm: spitze.x, spitzeYMm: spitze.y, breiteMm: herzBreite, hoeheMm: herzBreite * HERZ_HOEHE_ANTEIL }
+    : null;
 
   return {
     plattenFl,
@@ -110,6 +126,7 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
     textAusschnitt: vereinige(...ausschnitte),
     gravur,
     herz,
+    herzLage,
     textBereich: text.textBereich,
     kennzahlen: {
       netzAnteilFenster,

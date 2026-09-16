@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { rendereSchichtkarte } from "@/engine";
 import { produktionsSvg } from "@/engine/produktion";
-import type { Kundeneingabe, Schichtkarte } from "@/engine/typen";
+import type { GeoPunkt, Kundeneingabe, Schichtkarte } from "@/engine/typen";
 import { slug, type Produktparameter } from "./vorlagen";
 
 export const EXPORT_ORDNER = path.join(process.cwd(), "export");
@@ -12,6 +12,7 @@ export interface ExportAuftrag {
   kunde: Kundeneingabe;
   lon: number;
   lat: number;
+  kartenMitte?: GeoPunkt;
 }
 
 export interface ExportErgebnis {
@@ -43,7 +44,7 @@ export async function exportiere(auftrag: ExportAuftrag, token: string): Promise
   const ergebnis: ExportErgebnis = { ordner, varianten: [] };
 
   for (const v of auftrag.varianten) {
-    const karte: Schichtkarte = { ...v.karte, kunde: auftrag.kunde, lon: auftrag.lon, lat: auftrag.lat };
+    const karte: Schichtkarte = { ...v.karte, kunde: auftrag.kunde, lon: auftrag.lon, lat: auftrag.lat, kartenMitte: auftrag.kartenMitte };
     const r = await rendereSchichtkarte(karte, token);
     const ziel = path.join(ordner, v.id);
     fs.mkdirSync(ziel, { recursive: true });
@@ -81,7 +82,8 @@ function uebersicht(name: string, datum: string, karte: Schichtkarte, r: Awaited
     `erstellt ${datum}`,
     ``,
     `Platte:     ${platte.breiteMm} x ${platte.hoeheMm} mm (${karte.format}, ${karte.layoutArt}, ${karte.aufbau})`,
-    `Ausschnitt: ${karte.ausschnittKm} km breit um ${karte.lat.toFixed(5)}, ${karte.lon.toFixed(5)}`,
+    `Herzspitze: ${karte.lat.toFixed(5)}, ${karte.lon.toFixed(5)}`,
+    `Ausschnitt: ${karte.ausschnittKm} km breit um ${r.kartenMitte.lat.toFixed(5)}, ${r.kartenMitte.lon.toFixed(5)}`,
     `Texte:      ${r.texte.titel} / ${r.texte.zeile1} / ${r.texte.zeile2}`,
     ``,
     `Lagen von oben nach unten (Dateinummer = Reihenfolge):`,

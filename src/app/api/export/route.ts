@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { Kundeneingabe, Schichtkarte } from "@/engine/typen";
+import type { GeoPunkt, Kundeneingabe, Schichtkarte } from "@/engine/typen";
 import { exportiere } from "@/server/export";
 import { ladeVorlage } from "@/server/vorlagen";
 
@@ -14,6 +14,7 @@ interface Anfrage {
   kunde: Kundeneingabe;
   lon: number;
   lat: number;
+  kartenMitte?: GeoPunkt;
 }
 
 export async function POST(request: Request) {
@@ -28,12 +29,12 @@ export async function POST(request: Request) {
       return { id: v.id, name: v.name, karte: v.karte };
     });
     if (a.aktuell) {
-      const { kunde: _k, lon: _lo, lat: _la, ...karte } = a.aktuell;
+      const { kunde: _k, lon: _lo, lat: _la, kartenMitte: _m, ...karte } = a.aktuell;
       varianten.push({ id: "aktueller-entwurf", name: "Aktueller Entwurf", karte });
     }
     if (!varianten.length) return NextResponse.json({ fehler: "Keine Variante ausgewaehlt." }, { status: 400 });
 
-    return NextResponse.json(await exportiere({ varianten, kunde: a.kunde, lon: a.lon, lat: a.lat }, token));
+    return NextResponse.json(await exportiere({ varianten, kunde: a.kunde, lon: a.lon, lat: a.lat, kartenMitte: a.kartenMitte }, token));
   } catch (e) {
     return NextResponse.json({ fehler: e instanceof Error ? e.message : String(e) }, { status: 500 });
   }

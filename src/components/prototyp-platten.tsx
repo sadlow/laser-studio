@@ -58,7 +58,7 @@ export function PrototypPlatten({ karte }: Props) {
       const res = await fetch("/api/bogen", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ platte, vorlageId, variation, werte: werte.slice(0, plaetze), kunde: karte.kunde, lon: karte.lon, lat: karte.lat }),
+        body: JSON.stringify({ platte, vorlageId, variation, werte: werte.slice(0, plaetze), kunde: karte.kunde, lon: karte.lon, lat: karte.lat, kartenMitte: karte.kartenMitte }),
       });
       const d = await res.json();
       if (!res.ok) setFehler(d.fehler);

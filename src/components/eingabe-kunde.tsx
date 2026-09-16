@@ -30,7 +30,7 @@ export function EingabeKunde({ karte, aendern }: Props) {
       if (!res.ok) {
         setMeldung(d.fehler ?? "Nicht gefunden");
       } else {
-        aendern({ lon: d.lon, lat: d.lat, kunde: { ...k, ortText: d.stadt || k.ortText } });
+        aendern({ lon: d.lon, lat: d.lat, kartenMitte: undefined, kunde: { ...k, ortText: d.stadt || k.ortText } });
         setMeldung(d.adresse);
       }
     } finally {
@@ -80,7 +80,7 @@ export function EingabeKunde({ karte, aendern }: Props) {
                   title={ort.pruefung}
                   onClick={() => {
                     setMeldung(ort.pruefung);
-                    aendern({ lon: ort.lon, lat: ort.lat, kunde: { ...k, adresse: ort.name, ortText: ort.ortText } });
+                    aendern({ lon: ort.lon, lat: ort.lat, kartenMitte: undefined, kunde: { ...k, adresse: ort.name, ortText: ort.ortText } });
                   }}
                   className="rounded-full border px-2.5 py-0.5 text-xs"
                   style={aktiv ? { background: "var(--akzent)", borderColor: "var(--akzent)", color: "#fff" } : { borderColor: "var(--linie)" }}

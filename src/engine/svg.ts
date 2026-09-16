@@ -33,7 +33,7 @@ export type Gravur = { linien: Punkt[][]; breiteMm: number }[];
 
 /** Ein Schritt beim Malen der Vorschau, von unten nach oben. */
 export type Malschritt =
-  | { art: "flaeche"; teile: Teil[]; fuellung: string; schatten?: boolean }
+  | { art: "flaeche"; teile: Teil[]; fuellung: string; schatten?: boolean; id?: string }
   | { art: "gravur"; gravur: Gravur; farbe: string };
 
 export const FARBE_WEISS = "#f6f5f1";
@@ -58,7 +58,8 @@ export function vorschauSvg(layout: Layout, schritte: Malschritt[]): string {
       }
       if (!s.teile.length) return "";
       const schatten = s.schatten ? ` filter="url(#schatten)"` : "";
-      return `<path d="${teileD(s.teile)}" fill="${s.fuellung}" fill-rule="evenodd"${schatten}/>`;
+      const id = s.id ? ` id="${s.id}"` : "";
+      return `<path${id} d="${teileD(s.teile)}" fill="${s.fuellung}" fill-rule="evenodd"${schatten}/>`;
     })
     .join("");
 

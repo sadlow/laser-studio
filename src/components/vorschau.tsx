@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import type { Kennzahlen, LagenKey, SchichtkartenErgebnis } from "@/engine/typen";
+import type { Kennzahlen, LagenKey, Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
+import { ZiehVorschau } from "./zieh-vorschau";
 
 interface Props {
   ergebnis: SchichtkartenErgebnis | null;
   fehler: string | null;
   laedt: boolean;
+  karte: Schichtkarte;
+  aendern: (teil: Partial<Schichtkarte>) => void;
 }
 
 type Ansicht = "gesamt" | LagenKey;
@@ -20,7 +23,7 @@ function Kennzahl({ titel, wert }: { titel: string; wert: string }) {
   );
 }
 
-export function Vorschau({ ergebnis, fehler, laedt }: Props) {
+export function Vorschau({ ergebnis, fehler, laedt, karte, aendern }: Props) {
   const [ansicht, setAnsicht] = useState<Ansicht>("gesamt");
 
   // Der Aufbau bestimmt, welche Lagen es gibt – die Reiter kommen aus dem Ergebnis.
@@ -68,6 +71,8 @@ export function Vorschau({ ergebnis, fehler, laedt }: Props) {
       <div className={`karte flex items-center justify-center p-6 ${aktiv === "gesamt" ? "" : "laser"}`}>
         {fehler ? (
           <p className="max-w-md text-sm text-red-700">{fehler}</p>
+        ) : svg && ergebnis && aktiv === "gesamt" ? (
+          <ZiehVorschau svg={svg} ergebnis={ergebnis} karte={karte} aendern={aendern} />
         ) : svg ? (
           <div
             className="w-full [&>svg]:mx-auto [&>svg]:h-auto [&>svg]:max-h-[78vh] [&>svg]:w-auto [&>svg]:max-w-full"
@@ -83,6 +88,17 @@ export function Vorschau({ ergebnis, fehler, laedt }: Props) {
 
       {ergebnis && (
         <div className="karte space-y-3 p-4 text-sm">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs" style={{ color: "var(--gedaempft)" }}>
+            <span className="font-medium" style={{ color: "var(--text)" }}>
+              Herzspitze {karte.lat.toFixed(5)}, {karte.lon.toFixed(5)}
+            </span>
+            {karte.kartenMitte && (
+              <button type="button" className="underline" onClick={() => aendern({ kartenMitte: undefined })}>
+                Karte wieder um das Herz zentrieren
+              </button>
+            )}
+            <span>Karte ziehen verschiebt den Ausschnitt · Herz ziehen versetzt den Ort · Mausrad zoomt</span>
+          </div>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <span style={{ color: "var(--gedaempft)" }}>
               Kartenfenster {ergebnis.layout.kartenfenster.breiteMm.toFixed(0)} ×{" "}

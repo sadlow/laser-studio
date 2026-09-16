@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { Kundeneingabe } from "@/engine/typen";
+import type { GeoPunkt, Kundeneingabe } from "@/engine/typen";
 import { erzeugeBogen, PLATTEN, type PlattenKey, type Variation } from "@/server/bogen";
 import { ladeVorlage } from "@/server/vorlagen";
 
@@ -24,6 +24,7 @@ export async function POST(request: Request) {
       kunde: Kundeneingabe;
       lon: number;
       lat: number;
+      kartenMitte?: GeoPunkt;
     };
     if (!(a.platte in PLATTEN)) throw new Error(`Unbekannte Platte "${a.platte}".`);
     const vorlage = ladeVorlage(a.vorlageId);

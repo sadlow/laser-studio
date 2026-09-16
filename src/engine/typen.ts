@@ -13,6 +13,11 @@ import type { Generalisierung, StrassenGruppe, StrassenStufe } from "./typen-str
 
 export type FormatKey = "a5" | "a4" | "a3" | "quadrat30" | "frei";
 
+export interface GeoPunkt {
+  lon: number;
+  lat: number;
+}
+
 export type LetzteZeile = "koordinaten" | "wunschtext";
 
 /** Kundeneingaben – dieselben Felder wie Family Motiv 8 "Zuhause Map". */
@@ -84,9 +89,11 @@ export interface TextStil {
 export interface Schichtkarte {
   kunde: Kundeneingabe;
 
-  /** Mittelpunkt des Ausschnitts und Position des Herzens. */
+  /** Der Ort: Spitze des Herzens, steht in den Koordinaten (Marcel 16.09.2026). */
   lon: number;
   lat: number;
+  /** Mitte des Kartenausschnitts, wenn die Karte verschoben wurde – sonst der Ort. */
+  kartenMitte?: GeoPunkt;
   /**
    * Breite des Kartenfensters in km Wirklichkeit – bei jedem Format gleich.
    * Ersetzt den Zoom: A3 zeigt denselben Kiez wie A5, nur groesser, so wie

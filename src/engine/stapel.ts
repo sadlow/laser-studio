@@ -44,7 +44,7 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
       { art: "flaeche", teile: netzHaupt ? [netzHaupt] : [], fuellung: FARBE_SCHWARZ, schatten: true },
       { art: "flaeche", teile: netzLose, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : FARBE_SCHWARZ },
       { art: "flaeche", teile: deck, fuellung: FARBE_WEISS, schatten: true },
-      { art: "flaeche", teile: b.herz, fuellung: "url(#rot)", schatten: true },
+      { art: "flaeche", teile: b.herz, fuellung: "url(#rot)", schatten: true, id: "herz" },
     ];
     return {
       lagen: [
@@ -81,7 +81,7 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
     { art: "gravur", gravur: b.gravur, farbe: schwarz ? GRAVUR_AUF_WEISS : GRAVUR_AUF_SCHWARZ },
     { art: "flaeche", teile: netzHaupt ? [netzHaupt, ...loseText] : [], fuellung: netzFarbe, schatten: true },
     { art: "flaeche", teile: loseNetz, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : netzFarbe },
-    { art: "flaeche", teile: b.herz, fuellung: "url(#rot)", schatten: true },
+    { art: "flaeche", teile: b.herz, fuellung: "url(#rot)", schatten: true, id: "herz" },
   ];
   return {
     lagen: [

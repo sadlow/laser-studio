@@ -68,11 +68,11 @@ npm install && npm run dev   # http://localhost:3010
 
 ## Offen
 
-- Karte ziehen/zoomen, Herz verschiebbar, Koordinaten = Herzspitze (Mapbox GL)
+- Rechenzeit bei grossem Ausschnitt (8,6 km: 5,3 s) – fuer den Shop Datenzoom/Vereinfachung pruefen
 - Exportdateien noch nicht in xTool Studio geoeffnet
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
 - Standort-Bestaetigung: "Luebeck" fand Luebecker Strasse in Koeln
-- Herz-Auflage: liegt teils auf dem Netz, teils eine Lage tiefer
+- Herz-Auflage: liegt teils auf dem Netz, teils eine Lage tiefer; Spitze = Ort, ziehbar in der Vorschau
 - Megastaedte wirken lichter als Berlin (Tokio 15 % Netz): Deckung zaehlt Hochstrassen doppelt
 - Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten
 

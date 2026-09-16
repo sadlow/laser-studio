@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { rendereSchichtkarte } from "@/engine";
 import { bogenSvg, f } from "@/engine/produktion";
-import type { Kundeneingabe, Schichtkarte } from "@/engine/typen";
+import type { GeoPunkt, Kundeneingabe, Schichtkarte } from "@/engine/typen";
 import { EXPORT_ORDNER } from "./export";
 import { slug, type Vorlage } from "./vorlagen";
 
@@ -32,6 +32,7 @@ export interface BogenAuftrag {
   kunde: Kundeneingabe;
   lon: number;
   lat: number;
+  kartenMitte?: GeoPunkt;
 }
 
 export async function erzeugeBogen(a: BogenAuftrag, token: string) {
@@ -57,6 +58,7 @@ export async function erzeugeBogen(a: BogenAuftrag, token: string) {
       kunde: a.kunde,
       lon: a.lon,
       lat: a.lat,
+      kartenMitte: a.kartenMitte,
     };
     const wert = a.werte[i];
     if (a.variation === "ausschnittKm" && wert > 0) karte.ausschnittKm = wert;

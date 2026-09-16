@@ -57,6 +57,22 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   22-24 % Netz im Fenster auf allen Formaten.
 - **Mindestbreite im Netz 0,8 mm**, **kleine Bloecke (< 4 mm²) bleiben Material.**
 
+## Ort, Ausschnitt, Herz (`geo.ts`, `zieh-vorschau.tsx`)
+
+- **Die Koordinaten zeigen die Herzspitze** (Marcel 16.09.2026), nicht mehr die
+  Herzmitte. `lon/lat` ist der Ort, `kartenMitte` die Mitte des Ausschnitts,
+  wenn die Karte verschoben wurde. Neue Adresse oder Referenzort setzt die Mitte
+  zurueck. Liegt der Ort ausserhalb des Ausschnitts, fehlt das Herz mit Warnung.
+- **Gezogen wird auf der gerenderten Vorschau**, nicht in einer zweiten
+  Mapbox-GL-Karte: man sieht, was geschnitten wird, und der Token bleibt auf dem
+  Server. Beim Ziehen wird die letzte Vorschau verschoben gezeigt, gerechnet wird
+  beim Loslassen. Mausrad zoomt nur ueber dem Kartenfenster.
+- Umrechnung mm <-> Ort (`ortZuMm`, `mmZuOrt`) ist dieselbe Abbildung wie beim
+  Kachelabruf: Karte 30 mm verschoben -> Herz 30,000 mm; Herz 20 mm tiefer ->
+  357 m, 12 Bogensekunden in der Koordinatenzeile.
+- Rechenzeit waechst mit dem Ausschnitt: Berlin 3,5 km 0,6 s, 5,5 km 1,6 s,
+  8,6 km 5,3 s.
+
 ## Layout
 
 - **Poster (A-Formate), Richtwert A4:** Anteile der Plattenhoehe, vermessen am
@@ -154,5 +170,5 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - Materialbedarf je Exemplar: weisses Netz und schwarzes Netz dreilagig je
   1 weiss / 1 schwarz / 1 blau,
   schwarzes Netz 2 weiss / 1 schwarz / 1 blau (Stand Lager 16.09.2026: je 2 A4 in
-  weiss, schwarz, blau und je 1 x 30x30 – reicht fuer 4 A4-Prototypen mit weissem
-  Netz oder 2 mit schwarzem, das Quadrat nur mit weissem Netz).
+  weiss, schwarz, blau und je 1 x 30x30 – reicht fuer 4 A4-Prototypen dreilagig
+  oder 2 vierlagig, das Quadrat nur dreilagig).

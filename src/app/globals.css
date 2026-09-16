@@ -43,3 +43,9 @@ body {
   vector-effect: non-scaling-stroke;
   stroke-width: 1px;
 }
+
+/* Beim Ziehen des Herzens zeigt die Vorschau ein bewegtes Herz – das
+   gerenderte bleibt bis zur neuen Vorschau verborgen. */
+[data-zieht="herz"] #herz {
+  visibility: hidden;
+}

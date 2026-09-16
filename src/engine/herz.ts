@@ -16,12 +16,23 @@ const HERZ_KUBISCH: [Punkt, Punkt, Punkt, Punkt][] = [
   [{ x: 0.82, y: 0.02 }, { x: 0.72, y: 0.0 }, { x: 0.56, y: 0.06 }, { x: 0.5, y: 0.26 }],
 ];
 
-/**
- * Herz mit gegebener Breite, dessen Mitte auf dem Ort liegt. Hoehe folgt dem
- * Seitenverhaeltnis des Assets (etwas hoeher als breit).
- */
+/** Hoehe zu Breite des Assets – etwas hoeher als breit. */
+export const HERZ_HOEHE_ANTEIL = 0.95;
+
+/** Umriss in der Einheitsbox als SVG-Pfad – fuer das Herz, das man in der Vorschau zieht. */
+export function herzPfadEinheit(): string {
+  const [start] = HERZ_KUBISCH[0];
+  return `M${start.x},${start.y}` + HERZ_KUBISCH.map(([, b, c, d]) => `C${b.x},${b.y} ${c.x},${c.y} ${d.x},${d.y}`).join("") + "Z";
+}
+
+/** Herz, dessen Spitze auf dem Ort liegt – die Koordinaten zeigen die Spitze. */
+export function herzRingAnSpitze(spitzeX: number, spitzeY: number, breiteMm: number): Punkt[] {
+  return herzRing(spitzeX, spitzeY - (breiteMm * HERZ_HOEHE_ANTEIL) / 2, breiteMm);
+}
+
+/** Herz mit gegebener Breite um eine Mitte. */
 export function herzRing(mitteX: number, mitteY: number, breiteMm: number): Punkt[] {
-  const hoeheMm = breiteMm * 0.95;
+  const hoeheMm = breiteMm * HERZ_HOEHE_ANTEIL;
   const punkte: Punkt[] = [];
   for (const [a, b, c, d] of HERZ_KUBISCH) {
     for (let i = 0; i < 24; i++) {

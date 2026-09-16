@@ -71,7 +71,7 @@ export default function Seite() {
           <EingabeFertigung karte={karte} aendern={aendern} />
         </div>
         <div className="lg:sticky lg:top-6 lg:self-start">
-          <Vorschau ergebnis={ergebnis} fehler={fehler} laedt={laedt} />
+          <Vorschau ergebnis={ergebnis} fehler={fehler} laedt={laedt} karte={karte} aendern={aendern} />
         </div>
       </div>
     </main>
