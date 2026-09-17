@@ -57,6 +57,8 @@ export interface Beleuchtung {
    * in der Hand wenden: Licht und Schattenmuster wandern ueber die Platte.
    */
   folgen: (kamera: THREE.Camera, ziel: THREE.Vector3) => void;
+  /** Licht und Drehpunkt ruecken mit, wenn der Stapel beim Auseinanderziehen waechst (explosion-3d.ts). */
+  verschieben: (weg: THREE.Vector3) => void;
   entsorgen: () => void;
 }
 
@@ -150,6 +152,9 @@ export function baueBeleuchtung(szene: THREE.Scene, renderer: THREE.WebGLRendere
     ausrichten,
     merken,
     folgen,
+    verschieben: (weg) => {
+      for (const v of [basis.licht, basis.sonne, basis.ziel, licht.position, licht.target.position, sonne.position, sonne.target.position]) v.add(weg);
+    },
     entsorgen: () => {
       umgebung.studio.dispose();
       umgebung.sonne.dispose();

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { hintergrundBild, type Hintergrund } from "./hintergrund-3d";
 import type { Stapel } from "./szene-3d";
 
 /**
@@ -23,6 +24,8 @@ export interface Kulisse {
   umgebungDrehung: THREE.Euler;
   /** Sonnenstimmung: Wand und Boden werden beleuchtete Flaechen, damit die Lichtmuster darauf fallen. */
   sonnig: (an: boolean) => void;
+  /** Hintergrund der Szene (hintergrund-3d.ts); "hell" ist der Buehnenton der Anordnung. */
+  hintergrund: (h: Hintergrund) => void;
   entsorgen: () => void;
 }
 
@@ -46,10 +49,20 @@ export function baueKulisse(szene: THREE.Scene, gross: number, grund?: number, w
   const wand = new THREE.Mesh<THREE.PlaneGeometry, THREE.Material>(new THREE.PlaneGeometry(gross * 5, gross * 5), schattenWand);
   wand.receiveShadow = true;
   const umgebungDrehung = new THREE.Euler();
+  let [anordnung, wahl]: [Anordnung, Hintergrund] = ["frei", "hell"];
+  const zeigen = () => {
+    if (szene.background instanceof THREE.Texture) szene.background.dispose();
+    // Ohne Vorgabe: frei etwas kuehler als die Buehne. Amazon-Vorschau (Motiv layout) will reinweiss.
+    szene.background = hintergrundBild(wahl, new THREE.Color(grund ?? (anordnung === "frei" ? 0xeceae4 : 0xf3f0ea)));
+  };
 
   return {
     halter,
     umgebungDrehung,
+    hintergrund: (h) => {
+      wahl = h;
+      zeigen();
+    },
     sonnig: (an) => {
       boden.material = an ? matt : schattenBoden;
       wand.material = an ? matt : schattenWand;
@@ -75,8 +88,8 @@ export function baueKulisse(szene: THREE.Scene, gross: number, grund?: number, w
         boden.position.y = -0.05;
         if (bodenschatten) szene.add(boden);
       }
-      // Ohne Vorgabe: frei etwas kuehler als die Buehne. Amazon-Vorschau (Motiv layout) will reinweiss.
-      szene.background = new THREE.Color(grund ?? (art === "frei" ? 0xeceae4 : 0xf3f0ea));
+      anordnung = art;
+      zeigen();
       // Flach liegend spiegelte das Hochglanz-Schwarz die Deckenleuchte der
       // Raumumgebung als weisses Rechteck mitten in der Karte. Gekippt steht
       // ueber der Platte eine Wand statt der Leuchte.
@@ -86,6 +99,7 @@ export function baueKulisse(szene: THREE.Scene, gross: number, grund?: number, w
     entsorgen: () => {
       for (const m of [boden, wand]) m.geometry.dispose();
       for (const m of [schattenBoden, schattenWand, matt]) m.dispose();
+      if (szene.background instanceof THREE.Texture) szene.background.dispose();
     },
   };
 }

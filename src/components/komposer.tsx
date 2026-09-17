@@ -31,6 +31,15 @@ export function Komposer({ ergebnis, fehler, laedt, karte, aendern }: Props) {
     if (wunsch) setAnsicht(wunsch as Ansicht);
   }, []);
 
+  // Die Wahl steht in der URL: neu laden oeffnet dieselbe Ansicht (die 3D-Ansicht schreibt ihre Einstellungen dazu).
+  const waehle = (a: Ansicht) => {
+    setAnsicht(a);
+    const url = new URL(window.location.href);
+    if (a === "gesamt") url.searchParams.delete("ansicht");
+    else url.searchParams.set("ansicht", a);
+    window.history.replaceState(null, "", url);
+  };
+
   // Der Aufbau bestimmt, welche Lagen es gibt – die Reiter kommen aus dem Ergebnis.
   const lage = ergebnis?.lagen.find((l) => l.key === ansicht);
   const aktiv: Ansicht = ansicht !== "gesamt" && ansicht !== "3d" && ergebnis && !lage ? "gesamt" : ansicht;
@@ -56,7 +65,7 @@ export function Komposer({ ergebnis, fehler, laedt, karte, aendern }: Props) {
         {reiter.map((r) => (
           <button
             key={r.key}
-            onClick={() => setAnsicht(r.key)}
+            onClick={() => waehle(r.key)}
             className="rounded-md px-3 py-1.5 text-sm"
             style={aktiv === r.key ? { background: "var(--text)", color: "var(--grund)" } : { background: "var(--karte)", border: "1px solid var(--linie)" }}
           >

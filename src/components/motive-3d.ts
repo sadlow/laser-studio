@@ -26,7 +26,7 @@ export const MOTIV_TITEL: Record<Motiv, string> = {
   explosion: "Explosionszeichnung",
 };
 
-interface Aufnahme {
+export interface Aufnahme {
   anordnung: Anordnung;
   /** Ziel auf der Platte (mm, y nach unten) und Hoehe ueber der Rueckseite des Stapels. */
   x: number;
@@ -64,7 +64,8 @@ function uferPunkt(e: SchichtkartenErgebnis): { x: number; y: number } | null {
   return bester;
 }
 
-function aufnahme(motiv: Motiv, e: SchichtkartenErgebnis, s: Stapel, abstandMm: number): Aufnahme | null {
+/** Was ein Motiv zeigt – auch explosion-3d.ts rechnet damit, wenn der Stapel waechst. */
+export function motivAufnahme(motiv: Motiv, e: SchichtkartenErgebnis, s: Stapel, abstandMm: number): Aufnahme | null {
   const { breiteMm: b, hoeheMm: h } = e.layout.platte;
   if (motiv === "layout") {
     // Amazon-Custom-Vorschau (Marcel 16.09.2026): gerade von vorn, kaum Perspektive, Platz fuer
@@ -137,7 +138,7 @@ const richtung = (hoeheGrad: number, richtungGrad: number) => {
 
 /** Stellt Buehne, Kamera, Licht und feine Gravur fuer ein Motiv ein. */
 export function motivAnwenden(motiv: Motiv, e: SchichtkartenErgebnis, s: Stapel, { kamera, steuerung, licht, kulisse, abstandMm = 0 }: Buehne) {
-  const a = aufnahme(motiv, e, s, abstandMm);
+  const a = motivAufnahme(motiv, e, s, abstandMm);
   const anordnung: Anordnung = a?.anordnung ?? (motiv === "wand" ? "wand" : "frei");
   kulisse.anordnen(anordnung, s);
   kulisse.halter.updateMatrixWorld(true);

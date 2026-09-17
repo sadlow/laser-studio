@@ -1,6 +1,8 @@
 "use client";
 
 import type { SchichtkartenErgebnis } from "@/engine/typen";
+import { ABSTAND_MAX_MM } from "./explosion-3d";
+import { HINTERGRUND_TITEL, type Hintergrund } from "./hintergrund-3d";
 import { STIMMUNG_TITEL, type Stimmung } from "./licht-3d";
 import { MOTIV_TITEL, type Motiv } from "./motive-3d";
 
@@ -17,8 +19,12 @@ const an = { background: "var(--akzent)", borderColor: "var(--akzent)", color: "
 const aus = { background: "var(--karte)", borderColor: "var(--linie)" };
 
 interface Props {
-  auseinander: boolean;
-  umschalten: () => void;
+  abstand: number;
+  setzeAbstand: (mm: number) => void;
+  hintergrund: Hintergrund;
+  setzeHintergrund: (h: Hintergrund) => void;
+  beschriftung: boolean;
+  setzeBeschriftung: (an: boolean) => void;
   motiv: Motiv;
   motive: Motiv[];
   setzeMotiv: (m: Motiv) => void;
@@ -34,10 +40,13 @@ interface Props {
 export function Leiste3D(p: Props) {
   const knopf = "rounded-md border px-2.5 py-1 shadow-sm";
   return (
-    <div className="absolute top-3 right-3 flex flex-wrap justify-end gap-1.5 text-xs">
-      <button type="button" onClick={p.umschalten} className={knopf} style={p.auseinander ? an : aus}>
+    <div className="absolute top-3 right-3 left-3 flex flex-wrap justify-end gap-1.5 text-xs">
+      <label className={`${knopf} flex items-center gap-2`} style={p.abstand > 0 ? an : aus}>
         Lagen auseinander
-      </button>
+        <input type="range" min={0} max={ABSTAND_MAX_MM} step={1} value={p.abstand} className="w-28" style={{ accentColor: p.abstand > 0 ? "#fff" : undefined }}
+          onChange={(e) => p.setzeAbstand(Number(e.target.value))} aria-label="Abstand der Lagen" />
+        <span className="w-12 text-right tabular-nums">{p.abstand} mm</span>
+      </label>
       <select value={p.motiv} onChange={(e) => p.setzeMotiv(e.target.value as Motiv)} className={knopf} style={p.motiv === "frei" ? aus : an} aria-label="Motiv">
         {p.motive.map((m) => (
           <option key={m} value={m} style={{ color: "#000", background: "#fff" }}>
@@ -52,6 +61,16 @@ export function Leiste3D(p: Props) {
           </option>
         ))}
       </select>
+      <select value={p.hintergrund} onChange={(e) => p.setzeHintergrund(e.target.value as Hintergrund)} className={knopf} style={p.hintergrund === "hell" ? aus : an} aria-label="Hintergrund">
+        {(Object.keys(HINTERGRUND_TITEL) as Hintergrund[]).map((h) => (
+          <option key={h} value={h} style={{ color: "#000", background: "#fff" }}>
+            {HINTERGRUND_TITEL[h]}
+          </option>
+        ))}
+      </select>
+      <button type="button" onClick={() => p.setzeBeschriftung(!p.beschriftung)} className={knopf} style={p.beschriftung ? an : aus}>
+        Beschriftung
+      </button>
       {p.motiv !== "frei" && (
         <>
           <select value={p.seiten} onChange={(e) => p.setzeSeiten(e.target.value as Seiten)} className={knopf} style={aus} aria-label="Seitenverhaeltnis">

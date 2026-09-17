@@ -5,6 +5,8 @@ import * as THREE from "three";
  * (Marcel 16.09.2026: Listing-Bilder mit Platz fuer Overlay-Texte).
  *
  *   grund=ffffff     Buehnenfarbe, reinweiss fuer das Amazon-Hauptbild
+ *   hintergrund=grau Verlauf fuer die Explosionszeichnung (hell, weiss, grau, dunkel – ansicht-3d.tsx),
+ *                    dazu abstand=90 und beschriftung=1
  *   wandschatten=0   nur der Bodenschatten, kein Schatten an der Wand
  *   drehen=40        Kamera nach dem Motiv um so viele Grad um das Produkt drehen – Licht und
  *                    Raum drehen mit, wie beim Ziehen mit der Maus

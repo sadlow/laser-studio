@@ -63,20 +63,20 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 - **Drei Spalten:** links, was der Kunde einstellt (Standort bis Symbolgroesse), Mitte der Komposer, rechts Technik, aufklappbar.
 - **Standort als Adresse oder Dezimal-Koordinaten** (Google-Format, auch mit Komma), Ortsname per Rueckwaertssuche.
-- **3D-Reiter** (`ansicht-3d.tsx`, `szene-3d.ts`, three.js): Lagen mit ihrer Staerke extrudiert, Holzrahmen
-  mit Gehrung, drehbar, gezeichnet nur bei Aenderung. Acryl hochglaenzend, Kanten farbiges Acryl, das Blau
-  spiegelt echt und dunkel (`Reflector`, weiche Softboxen nur im Spiegelbild); Schwarz ohne grellen Lichtfleck.
-  Lichtstimmungen (`licht-3d.ts`, `?licht=`): Studio, Sonne durch Blaetter, Sonne durchs Fenster – SpotLight mit
-  gezeichneter Maske, Wand und Boden beleuchtet, im Hochglanz ein Fenster statt Leuchtkasten; neutral, nicht gelb.
-  Licht und Raum drehen mit der Kamera: Ziehen wirkt wie das Produkt wenden, die Muster wandern (`?drehen=`).
+- **3D-Reiter** (`ansicht-3d.tsx`, `buehne-3d.ts`, `szene-3d.ts`): Lagen mit Staerke extrudiert, Holzrahmen mit Gehrung, drehbar,
+  gezeichnet nur bei Aenderung. Acryl hochglaenzend, das Blau spiegelt echt und dunkel (`Reflector`, Softboxen nur im Spiegelbild).
+  Lichtstimmungen (`licht-3d.ts`): Studio, Sonne durch Blaetter, Sonne durchs Fenster (SpotLight mit Maske, neutral statt gelb);
+  Licht und Raum drehen mit der Kamera, Ziehen wirkt wie das Produkt wenden (`?drehen=`).
+- **Explosionszeichnung als Infografik** (17.09., `explosion-3d.ts`, `beschriftung-3d.ts`): Regler 0-200 mm, Kamera und Licht
+  folgen der Stapelmitte. Hintergrund warm, grau oder dunkel (auf Hell verschwanden die weissen Lagen), Beschriftung aus der Engine
+  neben dem Stapel, auch im gespeicherten Bild; aufgezogen zeigt das Blau Farbe statt Spiegelflecken. Einstellungen stehen in der URL.
 - **Motive fuer KI-Produktfotos** (`motive-3d.ts`, `aufnahme-3d.ts`, `referenzbilder.sh`): `?ansicht=3d&foto=wand|flach|
   symbol|titel|wasser|kante|layout|explosion&vollbild=1&entwurf={json}`, dazu `zoom`, `versatz`, `grund`, `frontal`,
   `umgebung`, `spiegel`, `abstand`, Schatten- und Softbox-Schalter. Listing-Set `scripts/listing-fotos/` (Leonardo 1K,
   Referenz HIGH, `prompt_enhance: OFF`). Gelernt: Wandschatten wurde Standfuss, Softbox im Spiegel Glasplatte oder weisses
   Wasser (Nahaufnahmen `softboxen=0`), schraeg nebeneinander Escher-Bild (frontal auf gezeichneter Kommode), Paris 3,5 km
-  zu dicht (2 km). Nahaufnahmen: wenig Staub in den Prompt, keine Fussel (wurden ein Haar), dann Ultra 2x. Stege in Szenen
-  zeichnet das Bildmodell nicht (`schrift_einsetzen.py`); aufgezogen spiegelt Blau Flecken (`spiegel=0`). Kamera-near 50 mm
-  in Motiven: bei 1 mm fehlten ab gut 2 m Abstand Gravur und Spiegel (Tiefengenauigkeit).
+  zu dicht (2 km). Nahaufnahmen: wenig Staub in den Prompt, keine Fussel (wurden ein Haar), dann Ultra 2x. Stege in Szenen zeichnet
+  das Bildmodell nicht (`schrift_einsetzen.py`). Kamera-near 50 mm in Motiven: bei 1 mm fehlte ab 2 m Abstand die Gravur.
 - **Amazon Custom** (`scripts/amazon-custom/`, `amazon-container.ts`): Vorschau ohne Text gerade von vorn; Container 400 px =
   Platte + 10 mm Rahmenzugabe je Seite x 1,06, auch ohne Rahmen; Textfelder aus Layoutwerten und Schriftmassen. Jedes Format
   fuellt die Kachel (oft nur 400 px), Rahmen und Massstab je Format (Leiste ueberall 14 mm, klein mehr Gravur); Quadrat eigener Artikel.
