@@ -80,7 +80,7 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Amazon Custom** (`scripts/amazon-custom/`, `amazon-container.ts`): Container 400 px = Platte + 10 mm Rahmenzugabe je Seite
   x 1,06, auch ohne Rahmen; Textfelder aus Layoutwerten und Schriftmassen. Kartenbilder ohne Text und Symbol, Rahmen und Symbol
   als transparente Masken darueber (`?nur=`, zwei Aufnahmen vor Schwarz/Weiss), Symbol mittig. Jedes Format fuellt die Kachel,
-  Rahmen und Massstab je Format; Quadrat eigener Artikel. Explosionszeichnung als fertiges Bild, Leonardo auf warmem Grund.
+  Rahmen und Massstab je Format; Quadrat eigener Artikel. Explosionszeichnung je Design, gleiche Kamera, Leonardo auf warmem Grund.
 - **Kundeneingaben werden feldweise gemischt** (zwei schnelle Klicks hoben sich sonst auf).
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)

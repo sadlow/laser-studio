@@ -93,7 +93,8 @@ if __name__ == "__main__":
     vorschau(quadrat, os.path.join(ZIEL, QUADRAT, "1 Vorschau ohne Text"), ["quadrat30"])
     optionen(quadrat, os.path.join(ZIEL, QUADRAT, "2 Optionen"), False)
     masken(["quadrat30"], os.path.join(ZIEL, QUADRAT, MASKEN))
-    kopiere(os.path.join(QUELLE, "erklaerbild", "explosionszeichnung.jpg"), os.path.join(ZIEL, "4 Explosionszeichnung", "Explosionszeichnung.jpg"))
+    for stamm, name in DESIGN.items():
+        kopiere(os.path.join(QUELLE, "erklaerbild", stamm, "explosionszeichnung.jpg"), os.path.join(ZIEL, "4 Explosionszeichnung", name + ".jpg"))
     for datei in ["textfelder.md", "textfelder.json"]:
         kopiere(os.path.join(QUELLE, datei), os.path.join(ZIEL, datei))
     kopiere(os.path.join(HIER, "UEBERSICHT.md"), os.path.join(ZIEL, "Übersicht.md"))

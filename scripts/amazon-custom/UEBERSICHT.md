@@ -89,9 +89,13 @@ Zu beachten:
 
 ## 4 Explosionszeichnung
 
-Fertiges Listing-Bild: die Explosionszeichnung aus dem 3D-Modell, mit Leonardo als echte Aufnahme
-auf warmem, ruhigem Grund gerechnet und auf 2048 x 2048 px hochskaliert. Ohne Beschriftung und
+Fertige Listing-Bilder, je Design eins: die Explosionszeichnung aus dem 3D-Modell, mit Leonardo als
+echte Aufnahme auf warmem, ruhigem Grund gerechnet und auf 2048 x 2048 px hochskaliert. Alle drei mit
+derselben Kamera und demselben Grund, damit sie als Reihe zusammenpassen. Ohne Beschriftung und
 Linien – die kommen im Listing Designer dazu.
+
+Bei Schwarz auf Weiß sieht man unter dem Titel die beiden kleinen Zeilen kaum: schräg gesehen sind
+die feinen Buchstaben im schwarzen Acryl fast geschlossen, genau so zeigt es auch das 3D-Modell.
 
 ## 5 Quadrat 30 x 30 (eigener Artikel)
 
@@ -104,8 +108,10 @@ bräuchte das Quadrat Reiter in fester Größe.
 
 ## Kosten
 
-Standort-Symbole: 6 Generierungen, etwa 0,23 $. Explosionszeichnung: 1 Generierung und
-1 Hochskalierung, etwa 0,09 $ (dazu zwei frühere Fassungen mit Beschriftung, zusammen 0,22 $).
+Standort-Symbole: 6 Generierungen, etwa 0,23 $. Explosionszeichnungen: je Design 1 Hochskalierung;
+Weiß auf Schwarz im ersten Versuch, Schwarz auf Weiß im zweiten, weißer Rand im dritten. Zusammen
+6 Generierungen und 3 Hochskalierungen, etwa 0,39 $ (dazu zwei frühere Fassungen mit Beschriftung,
+zusammen 0,22 $).
 
 Erzeugt mit `laser-studio/scripts/amazon-custom/` (textfelder.ts, bilder.py, masken.py, symbole.py,
 erklaerbild.py, ordner.py).
