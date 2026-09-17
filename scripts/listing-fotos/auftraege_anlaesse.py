@@ -99,8 +99,8 @@ JOBS["features-paris-herz-echt"] = (JOBS["features-paris-herz-echt"][0], JOBS["f
     "fine engraved paths,", "fine engraved paths that appear as light grey lines (never red),"))
 
 
-# Erklaerbild (Marcel 16.09.2026): "damit jeder versteht, was er kauft". Beschriftet wird danach
-# (explosion_beschriften.py) – Schrift erfindet das Bildmodell.
+# Erklaerbild (Marcel 16.09.2026): "damit jeder versteht, was er kauft". Ohne Beschriftung – Texte und
+# Linien setzt Marcel im Listing Designer (17.09.). Die aktuelle Fassung: scripts/amazon-custom/erklaerbild.py.
 JOBS["08-explosion-koeln"] = ("explosion-koeln",
     "Clean studio product visualization, an exploded view of a personalized layered acrylic city map artwork of "
     "Köln: its separate layers float one behind another with generous even space between them, seen from the front "

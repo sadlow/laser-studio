@@ -23,8 +23,6 @@ interface Props {
   setzeAbstand: (mm: number) => void;
   hintergrund: Hintergrund;
   setzeHintergrund: (h: Hintergrund) => void;
-  beschriftung: boolean;
-  setzeBeschriftung: (an: boolean) => void;
   motiv: Motiv;
   motive: Motiv[];
   setzeMotiv: (m: Motiv) => void;
@@ -68,9 +66,6 @@ export function Leiste3D(p: Props) {
           </option>
         ))}
       </select>
-      <button type="button" onClick={() => p.setzeBeschriftung(!p.beschriftung)} className={knopf} style={p.beschriftung ? an : aus}>
-        Beschriftung
-      </button>
       {p.motiv !== "frei" && (
         <>
           <select value={p.seiten} onChange={(e) => p.setzeSeiten(e.target.value as Seiten)} className={knopf} style={aus} aria-label="Seitenverhaeltnis">

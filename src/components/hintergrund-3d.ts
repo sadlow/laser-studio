@@ -15,17 +15,13 @@ export const HINTERGRUND_TITEL: Record<Hintergrund, string> = {
   dunkel: "Hintergrund dunkel",
 };
 
-// Mitte und Rand. Grau so hell, dass dunkle Schrift und das schwarze Acryl lesbar bleiben
-// und Weiss trotzdem absteht.
+// Mitte und Rand. Grau so hell, dass das schwarze Acryl lesbar bleibt und Weiss trotzdem absteht.
 // Warm fuer das Erklaerbild (Marcel 17.09.2026: "muss nicht so hart technisch wirken"), Sand statt Grau.
 const VERLAUF: Partial<Record<Hintergrund, [string, string]>> = {
   warm: ["#c9bead", "#968a7b"],
   grau: ["#b3b8bd", "#80868c"],
   dunkel: ["#3d434a", "#16191c"],
 };
-
-/** Beschriftung hell auf dunklem Grund. */
-export const HELLE_SCHRIFT: Record<Hintergrund, boolean> = { hell: false, weiss: false, warm: false, grau: false, dunkel: true };
 
 /**
  * Szenenhintergrund; ohne Wahl der Buehnenton der Anordnung. Der Verlauf bekommt ein feines

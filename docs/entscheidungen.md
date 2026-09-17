@@ -67,9 +67,9 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   gezeichnet nur bei Aenderung. Acryl hochglaenzend, das Blau spiegelt echt und dunkel (`Reflector`, Softboxen nur im Spiegelbild).
   Lichtstimmungen (`licht-3d.ts`): Studio, Sonne durch Blaetter, Sonne durchs Fenster (SpotLight mit Maske, neutral statt gelb);
   Licht und Raum drehen mit der Kamera, Ziehen wirkt wie das Produkt wenden (`?drehen=`).
-- **Explosionszeichnung als Infografik** (17.09., `explosion-3d.ts`, `beschriftung-3d.ts`): Regler 0-200 mm, Kamera und Licht
-  folgen der Stapelmitte. Hintergrund warm, grau oder dunkel (auf Hell verschwanden die weissen Lagen), Beschriftung aus der Engine
-  neben dem Stapel, auch im gespeicherten Bild; aufgezogen zeigt das Blau Farbe statt Spiegelflecken. Einstellungen stehen in der URL.
+- **Explosionszeichnung** (17.09., `explosion-3d.ts`): Regler 0-200 mm, Kamera und Licht folgen der Stapelmitte. Hintergrund
+  warm, grau oder dunkel (auf Hell verschwanden die weissen Lagen); aufgezogen zeigt das Blau Farbe statt Spiegelflecken. Keine
+  Beschriftung: Texte und Linien setzt Marcel im Listing Designer, geliefert werden fertige Bilder. Einstellungen in der URL.
 - **Motive fuer KI-Produktfotos** (`motive-3d.ts`, `aufnahme-3d.ts`, `referenzbilder.sh`): `?ansicht=3d&foto=wand|flach|
   symbol|titel|wasser|kante|layout|explosion&vollbild=1&entwurf={json}`, dazu `zoom`, `versatz`, `grund`, `frontal`,
   `umgebung`, `spiegel`, `abstand`, Schatten- und Softbox-Schalter. Listing-Set `scripts/listing-fotos/` (Leonardo 1K,
@@ -80,7 +80,7 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Amazon Custom** (`scripts/amazon-custom/`, `amazon-container.ts`): Container 400 px = Platte + 10 mm Rahmenzugabe je Seite
   x 1,06, auch ohne Rahmen; Textfelder aus Layoutwerten und Schriftmassen. Kartenbilder ohne Text und Symbol, Rahmen und Symbol
   als transparente Masken darueber (`?nur=`, zwei Aufnahmen vor Schwarz/Weiss), Symbol mittig. Jedes Format fuellt die Kachel,
-  Rahmen und Massstab je Format; Quadrat eigener Artikel. Erklaerbild: Referenz + Beschriftung aus derselben Kamera, Leonardo warm.
+  Rahmen und Massstab je Format; Quadrat eigener Artikel. Explosionszeichnung als fertiges Bild, Leonardo auf warmem Grund.
 - **Kundeneingaben werden feldweise gemischt** (zwei schnelle Klicks hoben sich sonst auf).
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)

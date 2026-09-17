@@ -75,7 +75,7 @@ x/y = linke obere Ecke, alle Felder mittig. Weitere Angaben in `textfelder.md` u
 
 Titel: Bacalisties, max. 20 Zeichen. Zeilen: Avant Garde Book, Versalien, Sperrung 0,14 em,
 max. 30 Zeichen. Textfarbe: Weiß auf Schwarz und Schwarz mit weißem Rand #151515, Schwarz auf
-Weiß #f6f5f1. Die Kontrollbilder zeigen die Felder rot über der gerenderten Schrift.
+Weiß #f6f5f1.
 
 Zu beachten:
 - Die Zeilen sind im Container knapp 9 px groß, so klein wie am Produkt. Stellt Amazon das
@@ -87,25 +87,25 @@ Zu beachten:
 - Bacalisties und Avant Garde Book müssen bei Amazon hinterlegt sein, sonst nimmt die Vorschau
   eine Ersatzschrift.
 
-## 4 Erklärbild
+## 4 Explosionszeichnung
 
-Explosionszeichnung aus dem 3D-Modell, mit Leonardo als echte Aufnahme auf warmem, ruhigem Grund
-gerechnet und auf 2048 px hochskaliert. Einmal ohne, einmal mit Beschriftung: Material und Stärke
-je Lage, aus derselben Kamera über das Bild gelegt, dazu der Holzrahmen als Fußnote.
+Fertiges Listing-Bild: die Explosionszeichnung aus dem 3D-Modell, mit Leonardo als echte Aufnahme
+auf warmem, ruhigem Grund gerechnet und auf 2048 x 2048 px hochskaliert. Ohne Beschriftung und
+Linien – die kommen im Listing Designer dazu.
 
 ## 5 Quadrat 30 x 30 (eigener Artikel)
 
 Das Quadrat hat ein eigenes Layout (Titel und Zeilen in Reitern in der Karte) und steht darum
 nicht im Konfigurator der Hochformate. Eigene Bilder: Vorschau ohne Text je Design, Design,
-Rahmen, Maßstab, Masken und ein Kontrollbild. Die Reiter wachsen mit dem Text, feste Textfelder
+Rahmen, Maßstab und Masken. Die Reiter wachsen mit dem Text, feste Textfelder
 gibt es nicht; `textfelder.md` nennt die Lage für den Beispieltext. Ohne Text fehlen auch die
 Reiter: in der Vorschau ohne Text läge Amazons Titel direkt auf der Karte. Für eine Live-Vorschau
 bräuchte das Quadrat Reiter in fester Größe.
 
 ## Kosten
 
-Standort-Symbole: 6 Generierungen, etwa 0,23 $. Erklärbild: 1 Generierung und 1 Hochskalierung,
-etwa 0,09 $ (das erste Erklärbild vom Vortag: 0,13 $).
+Standort-Symbole: 6 Generierungen, etwa 0,23 $. Explosionszeichnung: 1 Generierung und
+1 Hochskalierung, etwa 0,09 $ (dazu zwei frühere Fassungen mit Beschriftung, zusammen 0,22 $).
 
 Erzeugt mit `laser-studio/scripts/amazon-custom/` (textfelder.ts, bilder.py, masken.py, symbole.py,
 erklaerbild.py, ordner.py).

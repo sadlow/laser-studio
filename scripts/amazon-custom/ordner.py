@@ -4,6 +4,7 @@
 Aufruf: python3 scripts/amazon-custom/ordner.py ["Zielordner"]   (Standard: ~/Desktop/Schichtkarte Amazon Custom)
 Vorher: textfelder.ts, bilder.py, masken.py, symbole.py und erklaerbild.py.
 Die Unterordner, die das Skript anlegt, baut es jedes Mal neu auf – so bleibt kein veraltetes Bild liegen.
+Nur fertige Bilder (Marcel 17.09.2026): die Kontrollbilder mit den Textfeldern bleiben im Studio-Export.
 """
 import os, shutil, sys
 
@@ -31,7 +32,7 @@ OPTIONEN = {
 }
 QUADRAT = "5 Quadrat 30 x 30 (eigener Artikel)"
 MASKEN = "3 Masken transparent"
-TEILE = ["1 Vorschau ohne Text", "2 Optionen", MASKEN, "3 Erklärbild", "4 Erklärbild", QUADRAT, "4 Quadrat 30 x 30 (eigener Artikel)", "Kontrollbilder Textfelder"]
+TEILE = ["1 Vorschau ohne Text", "2 Optionen", MASKEN, "3 Erklärbild", "4 Erklärbild", "4 Explosionszeichnung", QUADRAT, "4 Quadrat 30 x 30 (eigener Artikel)", "Kontrollbilder Textfelder"]
 
 
 def kopiere(von, nach):
@@ -92,11 +93,7 @@ if __name__ == "__main__":
     vorschau(quadrat, os.path.join(ZIEL, QUADRAT, "1 Vorschau ohne Text"), ["quadrat30"])
     optionen(quadrat, os.path.join(ZIEL, QUADRAT, "2 Optionen"), False)
     masken(["quadrat30"], os.path.join(ZIEL, QUADRAT, MASKEN))
-    for datei, name in [("erklaerbild-beschriftet.jpg", "Aufbau – beschriftet.jpg"), ("erklaerbild.jpg", "Aufbau – ohne Beschriftung.jpg")]:
-        kopiere(os.path.join(QUELLE, "erklaerbild", datei), os.path.join(ZIEL, "4 Erklärbild", name))
-    for f in ["a5", "a4", "a3"]:
-        kopiere(os.path.join(BILDER, "kontrolle", f"{f}.jpg"), os.path.join(ZIEL, "Kontrollbilder Textfelder", f"{FORMAT[f]}.jpg"))
-    kopiere(os.path.join(BILDER, "kontrolle", "quadrat30.jpg"), os.path.join(ZIEL, QUADRAT, "Kontrollbild Textfelder.jpg"))
+    kopiere(os.path.join(QUELLE, "erklaerbild", "explosionszeichnung.jpg"), os.path.join(ZIEL, "4 Explosionszeichnung", "Explosionszeichnung.jpg"))
     for datei in ["textfelder.md", "textfelder.json"]:
         kopiere(os.path.join(QUELLE, datei), os.path.join(ZIEL, datei))
     kopiere(os.path.join(HIER, "UEBERSICHT.md"), os.path.join(ZIEL, "Übersicht.md"))

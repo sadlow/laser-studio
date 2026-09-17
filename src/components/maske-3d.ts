@@ -4,19 +4,18 @@ import { materialien } from "./material-3d";
 import type { Stapel } from "./szene-3d";
 
 /**
- * Masken fuer Amazon Custom (Marcel 17.09.2026): Rahmen, Standort-Symbol und Beschriftung als PNG mit
+ * Masken fuer Amazon Custom (Marcel 17.09.2026): Rahmen und Standort-Symbol als PNG mit
  * transparentem Grund, die sich ueber das Kartenbild legen. Die Aufnahme zeigt nur das eine Teil und
  * seinen Schatten auf der Karte; die Transparenz entsteht aus zwei Aufnahmen vor Schwarz und Weiss
- * (scripts/amazon-custom/bilder.py). URL: ?nur=symbol|rahmen|beschriftung
+ * (scripts/amazon-custom/masken.py). URL: ?nur=symbol|rahmen
  *
  * symbol:       das Symbol, darunter der Hintergrund in seiner Aussenkontur – durch das Loch des Pins
  *               sieht man in echt den Hintergrund, nicht die Strassen des Kartenbilds.
  * rahmen:       der Holzrahmen mit dem Schatten seiner Lippe auf dem Bild.
- * beschriftung: nur die Beschriftung der Explosionszeichnung.
  */
-export type Maske = "symbol" | "rahmen" | "beschriftung";
+export type Maske = "symbol" | "rahmen";
 
-export const MASKEN: Maske[] = ["symbol", "rahmen", "beschriftung"];
+export const MASKEN: Maske[] = ["symbol", "rahmen"];
 
 const NAME = "maske";
 
@@ -30,7 +29,6 @@ export function maskeEinrichten(maske: Maske, e: SchichtkartenErgebnis, s: Stape
     p.mesh.visible = (maske === "symbol" && p.lage?.key === "symbol") || (maske === "rahmen" && !p.lage);
     for (const zusatz of [p.gravur, p.gravurDetail, p.spiegel]) if (zusatz) zusatz.visible = false;
   }
-  if (maske === "beschriftung") return;
 
   const { breiteMm: b, hoeheMm: h } = e.layout.platte;
   const hinzu = (m: THREE.Mesh, z: number) => {

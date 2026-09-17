@@ -23,22 +23,20 @@ function ausUrl(url: URLSearchParams) {
     stimmung: wert<Stimmung>("licht", STIMMUNG_TITEL, "studio"),
     hintergrund: wert<Hintergrund>("hintergrund", HINTERGRUND_TITEL, "hell"),
     abstandMm: Math.min(ABSTAND_MAX_MM, abstand),
-    beschriftung: url.get("beschriftung") === "1" || url.get("beschriftung") === "platz",
   };
 }
 
 /**
  * Drehbare 3D-Ansicht des Lagenstapels. Maus ziehen dreht (auch um die Y-Achse), Rad zoomt,
  * rechte Maustaste verschiebt. Der Regler zieht die Lagen auseinander, bis zur Explosionszeichnung
- * mit Hintergrund und Beschriftung als Infografik. Die Motive stellen Buehne und Kamera fuer
+ * auf einem Hintergrund, auf dem auch die weissen Lagen stehen. Die Motive stellen Buehne und Kamera fuer
  * Referenzbilder ein (Leonardo-Skill): an der Wand, flach liegend und Nahaufnahmen.
  *
  * URL (auch fuer Headless-Aufnahmen, die Ansicht schreibt sie beim Einstellen mit): ?ansicht=3d&foto=explosion
- * &abstand=90&hintergrund=grau&beschriftung=1&licht=fenster&seiten=16:9&vollbild=1 (foto=1 ist die Wand).
+ * &abstand=90&hintergrund=warm&licht=fenster&seiten=16:9&vollbild=1 (foto=1 ist die Wand).
  */
 export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
   const box = useRef<HTMLDivElement>(null);
-  const ebene = useRef<SVGSVGElement>(null);
   const [url] = useState(() => new URLSearchParams(window.location.search));
   const [start] = useState(() => ausUrl(url));
   const [motiv, setMotiv] = useState<Motiv>(start.motiv);
@@ -46,14 +44,13 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
   const [stimmung, setStimmung] = useState<Stimmung>(start.stimmung);
   const [hintergrund, setHintergrund] = useState<Hintergrund>(start.hintergrund);
   const [abstand, setAbstand] = useState(start.abstandMm);
-  const [beschriftung, setBeschriftung] = useState(start.beschriftung);
   const [baut, setBaut] = useState(true);
   const [zurueck, setZurueck] = useState(0);
   const vollbild = url.get("vollbild") === "1";
   const aufnahme = useMemo(() => aufnahmeParameter(url), [url]);
   const motive = useMemo(() => (Object.keys(MOTIV_TITEL) as Motiv[]).filter((m) => motivMoeglich(m, ergebnis)), [ergebnis]);
   const aktiv = motive.includes(motiv) ? motiv : "frei";
-  const einstellung: Einstellung = { motiv: aktiv, stimmung, abstandMm: abstand, hintergrund, beschriftung };
+  const einstellung: Einstellung = { motiv: aktiv, stimmung, abstandMm: abstand, hintergrund };
   const aktuell = useRef(einstellung);
   aktuell.current = einstellung;
   const buehne = useRef<Buehne | null>(null);
@@ -62,9 +59,9 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
   verhaeltnis.current = aktiv === "frei" ? null : seitenZahl(seiten);
 
   useEffect(() => {
-    if (!box.current || !ebene.current) return;
+    if (!box.current) return;
     setBaut(true);
-    const b = starteBuehne(ergebnis, { box: box.current, ebene: ebene.current, aufnahme, verhaeltnis: () => verhaeltnis.current, gebaut: () => setBaut(false) }, aktuell.current);
+    const b = starteBuehne(ergebnis, { box: box.current, aufnahme, verhaeltnis: () => verhaeltnis.current, gebaut: () => setBaut(false) }, aktuell.current);
     buehne.current = b;
     return () => {
       buehne.current = null;
@@ -72,14 +69,13 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
     };
   }, [ergebnis, aufnahme]);
 
-  // Motiv, Seitenverhaeltnis oder "zuruecksetzen" stellen die Kamera neu, in der Explosionszeichnung auch
-  // die Beschriftung (sie braucht Rand); alles andere nicht.
-  const kameraSchluessel = `${aktiv}|${seiten}|${zurueck}|${aktiv === "explosion" && beschriftung}`;
+  // Motiv, Seitenverhaeltnis oder "zuruecksetzen" stellen die Kamera neu; alles andere nicht.
+  const kameraSchluessel = `${aktiv}|${seiten}|${zurueck}`;
   const letzterSchluessel = useRef("");
   useEffect(() => {
     buehne.current?.setze(einstellung, kameraSchluessel !== letzterSchluessel.current);
     letzterSchluessel.current = kameraSchluessel;
-  }, [kameraSchluessel, stimmung, abstand, hintergrund, beschriftung, baut]);
+  }, [kameraSchluessel, stimmung, abstand, hintergrund, baut]);
 
   // Einstellungen in die URL: Neu laden behaelt sie, und der Link taugt fuer Headless-Aufnahmen.
   useEffect(() => {
@@ -92,9 +88,9 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
     setzen("licht", stimmung === "studio" ? null : stimmung);
     setzen("seiten", seiten === "4:3" ? null : seiten);
     setzen("hintergrund", hintergrund === "hell" ? null : hintergrund);
-    setzen("beschriftung", beschriftung ? "1" : null);
+    setzen("beschriftung", null);
     window.history.replaceState(null, "", neu);
-  }, [aktiv, abstand, stimmung, seiten, hintergrund, beschriftung, vollbild]);
+  }, [aktiv, abstand, stimmung, seiten, hintergrund, vollbild]);
 
   const setzeMotiv = (m: Motiv) => {
     // Eine Explosionszeichnung mit geschlossenem Stapel zeigt nichts.
@@ -114,11 +110,9 @@ export function Ansicht3D({ ergebnis }: { ergebnis: SchichtkartenErgebnis }) {
       {/* Die Next-Entwickleranzeige gehoert nicht ins Referenzbild. */}
       {vollbild && <style>{"nextjs-portal{display:none!important}"}</style>}
       <div ref={box} className="absolute inset-0 flex items-center justify-center" data-ansicht="3d" data-motiv={aktiv} data-bereit={baut ? undefined : "1"} />
-      <svg ref={ebene} className="pointer-events-none absolute" style={{ display: "none" }} />
       {!vollbild && (
         <Leiste3D abstand={abstand} setzeAbstand={setAbstand} motiv={aktiv} motive={motive} setzeMotiv={setzeMotiv}
           stimmung={stimmung} setzeStimmung={setStimmung} hintergrund={hintergrund} setzeHintergrund={setHintergrund}
-          beschriftung={beschriftung} setzeBeschriftung={setBeschriftung}
           seiten={seiten} setzeSeiten={setSeiten} speichern={speichern} zuruecksetzen={() => setZurueck((z) => z + 1)} />
       )}
       {baut && <p className="absolute inset-0 flex items-center justify-center text-sm" style={{ color: "var(--gedaempft)" }}>baut 3D…</p>}

@@ -2,9 +2,8 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import type { SchichtkartenErgebnis } from "@/engine/typen";
 import type { aufnahmeParameter } from "./aufnahme-3d";
-import { beschriftungen, ebeneZeichnen, zeichneBeschriftung } from "./beschriftung-3d";
-import { folgeAbstand, RAUM_BESCHRIFTUNG, SPIEGEL_BIS_MM } from "./explosion-3d";
-import { HELLE_SCHRIFT, type Hintergrund } from "./hintergrund-3d";
+import { folgeAbstand, SPIEGEL_BIS_MM } from "./explosion-3d";
+import type { Hintergrund } from "./hintergrund-3d";
 import { baueKulisse } from "./kulisse-3d";
 import { baueBeleuchtung, type Stimmung } from "./licht-3d";
 import { maskeEinrichten } from "./maske-3d";
@@ -18,7 +17,6 @@ export interface Einstellung {
   stimmung: Stimmung;
   abstandMm: number;
   hintergrund: Hintergrund;
-  beschriftung: boolean;
 }
 
 export interface Buehne {
@@ -29,7 +27,6 @@ export interface Buehne {
 
 interface Anschluss {
   box: HTMLDivElement;
-  ebene: SVGSVGElement;
   aufnahme: ReturnType<typeof aufnahmeParameter>;
   /** Seitenverhaeltnis der Leinwand im Fotomotiv, sonst null. */
   verhaeltnis: () => number | null;
@@ -87,7 +84,6 @@ export function starteBuehne(ergebnis: SchichtkartenErgebnis, a: Anschluss, star
     motivAnwenden(e.motiv, ergebnis, stapel, { kamera, steuerung, licht: beleuchtung.licht, kulisse, abstandMm: e.abstandMm });
     // Die freie Ansicht zielt auf den geschlossenen Stapel, die Explosionszeichnung auf den aufgezogenen.
     kameraAbstand = e.motiv === "explosion" ? e.abstandMm : 0;
-    if (e.motiv === "explosion" && e.beschriftung) kamera.position.sub(steuerung.target).multiplyScalar(RAUM_BESCHRIFTUNG).add(steuerung.target);
     beleuchtung.ausrichten();
     auf.ausschnitt(kamera, renderer, steuerung.target);
     beleuchtung.merken(kamera, steuerung.target);
@@ -128,9 +124,6 @@ export function starteBuehne(ergebnis: SchichtkartenErgebnis, a: Anschluss, star
     a.gebaut();
   }, 30);
 
-  const beschriften = (c = renderer.domElement) =>
-    ebeneZeichnen(a.ebene, c, e.beschriftung && stapel && !auf.beschriftungVerbergen ? beschriftungen(ergebnis, stapel, kamera, c.clientWidth, c.clientHeight) : null, HELLE_SCHRIFT[e.hintergrund]);
-
   const zeichnen = () => {
     if (aus) return;
     bild = requestAnimationFrame(zeichnen);
@@ -141,13 +134,12 @@ export function starteBuehne(ergebnis: SchichtkartenErgebnis, a: Anschluss, star
       neu = true;
     }
     if (stapel && kameraAbstand !== abstand) {
-      folgeAbstand(e.motiv, ergebnis, stapel, kamera, steuerung, beleuchtung, kameraAbstand, abstand, e.beschriftung ? RAUM_BESCHRIFTUNG : 1);
+      folgeAbstand(e.motiv, ergebnis, stapel, kamera, steuerung, beleuchtung, kameraAbstand, abstand);
       kameraAbstand = abstand;
     }
     if (steuerung.update() || neu) {
       beleuchtung.folgen(kamera, steuerung.target);
       renderer.render(szene, kamera);
-      beschriften();
       neu = false;
     }
   };
@@ -164,20 +156,11 @@ export function starteBuehne(ergebnis: SchichtkartenErgebnis, a: Anschluss, star
       neu = true;
     },
     referenz: () => {
-      // Referenzbild mit rund 2800 px an der langen Kante, danach zurueck – mit Beschriftung, wenn sie an ist.
+      // Referenzbild mit rund 2800 px an der langen Kante, danach zurueck.
       const c = renderer.domElement;
-      const [w, hh] = [c.clientWidth, c.clientHeight];
-      renderer.setPixelRatio(Math.min(4, 2800 / Math.max(w, hh)));
+      renderer.setPixelRatio(Math.min(4, 2800 / Math.max(c.clientWidth, c.clientHeight)));
       renderer.render(szene, kamera);
-      let png = c.toDataURL("image/png");
-      if (e.beschriftung && stapel) {
-        const leinwand = document.createElement("canvas");
-        [leinwand.width, leinwand.height] = [c.width, c.height];
-        const g = leinwand.getContext("2d")!;
-        g.drawImage(c, 0, 0);
-        zeichneBeschriftung(g, beschriftungen(ergebnis, stapel, kamera, w, hh), HELLE_SCHRIFT[e.hintergrund], c.width / w);
-        png = leinwand.toDataURL("image/png");
-      }
+      const png = c.toDataURL("image/png");
       renderer.setPixelRatio(pixel);
       neu = true;
       return png;

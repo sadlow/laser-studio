@@ -6,16 +6,15 @@ import { motivAufnahme, type Motiv } from "./motive-3d";
 import type { Stapel } from "./szene-3d";
 
 /**
- * Explosionszeichnung als Infografik (Marcel 17.09.2026: "so weit auseinanderziehen, dass man eine
- * tolle Infografik erstellen kann – die meisten haben so etwas noch nie gesehen").
+ * Explosionszeichnung (Marcel 17.09.2026: "so weit auseinanderziehen, dass man eine tolle Infografik
+ * erstellen kann – die meisten haben so etwas noch nie gesehen"). Beschriftung und Linien setzt Marcel
+ * im Listing Designer selbst; das Studio liefert nur die Zeichnung.
  */
 
 /** Weitester Abstand zwischen zwei Lagen im Regler. */
 export const ABSTAND_MAX_MM = 200;
 /** Damit startet die Explosionszeichnung, wenn der Stapel noch zu ist. */
 export const ABSTAND_EXPLOSION_MM = 60;
-/** So viel weiter weg steht die Kamera mit Beschriftung – daneben braucht der Text Platz. */
-export const RAUM_BESCHRIFTUNG = 1.5;
 /** Ab hier spiegelt das Blau nur noch den Raum: aufgezogen wurden aus den Lagen davor zackige Flecken. */
 export const SPIEGEL_BIS_MM = 5;
 
@@ -39,7 +38,6 @@ export function folgeAbstand(
   beleuchtung: Beleuchtung,
   vorher: number,
   jetzt: number,
-  raum = 1,
 ) {
   if (motiv !== "frei" && motiv !== "explosion") return;
   const weg = stapelMitte(s, jetzt).sub(stapelMitte(s, vorher));
@@ -51,7 +49,7 @@ export function folgeAbstand(
   const vfov = (kamera.fov * Math.PI) / 180;
   const hfov = 2 * Math.atan(Math.tan(vfov / 2) * kamera.aspect);
   const abstand = Math.max(a.feld.breite / 2 / Math.tan(hfov / 2), a.feld.hoehe / 2 / Math.tan(vfov / 2));
-  kamera.position.sub(steuerung.target).setLength(abstand * raum).add(steuerung.target);
+  kamera.position.sub(steuerung.target).setLength(abstand).add(steuerung.target);
   const licht = beleuchtung.licht;
   const bereich = a.licht.bereichMm;
   Object.assign(licht.shadow.camera, { left: -bereich, right: bereich, top: bereich, bottom: -bereich });
