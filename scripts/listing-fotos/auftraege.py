@@ -129,3 +129,7 @@ JOBS = {
         "Minimal styling, soft daylight from the left with soft natural shadows on the wall. The upper half of the "
         f"image stays an empty calm wall. {QUALITAET}"),
 }
+
+# Hauptbild auch in A3 und mit vielen geschnittenen Strassen (Marcel 17.09.2026): gleicher Prompt, andere Referenz
+for _v in ["a3", "viel"]:
+    JOBS[f"01-hero-koeln-schwarz-{_v}-echt"] = (f"hero-koeln-schwarz-{_v}", JOBS["01-hero-koeln-schwarz-echt"][1])

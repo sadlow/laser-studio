@@ -18,6 +18,8 @@ Amazon-Hauptbild, 2048 x 2048 px auf reinweißem Grund: Köln, Weiß auf Schwarz
 Nur 15 Grad aus der Frontalen gedreht, damit die geschnittene Schrift lesbar bleibt und die Lagen trotzdem Tiefe
 zeigen. Im Rhein liegt die Spiegelung einer Softbox, das Schwarz glänzt wie echtes Acryl, der Rahmen zeigt Maserung.
 Die Alternative daneben spiegelt kräftiger (Herz und Rhein), wirkt aber etwas mehr nach Rendering.
+Dieselbe Aufnahme gibt es in A3 (bei 3,5 km werden dort auch die Wohnstraßen geschnitten, das Netz ist feiner)
+und in A4 mit „viele Straßen geschnitten“.
 Leonardo legt das Produkt auf Hellgrau, sobald Softboxen im Prompt stehen; `weissgrund.py` hebt den Grund auf
 genau 255 und lässt Produkt und Kontaktschatten unberührt.
 
@@ -119,7 +121,7 @@ bräuchte das Quadrat Reiter in fester Größe.
 
 ## Kosten
 
-Hauptbild: 6 Generierungen und 2 Hochskalierungen, etwa 0,34 $. Standort-Symbole: 6 Generierungen, etwa 0,23 $.
+Hauptbilder: 8 Generierungen und 4 Hochskalierungen, etwa 0,51 $. Standort-Symbole: 6 Generierungen, etwa 0,23 $.
 Explosionszeichnungen: je Design 1 Hochskalierung;
 Weiß auf Schwarz im ersten Versuch, Schwarz auf Weiß im zweiten, weißer Rand im dritten. Zusammen
 6 Generierungen und 3 Hochskalierungen, etwa 0,39 $ (dazu zwei frühere Fassungen mit Beschriftung,

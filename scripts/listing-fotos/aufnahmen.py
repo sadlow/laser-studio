@@ -132,11 +132,17 @@ AUFNAHMEN.update({f"test-{o}": (ORTE[o], "wand", 1, None, None) for o in
 # Softboxen an, damit Rhein und Herz spiegeln; grosses Herz, sonst ist die Spiegelung im Hauptbild zu klein.
 AUFNAHMEN["hero-koeln-schwarz"] = (variante("koeln", kunde={"holzrahmen": "schwarz", "symbolGroesse": "gross"}), "wand", 1.38, None,
                                    "ffffff", {"frontal": "1", "drehen": "15"})
+# Varianten: A3 (die URL uebernimmt keine Formatmasse, darum die Layoutwerte wie bei Amazon Custom) und viel geschnitten
+_LAYOUT = json.load(open(os.path.join(STUDIO, "export", "amazon-custom", "layoutwerte.json")))
+_hero = AUFNAHMEN["hero-koeln-schwarz"]
+AUFNAHMEN["hero-koeln-schwarz-a3"] = (dict(_hero[0], format="a3", **_LAYOUT["a3"]), *_hero[1:])
+AUFNAHMEN["hero-koeln-schwarz-viel"] = (variante("koeln", kunde={**_hero[0]["kunde"], "strassenStufe": "viel"}), *_hero[1:])
 
 def aufnehmen(name):
     entwurf, motiv, zoom, versatz, grund, *extra = AUFNAHMEN[name]
     extra = dict(extra[0]) if extra else {}
     px = extra.pop("px", "1600")
+    breite, hoehe = extra.pop("breite", px), extra.pop("hoehe", px)  # Querformat fuers Video: dazu seiten=16:9
     teile = {"entwurf": json.dumps(entwurf, ensure_ascii=False), "foto": motiv, "seiten": "1:1", **extra}
     if zoom != 1: teile["zoom"] = str(zoom)
     if versatz: teile["versatz"] = f"{versatz[0]},{versatz[1]}"
@@ -144,7 +150,7 @@ def aufnehmen(name):
         teile["grund"] = grund
         teile["wandschatten"] = "0"
     query = urllib.parse.urlencode(teile, quote_via=urllib.parse.quote)
-    subprocess.run(["bash", os.path.join(STUDIO, "scripts", "referenzbilder.sh"), name, query, px, px], check=True)
+    subprocess.run(["bash", os.path.join(STUDIO, "scripts", "referenzbilder.sh"), name, query, breite, hoehe], check=True)
     os.makedirs(ZIEL, exist_ok=True)
     shutil.move(os.path.join(STUDIO, "export", "produktfoto", "nah", name + ".png"), os.path.join(ZIEL, name + ".png"))
 

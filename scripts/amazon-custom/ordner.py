@@ -35,8 +35,10 @@ QUADRAT = "5 Quadrat 30 x 30 (eigener Artikel)"
 MASKEN = "3 Masken transparent"
 HOCH = os.path.join(STUDIO, "export", "produktfoto", "listing", "fotos", "hochskaliert")
 # Marcel 17.09.2026: "noch etwas realistischer" – die fruehere Fassung mit den kraeftigeren Spiegelungen bleibt Alternative
-HAUPTBILDER = {"01-hero-koeln-schwarz-echt-ultra-k4-a7-weiss.jpg": "Weiß auf Schwarz, Rahmen schwarz.jpg",
-               "01-hero-koeln-schwarz-ultra-k4-a7-weiss.jpg": "Alternative mit stärkerer Spiegelung.jpg"}
+HAUPTBILDER = {"01-hero-koeln-schwarz-echt-ultra-k4-a7-weiss.jpg": "A4 – Weiß auf Schwarz, Rahmen schwarz.jpg",
+               "01-hero-koeln-schwarz-ultra-k4-a7-weiss.jpg": "A4 – Alternative mit stärkerer Spiegelung.jpg",
+               "01-hero-koeln-schwarz-a3-echt-ultra-k4-a7-weiss.jpg": "A3 – Weiß auf Schwarz, Rahmen schwarz.jpg",
+               "01-hero-koeln-schwarz-viel-echt-ultra-k4-a7-weiss.jpg": "A4 – viele Straßen geschnitten.jpg"}
 TEILE = ["0 Hauptbild", "1 Vorschau ohne Text", "2 Optionen", MASKEN, "3 Erklärbild", "4 Erklärbild", "4 Explosionszeichnung", QUADRAT, "4 Quadrat 30 x 30 (eigener Artikel)", "Kontrollbilder Textfelder"]
 
 
