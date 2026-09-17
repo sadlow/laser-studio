@@ -1,6 +1,6 @@
 """Untertitelzeilen auf der schwarzen Schriftplatte der Explosionszeichnung (Marcel 17.09.2026).
 
-Schraeg gesehen sind die kleinen Buchstaben im 3 mm dicken schwarzen Acryl fast geschlossen: das 3D-Modell zeigt nur
+Schraeg gesehen sind die kleinen Buchstaben im 2 mm dicken schwarzen Acryl fast geschlossen: das 3D-Modell zeigt nur
 Glanzpunkte, Leonardo macht daraus Striche oder laesst die Zeilen weg. Am fertigen Stueck stehen sie weiss auf schwarz
 (die weisse Lage scheint durch), und im Listing-Bild sollen sie lesbar sein ("die schwarze Deckschicht hat gar keine
 Untertitelzeilen"). Die Zeilen kommen darum aus der Frontansicht desselben Entwurfs und werden ueber die vier
