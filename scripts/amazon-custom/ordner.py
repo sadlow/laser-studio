@@ -2,7 +2,8 @@
 """Stellt die Amazon-Custom-Bilder mit sprechenden Namen in einen Ordner (Marcel 16./17.09.2026).
 
 Aufruf: python3 scripts/amazon-custom/ordner.py ["Zielordner"]   (Standard: ~/Desktop/Schichtkarte Amazon Custom)
-Vorher: textfelder.ts, bilder.py, masken.py, symbole.py und erklaerbild.py.
+Vorher: textfelder.ts, bilder.py, masken.py, symbole.py und erklaerbild.py; das Hauptbild aus scripts/listing-fotos
+(aufnahmen.py, generieren.py und hochskalieren.py fuer 01-hero-koeln-schwarz, dann weissgrund.py).
 Die Unterordner, die das Skript anlegt, baut es jedes Mal neu auf – so bleibt kein veraltetes Bild liegen.
 Nur fertige Bilder (Marcel 17.09.2026): die Kontrollbilder mit den Textfeldern bleiben im Studio-Export.
 """
@@ -32,7 +33,8 @@ OPTIONEN = {
 }
 QUADRAT = "5 Quadrat 30 x 30 (eigener Artikel)"
 MASKEN = "3 Masken transparent"
-TEILE = ["1 Vorschau ohne Text", "2 Optionen", MASKEN, "3 Erklärbild", "4 Erklärbild", "4 Explosionszeichnung", QUADRAT, "4 Quadrat 30 x 30 (eigener Artikel)", "Kontrollbilder Textfelder"]
+HAUPTBILD = os.path.join(STUDIO, "export", "produktfoto", "listing", "fotos", "hochskaliert", "01-hero-koeln-schwarz-ultra-k4-a7-weiss.jpg")
+TEILE = ["0 Hauptbild", "1 Vorschau ohne Text", "2 Optionen", MASKEN, "3 Erklärbild", "4 Erklärbild", "4 Explosionszeichnung", QUADRAT, "4 Quadrat 30 x 30 (eigener Artikel)", "Kontrollbilder Textfelder"]
 
 
 def kopiere(von, nach):
@@ -86,6 +88,7 @@ def masken(formate, ziel):
 if __name__ == "__main__":
     for teil in TEILE:
         shutil.rmtree(os.path.join(ZIEL, teil), ignore_errors=True)
+    kopiere(HAUPTBILD, os.path.join(ZIEL, "0 Hauptbild", "Weiß auf Schwarz, Rahmen schwarz.jpg"))
     konfigurator, quadrat = os.path.join(BILDER, "konfigurator"), os.path.join(BILDER, "quadrat30")
     vorschau(konfigurator, os.path.join(ZIEL, "1 Vorschau ohne Text"), ["a5", "a4", "a3"])
     optionen(konfigurator, os.path.join(ZIEL, "2 Optionen"), True)

@@ -128,6 +128,10 @@ AUFNAHMEN.update({
 })
 AUFNAHMEN.update({f"test-{o}": (ORTE[o], "wand", 1, None, None) for o in
                   ["heidelberg", "starnberg", "muenchen", "paris", "berlin", "dresden", "sylt", "barcelona"]})
+# Amazon-Hauptbild (Marcel 17.09.2026): nur 15 Grad aus der Frontalen, damit die geschnittene Schrift lesbar bleibt;
+# Softboxen an, damit Rhein und Herz spiegeln; grosses Herz, sonst ist die Spiegelung im Hauptbild zu klein.
+AUFNAHMEN["hero-koeln-schwarz"] = (variante("koeln", kunde={"holzrahmen": "schwarz", "symbolGroesse": "gross"}), "wand", 1.38, None,
+                                   "ffffff", {"frontal": "1", "drehen": "15"})
 
 def aufnehmen(name):
     entwurf, motiv, zoom, versatz, grund, *extra = AUFNAHMEN[name]

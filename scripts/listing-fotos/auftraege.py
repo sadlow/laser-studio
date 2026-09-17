@@ -49,6 +49,17 @@ JOBS = {
         f"'LENA & JONAS' and the coordinates of Köln, {RAHMEN['ohne']}. It stands upright on its own bottom edge and "
         "leans slightly back against a white wall that blends seamlessly into the white background: no stand, no "
         f"base, no holder, no easel. Soft natural contact shadow, evenly lit, no props, e-commerce main image. {QUALITAET}"),
+    # Amazon-Hauptbild (Marcel 17.09.2026): Tiefe der Lagen und beide Spiegelacryle sichtbar, Schrift lesbar
+    "01-hero-koeln-schwarz": ("hero-koeln-schwarz",
+        f"Studio packshot on a seamless pure white background: {WEISS}, with the title 'Zuhause' and the lines "
+        f"'LENA & JONAS' and the coordinates of Köln, {RAHMEN['schwarz']}, leaning slightly back and seen at the same "
+        "gentle angle as in the reference. The depth of the stacked layers is clearly visible: the raised white streets "
+        "cast fine soft shadows onto the black layer, and the artwork sits recessed behind the frame lip. The blue mirror "
+        "acrylic in the cut-out river is a real mirror: a large soft studio softbox is reflected in it as a bright diagonal "
+        "gradient band across part of the deep blue water. The red mirror acrylic heart reflects the light like a mirror, "
+        "with a bright white specular glint on one of its lobes. A faint soft diagonal sheen of light glides across the "
+        "glossy white acrylic next to the lettering, and the glossy black layer faintly mirrors the white streets. The "
+        f"lettering stays sharp and legible. Soft natural contact shadow, no props, e-commerce main image. {QUALITAET}"),
     "02-heroetsy-koeln-einweihung": ("heroetsy-koeln",
         f"Warm lifestyle photograph of a housewarming gift: {WEISS}, with the title 'Zuhause', {RAHMEN['eiche']}, "
         "stands on a light oak sideboard against a warm white wall in a bright, freshly moved-into apartment. Around "

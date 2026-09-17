@@ -12,6 +12,13 @@ Jedes Format füllt seine Kachel. Zwischen A5, A4 und A3 ändern sich darum nur 
 die Rahmenleiste ist bei allen Formaten gleich breit (14 mm) und wirkt auf A5 kräftiger als auf
 A3, und auf kleinen Formaten werden mehr Straßen graviert statt geschnitten.
 
+## 0 Hauptbild
+
+Amazon-Hauptbild, 2048 x 2048 px auf reinweißem Grund: Köln, Weiß auf Schwarz, Holzrahmen schwarz, großes Herz.
+Nur 15 Grad aus der Frontalen gedreht, damit die geschnittene Schrift lesbar bleibt und die Lagen trotzdem Tiefe
+zeigen. Im Rhein liegt die Spiegelung einer Softbox, das rote Herz hat einen Glanzpunkt. Leonardo hat den Grund
+dabei hellgrau gemacht; `weissgrund.py` hebt ihn auf Weiß und lässt Produkt und Schatten unberührt.
+
 ## 1 Vorschau ohne Text
 
 Grundbild für die Live-Vorschau je Format und Design, ohne Text, Rahmen und Symbol.
@@ -110,7 +117,8 @@ bräuchte das Quadrat Reiter in fester Größe.
 
 ## Kosten
 
-Standort-Symbole: 6 Generierungen, etwa 0,23 $. Explosionszeichnungen: je Design 1 Hochskalierung;
+Hauptbild: 2 Generierungen und 1 Hochskalierung, etwa 0,13 $. Standort-Symbole: 6 Generierungen, etwa 0,23 $.
+Explosionszeichnungen: je Design 1 Hochskalierung;
 Weiß auf Schwarz im ersten Versuch, Schwarz auf Weiß im zweiten, weißer Rand im dritten. Zusammen
 6 Generierungen und 3 Hochskalierungen, etwa 0,39 $ (dazu zwei frühere Fassungen mit Beschriftung,
 zusammen 0,22 $).
