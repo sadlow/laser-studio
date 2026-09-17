@@ -3,10 +3,10 @@ import { laengenImFenster, waehleNetz } from "./dichte";
 import { brueckenStreifen } from "./bruecken";
 import { baueNetz } from "./netz";
 import {
+  ausTeilen,
   flaecheMm2,
   ohneLoecher,
   rechteck,
-  ringeInMm,
   schneide,
   teile,
   vereinige,
@@ -48,6 +48,7 @@ export interface Bausteine {
   /** Was aus der weissen Oberseite fuer die Buchstaben herausgeschnitten wird. */
   textAusschnitt: Flaeche;
   gravur: { linien: Punkt[][]; breiteMm: number }[];
+  klebeflaeche: Teil[];
   symbol: Teil[];
   symbolLage: SchichtkartenErgebnis["symbol"];
   /** Aussenkontur des Symbols – in den Lagen ueber dem Hintergrund ausgeschnitten. */
@@ -61,9 +62,9 @@ export interface Bausteine {
 // gravierten Gassen. Gemessen: Allgaeu 1,1-1,4 %, Venedig bei 2 km 78 %.
 const NACHRUECKEN_MAX_LOSE_ANTEIL = 0.1;
 
-// Klebemarke fuer das Symbol auf dem Hintergrund.
-const MARKE_EINZUG_MM = 0.3;
-const MARKE_BREITE_MM = 0.25;
+// Klebeflaeche fuer das Symbol: so weit nach innen, dass das Symbol sie trotz halber Schnittfuge
+// abdeckt – und so weit vom Loch des Pins weg, dass man die Gravur dort nicht sieht.
+const KLEBE_EINZUG_MM = 0.3;
 
 export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdaten, text: Textblock): Bausteine {
   const { platte, kartenfenster: f } = layout;
@@ -134,11 +135,9 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   // bei 160 ms Rechenzeit – A4 Berlin: 15,0 m auf 10,4 m.
   const gravurAus = vereinige(schutz, inseln.wasser, netz, symbolLoch);
   const gravur = gravurRoh.map((g) => ({ linien: ziehLinienAb(g.linien, gravurAus), breiteMm: g.breiteMm }));
-  // Klebemarke: der Umriss des Symbols, leicht nach innen gesetzt – das Symbol
-  // verliert beim Schneiden eine halbe Fuge und deckt die Marke trotzdem ab.
-  const marke = ringeInMm(versatz(symbolLoch, -MARKE_EINZUG_MM)).map((r) => [...r, r[0]]);
-  if (marke.length) gravur.push({ linien: marke, breiteMm: MARKE_BREITE_MM });
-
+  // Unter dem Symbol eine gravierte Flaeche statt einer Umrisslinie (Marcel 17.09.2026): angeraut
+  // haelt der Kleber besser, und die Stelle ist beim Aufsetzen markiert.
+  const klebeflaeche = teile(versatz(ausTeilen(symbol), -KLEBE_EINZUG_MM), 0.01);
 
   return {
     plattenFl,
@@ -148,6 +147,7 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
     wasser: inseln.wasser,
     textAusschnitt: vereinige(...ausschnitte),
     gravur,
+    klebeflaeche,
     symbol,
     symbolLage,
     symbolLoch,

@@ -99,7 +99,7 @@ export async function erzeugeBogen(a: BogenAuftrag, token: string) {
     `Dateien, eine Rohplatte je Datei:`,
     ...dateien.map((d) => `  ${d.datei.padEnd(26)} ${d.material}`),
     ``,
-    `Jede Datei: Ebene "1 Gravur" (${gravurBeschreibung(gravurExport)}), "2 Schnitt innen" (rot), "3 Schnitt aussen" (blau).`,
+    `Jede Datei: Ebene "1 Gravur" (${gravurBeschreibung(gravurExport)}), "2 Klebeflaeche" (gruen, Flaeche), "3 Schnitt innen" (rot), "4 Schnitt aussen" (blau).`,
     ...plaetze.flatMap((pl, i) => (pl.r.warnungen.length ? [``, `Hinweise Platz ${i + 1}:`, ...pl.r.warnungen.map((w) => `  - ${w}`)] : [])),
   ];
   fs.writeFileSync(path.join(ordner, "uebersicht.txt"), uebersicht.join("\n") + "\n");

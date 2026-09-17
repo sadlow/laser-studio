@@ -24,7 +24,7 @@ const GRAVUR_AUF_WEISS = "#c7c2b6";
  * nur die Farben von Netz und Hintergrund tauschen. Beim vierlagigen kommt eine
  * weisse Deckschicht mit Rahmen und Text dazu.
  *
- * Das Symbol wird auf den Hintergrund geklebt, an eine Gravurmarke; die Lagen
+ * Das Symbol wird auf den Hintergrund geklebt, auf eine gravierte Klebeflaeche; die Lagen
  * darueber haben an seiner Stelle einen Ausschnitt in Symbolform, und es steht
  * ueber das Netz hinaus (Marcel 16.09.2026, zuerst auf Blau geplant).
  */
@@ -47,6 +47,7 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
       { art: "flaeche", teile: blau, fuellung: "url(#blau)" },
       { art: "flaeche", teile: hintergrund, fuellung: FARBE_WEISS, schatten: true },
       { art: "gravur", gravur: b.gravur, farbe: GRAVUR_AUF_WEISS },
+      { art: "flaeche", teile: b.klebeflaeche, fuellung: GRAVUR_AUF_WEISS },
       { art: "flaeche", teile: netzHaupt ? [netzHaupt] : [], fuellung: FARBE_SCHWARZ, schatten: true },
       { art: "flaeche", teile: netzLose, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : FARBE_SCHWARZ },
       { art: "flaeche", teile: deck, fuellung: FARBE_WEISS, schatten: true },
@@ -57,7 +58,7 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
         lage(k, layout, "symbol", symbolTitel, "Spiegelacryl rot", b.symbol),
         lage(k, layout, "deck", "Weiss oben", "Acrylglas weiss", deck),
         lage(k, layout, "netz", "Schwarz (Netz)", "Acrylglas schwarz", netz),
-        lage(k, layout, "hintergrund", "Weiss unten", "Acrylglas weiss", hintergrund, b.gravur),
+        lage(k, layout, "hintergrund", "Weiss unten", "Acrylglas weiss", hintergrund, b.gravur, b.klebeflaeche),
         lage(k, layout, "blau", "Blau", "Spiegelacryl blau", blau),
       ],
       vorschauSvg: vorschauSvg(layout, schritte),
@@ -85,6 +86,7 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
     { art: "flaeche", teile: blau, fuellung: "url(#blau)" },
     { art: "flaeche", teile: hintergrund, fuellung: grundFarbe, schatten: true },
     { art: "gravur", gravur: b.gravur, farbe: schwarz ? GRAVUR_AUF_WEISS : GRAVUR_AUF_SCHWARZ },
+    { art: "flaeche", teile: b.klebeflaeche, fuellung: schwarz ? GRAVUR_AUF_WEISS : GRAVUR_AUF_SCHWARZ },
     { art: "flaeche", teile: netzHaupt ? [netzHaupt, ...loseText] : [], fuellung: netzFarbe, schatten: true },
     { art: "flaeche", teile: loseNetz, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : netzFarbe },
     { art: "flaeche", teile: b.symbol, fuellung: "url(#rot)", schatten: true, id: "symbol" },
@@ -93,7 +95,7 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
     lagen: [
       lage(k, layout, "symbol", symbolTitel, "Spiegelacryl rot", b.symbol),
       lage(k, layout, "netz", netzTitel, netzMaterial, netz),
-      lage(k, layout, "hintergrund", grundTitel, grundMaterial, hintergrund, b.gravur),
+      lage(k, layout, "hintergrund", grundTitel, grundMaterial, hintergrund, b.gravur, b.klebeflaeche),
       lage(k, layout, "blau", "Blau", "Spiegelacryl blau", blau),
     ],
     vorschauSvg: vorschauSvg(layout, schritte),
@@ -103,8 +105,8 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
   };
 }
 
-function lage(k: Schichtkarte, layout: Layout, key: LagenKey, titel: string, material: string, t: Teil[], gravur: Gravur = []): Lage {
+function lage(k: Schichtkarte, layout: Layout, key: LagenKey, titel: string, material: string, t: Teil[], gravur: Gravur = [], klebeflaeche: Teil[] = []): Lage {
   const staerkeMm = material.startsWith("Spiegelacryl") ? k.staerkenMm.spiegel : k.staerkenMm.acryl;
   const beschreibung = `Lage ${titel} – ${material}, ${staerkeMm} mm`;
-  return { key, titel, material, staerkeMm, teile: t, gravur, laserSvg: laserSvg(layout, beschreibung, t, gravur) };
+  return { key, titel, material, staerkeMm, teile: t, gravur, klebeflaeche, laserSvg: laserSvg(layout, beschreibung, t, gravur, klebeflaeche) };
 }

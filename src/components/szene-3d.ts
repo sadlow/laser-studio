@@ -14,7 +14,7 @@ import { spiegelFlaeche } from "./spiegel-3d";
  * liegt als Textur auf dem Hintergrund, das Blau spiegelt echt (spiegel-3d.ts).
  *
  * Das Symbol liegt auf dem Hintergrund (der Lage auf dem Wasser), geklebt an
- * die Gravurmarke, im Ausschnitt der Netzlage – und steht darueber hinaus.
+ * die gravierte Klebeflaeche, im Ausschnitt der Netzlage – und steht darueber hinaus.
  * Auseinandergezogen schwebt es ueber dem Stapel, der Holzrahmen noch darueber.
  */
 // Punkte naeher als das zusammenfassen – die gepufferten Strassen haben runde

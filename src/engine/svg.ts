@@ -84,16 +84,18 @@ export function vorschauSvg(layout: Layout, schritte: Malschritt[]): string {
  * Datei fuer den Laser: Schnitt rot, Gravur schwarz, Einheit mm, keine Fuellung.
  * Genau eine Platte je Datei – jede Lage ist ein eigenes Material.
  */
-export function laserSvg(layout: Layout, titel: string, schnitt: Teil[], gravur: Gravur = []): string {
+export function laserSvg(layout: Layout, titel: string, schnitt: Teil[], gravur: Gravur = [], klebeflaeche: Teil[] = []): string {
   const { breiteMm: b, hoeheMm: h } = layout.platte;
   const gravurTeil = gravur.length
     ? `<g id="gravur" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round">` +
       gravur.map((gr) => `<path d="${gr.linien.map(linieD).join("")}" stroke-width="${f(gr.breiteMm)}"/>`).join("") +
       `</g>`
     : "";
+  const klebeTeil = klebeflaeche.length ? `<g id="klebeflaeche" fill="#000000" stroke="none"><path d="${teileD(klebeflaeche)}" fill-rule="evenodd"/></g>` : "";
   return (
     kopf(b, h, titel) +
     gravurTeil +
+    klebeTeil +
     `<g id="schnitt" fill="none" stroke="#ff0000" stroke-width="0.1"><path d="${teileD(schnitt)}"/></g>` +
     `</svg>`
   );

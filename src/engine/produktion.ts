@@ -6,15 +6,17 @@ import type { GravurExport, Lage, Layout } from "./typen";
  * Laserdatei fuer die Fertigung – eine Rohplatte je Datei, darauf ein oder
  * mehrere Stuecke derselben Lage.
  *
- * Drei benannte Ebenen in Bearbeitungsreihenfolge:
+ * Vier benannte Ebenen in Bearbeitungsreihenfolge:
  *   1 Gravur         schwarz: gefuellte Flaechen oder Linien (gravurExport)
- *   2 Schnitt innen  rot, alle Loecher und Teile innerhalb eines Stuecks
- *   3 Schnitt aussen blau, nur die Umrisse der Stuecke – zuletzt, sonst
+ *   2 Klebeflaeche   gruen, immer als Flaeche: unter dem Symbol, angeraut fuer den Kleber
+ *                    (Marcel 17.09.2026) – eigene Ebene, damit sie eigene Werte bekommt
+ *   3 Schnitt innen  rot, alle Loecher und Teile innerhalb eines Stuecks
+ *   4 Schnitt aussen blau, nur die Umrisse der Stuecke – zuletzt, sonst
  *                    verschiebt sich ein Stueck, bevor die Innenschnitte fertig sind
  *
  * Namen stehen als id, data-name (Illustrator) und inkscape:label (Inkscape);
- * die Farben entsprechen der LightBurn-Palette (00 schwarz, 01 blau, 02 rot),
- * damit Programme, die nach Farbe sortieren, dieselben drei Gaenge sehen.
+ * die Farben entsprechen der LightBurn-Palette (00 schwarz, 01 blau, 02 rot, 03 gruen),
+ * damit Programme, die nach Farbe sortieren, dieselben Gaenge sehen.
  *
  * Als Flaeche ist die Gravur gepuffert, keine Linie mit Strichbreite: die Breite
  * einer SVG-Linie uebernimmt Lasersoftware nicht zuverlaessig, sie faehrt nur die
@@ -40,6 +42,7 @@ export interface Dateiinfo {
 
 export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo, gravurExport: GravurExport): string {
   const flaechen: Punkt[][][] = [];
+  const klebeflaechen: Punkt[][][] = [];
   const linien: string[] = [];
   const innen: Punkt[][] = [];
   const aussen: Punkt[][] = [];
@@ -49,6 +52,7 @@ export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo, 
     const gravur = gravurFuerExport(lage, gravurExport);
     for (const t of gravur.flaechen) flaechen.push([t.aussen, ...t.loecher].map(schiebe));
     for (const p of gravur.pfade) linien.push(linie(schiebe(p.punkte), p.geschlossen, p.breiteMm));
+    for (const t of lage.klebeflaeche) klebeflaechen.push([t.aussen, ...t.loecher].map(schiebe));
     // Umriss des groessten Teils zuletzt; alles andere liegt innerhalb.
     const [haupt, ...rest] = lage.teile;
     if (haupt) {
@@ -69,8 +73,9 @@ export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo, 
     `version="1.1" width="${f(b)}mm" height="${f(h)}mm" viewBox="0 0 ${f(b)} ${f(h)}">\n` +
     `<title>${esc(info.titel)}</title>\n<desc>${esc(`${info.beschreibung}; Gravur: ${gravurBeschreibung(gravurExport)}`)}</desc>\n` +
     gravurEbene +
-    ebene("Schnitt_innen", "2 Schnitt innen", `fill="none" stroke="#FF0000" stroke-width="0.1"`, innen.map((r) => pfad([r], false))) +
-    ebene("Schnitt_aussen", "3 Schnitt aussen", `fill="none" stroke="#0000FF" stroke-width="0.1"`, aussen.map((r) => pfad([r], false))) +
+    ebene("Klebeflaeche", "2 Klebeflaeche", `fill="#00E000" stroke="none"`, klebeflaechen.map((ringe) => pfad(ringe, true))) +
+    ebene("Schnitt_innen", "3 Schnitt innen", `fill="none" stroke="#FF0000" stroke-width="0.1"`, innen.map((r) => pfad([r], false))) +
+    ebene("Schnitt_aussen", "4 Schnitt aussen", `fill="none" stroke="#0000FF" stroke-width="0.1"`, aussen.map((r) => pfad([r], false))) +
     `</svg>\n`
   );
 }
@@ -82,7 +87,7 @@ export function produktionsSvg(layout: Layout, lage: Lage, meta: { vorlage: stri
     titel: `Schichtkarte – Lage ${meta.nummer} ${lage.titel}`,
     beschreibung:
       `Vorlage: ${meta.vorlage}; Material: ${lage.material}; Platte ${f(breiteMm)} x ${f(hoeheMm)} mm; ` +
-      `Reihenfolge: Gravur, Schnitt innen, Schnitt aussen; erstellt ${meta.datum}`,
+      `Reihenfolge: Gravur, Klebeflaeche, Schnitt innen, Schnitt aussen; erstellt ${meta.datum}`,
   }, meta.gravurExport);
 }
 

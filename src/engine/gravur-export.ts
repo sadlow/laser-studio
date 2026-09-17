@@ -41,9 +41,10 @@ export function gravurFuerExport(lage: Lage, e: GravurExport): { flaechen: Teil[
   return { flaechen: [], pfade };
 }
 
-/** Laenge aller Gravurlinien in m und ihre Flaeche in mm² – zum Abschaetzen der Laserzeit. */
+/** Laenge aller Gravurlinien in m und ihre Flaeche in mm² samt Klebeflaeche – zum Abschaetzen der Laserzeit. */
 export function gravurMasse(lagen: Lage[]): { wegM: number; flaecheMm2: number } {
-  let [weg, flaeche] = [0, 0];
+  let weg = 0;
+  let flaeche = lagen.flatMap((l) => l.klebeflaeche).reduce((s, t) => s + t.flaecheMm2, 0);
   for (const g of lagen.flatMap((l) => l.gravur)) {
     for (const linie of g.linien) {
       let laenge = 0;

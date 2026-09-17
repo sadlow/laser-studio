@@ -8,7 +8,7 @@ import type { Lage, Zone } from "@/engine/typen";
  * Streifen: dann wird nur der Bereich im Bild fein nachgezeichnet.
  */
 export function gravurFlaeche(lage: Lage, b: number, h: number, bereich?: Zone): THREE.Mesh | undefined {
-  if (!lage.gravur.some((g) => g.linien.length)) return undefined;
+  if (!lage.gravur.some((g) => g.linien.length) && !lage.klebeflaeche.length) return undefined;
   const r = bereich ?? { xMm: 0, yMm: 0, breiteMm: b, hoeheMm: h };
   const pxProMm = Math.min(bereich ? 40 : 6, 4096 / Math.max(r.breiteMm, r.hoeheMm));
   const leinwand = document.createElement("canvas");
@@ -26,6 +26,14 @@ export function gravurFlaeche(lage: Lage, b: number, h: number, bereich?: Zone):
     for (const linie of g.linien) linie.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
     ctx.stroke();
   }
+  // Klebeflaeche unter dem Symbol: sichtbar, wenn die Lagen auseinandergezogen sind.
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.beginPath();
+  for (const t of lage.klebeflaeche) {
+    for (const ring of [t.aussen, ...t.loecher]) ring.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+    ctx.closePath();
+  }
+  ctx.fill("evenodd");
   const textur = new THREE.CanvasTexture(leinwand);
   textur.colorSpace = THREE.SRGBColorSpace;
   textur.anisotropy = 8;

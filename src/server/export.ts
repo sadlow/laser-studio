@@ -92,13 +92,13 @@ function uebersicht(name: string, datum: string, karte: Schichtkarte, r: Awaited
     ``,
     `Lagen von oben nach unten (Dateinummer = Reihenfolge):`,
     ...r.lagen.map((l, i) => `  ${String(i + 1).padStart(2, "0")}  ${l.titel.padEnd(16)} ${l.material.padEnd(20)} ${String(l.staerkeMm).padStart(3)} mm  ${l.teile.length} Teil(e)`),
-    // Das Symbol wird zuletzt eingesetzt: auf die Gravurmarke im Hintergrund, durch den Ausschnitt im Netz.
-    `Symbol: auf die Gravurmarke des Hintergrunds kleben (Tropfen Sekundenkleber), Netz hat den Ausschnitt; steht ${r.kennzahlen.symbolUeberNetzMm.toFixed(1)} mm ueber dem Netz.`,
+    // Das Symbol wird zuletzt eingesetzt: auf die Klebeflaeche im Hintergrund, durch den Ausschnitt im Netz.
+    `Symbol: auf die gravierte Klebeflaeche des Hintergrunds kleben (Tropfen Sekundenkleber), Netz hat den Ausschnitt; steht ${r.kennzahlen.symbolUeberNetzMm.toFixed(1)} mm ueber dem Netz.`,
     r.rahmen
       ? `Holzrahmen: ${HOLZRAHMEN_TITEL[r.rahmen.farbe]}, Profil ${r.rahmen.breiteMm} mm breit / ${r.rahmen.tiefeMm} mm tief, Bild ${r.rahmen.einlassMm} mm eingelassen, ${r.rahmen.ueberstandMm} mm Ueberstand – sichtbarer Rand ${r.kennzahlen.randImRahmenMm.toFixed(1)} mm.`
       : `Holzrahmen: ohne`,
     ``,
-    `Jede Datei: Ebene "1 Gravur" (${gravurBeschreibung(karte.gravurExport)}), "2 Schnitt innen" (rot), "3 Schnitt aussen" (blau).`,
+    `Jede Datei: Ebene "1 Gravur" (${gravurBeschreibung(karte.gravurExport)}), "2 Klebeflaeche" (gruen, Flaeche, nur Hintergrund), "3 Schnitt innen" (rot), "4 Schnitt aussen" (blau).`,
     `Gravurweg: ${r.kennzahlen.gravurWegM.toFixed(1)} m als Mittellinie, Flaeche ${Math.round(r.kennzahlen.gravurFlaecheMm2)} mm²`,
     `Stencil-Stege: ${r.kennzahlen.stencilStege}, zugefuellte Innenflaechen: ${r.kennzahlen.inselnZugefuellt}`,
     `Netz im Fenster: ${Math.round(r.kennzahlen.netzAnteilFenster * 100)} %, lose Netzstuecke: ${r.kennzahlen.loseNetzstuecke}`,

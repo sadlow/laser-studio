@@ -12,8 +12,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Positiv-Look des Posters mit weisser Deckschicht fuer Rahmen und Text. Die Bausteine (`lagen.ts`) sind fuer alle identisch.
 - **Das Standort-Symbol wird auf den Hintergrund geklebt** (die Lage auf dem
   Wasser) und steht 1 mm ueber das Netz hinaus – schoener als vertieft auf Blau,
-  wie zuerst geplant (Marcel 16.09.2026). Klebemarke: Umriss 0,3 mm nach innen
-  graviert, damit das Symbol sie trotz Schnittfuge abdeckt. Unter dem Symbol kein
+  wie zuerst geplant (Marcel 16.09.2026). Klebeflaeche: die Symbolform 0,3 mm nach innen als
+  Flaeche graviert, angeraut fuer den Kleber (17.09.), Pin-Loch ausgespart. Unter dem Symbol kein
   Wasserschnitt (Test: Herz zu 70 % ueber der Spree, Klebeflaeche voll). Netz und
   Deckschicht haben exakt die Aussenkontur als Ausschnitt (Pin ohne sein Loch).
 - **Staerken nach Material:** Acrylglas weiss/schwarz 2 mm, Spiegelacryl 3 mm.
@@ -38,9 +38,9 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Exportdateien (`produktion.ts`)
 
-- **Drei benannte Ebenen in Bearbeitungsreihenfolge:** 1 Gravur (schwarz), 2 Schnitt innen (rot), 3 Schnitt
-  aussen (blau, zuletzt – sonst verschiebt sich die Platte vor den Innenschnitten). Namen als id, data-name
-  (Illustrator) und inkscape:label; Farben nach LightBurn-Palette.
+- **Vier benannte Ebenen in Bearbeitungsreihenfolge:** 1 Gravur (schwarz), 2 Klebeflaeche (gruen, immer Flaeche),
+  3 Schnitt innen (rot), 4 Schnitt aussen (blau, zuletzt – sonst verschiebt sich die Platte vor den Innenschnitten).
+  Namen als id, data-name (Illustrator) und inkscape:label; Farben nach LightBurn-Palette.
 - **Gravur waehlbar** (`gravurExport`, Marcel 16.09.2026: Liniengravur spart Laserzeit): Flaeche (gepuffert,
   wird gerastert), Mittellinie (einmal abfahren, Breite ueber Defokus) oder Kontur (Ringe im Strahlabstand bis
   zur Sollbreite). Berlin A4: 10,4 m Mittellinie, 18,3 m Kontur, 27 cm² Flaeche. Jeder Schnittring ein Pfad.

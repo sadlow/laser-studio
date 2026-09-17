@@ -34,6 +34,8 @@ export interface Lage {
   staerkeMm: number;
   /** Nur Hintergrund: feine Wege als Linien (mm) mit Strichbreite. */
   gravur: { linien: Punkt[][]; breiteMm: number }[];
+  /** Nur Hintergrund: Flaeche unter dem Symbol, als Flaeche graviert – angeraut fuer den Kleber. */
+  klebeflaeche: Teil[];
   /** SVG fuer den Laser: Schnitt rot, Gravur schwarz, Einheit mm. */
   laserSvg: string;
 }

@@ -92,7 +92,7 @@ export function VorlagenExport({ karte, aendern }: Props) {
     <Block
       titel="Vorlagen und Export"
       zu={false}
-      hinweis="Export je Variante: eine Laserdatei pro Lage mit den Ebenen 1 Gravur, 2 Schnitt innen, 3 Schnitt aussen – dazu Vorschau, Parameter und Uebersicht. Es gilt die Kundeneingabe links."
+      hinweis="Export je Variante: eine Laserdatei pro Lage mit den Ebenen 1 Gravur, 2 Klebeflaeche, 3 Schnitt innen, 4 Schnitt aussen – dazu Vorschau, Parameter und Uebersicht. Es gilt die Kundeneingabe links."
     >
       <div className="space-y-3">
         <div className="flex gap-2">
