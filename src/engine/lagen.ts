@@ -16,7 +16,7 @@ import {
   zuFlaeche,
   type Flaeche,
 } from "./geometrie";
-import { symbolEinpassen } from "./symbole";
+import { symbolBreiteMm, symbolEinpassen } from "./symbole";
 import { ortZuMm } from "./geo";
 import type { KartenRohdaten } from "./kacheln";
 import { stencilStege } from "./stencil";
@@ -78,7 +78,7 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   // Ausschnitts, gibt es kein Symbol.
   const anker = ortZuMm({ lon: k.lon, lat: k.lat }, k.kartenMitte ?? { lon: k.lon, lat: k.lat }, k.ausschnittKm * 1000, f);
   const imFenster = anker.x >= f.xMm && anker.x <= f.xMm + f.breiteMm && anker.y >= f.yMm && anker.y <= f.yMm + f.hoeheMm;
-  const eingepasst = symbolEinpassen(k.kunde.symbol ?? "herz", anker.x, anker.y, (k.symbolBreitenMm[k.kunde.symbolGroesse] ?? 11) * faktor);
+  const eingepasst = symbolEinpassen(k.kunde.symbol ?? "herz", anker.x, anker.y, symbolBreiteMm(k.symbolStufenMm, k.kunde.symbolGroesse, faktor));
   const symbol = imFenster ? teile(zuFlaeche(eingepasst.ringe)) : [];
   const symbolLage = imFenster ? { ankerXMm: anker.x, ankerYMm: anker.y, ...eingepasst.box } : null;
   // Das Symbol wird auf den Hintergrund geklebt (die Lage auf dem Wasser) und

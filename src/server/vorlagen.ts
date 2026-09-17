@@ -56,7 +56,7 @@ function lese(datei: string): Vorlage {
         ...k.generalisierung,
         stufen: { ...basis.generalisierung.stufen, ...k.generalisierung?.stufen },
       },
-      symbolBreitenMm: { ...basis.symbolBreitenMm, ...k.symbolBreitenMm },
+      symbolStufenMm: k.symbolStufenMm?.length ? k.symbolStufenMm : basis.symbolStufenMm,
       staerkenMm: { ...basis.staerkenMm, ...k.staerkenMm },
       holzrahmenProfil: { ...basis.holzrahmenProfil, ...k.holzrahmenProfil },
       gravurExport: { ...basis.gravurExport, ...k.gravurExport },

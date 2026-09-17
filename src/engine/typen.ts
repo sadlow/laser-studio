@@ -176,8 +176,8 @@ export interface Schichtkarte {
    */
   stencilMinInselBreiteMm: number;
 
-  /** Breite des Standort-Symbols je Groesse bei A4, waechst mit dem Format. */
-  symbolBreitenMm: Record<SymbolGroesse, number>;
+  /** Breiten des Standort-Symbols als Reihe fuer alle Formate: A4 nimmt Stufe 2-4, A3 eine hoeher, A5 eine tiefer (symbole.ts). */
+  symbolStufenMm: number[];
   /**
    * Plattenstaerke nach Material (Marcel 16.09.2026): weisses und schwarzes
    * Acrylglas immer gleich, Spiegelacryl (Blau und Symbol) immer gleich. Das

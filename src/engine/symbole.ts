@@ -65,6 +65,19 @@ function form(art: SymbolArt): Form {
   }
 }
 
+/**
+ * Symbolgroessen als eine Reihe fuer alle Formate (Marcel 17.09.2026): mit Groessen, die mit dem Format
+ * mitwachsen, waeren es allein fuer A5, A4 und A3 neun Groessen je Symbol zum Herstellen und Vorhalten.
+ * A4 nimmt die Stufen 2 bis 4 (klein, mittel, gross), A3 eine Stufe hoeher, A5 eine tiefer: das mittlere
+ * bei A4 ist das kleine bei A3 und das grosse bei A5. Eine Formatstufe ist Faktor Wurzel 2 in der
+ * Kartenbreite – so ordnen sich auch Quadrat und freie Formate ein. Fuer A5 bis A3 reichen 5 Groessen.
+ */
+export function symbolBreiteMm(stufenMm: number[], groesse: SymbolGroesse, formatfaktor: number): number {
+  const verschiebung = Math.round(2 * Math.log2(Math.max(0.05, formatfaktor)));
+  const i = 1 + ["klein", "mittel", "gross"].indexOf(groesse) + verschiebung;
+  return stufenMm[Math.min(stufenMm.length - 1, Math.max(0, i))] ?? 11;
+}
+
 const flaeche = (r: Punkt[]) => r.reduce((s, p, i) => s + p.x * r[(i + 1) % r.length].y - r[(i + 1) % r.length].x * p.y, 0) / 2;
 
 /** Symbol mit dem Ankerpunkt auf (x, y), Breite in mm. Loecher laufen gegen den Aussenring. */

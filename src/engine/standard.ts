@@ -103,8 +103,8 @@ export function standardSchichtkarte(): Schichtkarte {
     // 16.09.2026). Innenkreis des Gradzeichens in Book: A5 0,97, Prototyp 145 x
     // 205 0,95, A4 1,38 mm – alle behalten Innenkreis und Stege.
     stencilMinInselBreiteMm: 0.8,
-    // Herz bisher 11 mm = mittel.
-    symbolBreitenMm: { klein: 8, mittel: 11, gross: 15 },
+    // A4 wie bisher 8 / 11 / 15 mm, je Formatstufe etwa Faktor 1,4 (A5 bisher 5,5-10,2, A3 11,5-21,7 mm).
+    symbolStufenMm: [6, 8, 11, 15, 21, 29],
     // Marcel 16.09.2026: weiss und schwarz immer 2 mm, Spiegelacryl immer 3 mm.
     staerkenMm: { acryl: 2, spiegel: 3 },
     // Marcel 16.09.2026, gleiches Profil fuer alle Groessen. Bei 7 mm Rand und

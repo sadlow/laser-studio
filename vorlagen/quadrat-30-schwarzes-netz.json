@@ -176,11 +176,6 @@
     "wasserInselMinMm2": 15,
     "stegMm": 0.5,
     "stencilMinInselBreiteMm": 0.8,
-    "symbolBreitenMm": {
-      "klein": 8,
-      "mittel": 11,
-      "gross": 15
-    },
     "staerkenMm": {
       "acryl": 2,
       "spiegel": 3
@@ -191,6 +186,14 @@
       "einlassMm": 6,
       "ueberstandMm": 4
     },
-    "loseTeileMarkieren": true
+    "loseTeileMarkieren": true,
+    "symbolStufenMm": [
+      6,
+      8,
+      11,
+      15,
+      21,
+      29
+    ]
   }
 }

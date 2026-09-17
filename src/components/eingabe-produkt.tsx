@@ -1,8 +1,10 @@
 "use client";
 
+import { berechneLayout } from "@/engine/layout";
 import { standardLayoutWerte } from "@/engine/poster-masse";
+import { symbolBreiteMm } from "@/engine/symbole";
 import { TITELSCHRIFTEN, ZEILENSCHRIFTEN } from "@/engine/standard";
-import type { Anker, EingebettetesLayout, LayoutArt, Schichtkarte, TextForm, TextStil } from "@/engine/typen";
+import { REFERENZ_KARTENBREITE_MM, type Anker, type EingebettetesLayout, type LayoutArt, type Schichtkarte, type TextForm, type TextStil } from "@/engine/typen";
 import { Anteil, Auswahl, Block, Haken, Zahl } from "./felder";
 import type { Aenderung } from "./aenderung";
 
@@ -22,13 +24,15 @@ const schriftOptionen = (liste: string[]) =>
 /** Masse, die der Kunde nicht sieht: freies Format, Rahmen, Symbolgroessen, Ausschnitt fein. */
 export function EingabePlatte({ karte, aendern }: Props) {
   const frei = karte.format === "frei";
-  const groessen = karte.symbolBreitenMm;
+  const stufen = karte.symbolStufenMm;
+  const faktor = berechneLayout(karte).kartenfenster.breiteMm / REFERENZ_KARTENBREITE_MM;
+  const hier = (["klein", "mittel", "gross"] as const).map((g) => `${g} ${symbolBreiteMm(stufen, g, faktor)}`).join(" · ");
   const profil = karte.holzrahmenProfil;
   return (
     <Block
       titel="Platte und Ausschnitt"
       zu={true}
-      hinweis="A3 zeigt denselben Ausschnitt wie A5, nur groesser – wie beim Poster. Strassenbreiten, Schrift und Symbol wachsen mit. Fest bleiben Rand, Stege und das Profil des Holzrahmens."
+      hinweis="A3 zeigt denselben Ausschnitt wie A5, nur groesser – wie beim Poster. Strassenbreiten und Schrift wachsen mit, das Symbol springt je Format eine Stufe seiner Groessenreihe. Fest bleiben Rand, Stege und das Profil des Holzrahmens."
     >
       <div className="grid grid-cols-3 gap-3">
         <div className="col-span-3">
@@ -61,9 +65,18 @@ export function EingabePlatte({ karte, aendern }: Props) {
         <Zahl titel="Spiegelacryl" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.spiegel}
           aendern={(v) => aendern({ staerkenMm: { ...karte.staerkenMm, spiegel: v } })} />
         <div />
-        <Zahl titel="Symbol klein" einheit="mm" schritt={0.5} wert={groessen.klein} aendern={(v) => aendern({ symbolBreitenMm: { ...groessen, klein: v } })} />
-        <Zahl titel="mittel" einheit="mm" schritt={0.5} wert={groessen.mittel} aendern={(v) => aendern({ symbolBreitenMm: { ...groessen, mittel: v } })} />
-        <Zahl titel="gross" einheit="mm" schritt={0.5} wert={groessen.gross} aendern={(v) => aendern({ symbolBreitenMm: { ...groessen, gross: v } })} />
+        <div className="col-span-3">
+          <span className="beschriftung">Symbolgroessen – eine Reihe fuer alle Formate</span>
+          <div className="grid grid-cols-3 gap-2">
+            {stufen.map((mm, i) => (
+              <Zahl key={i} titel={`Stufe ${i + 1}`} einheit="mm" schritt={0.5} min={1} wert={mm}
+                aendern={(v) => aendern({ symbolStufenMm: stufen.map((alt, j) => (j === i ? v : alt)) })} />
+            ))}
+          </div>
+          <p className="mt-1 text-xs" style={{ color: "var(--gedaempft)" }}>
+            Dieses Format: {hier} mm. A4 nimmt Stufe 2 bis 4, A3 eine Stufe hoeher, A5 eine tiefer.
+          </p>
+        </div>
         <div className="col-span-3">
           <span className="beschriftung">Ausschnitt: {karte.ausschnittKm.toFixed(2)} km breit – bei jedem Format gleich</span>
           <input type="range" className="w-full" min={0.8} max={12} step={0.05} value={karte.ausschnittKm}

@@ -84,10 +84,10 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)
 
-- **Standort-Symbol waehlbar:** Herz, Haus, Standort-Pin, X (wie beim Poster
-  HERZ/KREUZ/PFEIL), klein/mittel/gross = 8/11/15 mm bei A4, mitwachsend. Der
-  Anker sitzt auf dem Ort: Spitze bei Herz und Pin, Fussmitte beim Haus, Mitte
-  beim X. Die Lage heisst nach dem Symbol, Material rotes Spiegelacryl.
+- **Standort-Symbol waehlbar:** Herz, Haus, Standort-Pin, X (wie beim Poster HERZ/KREUZ/PFEIL). Groessen als eine Reihe
+  6/8/11/15/21/29 mm (17.09.): A4 klein/mittel/gross = 8/11/15, A3 eine Stufe hoeher, A5 eine tiefer – 5 statt 9 Groessen
+  je Symbol fuer A5 bis A3. Anker auf dem Ort: Spitze bei Herz und Pin, Fussmitte beim Haus, Mitte beim X. Die Lage
+  heisst nach dem Symbol, Material rotes Spiegelacryl.
 - **Die Koordinaten zeigen den Symbol-Anker** (Marcel: die Herzspitze). `lon/lat`
   ist der Ort, `kartenMitte` die Mitte eines verschobenen Ausschnitts; zurueck auf den
   Ort: neue Adresse, Referenzort oder Knopf "Standort zentrieren" im Kartenfenster.
