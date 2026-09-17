@@ -127,8 +127,12 @@ Video-Ads im Querformat, je 8 s, 1920 x 1080 px, ohne Ton:
 - Nahflug um das Herz: dicht und schräg über dem liegenden Bild, ein Bogen von 50 Grad um das Herz. Die
   erhabenen Straßen verschieben sich gegen die Lagen darunter, so sieht man die Tiefe.
 
+- Ad A4 und Ad A3, je 15 s: erst der Nahflug, dann der Dollyzoom, am Herz weich überblendet, mit stiller
+  Tonspur (`video_schnitt.py`, ohne KI-Kosten).
+
 Start- und Endbild kommen aus dem 3D-Modell und werden mit Leonardo fotoreal gerechnet; die Bewegung
-dazwischen rechnet Veo 3.1 Fast. Erzeugt mit `laser-studio/scripts/listing-fotos/video.py`.
+dazwischen rechnet Veo 3.1 Fast. Erzeugt mit `laser-studio/scripts/listing-fotos/video.py`. Clips, Keyframes,
+Standbilder und Protokoll liegen in `laser-studio/export/produktfoto/video/` (der Exportordner ist nicht in Git).
 
 ## Kosten
 
