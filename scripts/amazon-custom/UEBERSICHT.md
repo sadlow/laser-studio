@@ -16,8 +16,10 @@ A3, und auf kleinen Formaten werden mehr Straßen graviert statt geschnitten.
 
 Amazon-Hauptbild, 2048 x 2048 px auf reinweißem Grund: Köln, Weiß auf Schwarz, Holzrahmen schwarz, großes Herz.
 Nur 15 Grad aus der Frontalen gedreht, damit die geschnittene Schrift lesbar bleibt und die Lagen trotzdem Tiefe
-zeigen. Im Rhein liegt die Spiegelung einer Softbox, das rote Herz hat einen Glanzpunkt. Leonardo hat den Grund
-dabei hellgrau gemacht; `weissgrund.py` hebt ihn auf Weiß und lässt Produkt und Schatten unberührt.
+zeigen. Im Rhein liegt die Spiegelung einer Softbox, das Schwarz glänzt wie echtes Acryl, der Rahmen zeigt Maserung.
+Die Alternative daneben spiegelt kräftiger (Herz und Rhein), wirkt aber etwas mehr nach Rendering.
+Leonardo legt das Produkt auf Hellgrau, sobald Softboxen im Prompt stehen; `weissgrund.py` hebt den Grund auf
+genau 255 und lässt Produkt und Kontaktschatten unberührt.
 
 ## 1 Vorschau ohne Text
 
@@ -117,7 +119,7 @@ bräuchte das Quadrat Reiter in fester Größe.
 
 ## Kosten
 
-Hauptbild: 2 Generierungen und 1 Hochskalierung, etwa 0,13 $. Standort-Symbole: 6 Generierungen, etwa 0,23 $.
+Hauptbild: 6 Generierungen und 2 Hochskalierungen, etwa 0,34 $. Standort-Symbole: 6 Generierungen, etwa 0,23 $.
 Explosionszeichnungen: je Design 1 Hochskalierung;
 Weiß auf Schwarz im ersten Versuch, Schwarz auf Weiß im zweiten, weißer Rand im dritten. Zusammen
 6 Generierungen und 3 Hochskalierungen, etwa 0,39 $ (dazu zwei frühere Fassungen mit Beschriftung,

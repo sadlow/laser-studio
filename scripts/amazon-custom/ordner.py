@@ -33,7 +33,10 @@ OPTIONEN = {
 }
 QUADRAT = "5 Quadrat 30 x 30 (eigener Artikel)"
 MASKEN = "3 Masken transparent"
-HAUPTBILD = os.path.join(STUDIO, "export", "produktfoto", "listing", "fotos", "hochskaliert", "01-hero-koeln-schwarz-ultra-k4-a7-weiss.jpg")
+HOCH = os.path.join(STUDIO, "export", "produktfoto", "listing", "fotos", "hochskaliert")
+# Marcel 17.09.2026: "noch etwas realistischer" – die fruehere Fassung mit den kraeftigeren Spiegelungen bleibt Alternative
+HAUPTBILDER = {"01-hero-koeln-schwarz-echt-ultra-k4-a7-weiss.jpg": "Weiß auf Schwarz, Rahmen schwarz.jpg",
+               "01-hero-koeln-schwarz-ultra-k4-a7-weiss.jpg": "Alternative mit stärkerer Spiegelung.jpg"}
 TEILE = ["0 Hauptbild", "1 Vorschau ohne Text", "2 Optionen", MASKEN, "3 Erklärbild", "4 Erklärbild", "4 Explosionszeichnung", QUADRAT, "4 Quadrat 30 x 30 (eigener Artikel)", "Kontrollbilder Textfelder"]
 
 
@@ -88,7 +91,8 @@ def masken(formate, ziel):
 if __name__ == "__main__":
     for teil in TEILE:
         shutil.rmtree(os.path.join(ZIEL, teil), ignore_errors=True)
-    kopiere(HAUPTBILD, os.path.join(ZIEL, "0 Hauptbild", "Weiß auf Schwarz, Rahmen schwarz.jpg"))
+    for datei, name in HAUPTBILDER.items():
+        kopiere(os.path.join(HOCH, datei), os.path.join(ZIEL, "0 Hauptbild", name))
     konfigurator, quadrat = os.path.join(BILDER, "konfigurator"), os.path.join(BILDER, "quadrat30")
     vorschau(konfigurator, os.path.join(ZIEL, "1 Vorschau ohne Text"), ["a5", "a4", "a3"])
     optionen(konfigurator, os.path.join(ZIEL, "2 Optionen"), True)

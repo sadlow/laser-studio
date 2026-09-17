@@ -60,6 +60,19 @@ JOBS = {
         "with a bright white specular glint on one of its lobes. A faint soft diagonal sheen of light glides across the "
         "glossy white acrylic next to the lettering, and the glossy black layer faintly mirrors the white streets. The "
         f"lettering stays sharp and legible. Soft natural contact shadow, no props, e-commerce main image. {QUALITAET}"),
+    # Realistischer (Marcel 17.09.2026). Das fertige Foto als Vorlage kam mit HIGH und MID fast unveraendert zurueck;
+    # darum wieder vom 3D-Bild, mit dem, was ein echtes Produktfoto vom Rendering unterscheidet. Kein Staub: Hauptbild.
+    "01-hero-koeln-schwarz-echt": ("hero-koeln-schwarz",
+        f"Real product photograph on a seamless pure white background, shot on a full-frame camera with a 90 mm lens at "
+        f"f/8 under large studio softboxes, not a 3D render, not CGI: {WEISS}, with the title 'Zuhause' and the lines "
+        f"'LENA & JONAS' and the coordinates of Köln, {RAHMEN['schwarz']}, leaning slightly back and seen at the same "
+        "gentle angle as in the reference. What makes it a real photograph: the glossy black acrylic layer mirrors the "
+        "softboxes as broad, soft light gradients; the raised white acrylic streets have softly lit top faces and slightly "
+        "shaded, faintly translucent cut edges and cast soft shadows onto the black layer; the blue mirror acrylic river "
+        "reflects a softbox as a bright band; the red mirror acrylic heart has a crisp glossy glint; the matte black frame "
+        "shows a fine wood grain and soft highlights along its edges; very gentle natural depth of field and subtle sensor "
+        "grain; natural colors and contrast. A clean, flawless new product: no dust, no hairs, no fingerprints. The "
+        f"lettering stays sharp and legible. Soft natural contact shadow, no props, e-commerce main image. {QUALITAET}"),
     "02-heroetsy-koeln-einweihung": ("heroetsy-koeln",
         f"Warm lifestyle photograph of a housewarming gift: {WEISS}, with the title 'Zuhause', {RAHMEN['eiche']}, "
         "stands on a light oak sideboard against a warm white wall in a bright, freshly moved-into apartment. Around "
