@@ -39,7 +39,11 @@ HAUPTBILDER = {"01-hero-koeln-schwarz-echt-ultra-k4-a7-weiss.jpg": "A4 – Weiß
                "01-hero-koeln-schwarz-ultra-k4-a7-weiss.jpg": "A4 – Alternative mit stärkerer Spiegelung.jpg",
                "01-hero-koeln-schwarz-a3-echt-ultra-k4-a7-weiss.jpg": "A3 – Weiß auf Schwarz, Rahmen schwarz.jpg",
                "01-hero-koeln-schwarz-viel-echt-ultra-k4-a7-weiss.jpg": "A4 – viele Straßen geschnitten.jpg"}
-TEILE = ["0 Hauptbild", "1 Vorschau ohne Text", "2 Optionen", MASKEN, "3 Erklärbild", "4 Erklärbild", "4 Explosionszeichnung", QUADRAT, "4 Quadrat 30 x 30 (eigener Artikel)", "Kontrollbilder Textfelder"]
+VIDEO = os.path.join(STUDIO, "export", "produktfoto", "video")
+VIDEOS = {"koeln-herz-zu-rahmen": "A4 – vom Herz zum ganzen Bild.mp4", "koeln-a3-herz-zu-rahmen": "A3 – vom Herz zum ganzen Bild.mp4",
+          "koeln-flug-herz": "Nahflug um das Herz.mp4"}
+TEILE = ["0 Hauptbild", "1 Vorschau ohne Text", "2 Optionen", MASKEN, "3 Erklärbild", "4 Erklärbild", "4 Explosionszeichnung", QUADRAT,
+         "4 Quadrat 30 x 30 (eigener Artikel)", "Kontrollbilder Textfelder", "6 Video"]
 
 
 def kopiere(von, nach):
@@ -104,6 +108,8 @@ if __name__ == "__main__":
     masken(["quadrat30"], os.path.join(ZIEL, QUADRAT, MASKEN))
     for stamm, name in DESIGN.items():
         kopiere(os.path.join(QUELLE, "erklaerbild", stamm, "explosionszeichnung.jpg"), os.path.join(ZIEL, "4 Explosionszeichnung", name + ".jpg"))
+    for clip, name in VIDEOS.items():
+        kopiere(os.path.join(VIDEO, clip, clip + ".mp4"), os.path.join(ZIEL, "6 Video", name))
     for datei in ["textfelder.md", "textfelder.json"]:
         kopiere(os.path.join(QUELLE, datei), os.path.join(ZIEL, datei))
     kopiere(os.path.join(HIER, "UEBERSICHT.md"), os.path.join(ZIEL, "Übersicht.md"))

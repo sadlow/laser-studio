@@ -119,9 +119,21 @@ gibt es nicht; `textfelder.md` nennt die Lage für den Beispieltext. Ohne Text f
 Reiter: in der Vorschau ohne Text läge Amazons Titel direkt auf der Karte. Für eine Live-Vorschau
 bräuchte das Quadrat Reiter in fester Größe.
 
+## 6 Video
+
+Video-Ads im Querformat, je 8 s, 1920 x 1080 px, ohne Ton:
+- A4 und A3 – vom Herz zum ganzen Bild: Dollyzoom von der Nahaufnahme des Herzens am Rhein zurück bis zum
+  Bild im schwarzen Rahmen auf Weiß. Start und Ende stammen aus derselben 3D-Kamera, nur verschieden gezoomt.
+- Nahflug um das Herz: dicht und schräg über dem liegenden Bild, ein Bogen von 50 Grad um das Herz. Die
+  erhabenen Straßen verschieben sich gegen die Lagen darunter, so sieht man die Tiefe.
+
+Start- und Endbild kommen aus dem 3D-Modell und werden mit Leonardo fotoreal gerechnet; die Bewegung
+dazwischen rechnet Veo 3.1 Fast. Erzeugt mit `laser-studio/scripts/listing-fotos/video.py`.
+
 ## Kosten
 
 Hauptbilder: 8 Generierungen und 4 Hochskalierungen, etwa 0,51 $. Standort-Symbole: 6 Generierungen, etwa 0,23 $.
+Videos: je Clip etwa 1,40 $ (Veo 1,20 $, dazu Standbilder und Hochskalierung), drei Clips zusammen etwa 4,17 $.
 Explosionszeichnungen: je Design 1 Hochskalierung;
 Weiß auf Schwarz im ersten Versuch, Schwarz auf Weiß im zweiten, weißer Rand im dritten. Zusammen
 6 Generierungen und 3 Hochskalierungen, etwa 0,39 $ (dazu zwei frühere Fassungen mit Beschriftung,
