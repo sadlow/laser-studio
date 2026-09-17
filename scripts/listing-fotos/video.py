@@ -7,7 +7,7 @@ Weg: Start- und Endbild aus dem 3D-Modell, beide mit Leonardo fotoreal, dazwisch
 - bogen: Nahflug schraeg ueber dem Flat-Lay, ein Bogen um das Herz ("wirklich dicht dran ... 3D-Tiefe"). Das Herz
          bleibt in beiden Bildern Anker; ein Gleitflug vom Ufer zum Herz ueberlappte kaum und haette Stadt erfunden.
 
-Schritte: aufnehmen (3D, kostenlos), standbilder (2 x 1K, je 0,04 $), hochskalieren (2 x Ultra, je 0,05 $),
+Schritte: aufnehmen (3D, kostenlos), standbilder (2 x 1K, je 0,04 $), hochskalieren (2 x Ultra, je 0,05 $), gravur (nur A3),
 video (Veo 3.1 Fast, 8 s, 1080p, ohne Ton, rund 1,20 $). Ergebnis: export/produktfoto/video/<clip>/<clip>.mp4
 Aufruf: python3 scripts/listing-fotos/video.py <clip> [schritt ...]   (ohne Schritt: alle)
 SEED=4713 fuer eine Alternative, ROLLE=ende rechnet nur ein Keyframe neu.
@@ -20,12 +20,14 @@ from PIL import Image  # noqa: E402
 
 import aufnahmen  # noqa: E402
 from generieren import modul  # noqa: E402
+from gravur import gravur_einsetzen  # noqa: E402
 from video_prompts import BEWEGUNG, NEGATIV, STANDBILD  # noqa: E402
 from weissgrund import weissgrund  # noqa: E402
 
 CLIPS = {
     "koeln-herz-zu-rahmen": {"basis": "hero-koeln-schwarz", "art": "zoom"},
-    "koeln-a3-herz-zu-rahmen": {"basis": "hero-koeln-schwarz-a3", "art": "zoom"},
+    # A3: in der Totale wird die Gravur schmaler als ein Pixel und verschwand beim Rauszoomen (gravur.py)
+    "koeln-a3-herz-zu-rahmen": {"basis": "hero-koeln-schwarz-a3", "art": "zoom", "gravur": True},
     "koeln-flug-herz": {"basis": "hero-koeln-schwarz", "art": "bogen"},
 }
 QUER = {"seiten": "16:9", "breite": "1920", "hoehe": "1080"}
@@ -67,9 +69,12 @@ def keyframes_aufnehmen(clip):
     entwurf, _, _, _, grund, extra = aufnahmen.AUFNAHMEN[c["basis"]]
     ref = {r: f"video-{clip}-{r}" for r in ["start", "ende"]}
     if c["art"] == "zoom":
-        aufnahmen.AUFNAHMEN[ref["ende"]] = (entwurf, "wand", 1.3, None, grund, dict(extra, **QUER))
-        aufnahmen.aufnehmen(ref["ende"])
-        a = np.asarray(Image.open(os.path.join(aufnahmen.ZIEL, ref["ende"] + ".png")).convert("RGB")).astype(int)
+        # Endbild auch in 4K: bei A3 wird die Gravur in 1080p schmaler als ein Pixel – gravur.py holt sie von dort zurueck
+        aufnahmen.AUFNAHMEN[ref["ende"] + "-4k"] = (entwurf, "wand", 1.3, None, grund, {**extra, **QUER, "breite": "3840", "hoehe": "2160"})
+        aufnahmen.aufnehmen(ref["ende"] + "-4k")
+        ende = os.path.join(aufnahmen.ZIEL, ref["ende"] + ".png")
+        Image.open(os.path.join(aufnahmen.ZIEL, ref["ende"] + "-4k.png")).convert("RGB").resize((1920, 1080), Image.LANCZOS).save(ende)
+        a = np.asarray(Image.open(ende).convert("RGB")).astype(int)
         ys, xs = np.nonzero((a[:, :, 0] > 150) & (a[:, :, 1] < 90) & (a[:, :, 2] < 90))
         u, v = xs.mean() / a.shape[1] - 0.5, ys.mean() / a.shape[0] - 0.5
         versatz = (round(-ZOOM_START * u * 0.75, 3), round(-ZOOM_START * v * 0.75, 3))
@@ -107,6 +112,13 @@ def schritt(clip, name):
                 weissgrund(bild, bild)
             Image.open(bild).convert("RGB").resize((1920, 1080), Image.LANCZOS).save(pfad(clip, f"{rolle}-1080.png"))
             protokoll(clip, {"schritt": name, "rolle": rolle, "bild": bild_id, "ergebnis": erg})
+    elif name == "gravur" and CLIPS[clip].get("gravur"):
+        # Aus ende-hoch.jpg neu, damit der Schritt beliebig oft laufen kann
+        ziel = pfad(clip, "ende-gravur.jpg")
+        Image.open(pfad(clip, "ende-hoch.jpg")).save(ziel, quality=95)
+        info = gravur_einsetzen(ziel, os.path.join(aufnahmen.ZIEL, f"video-{clip}-ende-4k.png"))
+        Image.open(ziel).convert("RGB").resize((1920, 1080), Image.LANCZOS).save(pfad(clip, "ende-1080.png"))
+        protokoll(clip, {"schritt": name, "rolle": "ende", **info})
     elif name == "video":
         up = modul("upload_ref")
         ids = {rolle: up.upload_reference_image(config, pfad(clip, f"{rolle}-1080.png")) for rolle in ["start", "ende"]}
@@ -135,6 +147,6 @@ def schritt(clip, name):
 if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] not in CLIPS:
         sys.exit("Clip fehlt: " + ", ".join(CLIPS))
-    for n in sys.argv[2:] or ["aufnehmen", "standbilder", "hochskalieren", "video"]:
+    for n in sys.argv[2:] or ["aufnehmen", "standbilder", "hochskalieren", "gravur", "video"]:
         print(sys.argv[1], "Schritt", n, flush=True)
         schritt(sys.argv[1], n)

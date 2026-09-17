@@ -124,6 +124,8 @@ bräuchte das Quadrat Reiter in fester Größe.
 Video-Ads im Querformat, je 8 s, 1920 x 1080 px, ohne Ton:
 - A4 und A3 – vom Herz zum ganzen Bild: Dollyzoom von der Nahaufnahme des Herzens am Rhein zurück bis zum
   Bild im schwarzen Rahmen auf Weiß. Start und Ende stammen aus derselben 3D-Kamera, nur verschieden gezoomt.
+  Bei A3 wird die Gravur in der Totale schmaler als ein Pixel; ohne Hilfe verschwand sie beim Herauszoomen.
+  Sie kommt darum aus einem 4K-Rendering ins Endbild (`gravur.py`).
 - Nahflug um das Herz: dicht und schräg über dem liegenden Bild, ein Bogen von 50 Grad um das Herz. Die
   erhabenen Straßen verschieben sich gegen die Lagen darunter, so sieht man die Tiefe.
 
@@ -137,7 +139,8 @@ Standbilder und Protokoll liegen in `laser-studio/export/produktfoto/video/` (de
 ## Kosten
 
 Hauptbilder: 8 Generierungen und 4 Hochskalierungen, etwa 0,51 $. Standort-Symbole: 6 Generierungen, etwa 0,23 $.
-Videos: je Clip etwa 1,40 $ (Veo 1,20 $, dazu Standbilder und Hochskalierung), drei Clips zusammen etwa 4,17 $.
+Videos: je Clip etwa 1,40 $ (Veo 1,20 $, dazu Standbilder und Hochskalierung), drei Clips zusammen etwa 4,17 $,
+dazu 1,29 $ für das A3-Video mit wiederhergestellter Gravur.
 Explosionszeichnungen: je Design 1 Hochskalierung;
 Weiß auf Schwarz im ersten Versuch, Schwarz auf Weiß im zweiten, weißer Rand im dritten. Zusammen
 6 Generierungen und 3 Hochskalierungen, etwa 0,39 $ (dazu zwei frühere Fassungen mit Beschriftung,

@@ -20,7 +20,11 @@ PACKSHOT = (
     + " The framed artwork stands exactly where it is in the reference, with calm white space on both sides. Nothing "
     "else in the picture: no visible softboxes, lamps, stands or studio equipment; the seamless white background fills "
     "the whole image."
+    # A3 im Querformat: die Gravur wurde unter einem Pixel schmal, Leonardo machte glattes Schwarz daraus (Marcel 17.09.2026)
+    + " Even in this full view the fine light grey engraved paths stay visible as delicate hairlines on the black layer "
+    "between the raised white streets."
 )
+GRAVUR_BLEIBT = "The fine light grey engraved paths on the black layer stay visible throughout the whole move."
 STARR = "The artwork is a rigid physical object: streets, river, heart and lettering keep their exact shape."
 ENDE = "Premium product commercial, soft studio light, no people, no hands, no text overlays, no extra objects."
 
@@ -37,7 +41,8 @@ BEWEGUNG = {
         "One continuous, slow and smooth cinematic camera pull-back: it starts in a macro close-up of the glossy red mirror "
         "acrylic heart beside the blue mirror acrylic river on a layered acrylic city map and glides steadily backwards "
         "until the whole artwork in its matte black wooden frame stands revealed on a seamless white studio background. "
-        f"As the camera moves, the softbox reflections glide gently across the mirror acrylic and the glossy surfaces. {STARR} {ENDE}"
+        f"As the camera moves, the softbox reflections glide gently across the mirror acrylic and the glossy surfaces. {STARR} "
+        f"{GRAVUR_BLEIBT} {ENDE}"
     ),
     "bogen": (
         "One continuous, slow and smooth cinematic camera arc very close over a layered acrylic city map lying flat: at a "
