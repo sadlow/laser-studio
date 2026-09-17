@@ -78,9 +78,9 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   zu dicht (2 km). Nahaufnahmen: wenig Staub in den Prompt, keine Fussel (wurden ein Haar), dann Ultra 2x. Stege in Szenen zeichnet
   das Bildmodell nicht (`schrift_einsetzen.py`). Kamera-near 50 mm in Motiven: bei 1 mm fehlte ab 2 m Abstand die Gravur.
 - **Amazon Custom** (`scripts/amazon-custom/`, `amazon-container.ts`): Container 400 px = Platte + 10 mm Rahmenzugabe je Seite
-  x 1,06, auch ohne Rahmen; Textfelder aus Layoutwerten und Schriftmassen. Kartenbilder ohne Text und Symbol, Rahmen und Symbol
-  als transparente Masken darueber (`?nur=`, zwei Aufnahmen vor Schwarz/Weiss), Symbol mittig. Jedes Format fuellt die Kachel,
-  Rahmen und Massstab je Format; Quadrat eigener Artikel. Explosionszeichnung je Design, gleiche Kamera, Leonardo auf warmem Grund.
+  x 1,06, auch ohne Rahmen; Textfelder aus Layoutwerten und Schriftmassen. Karten ohne Text und Symbol, Rahmen und Symbol als
+  transparente Masken (`?nur=`, Aufnahmen vor Schwarz/Weiss), Symbol mittig. Jedes Format fuellt die Kachel, Rahmen und Massstab je
+  Format; Quadrat eigener Artikel. Explosion je Design, gleiche Kamera, Leonardo; Zeilen auf Schwarz aus der Frontansicht (`zeilen.py`).
 - **Kundeneingaben werden feldweise gemischt** (zwei schnelle Klicks hoben sich sonst auf).
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)

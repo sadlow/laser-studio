@@ -94,8 +94,10 @@ echte Aufnahme auf warmem, ruhigem Grund gerechnet und auf 2048 x 2048 px hochsk
 derselben Kamera und demselben Grund, damit sie als Reihe zusammenpassen. Ohne Beschriftung und
 Linien – die kommen im Listing Designer dazu.
 
-Bei Schwarz auf Weiß sieht man unter dem Titel die beiden kleinen Zeilen kaum: schräg gesehen sind
-die feinen Buchstaben im schwarzen Acryl fast geschlossen, genau so zeigt es auch das 3D-Modell.
+Bei Schwarz auf Weiß sind die beiden kleinen Zeilen unter dem Titel nachträglich eingesetzt. Schräg
+gesehen sind die feinen Buchstaben im schwarzen Acryl fast geschlossen, im 3D-Modell und bei Leonardo
+fehlten sie darum. Am fertigen Stück stehen sie weiß auf Schwarz, lesbar sollen sie also auch im Bild
+sein. Sie kommen aus der Frontansicht desselben Entwurfs und liegen perspektivisch genau auf der Platte.
 
 ## 5 Quadrat 30 x 30 (eigener Artikel)
 
@@ -114,4 +116,4 @@ Weiß auf Schwarz im ersten Versuch, Schwarz auf Weiß im zweiten, weißer Rand 
 zusammen 0,22 $).
 
 Erzeugt mit `laser-studio/scripts/amazon-custom/` (textfelder.ts, bilder.py, masken.py, symbole.py,
-erklaerbild.py, ordner.py).
+erklaerbild.py, zeilen.py, ordner.py).

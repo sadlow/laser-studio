@@ -6,7 +6,8 @@ Die Explosionszeichnung aus dem 3D-Modell, mit Leonardo als echte Aufnahme auf r
 Alle Designs mit derselben Kamera, demselben Abstand und Grund, damit die Bilder als Reihe zusammenpassen; nur die
 Beschreibung der Lagen im Prompt unterscheidet sich.
 
-Schritte: aufnehmen (Referenz), generieren (1K, rund 0,04 $), hochskalieren (Ultra 2x, rund 0,05 $).
+Schritte: aufnehmen (Referenz), generieren (1K, rund 0,04 $), hochskalieren (Ultra 2x, rund 0,05 $), zeilen (nur
+Schwarz auf Weiss: die Untertitelzeilen lesbar auf die schwarze Platte, siehe zeilen.py; kostenlos, beliebig oft).
 Aufruf: python3 scripts/amazon-custom/erklaerbild.py <design> [schritt ...]   (ohne Schritt: alle)   SEED=4712 fuer eine Alternative
 Designs wie in bilder.py: weiss-auf-schwarz, schwarz-auf-weiss, schwarz-weisser-rahmen. Das Design ist Pflicht –
 jeder Lauf kostet Geld.
@@ -19,6 +20,7 @@ from PIL import Image  # noqa: E402
 
 from bilder import DESIGNS, ZIEL, aufnehmen, entwurf  # noqa: E402
 from generieren import modul  # noqa: E402
+from zeilen import zeilen_einsetzen  # noqa: E402
 
 MOTIV = {"foto": "explosion", "abstand": "90", "hintergrund": "warm", "zoom": "0.95"}
 KOPF = (
@@ -91,11 +93,15 @@ def schritt(design, name):
         erg = up.upscale_and_download(up.load_config(), bild_id, pfad(design, "explosionszeichnung.jpg"), mode="ultra", style="REALISTIC",
                                       creativity_strength=4, upscale_multiplier=2.0, detail_contrast=5, similarity=7)
         protokoll(design, {"schritt": name, "bild": bild_id, "ergebnis": erg})
+    elif name == "zeilen" and DESIGNS[design] == "netz-schwarz-dreilagig":
+        # Nur hier ist die Schrift in Schwarz geschnitten; auf Weiss zeichnet Leonardo die Zeilen selbst lesbar.
+        e = entwurf(aufbau=DESIGNS[design], text=True, mit_symbol=True)
+        protokoll(design, {"schritt": name, **zeilen_einsetzen(e, pfad(design, "explosionszeichnung.jpg"))})
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] not in DESIGNS:
         sys.exit("Design fehlt: " + ", ".join(DESIGNS))
-    for n in sys.argv[2:] or ["aufnehmen", "generieren", "hochskalieren"]:
+    for n in sys.argv[2:] or ["aufnehmen", "generieren", "hochskalieren", "zeilen"]:
         print(sys.argv[1], "Schritt", n, flush=True)
         schritt(sys.argv[1], n)
