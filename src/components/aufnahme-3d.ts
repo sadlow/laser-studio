@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { MASKEN, type Maske } from "./maske-3d";
 
 /**
  * Aufnahme-Parameter aus der URL fuer Referenzbilder aus dem Headless-Browser
@@ -20,6 +21,9 @@ import * as THREE from "three";
  *   bodenschatten=0  auch kein Bodenschatten – fuer Aufnahmen, die nebeneinandergesetzt werden
  *   umgebung=0.2     Staerke der Raumspiegelung; frontal spiegelte das Hochglanz-Schwarz
  *                    die helle Umgebung hinter der Kamera und wurde grau
+ *   nur=symbol       nur Symbol, Rahmen oder Beschriftung – fuer transparente Masken (maske-3d.ts)
+ *   beschriftung=platz  Kamera wie mit Beschriftung, aber ohne sie – Referenz fuers Erklaerbild, die
+ *                    Beschriftung kommt als Maske aus derselben Kamera darueber
  *   frontal=1        Kamera gerade vor das Produkt, gleicher Abstand und gleiche Hoehe.
  *                    Mehrere Aufnahmen lassen sich so nebeneinandersetzen: schraeg von
  *                    rechts ergaben drei Rahmen in einer Reihe ein Escher-Bild
@@ -29,9 +33,12 @@ export function aufnahmeParameter(url: URLSearchParams) {
   const zoom = Number(url.get("zoom")) || 1;
   const [dx, dy] = (url.get("versatz") ?? "").split(",").map((v) => Number(v) || 0);
   const frontal = url.get("frontal") === "1";
+  const nur = url.get("nur") as Maske | null;
   const drehen = ((Number(url.get("drehen")) || 0) * Math.PI) / 180;
   return {
     grund: /^[0-9a-f]{6}$/i.test(farbe) ? parseInt(farbe, 16) : undefined,
+    nur: nur && MASKEN.includes(nur) ? nur : null,
+    beschriftungVerbergen: url.get("beschriftung") === "platz",
     wandschatten: url.get("wandschatten") !== "0",
     softboxen: url.get("softboxen") !== "0",
     spiegel: url.get("spiegel") !== "0",

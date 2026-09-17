@@ -69,9 +69,10 @@ export function beschriftungen(e: SchichtkartenErgebnis, stapel: Stapel, kamera:
   for (const seiteLinks of [true, false]) {
     const seite = roh.filter((r) => r.x < mitte === seiteLinks).sort((a, c) => a.y - c.y);
     if (!seite.length) continue;
-    // Reicht der Platz neben dem Stapel nicht, wird die Schrift kleiner, statt in den Stapel zu laufen.
+    // Reicht der Platz neben dem Stapel nicht, wird die Schrift kleiner – aber nicht unleserlich: unter 70 %
+    // lief sie im 2000-px-Erklaerbild auf 6 px zusammen, dann lieber etwas in den Stapel hinein.
     const platz = (seiteLinks ? links : w - rechts) - RAND - gross * SPALTE;
-    const s = Math.max(0.8, Math.min(gross, platz / Math.max(...seite.map((r) => breite(r, 1)))));
+    const s = Math.max(gross * 0.7, Math.min(gross, platz / Math.max(...seite.map((r) => breite(r, 1)))));
     let unten = -Infinity;
     const bloecke = seite.map((r) => {
       const ty = Math.max(r.y - (s * TITEL_HOEHE) / 2, unten + s * LUFT);

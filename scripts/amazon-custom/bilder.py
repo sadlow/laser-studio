@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Bilder fuer Amazon Custom (Marcel 16./17.09.2026): Vorschau ohne Text je Format, Design und Rahmen,
-dazu je Option ein Beispiel – alles Koeln am Rhein, gerade von vorn (3D-Motiv "layout").
+"""Kartenbilder fuer Amazon Custom (Marcel 16./17.09.2026) – Koeln am Rhein, gerade von vorn (3D-Motiv "layout").
 
-Jedes Format fuellt seine Kachel, die Vorschau ist oft nur 400 px gross: zwischen A5, A4 und A3
-aendern sich nur das Layout und die Rahmenstaerke im Verhaeltnis zur Platte. Rahmen und Massstab
-darum je Format. 30 x 30 wird ein eigener Artikel mit eigenen Bildern (Gruppe quadrat).
-Die Standort-Symbole kommen aus symbole.py (Nahaufnahme, mit Leonardo gerechnet).
+Ohne Text und ohne Symbol: Titel und Zeilen setzt der Amazon Customizer, Rahmen und Standort-Symbol legen
+sich als transparente Masken darueber (masken.py) – das Symbol immer mittig, dort wo der Ort liegt. Mit
+Symbol und Text nur die Kontrollbilder (Textfelder pruefen) und die Ausschnitte fuer die Symbolgroesse.
+
+Jedes Format fuellt seine Kachel, die Vorschau ist oft nur 400 px gross: zwischen A5, A4 und A3 aendern
+sich nur das Layout und die Rahmenstaerke im Verhaeltnis zur Platte. Rahmen und Massstab darum je Format.
+30 x 30 wird ein eigener Artikel mit eigenen Bildern (Gruppe quadrat).
 
 Aufruf: python3 scripts/amazon-custom/bilder.py [gruppe ...]   (ohne Gruppe: alle)
 Vorher: npx tsx scripts/amazon-custom/textfelder.ts. Der Dev-Server muss laufen.
@@ -20,6 +22,7 @@ PX = 2000
 FELDER = {f["format"]: f for f in json.load(open(os.path.join(ZIEL, "textfelder.json")))["formate"]}
 LAYOUTWERTE = json.load(open(os.path.join(ZIEL, "layoutwerte.json")))
 
+KOELN = {"lon": 6.9607, "lat": 50.9384}
 TEXTE = {"adresse": "Koeln Altstadt", "titel": "Zuhause", "namen": "Lena & Jonas", "letzteZeile": "koordinaten", "ortText": "Köln"}
 OHNE_TEXT = {"titel": "", "namen": "", "letzteZeile": "wunschtext", "wunschtext": ""}
 DESIGNS = {"weiss-auf-schwarz": "netz-weiss", "schwarz-auf-weiss": "netz-schwarz-dreilagig", "schwarz-weisser-rahmen": "netz-schwarz"}
@@ -28,20 +31,23 @@ RAHMEN = ["ohne", "schwarz", "weiss", "eiche", "dunkelbraun"]
 FORMATE = ["a5", "a4", "a3"]
 MASSSTAB_KM = [1.5, 2.5, 3.5, 5.5, 9]
 STUFEN = ["viel", "ausgewogen", "wenig"]
+SYMBOLE = ["herz", "haus", "pin", "kreuz"]
 GROESSEN = ["klein", "mittel", "gross"]
 GRUPPEN = ["kontrolle", "vorschau", "design", "format", "rahmen", "massstab", "strassennetz", "symbolgroesse", "quadrat"]
 
-# Viele Bilder zeigen denselben Entwurf (A4 ohne Rahmen bei 3,5 km ist Design-, Format-, Rahmen-,
-# Massstabs- und Strassennetzbild): je Lauf nur einmal rendern. Kein Zwischenspeicher ueber den
-# Lauf hinaus – nach einer Aenderung an der Engine waere er still veraltet.
+# Viele Bilder zeigen denselben Entwurf (A4 bei 3,5 km ist Vorschau-, Design-, Format-, Rahmen-, Massstabs-
+# und Strassennetzbild): je Lauf nur einmal rendern. Kein Zwischenspeicher ueber den Lauf hinaus – nach
+# einer Aenderung an der Engine waere er still veraltet.
 ROH = tempfile.mkdtemp(prefix="amazon-custom-")
 atexit.register(shutil.rmtree, ROH, True)
 GERENDERT = {}
 
 
-def entwurf(format="a4", aufbau="netz-weiss", km=3.5, text=True, **kunde):
+def entwurf(format="a4", aufbau="netz-weiss", km=3.5, text=False, mit_symbol=False, **kunde):
+    """Karte um Koeln. Ohne Symbol liegt der Ort ausserhalb des Ausschnitts: kein Symbol, kein Ausschnitt im Netz."""
+    ort = KOELN if mit_symbol else {"lon": KOELN["lon"] + 0.6, "lat": KOELN["lat"]}
     texte = dict(TEXTE, **({} if text else OHNE_TEXT))
-    return {"lon": 6.9607, "lat": 50.9384, "format": format, **LAYOUTWERTE[format], "aufbau": aufbau, "ausschnittKm": km,
+    return {**ort, "kartenMitte": KOELN, "format": format, **LAYOUTWERTE[format], "aufbau": aufbau, "ausschnittKm": km,
             "kunde": {**texte, "holzrahmen": "ohne", "symbol": "herz", "symbolGroesse": "mittel", "strassenStufe": "ausgewogen", **kunde}}
 
 
@@ -77,13 +83,12 @@ def symbol_ausschnitt(bild, format="a4", seite_mm=70):
 
 
 def vorschau(formate, ordner):
-    """Grundbild der Live-Vorschau ohne Titel und Zeilen – die legt Amazon aus den Kundeneingaben darueber."""
+    """Grundbild der Live-Vorschau je Design – Text, Rahmen und Symbol kommen darueber."""
     for f in formate:
         for d, aufbau in DESIGNS.items():
-            for r in RAHMEN:
-                bild = aufnehmen(entwurf(format=f, aufbau=aufbau, text=False, holzrahmen=r))
-                speichern(bild, f"{ordner}/vorschau/{f}/{d}-rahmen-{r}", PX)
-                speichern(bild, f"{ordner}/vorschau-400/{f}/{d}-rahmen-{r}", 400)
+            bild = aufnehmen(entwurf(format=f, aufbau=aufbau))
+            speichern(bild, f"{ordner}/vorschau/{f}/{d}", PX)
+            speichern(bild, f"{ordner}/vorschau-400/{f}/{d}", 400)
 
 
 def rahmen(f, ordner):
@@ -103,7 +108,7 @@ def gruppe(name):
     if name == "kontrolle":
         # Mit Beispieltext und den berechneten Feldern darueber: passen Container und Bild zusammen?
         for f in FORMATE + ["quadrat30"]:
-            bild = aufnehmen(entwurf(format=f)).copy()
+            bild = aufnehmen(entwurf(format=f, text=True, mit_symbol=True)).copy()
             d = ImageDraw.Draw(bild)
             faktor = PX / 400
             for t in FELDER[f]["felder"] or FELDER[f]["beispielZeilen"]:
@@ -129,7 +134,7 @@ def gruppe(name):
             speichern(aufnehmen(entwurf(strassenStufe=s)), f"{k}/strassennetz/{s}")
     elif name == "symbolgroesse":
         for g in GROESSEN:
-            speichern(symbol_ausschnitt(aufnehmen(entwurf(symbolGroesse=g))), f"{k}/symbolgroesse/{g}", 600)
+            speichern(symbol_ausschnitt(aufnehmen(entwurf(symbolGroesse=g, mit_symbol=True))), f"{k}/symbolgroesse/{g}", 600)
     elif name == "quadrat":
         q = "quadrat30"
         vorschau([q], q)

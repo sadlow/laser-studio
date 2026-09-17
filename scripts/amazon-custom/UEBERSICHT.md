@@ -1,20 +1,61 @@
 # Schichtkarte – Amazon Custom
 
 Alle Bilder zeigen dasselbe Beispiel: Köln Altstadt am Rhein, gerade von vorn aus dem 3D-Modell.
-Grundeinstellung: Weiß auf Schwarz, ohne Rahmen, Maßstab 3,5 km, Straßennetz ausgewogen, Herz
-mittel. In den Optionsbildern ändert sich jeweils nur die eine Option.
+Grundeinstellung: Weiß auf Schwarz, ohne Rahmen, Maßstab 3,5 km, Straßennetz ausgewogen.
+
+Die Kartenbilder haben keinen Text und kein Symbol: Titel und Zeilen setzt der Amazon Customizer
+aus den Kundeneingaben, Rahmen und Standort-Symbol legen sich als transparente Masken darüber.
+Alle Bilder eines Formats sind deckungsgleich, eine Maske passt also auf jedes Kartenbild desselben
+Formats. Das Symbol sitzt immer mittig: der Ort des Kunden liegt in der Mitte der Karte.
 
 Jedes Format füllt seine Kachel. Zwischen A5, A4 und A3 ändern sich darum nur Layout und Details:
 die Rahmenleiste ist bei allen Formaten gleich breit (14 mm) und wirkt auf A5 kräftiger als auf
-A3, die Schrift sitzt etwas anders, und auf kleinen Formaten werden mehr Straßen graviert statt
-geschnitten. Rahmen- und Maßstabsbilder gibt es darum je Format.
+A3, und auf kleinen Formaten werden mehr Straßen graviert statt geschnitten.
 
 ## 1 Vorschau ohne Text
 
-Grundbild für die Live-Vorschau, ohne Titel und Zeilen: die legt Amazon aus den Kundeneingaben
-darüber. Je Format ein Ordner mit 3 Designs x 5 Rahmen, 2000 x 2000 px, im Unterordner
-400 x 400 px. Platte und Rahmen stehen je Format in jedem Bild an derselben Stelle, darum passen
-die Textfelder zu jeder Rahmenwahl.
+Grundbild für die Live-Vorschau je Format und Design, ohne Text, Rahmen und Symbol.
+2000 x 2000 px, im Unterordner 400 x 400 px.
+
+## 2 Optionen
+
+Je Option ein Beispielbild, 1000 x 1000 px, ebenfalls ohne Text und Symbol:
+- Design: Weiß auf Schwarz, Schwarz auf Weiß, Schwarz mit weißem Rand (DIN A4)
+- Format: DIN A5, A4, A3, jedes so groß wie möglich
+- Rahmen: je Format ohne, Holz schwarz, Holz weiß, Eiche, Holz dunkelbraun
+- Maßstab: je Format 1,5 / 2,5 / 3,5 / 5,5 / 9 km
+- Straßennetz: viele Straßen geschnitten, ausgewogen, wenig geschnitten mit viel Gravur (DIN A4)
+- Standort-Symbol: Herz, Haus, Standort-Pin, Kreuz als schräge Nahaufnahme, mit Leonardo als
+  echtes Foto gerechnet (als kleine Auswahlbilder gedacht)
+- Symbolgröße: klein, mittel, groß (Ausschnitt 7 x 7 cm um den Ort, mit Symbol)
+
+Der Maßstab ist die Breite des Kartenausschnitts in der Wirklichkeit. Dieselbe Stufe zeigt darum
+auf A5, A4 und A3 dieselbe Fläche von Köln. Was sich ändert, ist das Detail: auf der kleineren
+Platte wären Straßen zu fein zum Schneiden und werden graviert (bei Straßennetz ausgewogen):
+
+| Maßstab | DIN A5 | DIN A4 | DIN A3 |
+|---|---|---|---|
+| 1,5 km | alles geschnitten | alles geschnitten | alles geschnitten |
+| 2,5 km | Wohnstraßen graviert | alles geschnitten | alles geschnitten |
+| 3,5 km | Wohnstraßen graviert | Wohnstraßen graviert | alles geschnitten |
+| 5,5 km | Wohnstraßen und Bahn graviert | Wohnstraßen graviert | Wohnstraßen graviert |
+| 9 km | Wohnstraßen, Bahn und Tertiärstraßen graviert | Wohnstraßen und Bahn graviert | Wohnstraßen graviert |
+
+Brücken über Wasser bleiben sichtbar: wird eine Straße oder ein Gleis graviert, läuft die Gravur
+auf einem schmalen Streifen der Hintergrundlage über das Wasser.
+
+## 3 Masken transparent
+
+PNG mit transparentem Grund, je Format 2000 x 2000 px und 400 x 400 px, deckungsgleich mit den
+Kartenbildern:
+- Rahmen: Holz schwarz, Holz weiß, Eiche, Holz dunkelbraun, mit transparenter Mitte und dem
+  Schatten der Rahmenlippe auf dem Bild
+- Standort-Symbol: Herz, Haus, Standort-Pin und Kreuz in klein, mittel und groß, mit Schatten.
+  Beim Pin sieht man durch das Loch den Hintergrund – darum zwei Fassungen: schwarzes Loch für
+  Weiß auf Schwarz, weißes Loch für Schwarz auf Weiß und Schwarz mit weißem Rand
+
+Die Symbolgrößen folgen einer Reihe für alle Formate (6 / 8 / 11 / 15 / 21 mm): A4 klein, mittel,
+groß = 8 / 11 / 15 mm, A3 eine Stufe größer, A5 eine kleiner.
 
 ## Textfelder im Container 400 x 400 px
 
@@ -46,51 +87,25 @@ Zu beachten:
 - Bacalisties und Avant Garde Book müssen bei Amazon hinterlegt sein, sonst nimmt die Vorschau
   eine Ersatzschrift.
 
-## 2 Optionen
+## 4 Erklärbild
 
-Je Option ein Beispielbild, 1000 x 1000 px:
-- Design: Weiß auf Schwarz, Schwarz auf Weiß, Schwarz mit weißem Rand (DIN A4)
-- Format: DIN A5, A4, A3, jedes so groß wie möglich
-- Rahmen: je Format ohne, Holz schwarz, Holz weiß, Eiche, Holz dunkelbraun
-- Maßstab: je Format 1,5 / 2,5 / 3,5 / 5,5 / 9 km
-- Straßennetz: viele Straßen geschnitten, ausgewogen, wenig geschnitten mit viel Gravur (DIN A4)
-- Standort-Symbol: Herz, Haus, Standort-Pin, Kreuz als schräge Nahaufnahme, mit Leonardo als
-  echtes Foto gerechnet
-- Symbolgröße: klein, mittel, groß (Ausschnitt 7 x 7 cm um den Ort, die Größen sind vergleichbar)
+Explosionszeichnung aus dem 3D-Modell, mit Leonardo als echte Aufnahme auf warmem, ruhigem Grund
+gerechnet und auf 2048 px hochskaliert. Einmal ohne, einmal mit Beschriftung: Material und Stärke
+je Lage, aus derselben Kamera über das Bild gelegt, dazu der Holzrahmen als Fußnote.
 
-Der Maßstab ist die Breite des Kartenausschnitts in der Wirklichkeit. Dieselbe Stufe zeigt darum
-auf A5, A4 und A3 dieselbe Fläche von Köln. Was sich ändert, ist das Detail: auf der kleineren
-Platte wären Straßen zu fein zum Schneiden und werden graviert (bei Straßennetz ausgewogen):
-
-| Maßstab | DIN A5 | DIN A4 | DIN A3 |
-|---|---|---|---|
-| 1,5 km | alles geschnitten | alles geschnitten | alles geschnitten |
-| 2,5 km | Wohnstraßen graviert | alles geschnitten | alles geschnitten |
-| 3,5 km | Wohnstraßen graviert | Wohnstraßen graviert | alles geschnitten |
-| 5,5 km | Wohnstraßen und Bahn graviert | Wohnstraßen graviert | Wohnstraßen graviert |
-| 9 km | Wohnstraßen, Bahn und Tertiärstraßen graviert | Wohnstraßen und Bahn graviert | Wohnstraßen graviert |
-
-Brücken über Wasser bleiben sichtbar: wird eine Straße oder ein Gleis graviert, läuft die Gravur auf einem
-schmalen Streifen der Hintergrundlage über das Wasser (Hohenzollernbrücke bei „wenig geschnitten“).
-
-## 3 Erklärbild
-
-Explosionszeichnung aus dem 3D-Modell, mit Leonardo als Studioaufnahme gerechnet und auf
-2048 px hochskaliert. Einmal ohne, einmal mit Beschriftung (Material und Stärke je Lage),
-der Holzrahmen als Fußnote.
-
-## 4 Quadrat 30 x 30 (eigener Artikel)
+## 5 Quadrat 30 x 30 (eigener Artikel)
 
 Das Quadrat hat ein eigenes Layout (Titel und Zeilen in Reitern in der Karte) und steht darum
-nicht im Konfigurator der Hochformate. Eigene Bilder: Vorschau ohne Text (3 Designs x 5 Rahmen),
-Design, Rahmen, Maßstab und ein Kontrollbild. Die Reiter wachsen mit dem Text, feste Textfelder
+nicht im Konfigurator der Hochformate. Eigene Bilder: Vorschau ohne Text je Design, Design,
+Rahmen, Maßstab, Masken und ein Kontrollbild. Die Reiter wachsen mit dem Text, feste Textfelder
 gibt es nicht; `textfelder.md` nennt die Lage für den Beispieltext. Ohne Text fehlen auch die
 Reiter: in der Vorschau ohne Text läge Amazons Titel direkt auf der Karte. Für eine Live-Vorschau
 bräuchte das Quadrat Reiter in fester Größe.
 
 ## Kosten
 
-Erklärbild: 2 Generierungen und 1 Hochskalierung, etwa 0,13 $. Standort-Symbole: 6 Generierungen
-(4 und 2 neue Versuche für Pin und Kreuz), etwa 0,23 $.
+Standort-Symbole: 6 Generierungen, etwa 0,23 $. Erklärbild: 1 Generierung und 1 Hochskalierung,
+etwa 0,09 $ (das erste Erklärbild vom Vortag: 0,13 $).
 
-Erzeugt mit `laser-studio/scripts/amazon-custom/` (textfelder.ts, bilder.py, symbole.py, ordner.py).
+Erzeugt mit `laser-studio/scripts/amazon-custom/` (textfelder.ts, bilder.py, masken.py, symbole.py,
+erklaerbild.py, ordner.py).

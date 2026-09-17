@@ -23,7 +23,7 @@ function ausUrl(url: URLSearchParams) {
     stimmung: wert<Stimmung>("licht", STIMMUNG_TITEL, "studio"),
     hintergrund: wert<Hintergrund>("hintergrund", HINTERGRUND_TITEL, "hell"),
     abstandMm: Math.min(ABSTAND_MAX_MM, abstand),
-    beschriftung: url.get("beschriftung") === "1",
+    beschriftung: url.get("beschriftung") === "1" || url.get("beschriftung") === "platz",
   };
 }
 

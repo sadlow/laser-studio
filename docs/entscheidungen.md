@@ -77,9 +77,10 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Wasser (Nahaufnahmen `softboxen=0`), schraeg nebeneinander Escher-Bild (frontal auf gezeichneter Kommode), Paris 3,5 km
   zu dicht (2 km). Nahaufnahmen: wenig Staub in den Prompt, keine Fussel (wurden ein Haar), dann Ultra 2x. Stege in Szenen zeichnet
   das Bildmodell nicht (`schrift_einsetzen.py`). Kamera-near 50 mm in Motiven: bei 1 mm fehlte ab 2 m Abstand die Gravur.
-- **Amazon Custom** (`scripts/amazon-custom/`, `amazon-container.ts`): Vorschau ohne Text gerade von vorn; Container 400 px =
-  Platte + 10 mm Rahmenzugabe je Seite x 1,06, auch ohne Rahmen; Textfelder aus Layoutwerten und Schriftmassen. Jedes Format
-  fuellt die Kachel (oft nur 400 px), Rahmen und Massstab je Format (Leiste ueberall 14 mm, klein mehr Gravur); Quadrat eigener Artikel.
+- **Amazon Custom** (`scripts/amazon-custom/`, `amazon-container.ts`): Container 400 px = Platte + 10 mm Rahmenzugabe je Seite
+  x 1,06, auch ohne Rahmen; Textfelder aus Layoutwerten und Schriftmassen. Kartenbilder ohne Text und Symbol, Rahmen und Symbol
+  als transparente Masken darueber (`?nur=`, zwei Aufnahmen vor Schwarz/Weiss), Symbol mittig. Jedes Format fuellt die Kachel,
+  Rahmen und Massstab je Format; Quadrat eigener Artikel. Erklaerbild: Referenz + Beschriftung aus derselben Kamera, Leonardo warm.
 - **Kundeneingaben werden feldweise gemischt** (zwei schnelle Klicks hoben sich sonst auf).
 
 ## Ort, Ausschnitt, Symbol (`geo.ts`, `symbole.ts`, `zieh-vorschau.tsx`)
@@ -188,10 +189,9 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Prototyp-Platten (`src/server/bogen.ts`)
 
-- **Testreihe statt Einzelexport:** Vorlage oder aktueller Entwurf, je Platz ein
-  anderer Wert fuer genau einen Parameter (Ausschnitt oder Stegbreite), je
-  Material eine Datei. Verkleinert (Zeilen 3,7 statt 5,4 mm) – fuer Schriftfragen
-  taugt nur Originalgroesse.
+- **Testreihe statt Einzelexport:** Vorlage oder aktueller Entwurf, je Platz ein anderer Wert fuer genau einen
+  Parameter (Ausschnitt oder Stegbreite), je Material eine Datei. Verkleinert (Zeilen 3,7 statt 5,4 mm) – fuer
+  Schriftfragen taugt nur Originalgroesse.
 - **A4 traegt zwei Prototypen 145 x 205 mm**, nicht zwei A5 (2 x 148 mm auf 297, 210 mm
   exakt auf der Plattenkante). 2,5 mm Rand, 2 mm Abstand, 98 % von A5.
 - **30 x 30 traegt einen Prototyp 296 x 296 mm** – aus demselben Grund mit Rand.

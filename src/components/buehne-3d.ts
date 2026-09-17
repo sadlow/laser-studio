@@ -7,6 +7,7 @@ import { folgeAbstand, RAUM_BESCHRIFTUNG, SPIEGEL_BIS_MM } from "./explosion-3d"
 import { HELLE_SCHRIFT, type Hintergrund } from "./hintergrund-3d";
 import { baueKulisse } from "./kulisse-3d";
 import { baueBeleuchtung, type Stimmung } from "./licht-3d";
+import { maskeEinrichten } from "./maske-3d";
 import { motivAnwenden, type Motiv } from "./motive-3d";
 import { studioEinrichten } from "./spiegel-3d";
 import { baueSzene, entsorgen, stapeln, type Stapel } from "./szene-3d";
@@ -40,8 +41,7 @@ interface Anschluss {
  * etwas geaendert hat – im Headless-Browser kostet ein Bild mit Schatten Sekunden.
  */
 export function starteBuehne(ergebnis: SchichtkartenErgebnis, a: Anschluss, start: Einstellung): Buehne {
-  let [aus, bild, neu] = [false, 0, true];
-  let e = start;
+  let [aus, bild, neu, e] = [false, 0, true, start];
   const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
   const pixel = Math.min(window.devicePixelRatio, 2);
   renderer.setPixelRatio(pixel);
@@ -92,6 +92,7 @@ export function starteBuehne(ergebnis: SchichtkartenErgebnis, a: Anschluss, star
     auf.ausschnitt(kamera, renderer, steuerung.target);
     beleuchtung.merken(kamera, steuerung.target);
     auf.drehen(kamera, steuerung.target);
+    if (auf.nur) maskeEinrichten(auf.nur, ergebnis, stapel);
   };
   const licht = () => {
     beleuchtung.setze(e.stimmung);
@@ -127,10 +128,8 @@ export function starteBuehne(ergebnis: SchichtkartenErgebnis, a: Anschluss, star
     a.gebaut();
   }, 30);
 
-  const beschriften = () => {
-    const c = renderer.domElement;
-    ebeneZeichnen(a.ebene, c, e.beschriftung && stapel ? beschriftungen(ergebnis, stapel, kamera, c.clientWidth, c.clientHeight) : null, HELLE_SCHRIFT[e.hintergrund]);
-  };
+  const beschriften = (c = renderer.domElement) =>
+    ebeneZeichnen(a.ebene, c, e.beschriftung && stapel && !auf.beschriftungVerbergen ? beschriftungen(ergebnis, stapel, kamera, c.clientWidth, c.clientHeight) : null, HELLE_SCHRIFT[e.hintergrund]);
 
   const zeichnen = () => {
     if (aus) return;
