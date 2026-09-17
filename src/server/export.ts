@@ -29,14 +29,14 @@ export interface ExportErgebnis {
 }
 
 /**
- * Testexemplare: je Variante ein Ordner mit einer Laserdatei pro Lage (von
- * oben nach unten nummeriert), der Vorschau, den verwendeten Parametern und
- * einer Uebersicht fuer die Werkstatt. Die Parameter liegen bei, damit sich
- * ein Prototyp spaeter exakt nachbauen laesst – auch wenn die Vorlage bis
- * dahin weiterentwickelt wurde.
+ * Produktionsdaten: eine Laserdatei pro Lage (von oben nach unten nummeriert), die Vorschau, die
+ * verwendeten Parameter und eine Uebersicht fuer die Werkstatt. Die Parameter liegen bei, damit sich
+ * ein Stueck spaeter exakt nachbauen laesst – auch wenn die Vorlage bis dahin weiterentwickelt wurde.
+ * Eine einzelne Variante (der Exportknopf) landet direkt im Ordner, mehrere je in einem Unterordner.
  */
 export async function exportiere(auftrag: ExportAuftrag, token: string): Promise<ExportErgebnis> {
-  const jetzt = new Date();
+  // Ortszeit im Ordnernamen – UTC stand zwei Stunden daneben.
+  const jetzt = new Date(Date.now() - new Date().getTimezoneOffset() * 60000);
   const datum = jetzt.toISOString().slice(0, 16).replace("T", " ");
   const stempel = jetzt.toISOString().slice(0, 16).replace(/[-:]/g, "").replace("T", "-");
   const kennung = slug(auftrag.kunde.ortText || auftrag.kunde.titel || "test") || "test";
@@ -50,7 +50,7 @@ export async function exportiere(auftrag: ExportAuftrag, token: string): Promise
     // Ein Entwurf aus einem offenen Browserfenster kennt die Einstellung vielleicht noch nicht.
     karte.gravurExport ??= standardSchichtkarte().gravurExport;
     const r = await rendereSchichtkarte(karte, token);
-    const ziel = path.join(ordner, v.id);
+    const ziel = auftrag.varianten.length === 1 ? ordner : path.join(ordner, v.id);
     fs.mkdirSync(ziel, { recursive: true });
 
     const dateien: string[] = [];

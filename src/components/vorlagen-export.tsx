@@ -13,15 +13,15 @@ interface Props {
 }
 
 /**
- * Vorlagen laden und speichern, Testexemplare exportieren. Eine Vorlage ist das
- * Produkt ohne Kundeneingabe – beim Laden bleiben Adresse, Texte und Ort stehen.
+ * Produktionsdaten exportieren, Vorlagen laden und speichern. Exportiert wird genau das, was links
+ * eingestellt ist (Marcel 17.09.2026: "einfach einen Exportknopf" statt einer Auswahl von
+ * Testexemplaren). Eine Vorlage ist das Produkt ohne Kundeneingabe – beim Laden bleiben Adresse,
+ * Texte und Ort stehen.
  */
 export function VorlagenExport({ karte, aendern }: Props) {
   const [vorlagen, setVorlagen] = useState<Vorlage[]>([]);
   const [gewaehlt, setGewaehlt] = useState("");
   const [name, setName] = useState("");
-  const [markiert, setMarkiert] = useState<Set<string>>(new Set());
-  const [aktuellMit, setAktuellMit] = useState(false);
   const [laeuft, setLaeuft] = useState(false);
   const [meldung, setMeldung] = useState<string | null>(null);
   const [ergebnis, setErgebnis] = useState<ExportErgebnis | null>(null);
@@ -62,8 +62,8 @@ export function VorlagenExport({ karte, aendern }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          vorlagenIds: [...markiert],
-          aktuell: aktuellMit ? karte : undefined,
+          vorlagenIds: [],
+          aktuell: karte,
           kunde: karte.kunde,
           lon: karte.lon,
           lat: karte.lat,
@@ -78,24 +78,19 @@ export function VorlagenExport({ karte, aendern }: Props) {
     }
   };
 
-  const umschalten = (id: string) =>
-    setMarkiert((alt) => {
-      const neu = new Set(alt);
-      if (neu.has(id)) neu.delete(id);
-      else neu.add(id);
-      return neu;
-    });
-
-  const anzahl = markiert.size + (aktuellMit ? 1 : 0);
-
   return (
     <Block
-      titel="Vorlagen und Export"
+      titel="Export und Vorlagen"
       zu={false}
-      hinweis="Export je Variante: eine Laserdatei pro Lage mit den Ebenen 1 Gravur, 2 Klebeflaeche, 3 Schnitt innen, 4 Schnitt aussen – dazu Vorschau, Parameter und Uebersicht. Es gilt die Kundeneingabe links."
+      hinweis="Produktionsdaten der Eingabe links: eine Laserdatei je Lage mit den Ebenen 1 Gravur, 2 Klebeflaeche, 3 Schnitt innen, 4 Schnitt aussen – dazu Vorschau, Parameter und Uebersicht fuer die Werkstatt."
     >
       <div className="space-y-3">
-        <div className="flex gap-2">
+        <Knopf onClick={() => void exportieren()} aus={laeuft} voll>
+          {laeuft ? "exportiert…" : "Produktionsdaten exportieren"}
+        </Knopf>
+        {ergebnis && <ExportBericht ergebnis={ergebnis} />}
+
+        <div className="flex gap-2 border-t pt-3" style={{ borderColor: "var(--linie)" }}>
           <select className="feld" value={gewaehlt} onChange={(e) => setGewaehlt(e.target.value)}>
             <option value="">Vorlage waehlen…</option>
             {vorlagen.map((v) => (
@@ -115,25 +110,7 @@ export function VorlagenExport({ karte, aendern }: Props) {
           </Knopf>
         </div>
 
-        <div className="space-y-1 border-t pt-3" style={{ borderColor: "var(--linie)" }}>
-          <span className="beschriftung">Testexemplare exportieren</span>
-          {vorlagen.map((v) => (
-            <label key={v.id} className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={markiert.has(v.id)} onChange={() => umschalten(v.id)} />
-              {v.name}
-            </label>
-          ))}
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={aktuellMit} onChange={(e) => setAktuellMit(e.target.checked)} />
-            Aktueller Entwurf (auch ungespeichert)
-          </label>
-        </div>
-        <Knopf onClick={() => void exportieren()} aus={laeuft || anzahl === 0} voll>
-          {laeuft ? "exportiert…" : `${anzahl} Variante${anzahl === 1 ? "" : "n"} exportieren`}
-        </Knopf>
-
         {meldung && <p className="text-xs" style={{ color: "var(--gedaempft)" }}>{meldung}</p>}
-        {ergebnis && <ExportBericht ergebnis={ergebnis} />}
       </div>
     </Block>
   );
@@ -151,11 +128,9 @@ function ExportBericht({ ergebnis }: { ergebnis: ExportErgebnis }) {
       <div className="break-all font-medium">{ergebnis.ordner}</div>
       <Knopf onClick={() => void oeffnen()}>Ordner oeffnen</Knopf>
       {ergebnis.varianten.map((v) => (
-        <div key={v.id}>
-          <div className="font-medium">{v.name}</div>
-          <div style={{ color: "var(--gedaempft)" }}>
-            {v.lagen.map((l) => `${l.titel} (${l.teile})`).join(" · ")}
-          </div>
+        <div key={v.id} style={{ color: "var(--gedaempft)" }}>
+          {v.dateien.length} Dateien · {v.lagen.map((l) => `${l.titel} (${l.teile})`).join(" · ")}
+          {v.warnungen.length > 0 && <div>{v.warnungen.length} Hinweis{v.warnungen.length === 1 ? "" : "e"} in uebersicht.txt</div>}
         </div>
       ))}
     </div>

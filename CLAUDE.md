@@ -36,7 +36,7 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 | `geometrie.ts` | Clipper-Wrapper in mm |
 
 Server (`src/server/`): `vorlagen.ts` (JSON lesen/schreiben), `export.ts`
-(Testexemplare nach `export/<zeit>_<ort>/<vorlage>/`), `bogen.ts` (Prototyp-Platten: mehrere
+(Exportknopf: Produktionsdaten der Eingabe nach `export/<zeit>_<ort>/`), `bogen.ts` (Prototyp-Platten: mehrere
 Exemplare je Rohplatte, ein Parameter variiert).
 
 ## Entscheidungen

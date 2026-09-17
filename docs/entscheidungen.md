@@ -44,7 +44,7 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Gravur waehlbar** (`gravurExport`, Marcel 16.09.2026: Liniengravur spart Laserzeit): Flaeche (gepuffert,
   wird gerastert), Mittellinie (einmal abfahren, Breite ueber Defokus) oder Kontur (Ringe im Strahlabstand bis
   zur Sollbreite). Berlin A4: 10,4 m Mittellinie, 18,3 m Kontur, 27 cm² Flaeche. Jeder Schnittring ein Pfad.
-- **Parameter liegen jedem Export bei** (`parameter.json`) – Prototypen bleiben nachbaubar.
+- **Ein Exportknopf fuer die Eingabe links** (17.09.: die Auswahl von Testexemplaren ergab keinen Sinn); Parameter liegen bei.
 
 ## Vorlagen (`src/server/vorlagen.ts`, `vorlagen/*.json`)
 
