@@ -1,36 +1,8 @@
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
-// Der ESM-Build von opentype.js hat keinen Default-Export – im Next-Bundler
-// kaeme ein `import opentype from` als undefined an. In Node allein faellt das
-// nicht auf, weil dort der CommonJS-Build geladen wird.
-import * as opentype from "opentype.js";
+import type * as opentype from "opentype.js";
 import type { Punkt } from "./clip";
+import { ladeSchrift } from "./schrift-datei";
 
-// Dieselben Suchorte wie FONT_SEARCH_FOLDERS im Bulk-Script.
-const SUCHORTE = [
-  path.join(os.homedir(), "Library/Fonts"),
-  "/Library/Fonts",
-  "/System/Library/Fonts/Supplemental",
-  "/System/Library/Fonts",
-];
-
-const cache = new Map<string, opentype.Font>();
-
-function ladeSchrift(datei: string): opentype.Font {
-  const vorhanden = cache.get(datei);
-  if (vorhanden) return vorhanden;
-  for (const ort of SUCHORTE) {
-    const voll = path.join(ort, datei);
-    if (fs.existsSync(voll)) {
-      const buf = fs.readFileSync(voll);
-      const font = opentype.parse(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
-      cache.set(datei, font);
-      return font;
-    }
-  }
-  throw new Error(`Schrift "${datei}" nicht gefunden (gesucht in ~/Library/Fonts und /Library/Fonts).`);
-}
+export { verfuegbareSchriften } from "./schrift-datei";
 
 /** Masse einer Schrift in Font-Einheiten – fuer Textfelder anderer Systeme (Amazon Custom). */
 export function schriftMasse(datei: string) {
@@ -62,7 +34,12 @@ export interface GesetzterText {
  * aus als in InDesign. Fuer die Produktion gehoert das ueber HarfBuzz (wie der
  * Direktsatz), fuer den Entwurf reicht es.
  */
-export function setzeZeile(opts: {
+export function setzeZeile(opts: ZeilenSatz): GesetzterText {
+  const g = setzeGlyphen(opts);
+  return { ringe: g.glyphen.flatMap((x) => x.ringe), breiteMm: g.breiteMm, faktor: g.faktor };
+}
+
+export interface ZeilenSatz {
   text: string;
   schrift: string;
   versalhoeheMm: number;
@@ -70,13 +47,23 @@ export function setzeZeile(opts: {
   mitteX: number;
   mitteY: number;
   maxBreiteMm: number;
-}): GesetzterText {
+}
+
+/** Eine Glyphe der Zeile: Unicode des Zeichens (0, wenn unbekannt) und ihre Konturen in mm. */
+export interface GesetzteGlyphe {
+  zeichen: number;
+  ringe: Punkt[][];
+}
+
+/**
+ * Wie setzeZeile, aber Glyphe fuer Glyphe – fuer den Schnitt, der jede Glyphe fuer sich aufbereitet (schnitt-text.ts).
+ */
+export function setzeGlyphen(opts: ZeilenSatz): { glyphen: GesetzteGlyphe[]; breiteMm: number; faktor: number } {
   const font = ladeSchrift(opts.schrift);
   const capHeight = font.tables.os2?.sCapHeight || font.unitsPerEm * 0.7;
   let groesse = (opts.versalhoeheMm * font.unitsPerEm) / capHeight;
-
-  const messen = (g: number) =>
-    font.getPath(opts.text, 0, 0, g, { kerning: true, letterSpacing: opts.sperrungEm }).getBoundingBox();
+  const optionen = { kerning: true, letterSpacing: opts.sperrungEm };
+  const messen = (g: number) => font.getPath(opts.text, 0, 0, g, optionen).getBoundingBox();
 
   let box = messen(groesse);
   let faktor = 1;
@@ -90,13 +77,13 @@ export function setzeZeile(opts: {
   const versal = (capHeight / font.unitsPerEm) * groesse;
   const x = opts.mitteX - (box.x1 + box.x2) / 2;
   const grundlinie = opts.mitteY + versal / 2;
-
-  const pfad = font.getPath(opts.text, x, grundlinie, groesse, {
-    kerning: true,
-    letterSpacing: opts.sperrungEm,
-  });
-
-  return { ringe: kurvenZuRingen(pfad.commands), breiteMm: box.x2 - box.x1, faktor };
+  const pfade = font.getPaths(opts.text, x, grundlinie, groesse, optionen);
+  const zeichen = font.stringToGlyphs(opts.text).map((g: opentype.Glyph) => g.unicode ?? 0);
+  return {
+    glyphen: pfade.map((p, i) => ({ zeichen: zeichen[i] ?? 0, ringe: kurvenZuRingen(p.commands) })),
+    breiteMm: box.x2 - box.x1,
+    faktor,
+  };
 }
 
 /** Bezier-Kurven in Geradenstuecke. Feinheit ~0.08 mm – unter der Schnittfuge. */
@@ -145,9 +132,4 @@ function kurvenZuRingen(befehle: opentype.PathCommand[]): Punkt[][] {
   }
   if (ring.length >= 3) ringe.push(ring);
   return ringe;
-}
-
-/** Welche der gewuenschten Schriften liegen auf diesem Rechner? */
-export function verfuegbareSchriften(kandidaten: string[]): string[] {
-  return kandidaten.filter((datei) => SUCHORTE.some((ort) => fs.existsSync(path.join(ort, datei))));
 }

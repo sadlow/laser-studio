@@ -112,13 +112,14 @@ export function EingabeFertigung({ karte, aendern }: Props) {
     <Block
       titel="Fertigung"
       zu={true}
-      hinweis="Stege sitzen am hoechsten und tiefsten Punkt jeder Innenflaeche und sind nie breiter als der halbe Schriftstrich (mindestens 0,3 mm). Schmalere Innenflaechen als die Grenze werden zugefuellt – das Zeichen faellt dann als Ganzes heraus. Innenkreis des Gradzeichens: A5 0,97 mm, A4 1,38 mm; Titel-Schleifen ab 2,66 mm."
+      hinweis="Stege sind gerade Rechtecke wie in einer Stencil-Schrift: bei B, D, P, R und 4 am Stamm entlang, beim A am rechten Schenkel, bei runden Innenflaechen oben und unten, im Titel quer durch den duennsten Strich. So viel Material bleibt auch zwischen den Buchstaben stehen. Den Mindeststrich stellt das Layout ein (Testblatt 17.09.: Buchstaben erst ab 0,7 mm, Stege von 0,5 mm brachen beim Herausdruecken). Schmalere Innenflaechen als die Grenze bekommen nur einen Steg, die Schleife bleibt offen."
     >
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
-          <Zahl titel="Steg hoechstens" einheit="mm" schritt={0.05} min={0} wert={karte.stegMm} aendern={(v) => aendern({ stegMm: v })} />
+          <Zahl titel="Stegbreite" einheit="mm" schritt={0.05} min={0} wert={karte.stegMm} aendern={(v) => aendern({ stegMm: v })} />
+          <Zahl titel="Material mindestens" einheit="mm" schritt={0.05} min={0} wert={karte.stegMinMm} aendern={(v) => aendern({ stegMinMm: v })} />
           <Zahl
-            titel="Zufuellen schmaler als"
+            titel="Ein Steg unter"
             einheit="mm"
             schritt={0.05}
             min={0}

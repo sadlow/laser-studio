@@ -69,6 +69,8 @@ export interface Kennzahlen {
   stencilStege: number;
   punzenOhneSteg: number;
   inselnZugefuellt: number;
+  /** Staerkste Verstaerkung einer Zeile, damit ihr Strich schneidbar ist. */
+  schriftZugabeMm: number;
   wasserFlaechenGeschnitten: number;
   /** Kleine Inseln, die Wasser wurden statt Einzelteil. */
   wasserInselnGeflutet: number;

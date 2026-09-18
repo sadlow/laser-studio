@@ -1,7 +1,7 @@
-import { rechteck, vereinige, ziehAb, zuFlaeche } from "./geometrie";
-import { setzeZeile } from "./schrift";
+import { rechteck, ringeInMm, ziehAb } from "./geometrie";
+import { setzeSchnittText } from "./schnitt-text";
 import type { Layout, Schichtkarte, TextStil } from "./typen";
-import { pruefeBeruehrungen, zeilenAusEingabe, type Textblock } from "./zeilen";
+import { pruefeBeruehrungen, schnittRegeln, zeilenAusEingabe, type Textblock } from "./zeilen";
 
 /**
  * Poster-Layout: Titel und beide Zeilen untereinander im Textfeld unter der
@@ -19,35 +19,31 @@ export function setzePosterText(k: Schichtkarte, layout: Layout): Textblock {
   const kartenUnterkante = kartenfenster.yMm + kartenfenster.hoeheMm;
 
   const gesetzt: Textblock["zeilen"] = [];
-  const zeilen: [string, string, TextStil, number][] = [
-    ["Titel", texte.titel, k.titelStil, k.titelMitteAnteil],
-    ["Namen", texte.zeile1, k.zeilenStil, k.zeile1MitteAnteil],
-    ["Letzte Zeile", texte.zeile2, k.zeilenStil, k.zeile2MitteAnteil],
+  // Der Titel ist Schreibschrift (TITELSCHRIFTEN), die Zeilen sind Druckschrift – danach richten sich Verstaerken
+  // und Stege (schnitt-text.ts).
+  const zeilen: [string, string, TextStil, number, "schreib" | "druck"][] = [
+    ["Titel", texte.titel, k.titelStil, k.titelMitteAnteil, "schreib"],
+    ["Namen", texte.zeile1, k.zeilenStil, k.zeile1MitteAnteil, "druck"],
+    ["Letzte Zeile", texte.zeile2, k.zeilenStil, k.zeile2MitteAnteil, "druck"],
   ];
 
-  for (const [name, text, s, mitteAnteil] of zeilen) {
+  for (const [name, text, s, mitteAnteil, art] of zeilen) {
     if (!text) continue;
     try {
       const versalhoeheMm = platte.hoeheMm * s.hoeheAnteil;
-      const zeile = setzeZeile({
-        text,
-        schrift: s.schrift,
-        versalhoeheMm,
-        sperrungEm: s.sperrung,
-        mitteX,
-        mitteY: platte.hoeheMm * mitteAnteil,
-        maxBreiteMm: maxBreite,
-      });
+      const satz = { text, schrift: s.schrift, versalhoeheMm, sperrungEm: s.sperrung, mitteX, mitteY: platte.hoeheMm * mitteAnteil, maxBreiteMm: maxBreite };
+      const zeile = setzeSchnittText(satz, art, schnittRegeln(k, s));
       if (zeile.faktor < 0.999) {
         warnungen.push(`${name} war zu breit und wurde auf ${Math.round(zeile.faktor * 100)} % verkleinert.`);
       }
-      const oberkante = Math.min(...zeile.ringe.flat().map((p) => p.y));
+      const oberkante = Math.min(...ringeInMm(zeile.flaeche).flat().map((p) => p.y));
       if (oberkante < kartenUnterkante) {
         warnungen.push(
           `${name} ragt ${(kartenUnterkante - oberkante).toFixed(1)} mm in das Kartenfenster – dort ist kein Weiss zum Ausschneiden.`,
         );
       }
-      gesetzt.push({ name, flaeche: vereinige(zuFlaeche(zeile.ringe)), versalhoeheMm: versalhoeheMm * zeile.faktor });
+      const { flaeche, schnitt, zugabeMm, stege, zugefuellt, ohneSteg } = zeile;
+      gesetzt.push({ name, flaeche, schnitt, versalhoeheMm: versalhoeheMm * zeile.faktor, zugabeMm, stege, zugefuellt, ohneSteg });
     } catch (e) {
       warnungen.push(`${name}: ${e instanceof Error ? e.message : String(e)}`);
     }

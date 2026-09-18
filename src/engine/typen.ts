@@ -105,6 +105,11 @@ export interface TextStil {
   /** Sperrung in em (0 = Schrift wie gesetzt). */
   sperrung: number;
   versalien: boolean;
+  /**
+   * Ausgeschnitten wird die Schrift verstaerkt, bis ihr duennster Strich so breit ist (schnitt-text.ts): die
+   * Druckschrift rundum mit spitzen Ecken, die Schreibschrift des Titels nur aussen, damit die Schleifen offen bleiben.
+   */
+  minStrichMm: number;
 }
 
 export interface Schichtkarte {
@@ -163,18 +168,18 @@ export interface Schichtkarte {
   /** Kleinere Inseln, die nirgends anhaengen, werden Wasser statt Einzelteil. */
   wasserInselMinMm2: number;
 
-  /**
-   * Hoechstbreite der Stencil-Stege. Tatsaechlich nie breiter als der halbe
-   * Schriftstrich an der Stelle und nie unter 0,3 mm.
-   */
+  /** Breite der Stencil-Stege in der Schrift – jeder Steg ein gerades Rechteck (stencil.ts), nie schmaler als stegMinMm. */
   stegMm: number;
   /**
-   * Schmalere Innenflaechen bekommen keine Stege, sondern werden zugefuellt –
-   * neben einem senkrechten Steg bliebe nichts stehen. Innenkreis des
-   * Gradzeichens in Avant Garde Book: A5 0,97 mm, A4 1,38 mm; Bacalisties-
-   * Schleifen 2,66-8,78 mm.
+   * Innenflaechen, die schmaler sind, bekommen nur einen Steg und werden zur offenen Schleife (das & bei A5) –
+   * zugefuellt waeren sie ein Klecks. Unter 0,35 mm wird zugefuellt.
    */
   stencilMinInselBreiteMm: number;
+  /**
+   * So viel Material bleibt mindestens stehen: Stege, zwischen den Buchstaben, zwischen den Strichen des “ (Schrift-
+   * Testblatt 17.09.2026: Stege von 0,5 mm brachen beim Herausdruecken).
+   */
+  stegMinMm: number;
 
   /** Breiten des Standort-Symbols als Reihe fuer alle Formate: A4 nimmt Stufe 2-4, A3 eine hoeher, A5 eine tiefer (symbole.ts). */
   symbolStufenMm: number[];

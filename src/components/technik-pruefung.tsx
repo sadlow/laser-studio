@@ -23,6 +23,7 @@ function KennzahlenRaster({ kz }: { kz: Kennzahlen }) {
       <Kennzahl titel="lose → Gravur" wert={String(kz.loseZurGravur)} />
       <Kennzahl titel="Stencil-Stege" wert={String(kz.stencilStege)} />
       <Kennzahl titel="Innenflaechen zu" wert={String(kz.inselnZugefuellt)} />
+      <Kennzahl titel="Schrift verstaerkt" wert={kz.schriftZugabeMm ? `+${kz.schriftZugabeMm.toFixed(2)} mm Strich` : "nein"} />
       <Kennzahl titel="Wasserflaechen" wert={String(kz.wasserFlaechenGeschnitten)} />
       <Kennzahl titel="Inseln zu Wasser" wert={String(kz.wasserInselnGeflutet)} />
       <Kennzahl titel="Symbol ueber Netz" wert={`${kz.symbolUeberNetzMm >= 0 ? "+" : ""}${kz.symbolUeberNetzMm.toFixed(1)} mm`} />

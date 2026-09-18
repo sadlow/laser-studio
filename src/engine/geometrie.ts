@@ -186,6 +186,10 @@ export function ausTeilen(t: Teil[]): Flaeche {
   return ringe;
 }
 
+export function verschiebe(fl: Flaeche, dx: number, dy: number): Flaeche {
+  return fl.map((p) => p.map((q) => ({ X: q.X + Math.round(dx * S), Y: q.Y + Math.round(dy * S) })));
+}
+
 /** Alle Ringe einer Flaeche in mm – fuer Ray-Casting und Ausgabe. */
 export function ringeInMm(flaeche: Flaeche): Punkt[][] {
   return flaeche.map(vonPfad);

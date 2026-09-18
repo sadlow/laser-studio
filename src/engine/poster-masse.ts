@@ -40,6 +40,34 @@ export const EINGEBETTET_STANDARD: EingebettetesLayout = {
   rahmenUntenMm: 14,
 };
 
+/**
+ * Zeilenschriften, die sich schneiden lassen, mit der Groesse, die sie dafuer brauchen: Faktor auf die am Poster
+ * gemessene Zeilenhoehe (A5 4,19 mm) und Sperrung. Die kraeftigen Schnitte stehen so gross, dass die laengste
+ * Zeile (29 Zeichen) auf A5 gerade passt – dann ist ihr Strich von sich aus fast 0,8 mm und muss kaum verstaerkt
+ * werden (scripts/schrift-vergleich-a5.ts, 18.09.2026). Book auf 0,8 mm verstaerkt sah verquollen aus.
+ */
+export const ZEILENSCHRIFT_MASSE: Record<string, { groesse: number; sperrung: number }> = {
+  // A5 4,8 mm, Strich 0,65, engste Punze 1,18 mm; 6 und 9 bekommen Seitenstege (enge Punze unter der Diagonale).
+  // Marcel 18.09.2026: „gewinnt eindeutig".
+  "DIN Alternate Bold.ttf": { groesse: 1.15, sperrung: 0.05 },
+  // A5 5,4 mm, Strich 0,71, engste Punze 1,06 mm – die groessten Buchstaben.
+  "Avenir Next Condensed.ttc#Demi Bold": { groesse: 1.29, sperrung: 0.05 },
+  // A5 4,7 mm, Strich 0,71, engste Punze 0,9 mm (8, B) – die Familie des Posters.
+  "AvantGardeCE-Demi.otf": { groesse: 1.12, sperrung: 0.05 },
+  "ITC Avant Garde Gothic LT Bold.ttf": { groesse: 0.97, sperrung: 0.05 },
+  // Wie auf dem Poster – zum Vergleich; im Schnitt fast doppelt so dick gerechnet.
+  "AvantGarde-Book.otf": { groesse: 1, sperrung: 0.14 },
+  "JosefinSans-SemiBold.ttf": { groesse: 1, sperrung: 0.14 },
+};
+export const ZEILENSCHRIFT_STANDARD = "DIN Alternate Bold.ttf";
+
+/** Versalhoehe und Sperrung einer Zeilenschrift in einem Format. */
+export function zeilenGroesse(format: FormatKey, schrift: string): { hoeheAnteil: number; sperrung: number } {
+  const m = format === "a5" || format === "a3" ? POSTER_MASSE[format] : POSTER_MASSE.a4;
+  const z = ZEILENSCHRIFT_MASSE[schrift] ?? { groesse: 1, sperrung: 0.05 };
+  return { hoeheAnteil: Math.round(m.zeilenHoehe * z.groesse * 100000) / 100000, sperrung: z.sperrung };
+}
+
 export interface LayoutWerte {
   layoutArt: LayoutArt;
   kartenEndeAnteil: number;
@@ -57,8 +85,8 @@ export interface LayoutWerte {
  * sie nehmen A4. Das Quadrat bekommt das eingebettete Layout: mit den
  * Poster-Anteilen laege sein Kartenfenster quer und der Textbereich wuerde gross.
  *
- * Die Sperrung 0,14 der Zeilen ist eine Zugabe, das Poster hat keine (dort
- * ExtraLight, luftig durch den duennen Strich; Marcel mag die Luft bei Book).
+ * Zeilenschrift und -groesse kommen aus ZEILENSCHRIFT_MASSE: geschnitten braucht die Zeile einen kraeftigen
+ * Schnitt, das Poster hat ExtraLight.
  */
 export function standardLayoutWerte(format: FormatKey): LayoutWerte {
   const m = format === "a5" || format === "a3" ? POSTER_MASSE[format] : POSTER_MASSE.a4;
@@ -68,8 +96,10 @@ export function standardLayoutWerte(format: FormatKey): LayoutWerte {
     titelMitteAnteil: m.titelMitte,
     zeile1MitteAnteil: m.zeile1Mitte,
     zeile2MitteAnteil: m.zeile2Mitte,
-    titelStil: { schrift: "Bacalisties.ttf", hoeheAnteil: m.titelHoehe, sperrung: 0, versalien: false },
-    zeilenStil: { schrift: "AvantGarde-Book.otf", hoeheAnteil: m.zeilenHoehe, sperrung: 0.14, versalien: true },
+    // Mindeststrich nach dem Schrift-Testblatt 17.09.2026: Zeilen 0,5 und 0,6 verschmolzen, 0,7 nur mit der Pinzette
+    // – darum 0,8. Titel 0,5 grenzwertig.
+    titelStil: { schrift: "Bacalisties.ttf", hoeheAnteil: m.titelHoehe, sperrung: 0, versalien: false, minStrichMm: 0.8 },
+    zeilenStil: { schrift: ZEILENSCHRIFT_STANDARD, ...zeilenGroesse(format, ZEILENSCHRIFT_STANDARD), versalien: true, minStrichMm: 0.8 },
     eingebettet: { ...EINGEBETTET_STANDARD },
   };
 }

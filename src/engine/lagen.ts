@@ -19,7 +19,6 @@ import {
 import { symbolBreiteMm, symbolEinpassen } from "./symbole";
 import { ortZuMm } from "./geo";
 import type { KartenRohdaten } from "./kacheln";
-import { stencilStege } from "./stencil";
 import {
   REFERENZ_KARTENBREITE_MM,
   type Kennzahlen,
@@ -112,16 +111,14 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   const ohneSchutz = ziehAb(fensterFl, schutz);
   const netzAnteilFenster = flaecheMm2(schneide(netz, ohneSchutz)) / Math.max(1, flaecheMm2(ohneSchutz));
 
-  // --- Text: ausgeschnitten, Innenflaechen an Stegen. Stege je Zeile, damit die
-  // Strahlen einer Zeile nie an einer anderen enden.
+  // --- Text: ausgeschnitten, Innenflaechen an Stegen – gesetzt und gestegt schon beim Setzen (schnitt-text.ts).
   const ausschnitte: Flaeche[] = [];
   let [stege, ohneSteg, zugefuellt] = [0, 0, 0];
   for (const zeile of text.zeilen) {
-    const z = stencilStege(zeile.flaeche, k.stegMm, k.stencilMinInselBreiteMm);
-    ausschnitte.push(ziehAb(vereinige(zeile.flaeche, z.zugefuellt), z.stege));
-    stege += z.anzahl;
-    ohneSteg += z.ohneSteg;
-    zugefuellt += z.zugefuelltAnzahl;
+    ausschnitte.push(zeile.schnitt);
+    stege += zeile.stege;
+    ohneSteg += zeile.ohneSteg;
+    zugefuellt += zeile.zugefuellt;
   }
 
   // Unter den Bruecken gravierter Wege bleibt der Hintergrund stehen (bruecken.ts). Was dabei
@@ -166,6 +163,7 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
       stencilStege: stege,
       punzenOhneSteg: ohneSteg,
       inselnZugefuellt: zugefuellt,
+      schriftZugabeMm: Math.max(0, ...text.zeilen.map((z) => z.zugabeMm)),
       wasserFlaechenGeschnitten: wasser.anzahl,
       wasserInselnGeflutet: inseln.geflutet,
     },

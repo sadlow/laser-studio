@@ -1,11 +1,21 @@
 import { flaecheMm2, schneide, type Flaeche } from "./geometrie";
+import type { SchnittRegeln } from "./schnitt-text";
 import type { Schichtkarte, TextStil } from "./typen";
 import { letzteZeileText } from "./zeichen";
 
 export interface GesetzteZeile {
   name: string;
+  /** Die Schrift, verstaerkt, ohne Stege – daran wird Beruehrung geprueft und die Schutzkontur gelegt. */
   flaeche: Flaeche;
+  /** Was ausgeschnitten wird: Punzen an Stegen (schnitt-text.ts). */
+  schnitt: Flaeche;
   versalhoeheMm: number;
+  /** Um so viel wurde der Strich verstaerkt, damit er schneidbar ist. */
+  zugabeMm: number;
+  stege: number;
+  zugefuellt: number;
+  /** Punzen, fuer die kein Steg gefunden wurde – sie fielen heraus. */
+  ohneSteg: number;
 }
 
 export interface Textblock {
@@ -24,6 +34,19 @@ export function zeilenAusEingabe(k: Schichtkarte) {
     titel: stil(k.kunde.titel.trim(), k.titelStil),
     zeile1: stil(k.kunde.namen.trim(), k.zeilenStil),
     zeile2: stil(letzteZeileText(k), k.zeilenStil),
+  };
+}
+
+/**
+ * Schnittregeln einer Zeile aus den Fertigungswerten: Stege nie schmaler als das Mindestmaterial, das auch
+ * zwischen Buchstaben stehen bleibt.
+ */
+export function schnittRegeln(k: Schichtkarte, s: TextStil): SchnittRegeln {
+  return {
+    minStrichMm: s.minStrichMm,
+    stegMm: Math.max(k.stegMm, k.stegMinMm),
+    materialMm: k.stegMinMm,
+    offenUnterMm: k.stencilMinInselBreiteMm,
   };
 }
 

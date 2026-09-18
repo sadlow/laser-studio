@@ -1,7 +1,7 @@
 "use client";
 
 import { FORMATE } from "@/engine/formate";
-import { standardLayoutWerte } from "@/engine/poster-masse";
+import { standardLayoutWerte, zeilenGroesse } from "@/engine/poster-masse";
 import { SYMBOL_TITEL, symbolPfad, type SymbolArt, type SymbolGroesse } from "@/engine/symbole";
 import type { Aufbau, FormatKey, Holzrahmen, Kundeneingabe, Schichtkarte } from "@/engine/typen";
 import { Block, Wahl } from "./felder";
@@ -75,7 +75,7 @@ export function KundeGestaltung({ karte, aendern }: Props) {
       zeile1MitteAnteil: w.zeile1MitteAnteil,
       zeile2MitteAnteil: w.zeile2MitteAnteil,
       titelStil: { ...karte.titelStil, hoeheAnteil: w.titelStil.hoeheAnteil },
-      zeilenStil: { ...karte.zeilenStil, hoeheAnteil: w.zeilenStil.hoeheAnteil },
+      zeilenStil: { ...karte.zeilenStil, hoeheAnteil: zeilenGroesse(format, karte.zeilenStil.schrift).hoeheAnteil },
     });
   };
 

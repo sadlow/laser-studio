@@ -1,7 +1,7 @@
 "use client";
 
 import { berechneLayout } from "@/engine/layout";
-import { standardLayoutWerte } from "@/engine/poster-masse";
+import { standardLayoutWerte, zeilenGroesse } from "@/engine/poster-masse";
 import { symbolBreiteMm } from "@/engine/symbole";
 import { TITELSCHRIFTEN, ZEILENSCHRIFTEN } from "@/engine/standard";
 import { REFERENZ_KARTENBREITE_MM, type Anker, type EingebettetesLayout, type LayoutArt, type Schichtkarte, type TextForm, type TextStil } from "@/engine/typen";
@@ -18,8 +18,9 @@ const FORM_OPTIONEN: { wert: TextForm; titel: string }[] = [
   { wert: "kontur", titel: "Kontur um die Buchstaben" },
 ];
 
+// "Avenir Next Condensed.ttc#Demi Bold" ist ein Schnitt aus einer Sammeldatei.
 const schriftOptionen = (liste: string[]) =>
-  liste.map((datei) => ({ wert: datei, titel: datei.replace(/\.(otf|ttf)$/i, "") }));
+  liste.map((datei) => ({ wert: datei, titel: datei.replace(/\.ttc#/i, " ").replace(/\.(otf|ttf)$/i, "") }));
 
 /** Masse, die der Kunde nicht sieht: freies Format, Rahmen, Symbolgroessen, Ausschnitt fein. */
 export function EingabePlatte({ karte, aendern }: Props) {
@@ -151,11 +152,18 @@ export function EingabeLayout({ karte, aendern }: Props) {
           </div>
         )}
 
-        <div className="grid grid-cols-[1fr_88px] gap-2 border-t pt-3" style={{ borderColor: "var(--linie)" }}>
+        <div className="grid grid-cols-[1fr_72px_72px] gap-2 border-t pt-3" style={{ borderColor: "var(--linie)" }}>
           <Auswahl titel="Titelschrift" wert={karte.titelStil.schrift} optionen={schriftOptionen(TITELSCHRIFTEN)} aendern={(v) => stil("titelStil", { schrift: v })} />
           <Zahl titel="Hoehe" einheit="%" schritt={0.01} wert={round(karte.titelStil.hoeheAnteil * 100)} aendern={(v) => stil("titelStil", { hoeheAnteil: v / 100 })} />
-          <Auswahl titel="Zeilenschrift" wert={karte.zeilenStil.schrift} optionen={schriftOptionen(ZEILENSCHRIFTEN)} aendern={(v) => stil("zeilenStil", { schrift: v })} />
+          <Zahl titel="Strich mind." einheit="mm" schritt={0.05} min={0} wert={karte.titelStil.minStrichMm} aendern={(v) => stil("titelStil", { minStrichMm: v })} />
+          <Auswahl
+            titel="Zeilenschrift"
+            wert={karte.zeilenStil.schrift}
+            optionen={schriftOptionen(ZEILENSCHRIFTEN)}
+            aendern={(v) => stil("zeilenStil", { schrift: v, ...zeilenGroesse(karte.format, v) })}
+          />
           <Zahl titel="Hoehe" einheit="%" schritt={0.01} wert={round(karte.zeilenStil.hoeheAnteil * 100)} aendern={(v) => stil("zeilenStil", { hoeheAnteil: v / 100 })} />
+          <Zahl titel="Strich mind." einheit="mm" schritt={0.05} min={0} wert={karte.zeilenStil.minStrichMm} aendern={(v) => stil("zeilenStil", { minStrichMm: v })} />
         </div>
         <Zahl titel="Sperrung der Zeilen" einheit="em" schritt={0.01} wert={karte.zeilenStil.sperrung} aendern={(v) => stil("zeilenStil", { sperrung: v })} />
       </div>

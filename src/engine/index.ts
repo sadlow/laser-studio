@@ -7,6 +7,7 @@ import { ladeKartenRohdaten } from "./kacheln";
 import { baueBausteine } from "./lagen";
 import { berechneLayout } from "./layout";
 import { stapleLagen } from "./stapel";
+import { standardSchichtkarte } from "./standard";
 import { setzePosterText } from "./textblock";
 import { REFERENZ_KARTENBREITE_MM, type Schichtkarte, type SchichtkartenErgebnis } from "./typen";
 import { zeichenWarnungen } from "./zeichen";
@@ -31,7 +32,15 @@ export {
  * Live-Vorschau und spaeter die Produktion – sonst gaebe es zwei Geometrien
  * fuer dasselbe Produkt, und die driften unbemerkt auseinander.
  */
-export async function rendereSchichtkarte(k: Schichtkarte, token: string): Promise<SchichtkartenErgebnis> {
+export async function rendereSchichtkarte(eingabe: Schichtkarte, token: string): Promise<SchichtkartenErgebnis> {
+  // Ein offenes Browserfenster oder eine aeltere Vorlage kennt die Grenzwerte vom Testblatt noch nicht.
+  const basis = standardSchichtkarte();
+  const k: Schichtkarte = {
+    ...eingabe,
+    stegMinMm: eingabe.stegMinMm ?? basis.stegMinMm,
+    titelStil: { ...eingabe.titelStil, minStrichMm: eingabe.titelStil.minStrichMm ?? basis.titelStil.minStrichMm },
+    zeilenStil: { ...eingabe.zeilenStil, minStrichMm: eingabe.zeilenStil.minStrichMm ?? basis.zeilenStil.minStrichMm },
+  };
   const start = Date.now();
   const layout = berechneLayout(k);
   const warnungen: string[] = [];

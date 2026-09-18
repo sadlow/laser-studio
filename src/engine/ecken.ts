@@ -1,18 +1,18 @@
-import type { Punkt } from "./clip";
 import {
   abgerundetesRechteck,
   ohneLoecher,
   rechteck,
+  ringeInMm,
   schliesse,
   schneide,
   vereinige,
+  verschiebe,
   versatz,
-  zuFlaeche,
   type Flaeche,
 } from "./geometrie";
-import { setzeZeile } from "./schrift";
+import { setzeSchnittText, type SchnittText } from "./schnitt-text";
 import type { Anker, Layout, Schichtkarte, TextStil } from "./typen";
-import { pruefeBeruehrungen, zeilenAusEingabe, type GesetzteZeile, type Textblock } from "./zeilen";
+import { pruefeBeruehrungen, schnittRegeln, zeilenAusEingabe, type GesetzteZeile, type Textblock } from "./zeilen";
 
 // So weit greift die weisse Form in den Rahmen. Enden beide exakt aufeinander,
 // beruehren sie sich nur in einer Linie und bleiben zwei Teile.
@@ -25,7 +25,8 @@ const ZEILENLUECKE_ANTEIL = 1.0;
 
 interface Satz {
   name: string;
-  ringe: Punkt[][];
+  /** Gesetzt um den Ursprung, verstaerkt und mit Stegen; verschoben wird erst beim Stapeln. */
+  text: SchnittText;
   box: { x0: number; x1: number; y0: number; y1: number };
   versalhoeheMm: number;
 }
@@ -46,31 +47,32 @@ export function setzeEingebettet(k: Schichtkarte, layout: Layout): Textblock {
   const warnungen: string[] = [];
   const texte = zeilenAusEingabe(k);
 
-  const eingaben: [string, string, TextStil, Anker][] = [
-    ["Titel", texte.titel, k.titelStil, e.titelAnker],
-    ["Namen", texte.zeile1, k.zeilenStil, e.zeile1Anker],
-    ["Letzte Zeile", texte.zeile2, k.zeilenStil, e.zeile2Anker],
+  // Titel in Schreibschrift, Zeilen in Druckschrift – wie im Poster-Layout (textblock.ts).
+  const eingaben: [string, string, TextStil, Anker, "schreib" | "druck"][] = [
+    ["Titel", texte.titel, k.titelStil, e.titelAnker, "schreib"],
+    ["Namen", texte.zeile1, k.zeilenStil, e.zeile1Anker, "druck"],
+    ["Letzte Zeile", texte.zeile2, k.zeilenStil, e.zeile2Anker, "druck"],
   ];
 
   // 1. Jede Zeile fuer sich setzen, Reihenfolge merken.
   const bloecke = new Map<Anker, Satz[]>();
-  for (const [name, text, s, anker] of eingaben) {
+  for (const [name, text, s, anker, art] of eingaben) {
     if (!text) continue;
     try {
       const versalhoeheMm = platte.hoeheMm * s.hoeheAnteil;
       const maxBreite = (anker.endsWith("mitte") ? 0.7 : 0.45) * f.breiteMm;
-      const z = setzeZeile({ text, schrift: s.schrift, versalhoeheMm, sperrungEm: s.sperrung, mitteX: 0, mitteY: 0, maxBreiteMm: maxBreite });
+      const z = setzeSchnittText({ text, schrift: s.schrift, versalhoeheMm, sperrungEm: s.sperrung, mitteX: 0, mitteY: 0, maxBreiteMm: maxBreite }, art, schnittRegeln(k, s));
       if (z.faktor < 0.999) {
         warnungen.push(`${name} war zu breit fuer seinen Platz und wurde auf ${Math.round(z.faktor * 100)} % verkleinert.`);
       }
-      const pk = z.ringe.flat();
+      const pk = ringeInMm(z.flaeche).flat();
       const box = {
         x0: Math.min(...pk.map((p) => p.x)),
         x1: Math.max(...pk.map((p) => p.x)),
         y0: Math.min(...pk.map((p) => p.y)),
         y1: Math.max(...pk.map((p) => p.y)),
       };
-      bloecke.set(anker, [...(bloecke.get(anker) ?? []), { name, ringe: z.ringe, box, versalhoeheMm: versalhoeheMm * z.faktor }]);
+      bloecke.set(anker, [...(bloecke.get(anker) ?? []), { name, text: z, box, versalhoeheMm: versalhoeheMm * z.faktor }]);
     } catch (err) {
       warnungen.push(`${name}: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -108,8 +110,18 @@ export function setzeEingebettet(k: Schichtkarte, layout: Layout): Textblock {
     const by = anker.startsWith("oben") ? f.yMm + abstand : f.yMm + f.hoeheMm - abstand - hoehe;
 
     const flaechen = lagen.map(({ s, dx, dy }) => {
-      const fl = vereinige(zuFlaeche(s.ringe.map((r) => r.map((p) => ({ x: p.x + dx + bx, y: p.y + dy + by })))));
-      gesetzt.push({ name: s.name, flaeche: fl, versalhoeheMm: s.versalhoeheMm });
+      const t = s.text;
+      const fl = verschiebe(t.flaeche, dx + bx, dy + by);
+      gesetzt.push({
+        name: s.name,
+        flaeche: fl,
+        schnitt: verschiebe(t.schnitt, dx + bx, dy + by),
+        versalhoeheMm: s.versalhoeheMm,
+        zugabeMm: t.zugabeMm,
+        stege: t.stege,
+        zugefuellt: t.zugefuellt,
+        ohneSteg: t.ohneSteg,
+      });
       return fl;
     });
 

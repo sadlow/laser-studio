@@ -1,4 +1,4 @@
-import { standardLayoutWerte } from "./poster-masse";
+import { standardLayoutWerte, ZEILENSCHRIFT_MASSE } from "./poster-masse";
 import type { Schichtkarte, StrassenGruppe } from "./typen";
 
 /**
@@ -96,14 +96,12 @@ export function standardSchichtkarte(): Schichtkarte {
     wasserMinFlaecheMm2: 6,
     wasserMinBreiteMm: 1,
     wasserInselMinMm2: 15,
-    // "Super fein": hoechstens 0,5 mm und nie breiter als der halbe Strich.
-    // 0,7 mm (wie die Spardosen-Stege) wirkte bei Avant Garde Demi zu dick –
-    // der Strich ist dort bei A4 selbst nur 0,93 mm.
-    stegMm: 0.5,
-    // Darunter bliebe neben dem Steg kaum sichtbares Material. 1,0 mm stammte aus
-    // der Demi-Zeit und machte bei A5 aus dem Gradzeichen einen Punkt (Marcel
-    // 16.09.2026). Innenkreis des Gradzeichens in Book: A5 0,97, Prototyp 145 x
-    // 205 0,95, A4 1,38 mm – alle behalten Innenkreis und Stege.
+    // Stege 0,7 mm (wie die Spardosen-Stege): 0,5 mm brachen in 2 mm Acryl beim Herausdruecken der Buchstaben
+    // (Marcel 17.09.2026). So viel Material bleibt auch zwischen den Buchstaben stehen.
+    stegMm: 0.7,
+    stegMinMm: 0.7,
+    // Schmaler bekommt eine Innenflaeche nur einen Steg (offene Schleife); frueher wurde zugefuellt und aus dem
+    // Gradzeichen wurde ein Punkt (Marcel 16.09.2026).
     stencilMinInselBreiteMm: 0.8,
     // A4 wie bisher 8 / 11 / 15 mm, je Formatstufe etwa Faktor 1,4 (A5 bisher 5,5-10,2, A3 11,5-21,7 mm).
     symbolStufenMm: [6, 8, 11, 15, 21, 29],
@@ -128,10 +126,5 @@ export const TITELSCHRIFTEN = [
   "Westover.ttf",
 ];
 
-export const ZEILENSCHRIFTEN = [
-  "AvantGarde-Book.otf",
-  "AvantGardeCE-Demi.otf",
-  "AvantGarde-ExtraLight.otf",
-  "ITC Avant Garde Gothic LT Bold.ttf",
-  "JosefinSans-SemiBold.ttf",
-];
+/** Die Zeilenschriften mit bekannter Schnittgroesse (poster-masse.ts). ExtraLight (0,2 mm Strich) ist raus. */
+export const ZEILENSCHRIFTEN = Object.keys(ZEILENSCHRIFT_MASSE);
