@@ -46,7 +46,7 @@ Alle mit Messwert in **`docs/entscheidungen.md`** – vor Aenderungen an Breiten
 Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Ausschnitt in km, Strassen wachsen mit dem Format; Mindestbreite Netz 0,8 mm
 - Testblatt 2 mm Weiss: Spalt, Strasse ab 0,5 mm. Stege 0,7 mm (0,5 brach beim Herausdruecken), Schrift mind. 0,8 mm Strich, 0,7 mm Material zwischen Buchstaben
-- Gravur im Export waehlbar: Flaeche, Mittellinie (Defocus 6 mm, durchgehende Wege), Kontur; nie unter Netz, Text oder Wasser
+- Gravur im Export: Mittellinie (Standard, Defocus 6 mm, durchgehende Wege), waehlbar Flaeche oder Kontur; nie unter Netz, Text oder Wasser
 - Titel hoechstens 20 Zeichen, jede Zeile darunter 30 – bei Ort + Koordinaten zaehlen die Koordinaten mit
 - Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 37/29/23 %, Strassen nur aus der eigenen Kachel); wenig graviert Wohnstrassen immer
 - Lose Netzstuecke graviert; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten

@@ -46,7 +46,9 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   zur Sollbreite). Berlin A4: 10,4 m Mittellinie, 18,3 m Kontur, 27 cm² Flaeche. Jeder Schnittring ein Pfad.
   Linien stehen als Haarlinie (0,1 mm) in der Datei, jeder Pfad traegt seinen Stil selbst (17.09.: mit der Sollbreite als
   Strich sah die Gravurprobe wie eine Flaechengravur aus; wer Gruppenstile nicht erbt, fuellt offene Linien).
-- **Liniengravur mit Defocus 6 mm** (Gravurprobe 17.09., Marcel: 4 mm filigraner, 6 mm deutlicher). **Durchgehende Wege**
+- **Liniengravur mit Defocus 6 mm, Standard im Export** (Gravurprobe 17.09., Marcel: 4 mm filigraner, 6 mm deutlicher;
+  18.09.: der erste Export kam als Flaeche, "meine normale Mittellinien-Defokus-Gravur"). Linienbreite 0,5 mm angenommen,
+  noch nicht gemessen. **Durchgehende Wege**
   (`wege.ts`): jeder Start und Stopp brennt tiefer ein – an einer Kreuzung endeten 14 Linien, im Weiss fast ein Loch.
   Doppelte Kanten raus, an Knoten die geradesten Fortsetzungen (bis 45°) verbinden, Stichenden an Kreuzungen um die halbe
   Linienbreite kuerzen. Probe-Ausschnitt: 211 -> 140 Wege, meiste Enden an einer Stelle 14 -> 3; ganze Karte 20 -> 5.
