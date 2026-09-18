@@ -9,9 +9,10 @@ import { KundeGestaltung } from "@/components/kunde-gestaltung";
 import { KundeStandort } from "@/components/kunde-standort";
 import { KundeTexte } from "@/components/kunde-texte";
 import { PrototypPlatten } from "@/components/prototyp-platten";
+import { TechnikExport } from "@/components/technik-export";
 import { TechnikPruefung } from "@/components/technik-pruefung";
 import { TechnikReferenzorte } from "@/components/technik-referenzorte";
-import { VorlagenExport } from "@/components/vorlagen-export";
+import { TechnikVorlagen } from "@/components/technik-vorlagen";
 import { standardSchichtkarte } from "@/engine/standard";
 import type { Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
 
@@ -98,9 +99,10 @@ export default function Seite() {
           Technik und Prototypenbau
         </p>
         <TechnikPruefung ergebnis={ergebnis} />
-        <VorlagenExport karte={karte} aendern={aendern} />
+        <TechnikExport karte={karte} />
         <PrototypPlatten karte={karte} />
         <TechnikReferenzorte karte={karte} aendern={aendern} />
+        <TechnikVorlagen karte={karte} aendern={aendern} />
         <EingabePlatte karte={karte} aendern={aendern} />
         <EingabeLayout karte={karte} aendern={aendern} />
         <EingabeStrassen karte={karte} aendern={aendern} />

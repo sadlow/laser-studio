@@ -13,9 +13,9 @@ interface Props {
   aendern: (teil: Aenderung) => void;
 }
 
-const FORMAT_KURZ: Partial<Record<FormatKey, string>> = { a5: "A5", a4: "A4", a3: "A3", quadrat30: "30 × 30" };
+export const FORMAT_KURZ: Partial<Record<FormatKey, string>> = { a5: "A5", a4: "A4", a3: "A3", quadrat30: "30 × 30" };
 
-const DESIGNS: { wert: Aufbau; titel: string; netz: string; grund: string; rahmen: string }[] = [
+export const DESIGNS: { wert: Aufbau; titel: string; netz: string; grund: string; rahmen: string }[] = [
   { wert: "netz-weiss", titel: "Weiss auf Schwarz", netz: "#f6f5f1", grund: "#151515", rahmen: "#f6f5f1" },
   { wert: "netz-schwarz-dreilagig", titel: "Schwarz auf Weiss", netz: "#151515", grund: "#f6f5f1", rahmen: "#151515" },
   { wert: "netz-schwarz", titel: "Schwarz, weisser Rahmen", netz: "#151515", grund: "#f6f5f1", rahmen: "#f6f5f1" },

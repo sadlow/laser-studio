@@ -159,6 +159,20 @@ export function Anteil(props: { titel: string; wert: number; aendern: (v: number
   );
 }
 
+/** Aktionsknopf der Technik-Seite; `voll` nimmt die ganze Breite. */
+export function Knopf(props: { onClick: () => void; aus?: boolean; voll?: boolean; children: ReactNode }) {
+  return (
+    <button
+      onClick={props.onClick}
+      disabled={props.aus}
+      className={`shrink-0 rounded-md px-3 py-1.5 text-sm text-white disabled:opacity-40 ${props.voll ? "w-full" : ""}`}
+      style={{ background: "var(--akzent)" }}
+    >
+      {props.children}
+    </button>
+  );
+}
+
 export function Haken(props: { titel: string; wert: boolean; aendern: (v: boolean) => void }) {
   return (
     <label className="flex items-center gap-2 text-sm">
