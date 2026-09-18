@@ -16,7 +16,7 @@ export type GravurArt = "flaeche" | "mittellinie" | "kontur";
 
 export interface GravurExport {
   art: GravurArt;
-  /** Breite der gelaserten Linie, mit Defokus – bestimmt den Versatz der Kontur. */
+  /** Breite der gelaserten Linie, mit Defokus – bestimmt den Versatz der Kontur und wie weit Stichenden vor einer Kreuzung anhalten. */
   strahlMm: number;
 }
 

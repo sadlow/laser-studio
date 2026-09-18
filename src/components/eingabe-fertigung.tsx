@@ -162,13 +162,14 @@ function GravurWahl({ karte, aendern }: Props) {
         optionen={(Object.keys(GRAVUR_ART_TITEL) as GravurArt[]).map((art) => ({ wert: art, titel: GRAVUR_ART_TITEL[art] }))}
         aendern={(art) => aendern({ gravurExport: { ...g, art } })}
       />
-      {g.art === "kontur" && (
-        <Zahl titel="Strahlbreite mit Defokus" einheit="mm" schritt={0.01} min={0.02} wert={g.strahlMm}
+      {g.art !== "flaeche" && (
+        <Zahl titel="Linienbreite mit Defokus" einheit="mm" schritt={0.01} min={0.02} wert={g.strahlMm}
           aendern={(v) => aendern({ gravurExport: { ...g, strahlMm: v } })} />
       )}
       <p className="text-xs" style={{ color: "var(--gedaempft)" }}>
         {g.art === "flaeche" && "Gefuellte Flaechen in Sollbreite – die Lasersoftware rastert sie Zeile fuer Zeile."}
-        {g.art === "mittellinie" && "Jeder Weg einmal als Linie. Die Breite macht der Strahl: mit leichtem Defokus breiter."}
+        {g.art === "mittellinie" &&
+          "Jeder Weg einmal als durchgehende Linie, ohne doppelte Stuecke. Die Breite macht der Strahl (Gravurprobe: Defokus 6 mm). Wege, die an einer Kreuzung enden, halten um die halbe Linienbreite davor an."}
         {g.art === "kontur" &&
           "Eng anliegende Ringe um jeden Weg, um den halben Strahl nach innen; breite Wege bekommen so viele Durchgaenge, bis die Sollbreite gedeckt ist. Wege schmaler als der Strahl bleiben Mittellinie."}
       </p>

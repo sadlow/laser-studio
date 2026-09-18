@@ -21,8 +21,12 @@ import type { GravurExport, Lage, Layout } from "./typen";
  * Als Flaeche ist die Gravur gepuffert, keine Linie mit Strichbreite: die Breite
  * einer SVG-Linie uebernimmt Lasersoftware nicht zuverlaessig, sie faehrt nur die
  * Mittellinie in Strahlbreite ab. Genau das ist bei "mittellinie" gewollt – die
- * Breite kommt dann vom Strahl. In der Live-Vorschau bleibt es beim Strich.
+ * Breite kommt dann vom Strahl. Darum stehen Linien als Haarlinie in der Datei: mit
+ * der Sollbreite als Strich sah die Gravurprobe aus wie eine Flaechengravur (Marcel
+ * 17.09.2026). Jeder Pfad traegt Farbe und Strich selbst – wer Gruppenstile nicht
+ * erbt, fuellt offene Linien sonst schwarz. In der Live-Vorschau bleibt es beim Strich.
  */
+const HAARLINIE_MM = 0.1;
 export interface Stueck {
   lage: Lage;
   /** Versatz des Stuecks auf der Rohplatte in mm. */
@@ -51,7 +55,7 @@ export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo, 
     const schiebe = (r: Punkt[]) => r.map((p) => ({ x: p.x + dx, y: p.y + dy }));
     const gravur = gravurFuerExport(lage, gravurExport);
     for (const t of gravur.flaechen) flaechen.push([t.aussen, ...t.loecher].map(schiebe));
-    for (const p of gravur.pfade) linien.push(linie(schiebe(p.punkte), p.geschlossen, p.breiteMm));
+    for (const p of gravur.pfade) linien.push(linie(schiebe(p.punkte), p.geschlossen));
     for (const t of lage.klebeflaeche) klebeflaechen.push([t.aussen, ...t.loecher].map(schiebe));
     // Umriss des groessten Teils zuletzt; alles andere liegt innerhalb.
     const [haupt, ...rest] = lage.teile;
@@ -66,7 +70,7 @@ export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo, 
   const gravurEbene =
     gravurExport.art === "flaeche"
       ? ebene("Gravur", "1 Gravur", `fill="#000000" stroke="none"`, flaechen.map((ringe) => pfad(ringe, true)))
-      : ebene("Gravur", "1 Gravur", `fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"`, linien);
+      : ebene("Gravur", "1 Gravur", linienStil("#000000"), linien);
   return (
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" ` +
@@ -74,8 +78,8 @@ export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo, 
     `<title>${esc(info.titel)}</title>\n<desc>${esc(`${info.beschreibung}; Gravur: ${gravurBeschreibung(gravurExport)}`)}</desc>\n` +
     gravurEbene +
     ebene("Klebeflaeche", "2 Klebeflaeche", `fill="#00E000" stroke="none"`, klebeflaechen.map((ringe) => pfad(ringe, true))) +
-    ebene("Schnitt_innen", "3 Schnitt innen", `fill="none" stroke="#FF0000" stroke-width="0.1"`, innen.map((r) => pfad([r], false))) +
-    ebene("Schnitt_aussen", "4 Schnitt aussen", `fill="none" stroke="#0000FF" stroke-width="0.1"`, aussen.map((r) => pfad([r], false))) +
+    ebene("Schnitt_innen", "3 Schnitt innen", `fill="none" stroke="#FF0000" stroke-width="${HAARLINIE_MM}"`, innen.map((r) => pfad([r], false))) +
+    ebene("Schnitt_aussen", "4 Schnitt aussen", `fill="none" stroke="#0000FF" stroke-width="${HAARLINIE_MM}"`, aussen.map((r) => pfad([r], false))) +
     `</svg>\n`
   );
 }
@@ -97,13 +101,20 @@ export function gravurBeschreibung(e: GravurExport): string {
   return `Kontur, eng anliegende Linien, Strahl ${f(e.strahlMm)} mm`;
 }
 
-function ebene(id: string, name: string, stil: string, pfade: string[]): string {
+/** Stil einer Linien-Ebene: Haarlinie in der Ebenenfarbe, nie gefuellt. */
+export function linienStil(farbe: string): string {
+  return `fill="none" stroke="${farbe}" stroke-width="${HAARLINIE_MM}" stroke-linecap="round" stroke-linejoin="round"`;
+}
+
+/** Benannte Ebene; der Stil steht an der Gruppe und an jedem Pfad. */
+export function ebene(id: string, name: string, stil: string, pfade: string[]): string {
   if (!pfade.length) return "";
-  return `<g id="${id}" data-name="${name}" inkscape:groupmode="layer" inkscape:label="${name}" ${stil}>\n${pfade.join("\n")}\n</g>\n`;
+  const mitStil = pfade.map((p) => p.replace("<path ", `<path ${stil} `));
+  return `<g id="${id}" data-name="${name}" inkscape:groupmode="layer" inkscape:label="${name}" ${stil}>\n${mitStil.join("\n")}\n</g>\n`;
 }
 
 /** Jeder Schnittring ein eigener geschlossener Pfad – das nehmen alle Programme ohne Rueckfrage. */
-function pfad(ringe: Punkt[][], evenodd: boolean): string {
+export function pfad(ringe: Punkt[][], evenodd: boolean): string {
   const d = ringe
     .filter((r) => r.length >= 3)
     .map((r) => `M${r.map((p) => `${f(p.x)},${f(p.y)}`).join("L")}Z`)
@@ -111,9 +122,9 @@ function pfad(ringe: Punkt[][], evenodd: boolean): string {
   return `<path d="${d}"${evenodd ? ` fill-rule="evenodd"` : ""}/>`;
 }
 
-/** Gravur als Linie: offen fuer Wege, geschlossen fuer Umrisse. */
-function linie(punkte: Punkt[], geschlossen: boolean, breiteMm: number): string {
-  return `<path d="M${punkte.map((p) => `${f(p.x)},${f(p.y)}`).join("L")}${geschlossen ? "Z" : ""}" stroke-width="${f(breiteMm)}"/>`;
+/** Gravur als Linie: offen fuer Wege, geschlossen fuer Umrisse. Die Breite kommt vom Strahl, nicht aus der Datei. */
+export function linie(punkte: Punkt[], geschlossen: boolean): string {
+  return `<path d="M${punkte.map((p) => `${f(p.x)},${f(p.y)}`).join("L")}${geschlossen ? "Z" : ""}"/>`;
 }
 
 export function f(n: number): string {
