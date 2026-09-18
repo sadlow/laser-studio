@@ -91,7 +91,7 @@ function uebersicht(name: string, datum: string, karte: Schichtkarte, r: Awaited
     `Texte:      ${r.texte.titel} / ${r.texte.zeile1} / ${r.texte.zeile2}`,
     ``,
     `Lagen von oben nach unten (Dateinummer = Reihenfolge):`,
-    ...r.lagen.map((l, i) => `  ${String(i + 1).padStart(2, "0")}  ${l.titel.padEnd(16)} ${l.material.padEnd(20)} ${String(l.staerkeMm).padStart(3)} mm  ${l.teile.length} Teil(e)`),
+    ...r.lagen.map((l, i) => `  ${String(i + 1).padStart(2, "0")}  ${l.titel.padEnd(16)} ${l.material.padEnd(24)} ${String(l.staerkeMm).padStart(3)} mm  ${l.teile.length} Teil(e)`),
     // Das Symbol wird zuletzt eingesetzt: auf die Klebeflaeche im Hintergrund, durch den Ausschnitt im Netz.
     `Symbol: auf die gravierte Klebeflaeche des Hintergrunds kleben (Tropfen Sekundenkleber), Netz hat den Ausschnitt; steht ${r.kennzahlen.symbolUeberNetzMm.toFixed(1)} mm ueber dem Netz.`,
     r.rahmen

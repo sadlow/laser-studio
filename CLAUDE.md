@@ -50,9 +50,9 @@ Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Titel hoechstens 20 Zeichen, jede Zeile darunter 30 – bei Ort + Koordinaten zaehlen die Koordinaten mit
 - Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 37/29/23 %, Strassen nur aus der eigenen Kachel); wenig graviert Wohnstrassen immer
 - Lose Netzstuecke graviert; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
-- Symbol auf Hintergrund geklebt (Gravurmarke), Ausschnitt im Netz, steht 1 mm vor; Acryl 2, Spiegel 3 mm
+- Symbol auf Hintergrund geklebt (Gravurmarke), Ausschnitt im Netz, steht 1 mm vor; Weiss 2, Schwarz 3 mm Frost (matt), Spiegel 3 mm
 - Holzrahmen optional (Holz schwarz/weiss/dunkelbraun, Eiche), ein Profil: 14 x 28 mm, Bild 6 mm tief, 4 mm Ueberstand
-- 3D (`ansicht-3d.tsx`, `buehne-3d.ts`): Hochglanz, echter Spiegel, Motive fuer KI-Produktfotos (`motive-3d.ts`), Explosionszeichnung
+- 3D (`ansicht-3d.tsx`, `buehne-3d.ts`): Hochglanz (Schwarz Frost matt), echter Spiegel, Motive fuer KI-Produktfotos (`motive-3d.ts`), Explosionszeichnung
 - Tunnel, Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet
 - Zeilenschrift kraeftig statt verstaerkt: DIN Alternate Bold, A5 4,8 mm (Marcel 18.09.); Stege gerade wie in Stencil-Schriften, im Titel quer durch den duennsten Strich
 - opentype.js gepatcht (`patches/`) wegen AvantGardeCE-Demi.otf; .ttc-Schnitte als `Datei.ttc#Schnitt` (`schrift-datei.ts`)

@@ -105,8 +105,10 @@ export function standardSchichtkarte(): Schichtkarte {
     stencilMinInselBreiteMm: 0.8,
     // A4 wie bisher 8 / 11 / 15 mm, je Formatstufe etwa Faktor 1,4 (A5 bisher 5,5-10,2, A3 11,5-21,7 mm).
     symbolStufenMm: [6, 8, 11, 15, 21, 29],
-    // Marcel 16.09.2026: weiss und schwarz immer 2 mm, Spiegelacryl immer 3 mm.
-    staerkenMm: { acryl: 2, spiegel: 3 },
+    // Weiss 2 mm, Spiegelacryl 3 mm (Marcel 16.09.2026). Schwarz 3 mm Frost (18.09.): glaenzendes XT gravierte nicht
+    // weiss, das matte Frost-Acryl heller – das gibt es nur in 3 mm. Das Wasser liegt dadurch 3 mm tief.
+    staerkenMm: { weiss: 2, schwarz: 3, spiegel: 3 },
+    schwarzFrost: true,
     // Marcel 16.09.2026, gleiches Profil fuer alle Groessen. Bei 7 mm Rand und
     // 4 mm Ueberstand bleiben im Rahmen 3 mm Rand sichtbar.
     holzrahmenProfil: { breiteMm: 14, tiefeMm: 28, einlassMm: 6, ueberstandMm: 4 },

@@ -184,11 +184,15 @@ export interface Schichtkarte {
   /** Breiten des Standort-Symbols als Reihe fuer alle Formate: A4 nimmt Stufe 2-4, A3 eine hoeher, A5 eine tiefer (symbole.ts). */
   symbolStufenMm: number[];
   /**
-   * Plattenstaerke nach Material (Marcel 16.09.2026): weisses und schwarzes
-   * Acrylglas immer gleich, Spiegelacryl (Blau und Symbol) immer gleich. Das
-   * Symbol wird auf den Hintergrund geklebt und steht ueber das Netz hinaus.
+   * Plattenstaerke nach Material. Spiegelacryl (Blau und Symbol) immer gleich; das Symbol wird auf den Hintergrund
+   * geklebt und steht ueber das Netz hinaus. Schwarz ist seit 18.09.2026 eigen: Frost-Acryl gibt es nur in 3 mm.
    */
-  staerkenMm: { acryl: number; spiegel: number };
+  staerkenMm: { weiss: number; schwarz: number; spiegel: number };
+  /**
+   * Schwarzes Acryl mit feiner Frost-Oberflaeche (matt) statt glaenzend. Glaenzendes XT graviert glasig-grau statt
+   * weiss; Frost graviert heller (Marcel 18.09.2026). Die gelaserte Kante bleibt glaenzend.
+   */
+  schwarzFrost: boolean;
   holzrahmenProfil: HolzrahmenProfil;
 
   /** Lose Teile der weissen Lage in der Vorschau markieren. */

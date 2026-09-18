@@ -16,7 +16,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Flaeche graviert, angeraut fuer den Kleber (17.09.), Pin-Loch ausgespart. Unter dem Symbol kein
   Wasserschnitt (Test: Herz zu 70 % ueber der Spree, Klebeflaeche voll). Netz und
   Deckschicht haben exakt die Aussenkontur als Ausschnitt (Pin ohne sein Loch).
-- **Staerken nach Material:** Acrylglas weiss/schwarz 2 mm, Spiegelacryl 3 mm.
+- **Staerken nach Material:** Acrylglas weiss 2 mm, schwarz 3 mm Frost (matt), Spiegelacryl 3 mm. Schwarz war bis
+  18.09.2026 glaenzendes XT in 2 mm – die Gravur darauf wurde glasig-grau statt weiss. Gegossenes GS graviert frostig
+  weiss, schwarz gibt es das aber erst ab 3 mm; Marcel nimmt schwarzes Frost-Acryl (nur 3 mm), das heller graviert.
+  Folgen: das Wasser liegt 3 mm tief (kleine Wasserflaechen wirken dunkler, hellerer Spiegel wird gesucht), und bei
+  schwarzem Netz steht das Symbol nicht mehr vor, sondern buendig (Warnung). Die 3D-Ansicht zeigt Frost matt, die
+  gelaserte Kante glaenzend.
 - **Holzrahmen optional: Holz schwarz, weiss, dunkelbraun, Eiche** (Marcel 16.09.2026), ein Profil:
   14 mm breit, 28 mm tief, Bild 6 mm eingelassen, 4 mm Ueberstand; Wahl in `kunde`, Profil
   in der Vorlage. Bei 7 mm Rand bleiben 3 mm sichtbar (Kennzahl). Warnung, wenn Karte,

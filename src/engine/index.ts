@@ -33,10 +33,14 @@ export {
  * fuer dasselbe Produkt, und die driften unbemerkt auseinander.
  */
 export async function rendereSchichtkarte(eingabe: Schichtkarte, token: string): Promise<SchichtkartenErgebnis> {
-  // Ein offenes Browserfenster oder eine aeltere Vorlage kennt die Grenzwerte vom Testblatt noch nicht.
+  // Ein offenes Browserfenster oder eine aeltere Vorlage kennt die Grenzwerte vom Testblatt noch nicht – und hatte
+  // eine gemeinsame Staerke fuer Weiss und Schwarz ("acryl", bis 18.09.2026).
   const basis = standardSchichtkarte();
+  const alt = eingabe.staerkenMm as Partial<Schichtkarte["staerkenMm"]> & { acryl?: number };
   const k: Schichtkarte = {
     ...eingabe,
+    staerkenMm: { weiss: alt.weiss ?? alt.acryl ?? basis.staerkenMm.weiss, schwarz: alt.schwarz ?? basis.staerkenMm.schwarz, spiegel: alt.spiegel ?? basis.staerkenMm.spiegel },
+    schwarzFrost: eingabe.schwarzFrost ?? basis.schwarzFrost,
     stegMinMm: eingabe.stegMinMm ?? basis.stegMinMm,
     titelStil: { ...eingabe.titelStil, minStrichMm: eingabe.titelStil.minStrichMm ?? basis.titelStil.minStrichMm },
     zeilenStil: { ...eingabe.zeilenStil, minStrichMm: eingabe.zeilenStil.minStrichMm ?? basis.zeilenStil.minStrichMm },
@@ -118,7 +122,10 @@ export async function rendereSchichtkarte(eingabe: Schichtkarte, token: string):
   // Symbol auf dem Hintergrund, Netzlage mit Ausschnitt: so weit steht es vor.
   const symbolUeberNetzMm = k.staerkenMm.spiegel - (s.lagen.find((l) => l.key === "netz")?.staerkeMm ?? 0);
   if (b.symbolLage && symbolUeberNetzMm <= 0) {
-    warnungen.push(`Das Symbol (${k.staerkenMm.spiegel} mm) steht nicht ueber das Netz hinaus, es liegt ${(-symbolUeberNetzMm).toFixed(1)} mm tiefer.`);
+    warnungen.push(
+      `Das Symbol (${k.staerkenMm.spiegel} mm) steht nicht ueber das Netz hinaus, es liegt ` +
+        (symbolUeberNetzMm === 0 ? "buendig mit dem Netz." : `${(-symbolUeberNetzMm).toFixed(1)} mm tiefer.`),
+    );
   }
   if (!b.symbolLage) {
     warnungen.push("Der Ort liegt ausserhalb des Kartenausschnitts – das Standort-Symbol fehlt. Karte zurueckschieben oder zentrieren.");

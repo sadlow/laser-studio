@@ -177,9 +177,11 @@
     "stegMm": 0.7,
     "stencilMinInselBreiteMm": 0.8,
     "staerkenMm": {
-      "acryl": 2,
+      "weiss": 2,
+      "schwarz": 3,
       "spiegel": 3
     },
+    "schwarzFrost": true,
     "holzrahmenProfil": {
       "breiteMm": 14,
       "tiefeMm": 28,

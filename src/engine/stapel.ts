@@ -106,7 +106,10 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
 }
 
 function lage(k: Schichtkarte, layout: Layout, key: LagenKey, titel: string, material: string, t: Teil[], gravur: Gravur = [], klebeflaeche: Teil[] = []): Lage {
-  const staerkeMm = material.startsWith("Spiegelacryl") ? k.staerkenMm.spiegel : k.staerkenMm.acryl;
+  const schwarz = material === "Acrylglas schwarz";
+  const staerkeMm = material.startsWith("Spiegelacryl") ? k.staerkenMm.spiegel : schwarz ? k.staerkenMm.schwarz : k.staerkenMm.weiss;
+  // Frost steht im Materialnamen: so erscheint es in der Pruefung, in jeder Laserdatei und in der 3D-Ansicht.
+  if (schwarz && k.schwarzFrost) material = "Acrylglas schwarz Frost";
   const beschreibung = `Lage ${titel} – ${material}, ${staerkeMm} mm`;
   return { key, titel, material, staerkeMm, teile: t, gravur, klebeflaeche, laserSvg: laserSvg(layout, beschreibung, t, gravur, klebeflaeche) };
 }

@@ -61,11 +61,15 @@ export function EingabePlatte({ karte, aendern }: Props) {
             <Zahl titel="Ueberstand" einheit="mm" schritt={0.5} min={0} wert={profil.ueberstandMm} aendern={(v) => aendern({ holzrahmenProfil: { ...profil, ueberstandMm: v } })} />
           </div>
         </div>
-        <Zahl titel="Acryl weiss/schwarz" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.acryl}
-          aendern={(v) => aendern({ staerkenMm: { ...karte.staerkenMm, acryl: v } })} />
+        <Zahl titel="Acryl weiss" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.weiss}
+          aendern={(v) => aendern({ staerkenMm: { ...karte.staerkenMm, weiss: v } })} />
+        <Zahl titel="Acryl schwarz" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.schwarz}
+          aendern={(v) => aendern({ staerkenMm: { ...karte.staerkenMm, schwarz: v } })} />
         <Zahl titel="Spiegelacryl" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.spiegel}
           aendern={(v) => aendern({ staerkenMm: { ...karte.staerkenMm, spiegel: v } })} />
-        <div />
+        <div className="col-span-3">
+          <Haken titel="Schwarz mit Frost-Oberflaeche (matt)" wert={karte.schwarzFrost} aendern={(v) => aendern({ schwarzFrost: v })} />
+        </div>
         <div className="col-span-3">
           <span className="beschriftung">Symbolgroessen – eine Reihe fuer alle Formate</span>
           <div className="grid grid-cols-3 gap-2">

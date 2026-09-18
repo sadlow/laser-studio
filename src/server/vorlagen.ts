@@ -57,7 +57,8 @@ function lese(datei: string): Vorlage {
         stufen: { ...basis.generalisierung.stufen, ...k.generalisierung?.stufen },
       },
       symbolStufenMm: k.symbolStufenMm?.length ? k.symbolStufenMm : basis.symbolStufenMm,
-      staerkenMm: { ...basis.staerkenMm, ...k.staerkenMm },
+      // "acryl" galt bis 18.09.2026 fuer Weiss und Schwarz; Schwarz hat jetzt eine eigene Staerke.
+      staerkenMm: { ...basis.staerkenMm, ...k.staerkenMm, weiss: k.staerkenMm?.weiss ?? (k.staerkenMm as { acryl?: number } | undefined)?.acryl ?? basis.staerkenMm.weiss },
       holzrahmenProfil: { ...basis.holzrahmenProfil, ...k.holzrahmenProfil },
       gravurExport: { ...basis.gravurExport, ...k.gravurExport },
       titelStil: { ...basis.titelStil, ...k.titelStil },

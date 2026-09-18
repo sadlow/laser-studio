@@ -3,8 +3,8 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 import type { Lage } from "@/engine/typen";
 
 /**
- * Materialien je Lage, getrennt nach Deckflaeche und Schnittkante. Alles
- * hochglaenzend (Marcel 16.09.2026: das Schwarz sah aus wie frosted Acrylglas).
+ * Materialien je Lage, getrennt nach Deckflaeche und Schnittkante. Hochglaenzend (Marcel 16.09.2026: das Schwarz
+ * sah aus wie frosted Acrylglas) – ausser schwarzem Frost-Acryl, das seit 18.09.2026 bewusst matt ist.
  * Spiegelacryl spiegelt nur vorn, die gelaserte Kante ist farbiges, glaenzendes
  * Acryl – in Nahaufnahmen sieht man genau diese Kanten. Die Spiegelung des Blaus
  * uebernimmt eine echte Spiegelflaeche (spiegel-3d.ts).
@@ -17,6 +17,11 @@ export function materialien(lage: Lage): [THREE.Material, THREE.Material] {
   // Rotes Spiegelacryl nicht voll metallisch: sonst haengt seine Farbe allein an
   // der Umgebung, flach liegend vor einer dunklen Wand war das Herz schwarzrot.
   if (m.includes("rot")) return [new THREE.MeshPhysicalMaterial({ color: 0xd01f2e, metalness: 0.55, roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.02 }), kante(0xa3141f)];
+  // Schwarzes Frost-Acryl (18.09.2026): fein matt, die Raumspiegelung verschwimmt zu einem Schimmer. Die gelaserte
+  // Kante schmilzt und bleibt glaenzend schwarz.
+  if (m.includes("frost")) {
+    return [new THREE.MeshPhysicalMaterial({ color: 0x0d0d0d, roughness: 0.55, specularIntensity: 0.3, envMapIntensity: 1.2 }), kante(0x050505)];
+  }
   // Schwarzes Hochglanz-Acryl: Spiegelung mit wenig Anteil. Stumpf (roughness 0,4)
   // verschmierte die helle Raumumgebung zu Grau. Das gerichtete Licht stand als greller
   // Fleck auf der Gravur (Marcel 16.09.2026): kleiner Spiegelanteil fuer das Licht, die
