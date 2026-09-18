@@ -64,9 +64,14 @@ export type StrassenStufe = "viel" | "ausgewogen" | "wenig";
 export type Nachruecken = "nie" | "licht" | "immer";
 
 export interface StufenWerte {
-  /** Deckung, auf die die Netzbreiten skaliert werden (ausgewogen: Berlin-Tiergarten 3,5 km = 0,33). */
+  /** Deckung, auf die die Netzbreiten skaliert werden (ausgewogen: Berlin-Tiergarten 3,5 km = 0,29). */
   zielDeckung: number;
   /** So viel darf die feinste Netzklasse aufgedickt werden, bevor sie graviert wird. */
   maxAufdickung: number;
   nachruecken: Nachruecken;
+  /**
+   * So viele der feinsten Netzklassen graviert die Stufe immer, auch wo sie schneidbar waeren. Fehlt
+   * der Wert (aeltere Vorlage, offenes Browserfenster), gilt der Standard der Stufe (dichte.ts).
+   */
+  feinsteGraviert?: number;
 }

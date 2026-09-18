@@ -60,9 +60,10 @@ export function EingabeStrassen({ karte, aendern }: Props) {
               aendern={(v) => setzeGen({ maxFaktor: v })} />
             <p className="text-xs" style={{ color: "var(--gedaempft)" }}>
               Deckung = Strassenlaenge × Breite / Land im Fenster. Die Netzbreiten werden auf das Ziel der gewaehlten Stufe
-              skaliert (Berlin-Tiergarten 3,5 km = 33 %). Muesste die feinste Netzklasse mehr als aufgedickt werden, wird
+              skaliert (Berlin-Tiergarten 3,5 km = 29 %). Muesste die feinste Netzklasse mehr als aufgedickt werden, wird
               sie graviert. Nachruecken: markierte Gravurklassen (Haken rechts) – „licht" nur in lichten Gegenden,
-              „immer" solange keine geschnittene Klasse dafuer weichen muss.
+              „immer" solange keine geschnittene Klasse dafuer weichen muss. Graviert: so viele der feinsten Netzklassen
+              graviert die Stufe immer – bei „wenig" die Wohnstrassen, sonst saehe es an lichten Orten aus wie „ausgewogen".
             </p>
           </>
         )}

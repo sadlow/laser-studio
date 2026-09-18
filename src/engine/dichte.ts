@@ -1,6 +1,7 @@
 import { clipPolyline, type Punkt } from "./clip";
 import type { KartenRohdaten } from "./kacheln";
-import type { Schichtkarte, StrassenGruppe, Zone } from "./typen";
+import { standardSchichtkarte } from "./standard";
+import type { Generalisierung, Schichtkarte, StrassenGruppe, StrassenStufe, Zone } from "./typen";
 
 /**
  * Welche Strassen geschnitten werden und wie breit – aus der Dichte vor Ort
@@ -69,16 +70,25 @@ export function waehleNetz(
   };
   const deckungVorOrt = netz.reduce((s, x) => s + laengen.get(x.id)! * x.breiteMm * formatfaktor, 0) / land;
   const herabgestuft: string[] = [];
+  const stufeGraviert: string[] = [];
 
   let df = 1;
   if (g.aktiv) {
+    // An lichten Orten erreicht keine Stufe ihr Ziel, alle landen beim Hoechstfaktor – "wenig" sah
+    // dort aus wie "ausgewogen" (Goerzallee A5 3 km: beide 19 % Netz). Darum graviert "wenig" seine
+    // feinste Klasse immer (Marcel 17.09.2026); wo sie ohnehin wich, bleibt alles gleich.
+    const feinste = feinsteGraviert(g, k.kunde.strassenStufe);
+    while (stufeGraviert.length < feinste && netz.length > 1) {
+      stufeGraviert.push(netz[0].titel);
+      netz = netz.slice(1);
+    }
     df = loeseFuer(netz);
     while (netz.length > 1 && !schneidbar(netz, df)) {
       herabgestuft.push(netz[0].titel);
       netz = netz.slice(1);
       df = loeseFuer(netz);
     }
-    const modus = ohneNachruecken || herabgestuft.length ? "nie" : stufe.nachruecken;
+    const modus = ohneNachruecken || herabgestuft.length || stufeGraviert.length ? "nie" : stufe.nachruecken;
     if (modus === "immer" || (modus === "licht" && deckungMit(netz, df) < stufe.zielDeckung * NACHRUECKEN_UNTER)) {
       for (const kandidat of k.strassen.filter((s) => s.ziel === "gravur" && s.nachruecken && lang(s))) {
         nachgerueckt.push(kandidat);
@@ -102,6 +112,11 @@ export function waehleNetz(
     breiten.set(x.id, breite(x, df));
   }
   return { breiten, dichtefaktor: df, deckungVorOrt, herabgestuft, nachgerueckt: nachgerueckt.map((x) => x.titel), anMindestbreite };
+}
+
+/** Wie viele feinste Netzklassen die Stufe immer graviert – ohne Wert (aeltere Vorlage) der Standard der Stufe. */
+export function feinsteGraviert(g: Generalisierung, stufe: StrassenStufe): number {
+  return g.stufen[stufe]?.feinsteGraviert ?? standardSchichtkarte().generalisierung.stufen[stufe]?.feinsteGraviert ?? 0;
 }
 
 /** Faktor, bei dem die Deckung das Ziel trifft; die Deckung waechst mit dem Faktor. */

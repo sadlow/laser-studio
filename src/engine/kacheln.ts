@@ -131,6 +131,12 @@ export async function ladeKartenRohdaten(opts: {
   const wasserlaeufe: Punkt[][] = [];
 
   for (const k of kacheln) {
+    // Strassen nur im eigenen Kachelfeld: der Puffer am Kachelrand enthaelt dieselbe Strasse aus der Nachbarkachel.
+    // Doppelt stoert das Netz nicht, aber die Liniengravur faehrt sie zweimal ab – an einer Kachelecke viermal
+    // (Gravurprobe 17.09.2026: dort fast ein Loch im Weiss).
+    const ecke = nachMm({ x: 0, y: 0 }, k.x, k.y);
+    const gegenecke = nachMm({ x: TILE_EXTENT, y: TILE_EXTENT }, k.x, k.y);
+    const [kx0, ky0, kx1, ky1] = [Math.max(cx0, ecke.x), Math.max(cy0, ecke.y), Math.min(cx1, gegenecke.x), Math.min(cy1, gegenecke.y)];
     const road = k.tile.layers.road;
     if (road) {
       for (let i = 0; i < road.length; i++) {
@@ -148,7 +154,7 @@ export async function ladeKartenRohdaten(opts: {
         const bruecke = f.properties.structure === "bridge";
         for (const ring of f.loadGeometry()) {
           const coords = ring.map((p) => nachMm(p, k.x, k.y));
-          for (const stueck of clipPolyline(coords, cx0, cy0, cx1, cy1)) {
+          for (const stueck of clipPolyline(coords, kx0, ky0, kx1, ky1)) {
             liste.push(stueck);
             if (bruecke) brueckenListe.push(stueck);
           }

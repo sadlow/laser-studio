@@ -151,17 +151,17 @@
       "maxFaktor": 1.4,
       "stufen": {
         "viel": {
-          "zielDeckung": 0.42,
+          "zielDeckung": 0.37,
           "maxAufdickung": 2,
           "nachruecken": "immer"
         },
         "ausgewogen": {
-          "zielDeckung": 0.33,
+          "zielDeckung": 0.29,
           "maxAufdickung": 1.4,
           "nachruecken": "licht"
         },
         "wenig": {
-          "zielDeckung": 0.26,
+          "zielDeckung": 0.23,
           "maxAufdickung": 1,
           "nachruecken": "nie"
         }
