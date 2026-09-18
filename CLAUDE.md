@@ -26,12 +26,13 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 | `kacheln.ts` | Mapbox-Vector-Tiles -> Linien/Flaechen in mm, Tunnel und Gehwege raus |
 | `layout.ts`, `textblock.ts`, `ecken.ts` | Zonen; Texte im Poster bzw. in Reitern |
 | `poster-masse.ts`, `symbole.ts` | Gemessene Poster-Masse je Format; Standort-Symbole mit Anker |
-| `stencil.ts` | Stege fuer Innenflaechen im ausgeschnittenen Text |
+| `schnitt-text.ts`, `stencil.ts`, `stencil-schreib.ts`, `sonderzeichen.ts`, `strich.ts` | Schrift, wie sie geschnitten wird: Druckschrift Glyphe fuer Glyphe eckig verstaerkt, Stege wie gezeichnete Stencil-Schriften, Gradring, Abstaende; Titel nur aussen verstaerkt, Stege durch die duennste Wand |
 | `dichte.ts`, `netz.ts`, `bruecken.ts` | Netzklassen und Breiten nach Dichte vor Ort; lose Stuecke -> Gravur; Bruecken gravierter Strassen |
 | `wasser.ts` | Wasser im Fenster, schmale Kanaele und kleine Inseln raus |
 | `lagen.ts` | Bausteine: Netz, Wasser, Textausschnitt, Gravur, Herz |
 | `stapel.ts` | Lagen je Aufbau (weisses oder schwarzes Netz) + Vorschau |
-| `produktion.ts`, `gravur-export.ts` | Exportdatei: Ebenen 1 Gravur / 2 Schnitt innen / 3 Schnitt aussen; Gravur als Flaeche, Mittellinie oder Kontur |
+| `produktion.ts`, `gravur-export.ts`, `wege.ts` | Exportdatei: Ebenen 1 Gravur / 2 Klebeflaeche / 3 Schnitt innen / 4 Schnitt aussen; Gravur als Flaeche, Mittellinie (durchgehende Wege) oder Kontur |
+| `testblatt.ts` | Grenzwert-Testblatt Netz: Spalt, Strassenbreite, Keile, kleine Bloecke |
 | `zeichen.ts` | Hoechstlaengen der Kundentexte (Titel 20, Zeilen 30), ohne Kartenabhaengigkeit |
 | `geometrie.ts` | Clipper-Wrapper in mm |
 
@@ -44,17 +45,17 @@ Exemplare je Rohplatte, ein Parameter variiert).
 Alle mit Messwert in **`docs/entscheidungen.md`** – vor Aenderungen an Breiten,
 Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Ausschnitt in km, Strassen wachsen mit dem Format; Mindestbreite Netz 0,8 mm
-- Stege am Scheitel, hoechstens 0,5 mm und halber Strich; Inseln < 0,8 mm zu
-- Gravur im Export waehlbar: Flaeche, Mittellinie (Breite ueber Defokus), Kontur; nie unter Netz, Text oder Wasser
+- Testblatt 2 mm Weiss: Spalt, Strasse ab 0,5 mm. Stege 0,7 mm (0,5 brach beim Herausdruecken), Schrift mind. 0,8 mm Strich, 0,7 mm Material zwischen Buchstaben
+- Gravur im Export waehlbar: Flaeche, Mittellinie (Defocus 6 mm, durchgehende Wege), Kontur; nie unter Netz, Text oder Wasser
 - Titel hoechstens 20 Zeichen, jede Zeile darunter 30 – bei Ort + Koordinaten zaehlen die Koordinaten mit
-- Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 42/33/26 %)
+- Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 37/29/23 %, Strassen nur aus der eigenen Kachel); wenig graviert Wohnstrassen immer
 - Lose Netzstuecke graviert; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
 - Symbol auf Hintergrund geklebt (Gravurmarke), Ausschnitt im Netz, steht 1 mm vor; Acryl 2, Spiegel 3 mm
 - Holzrahmen optional (Holz schwarz/weiss/dunkelbraun, Eiche), ein Profil: 14 x 28 mm, Bild 6 mm tief, 4 mm Ueberstand
 - 3D (`ansicht-3d.tsx`, `buehne-3d.ts`): Hochglanz, echter Spiegel, Motive fuer KI-Produktfotos (`motive-3d.ts`), Explosionszeichnung
 - Tunnel, Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet
-- Zeilenschrift Avant Garde Book, Sperrung 0,14 (Deckschicht 2 mm; ExtraLight 0,20 mm zu duenn)
-- opentype.js gepatcht (`patches/`) wegen AvantGardeCE-Demi.otf
+- Zeilenschrift kraeftig statt verstaerkt: DIN Alternate Bold, A5 4,8 mm (Marcel 18.09.); Stege gerade wie in Stencil-Schriften, im Titel quer durch den duennsten Strich
+- opentype.js gepatcht (`patches/`) wegen AvantGardeCE-Demi.otf; .ttc-Schnitte als `Datei.ttc#Schnitt` (`schrift-datei.ts`)
 
 ## Herkunft
 
@@ -70,7 +71,7 @@ npm install && npm run dev   # http://localhost:3010
 ```
 
 `npx tsc --noEmit` · `npx tsx scripts/referenzorte.ts` (8 Orte weltweit) · `formatvergleich.ts` · `quadrat-varianten.ts` ·
-`ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts` ·
+`ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts` · `testblatt-grenzwerte.ts` · `gravurprobe-weiss.ts` · `testblatt-schrift-linien.ts` · `testblatt-schrift.ts` · `schrift-vergleich-a5.ts` ·
 `bash scripts/referenzbilder.sh <name> "foto=symbol"` (3D-Referenzbild) · `scripts/listing-fotos/` (Listing-Set per Leonardo, Video-Ad `video.py`: 3D-Keyframes + Veo 3.1) ·
 `scripts/amazon-custom/` (textfelder.ts, bilder.py, masken.py, symbole.py, erklaerbild.py, zeilen.py, ordner.py: Karten, Masken, Textfelder, Explosionszeichnungen)
 
@@ -84,6 +85,8 @@ npm install && npm run dev   # http://localhost:3010
 - Lesbarkeit der Zeilen schraeg: 0,5-mm-Schlitz in 2 mm zeigt Schwarz nur bis 14°; am Prototyp Book vs. Demi
 - Megastaedte wirken lichter als Berlin (Tokio 15 % Netz): Deckung zaehlt Hochstrassen doppelt
 - Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten, Symbol-Passung; Gravur als Linie (Strahlbreite mit Defokus messen)
+- A5 "viel": Strassen laufen zusammen – Netz-Grenzen (Strasse 0,6, Bloecke 1 mm², Spalt 0,5) noch nicht gesetzt
+- Schrift mit DIN Alternate noch nicht geschnitten (`testblatt-schrift.ts`); fuer den Shop Lizenz noetig (macOS-Systemschrift) oder freie Entsprechung (D-DIN). Listing-Fotos und Amazon-Bilder mit der neuen Schrift erst neu erzeugen, wenn das erste Produkt geschnitten ist (Marcel 18.09.). Kreuzungen der Liniengravur noch nicht bewertet
 
 ## Umfeld
 

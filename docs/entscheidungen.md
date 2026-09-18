@@ -44,7 +44,15 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Gravur waehlbar** (`gravurExport`, Marcel 16.09.2026: Liniengravur spart Laserzeit): Flaeche (gepuffert,
   wird gerastert), Mittellinie (einmal abfahren, Breite ueber Defokus) oder Kontur (Ringe im Strahlabstand bis
   zur Sollbreite). Berlin A4: 10,4 m Mittellinie, 18,3 m Kontur, 27 cm² Flaeche. Jeder Schnittring ein Pfad.
+  Linien stehen als Haarlinie (0,1 mm) in der Datei, jeder Pfad traegt seinen Stil selbst (17.09.: mit der Sollbreite als
+  Strich sah die Gravurprobe wie eine Flaechengravur aus; wer Gruppenstile nicht erbt, fuellt offene Linien).
+- **Liniengravur mit Defocus 6 mm** (Gravurprobe 17.09., Marcel: 4 mm filigraner, 6 mm deutlicher). **Durchgehende Wege**
+  (`wege.ts`): jeder Start und Stopp brennt tiefer ein – an einer Kreuzung endeten 14 Linien, im Weiss fast ein Loch.
+  Doppelte Kanten raus, an Knoten die geradesten Fortsetzungen (bis 45°) verbinden, Stichenden an Kreuzungen um die halbe
+  Linienbreite kuerzen. Probe-Ausschnitt: 211 -> 140 Wege, meiste Enden an einer Stelle 14 -> 3; ganze Karte 20 -> 5.
 - **Ein Exportknopf fuer die Eingabe links** (17.09.: die Auswahl von Testexemplaren ergab keinen Sinn); Parameter liegen bei.
+  Ueber dem Knopf steht, was exportiert wird; Vorlagen haben einen eigenen Block – daneben sah „Vorlage waehlen, Laden"
+  wie ein Pflichtschritt vor dem Export aus (Marcel 17.09.2026).
 
 ## Vorlagen (`src/server/vorlagen.ts`, `vorlagen/*.json`)
 
@@ -57,7 +65,14 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Ausschnitt in km statt Zoom.** A3 zeigt denselben Kiez wie A5, nur groesser. Strassenbreiten und Herz
   gelten fuer A4 und wachsen mit (`REFERENZ_KARTENBREITE_MM`). Fest bleiben Rand und Stege. Ergebnis:
   22-24 % Netz im Fenster auf allen Formaten.
-- **Mindestbreite im Netz 0,8 mm**, **kleine Bloecke (< 4 mm²) bleiben Material.**
+- **Mindestbreite im Netz 0,8 mm**, **kleine Bloecke (< 4 mm²) bleiben Material.** Eine Grenze fuer schmale
+  Spalte gibt es nicht. A5 „viel", Goerzallee 3 km: 39 Bloecke zugefuellt, 64 von 256 geschnittenen ueberall schmaler
+  als 0,5 mm; Zufahrten ruecken mit 0,8 mm nach und laufen zusammen. **Grenzwert-Testblatt** (`testblatt.ts`, 17.09.):
+  Spalt 0,3-1,5, Strasse 0,4-1, Keil 5°/10°, Bloecke 1-6 mm² in 2-mm-Acryl. **Ergebnis in Weiss** (Foto 17.09.):
+  Spalt offen ab 0,5 (0,4 und 0,3 nicht durchgehend offen, Rand verschmolzen); Strasse gerade ab 0,5 (0,4 verzieht sich
+  stark); Keile offen bis zur Spitze – das Stueck faellt am breiten Ende heraus; Bloecke fallen ab 1 mm² heraus.
+  Gravur auf Weiss kaum lesbar -> `gravurprobe-weiss.ts`: Liniengravur mit Defocus 1/2/3, Flaechengravur zum Vergleich,
+  Beschriftung geschnitten. Grenzen im Code noch nicht uebernommen.
 
 ## Oberflaeche (Marcel 16.09.2026)
 
@@ -128,34 +143,55 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Entwuerfe nur als Warnung. 20 Zeichen Schreibschrift: 54-63 % Groesse (voll passen rund 11). Beruehren
   sich Zeilen, meldet die Engine es – das haengt am Kundentext.
 
-## Stencil (`stencil.ts`)
+## Stencil (`stencil.ts`, `stencil-schreib.ts`, `sonderzeichen.ts`)
 
-- **Stege am hoechsten und tiefsten Punkt jeder Innenflaeche**, hoechstens
-  0,5 mm, nie breiter als der halbe Strich (Direktsatz: `STEG_ANTEIL_STRICH`),
-  mindestens 0,3 mm. 0,7 mm wirkte bei Demi (Strich 0,93 mm) wie eine Luecke.
-- **Innenflaechen unter 0,8 mm Breite werden zugefuellt.** 1,0 mm (Demi-Zeit)
-  machte bei A5 aus dem Gradzeichen einen Punkt (Marcel 16.09.2026); Book: °
-  innen A5 0,97, Prototyp 0,95, A4 1,38 mm. Irrwege: mm²-Grenze, Anteil der
-  Versalhoehe (machte Schreibschrift-Schleifen schwarz) (`inseln-titel.ts`).
+- **Stege wie in gezeichneten Stencil-Schriften** (18.09.2026): gerade Rechtecke von 0,7 mm. B, D, P, R und 4 am
+  Stamm entlang (oben und unten), das A schraeg am rechten Schenkel wie Oswald Stencil (die Spitze zu spalten liess
+  Haarsplitter), runde Punzen senkrecht oben und unten, naechst der Mitte, wo der Steg nur eine Wand quert – bei 6
+  und 9 nicht durch den Bogenansatz; ist die Punze dafuer zu eng (DIN), nimmt ein Seitensteg den Platz. Vorher
+  sassen die Stege an den Scheiteln, und Engstellen wurden rund aufgebissen – Marcel 18.09.: „sieht am Bildschirm
+  schon nicht gut aus".
+- **Titel: Stege quer durch die duennste Wand** einer Schleife, senkrecht zum Strich, zwei je Schleife, mindestens
+  ein Drittel des Umfangs auseinander. Die dicken Abstriche bleiben ganz; senkrechte Stege am Scheitel schnitten
+  die schraegen Schleifen an wie Risse („Zuhmuze").
+- **Schmale Innenflaechen bekommen einen Steg** statt zugefuellt zu werden (unter 0,8 mm, das & bei A5) – zugefuellt
+  war es ein Klecks. Unter 0,35 mm wird zugefuellt.
+- **Gradzeichen als Ring mit einem Steg unten**: Strich 0,8, Innenkreis 0,9 mm, oben buendig. Das Zeichen der Schrift
+  war nach dem Verstaerken ein Punkt („52•24", Marcel 17.09.); mit zwei Stegen las es sich als kleine Null.
+- **Material zwischen allem, was geschnitten wird, mindestens 0,7 mm** (`stegMinMm`): die Striche des “ und die
+  Umlautpunkte ruecken auseinander, eng stehende Buchstaben schieben den Rest der Zeile nach rechts. Verstaerkt
+  standen die Anfuehrungsstriche 0,3 mm auseinander und brannten zu einem Klecks zusammen.
 
 ## Schrift
 
-- **Die Sperrung 0,14 ist eine Zugabe, das Poster hat keine.** ExtraLight ohne
-  Sperrung trifft die Namenbreite auf 0,01 mm; luftig wirkt es durch den duennen
-  Strich. Book 0,14 laeuft bei gleicher Versalhoehe 27-32 % breiter (A4:
-  Namen 84 statt 66 mm, Koordinaten 133 statt 100 mm). Marcel mag die Luft.
-- **Avant Garde Book** – nicht ExtraLight (Poster), nicht Demi.
-  Strich bei 5 mm Versalhoehe: ExtraLight 0,20 / Book 0,50 / Demi 0,93 / Bold
-  1,36 mm (`strichstaerke.ts`). ExtraLight: die beiden Schnittkanten eines Strichs
-  fielen bei 0,1-0,2 mm Schnittfuge praktisch zusammen. Demi war zuerst Standard,
-  wirkte aber technisch statt edel, die Stege fielen auf. **Die Deckschicht ist
-  2 mm stark** (Marcel 16.09.2026) – ein 0,5-mm-Schlitz loest sich dort sauber.
-  Die Stege landen bei Book auf der Untergrenze 0,3 mm; ob sie bis zum Verkleben
-  halten, zeigt der Probeschnitt (`schriftvergleich.ts`).
+- **Zeilenschrift: ein kraeftiger Schnitt statt verstaerkter Book** (18.09.2026, `schrift-vergleich-a5.ts`). Book auf
+  0,7-0,9 mm verstaerkt quoll an Kreuzungen und Enden auf, Stencil-Schriften bringen nur 0,15-0,31 mm Stege mit.
+  Jetzt Schnitte mit fast 0,8 mm Strich von sich aus, so gross, wie die laengste Zeile (29 Zeichen) auf A5 passt
+  (`ZEILENSCHRIFT_MASSE`). **DIN Alternate Bold, A5 4,8 mm** – Marcel 18.09.2026: „gewinnt eindeutig" (engste Punze
+  1,18 mm, 6 und 9 mit Seitensteg). Zur Wahl standen Avenir Next Condensed Demi Bold 5,4 und Avant Garde Demi 4,7;
+  DIN Condensed 6,4 fiel vorher raus (Ziffernpunzen 0,9 mm). Sperrung 0,05 em; beim Schriftwechsel setzt das Layout
+  Groesse und Sperrung mit. Der Titel mit Stegen durch die Haarstriche passt so („das Zuhause funktioniert").
+- **Mindeststrich 0,8 mm, Stege 0,7 mm** nach dem Schrift-Testblatt 17.09. in 2 mm Weiss: 0,5 und 0,6 zu eng, 0,7
+  „das Hoechste aller Gefuehle" (jeder Buchstabe mit der Pinzette, der Schnitt verschmolz), Stege von 0,5 brachen
+  beim Herausdruecken. Druckschrift wird eckig verstaerkt (Gehrung) und nur an Buchstaben und Ziffern gemessen – die
+  duennen Anfuehrungszeichen trieben sonst die ganze Zeile hoch.
+- **Schnittfugenkompensation hilft nicht** (Marcel 17.09.2026): sie weitet den Schnitt auch nach innen und schweisst
+  die Stege weg. Die Loesung liegt in der Schrift.
+- **Der Titel waechst nur nach aussen** (`mitMindeststrich(..., nurAussen)`, Marcel 17.09.2026): die Punzen der
+  Schreibschrift bleiben, wie sie sind, und haengen an Stegen. Titel ist immer Schreibschrift, Zeilen immer
+  Druckschrift – danach richtet sich die Rechnung (`schnitt-text.ts`).
+- **Die Sperrung 0,14 war eine Zugabe fuer Book**, das Poster (ExtraLight) hat keine. ExtraLight (0,20 mm Strich bei
+  5 mm) ist zum Schneiden unbrauchbar und aus der Auswahl.
 - **opentype.js ist gepatcht** (`patches/`, `postinstall`): CFF-Encoding mit
-  Zusatzbit (Format 129) warf einen Fehler, betroffen AvantGardeCE-Demi.otf.
+  Zusatzbit (Format 129) warf einen Fehler, betroffen AvantGardeCE-Demi.otf. Sammeldateien (.ttc) liest es gar
+  nicht – `schrift-datei.ts` loest einen Schnitt heraus („Avenir Next Condensed.ttc#Demi Bold").
 
 ## Dichte vor Ort (`dichte.ts`, `netz.ts`, Referenzorte)
+
+- **Strassen nur aus der eigenen Kachel** (`kacheln.ts`, 17.09.): der Kachelpuffer lieferte dieselbe Strasse doppelt,
+  an Kachelecken vierfach. Die Deckung lag dadurch zu hoch (Tiergarten 3,5 km 33,1 statt 29,4 %), die Liniengravur fuhr
+  doppelt. Alle Ziele darum x 0,89: viel/ausgewogen/wenig 37/29/23 % statt 42/33/26 %; Netz im Fenster bleibt
+  Tiergarten 27/22/16 %, Goerzallee A5 3 km 19 % (ausgewogen). Die Prozentwerte unten stammen noch aus der Zeit davor.
 
 - **Referenzorte statt nur Berlin** (`src/referenzorte.ts`, Skript `referenzorte.ts`):
   Berlin, Allgaeu, Hamburg, Amsterdam, New York, Bogota, Tokio, Venedig.
@@ -179,8 +215,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   der Kundeneingabe, die Bedeutung in der Vorlage: viel 42 % / Aufdicken 2 /
   Nachruecken immer, ausgewogen 33 % / 1,4 / licht, wenig 26 % / 1 / nie.
   Netz im Fenster bei 3,5 km: Berlin 27/22/16 %, Hamburg 23/18/12, Bogota
-  30/25/18, Tokio 32/15/12, Allgaeu 11/11/8. Rechenzeit A4 hoechstens 1,2 s –
+  30/25/18, Tokio 32/15/12, Allgaeu 11/11/4. Rechenzeit A4 hoechstens 1,2 s –
   live ohne Aktualisieren-Knopf.
+- **„wenig" graviert die feinste Netzklasse immer** (`feinsteGraviert`, Marcel 17.09.2026: „kein Unterschied zu
+  ausgewogen"). An lichten Orten erreicht keine Stufe ihr Ziel, beide landeten beim Hoechstfaktor 1,4: Goerzallee A5
+  3 km 19/19 %, jetzt 19/7 %. Wo die Wohnstrassen ohnehin wichen (Berlin, Hamburg, Tokio, New York), bleibt es gleich;
+  Allgaeu 8 -> 4 %. Die Alternative „wenig nicht aufdicken" (Faktor 1,0) liess bei A4 alle Klassen stehen, nur duenner.
 - **Lose Netzstuecke werden graviert statt geschnitten** (Marcel: "meist nur
   Artefakte", 1-13 mm2, angebunden nur ueber Fussweg, Treppe oder Tunnel). Stege
   zu nahen Stuecken waeren die Alternative, bisher nicht gebaut.
