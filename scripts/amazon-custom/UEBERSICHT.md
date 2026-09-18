@@ -126,11 +126,12 @@ Video-Ads im Querformat, je 8 s, 1920 x 1080 px, ohne Ton:
   Bild im schwarzen Rahmen auf Weiß. Start und Ende stammen aus derselben 3D-Kamera, nur verschieden gezoomt.
   Bei A3 wird die Gravur in der Totale schmaler als ein Pixel; ohne Hilfe verschwand sie beim Herauszoomen.
   Sie kommt darum aus einem 4K-Rendering ins Endbild (`gravur.py`).
-- Nahflug um das Herz: dicht und schräg über dem liegenden Bild, ein Bogen von 50 Grad um das Herz. Die
-  erhabenen Straßen verschieben sich gegen die Lagen darunter, so sieht man die Tiefe.
+- A4 und A3 – Nahflug um das Herz: dicht und schräg über dem liegenden Bild, ein Bogen von 50 Grad um das
+  Herz. Die erhabenen Straßen verschieben sich gegen die Lagen darunter, so sieht man die Tiefe. In A3 sind
+  rund ums Herz auch die Wohnstraßen geschnitten, dort stehen noch mehr Stege.
 
-- Ad A4 und Ad A3, je 15 s: erst der Nahflug, dann der Dollyzoom, am Herz weich überblendet, mit stiller
-  Tonspur (`video_schnitt.py`, ohne KI-Kosten).
+- Ad A4 und Ad A3, je 15 s: erst der Nahflug, dann der Dollyzoom des gleichen Formats, am Herz weich
+  überblendet, mit stiller Tonspur (`video_schnitt.py`, ohne KI-Kosten).
 
 Start- und Endbild kommen aus dem 3D-Modell und werden mit Leonardo fotoreal gerechnet; die Bewegung
 dazwischen rechnet Veo 3.1 Fast. Erzeugt mit `laser-studio/scripts/listing-fotos/video.py`. Clips, Keyframes,
@@ -140,7 +141,7 @@ Standbilder und Protokoll liegen in `laser-studio/export/produktfoto/video/` (de
 
 Hauptbilder: 8 Generierungen und 4 Hochskalierungen, etwa 0,51 $. Standort-Symbole: 6 Generierungen, etwa 0,23 $.
 Videos: je Clip etwa 1,40 $ (Veo 1,20 $, dazu Standbilder und Hochskalierung), drei Clips zusammen etwa 4,17 $,
-dazu 1,29 $ für das A3-Video mit wiederhergestellter Gravur.
+dazu 1,29 $ für das A3-Video mit wiederhergestellter Gravur und 1,38 $ für den A3-Nahflug.
 Explosionszeichnungen: je Design 1 Hochskalierung;
 Weiß auf Schwarz im ersten Versuch, Schwarz auf Weiß im zweiten, weißer Rand im dritten. Zusammen
 6 Generierungen und 3 Hochskalierungen, etwa 0,39 $ (dazu zwei frühere Fassungen mit Beschriftung,

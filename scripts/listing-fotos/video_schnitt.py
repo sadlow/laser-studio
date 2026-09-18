@@ -10,7 +10,7 @@ import subprocess
 
 from video import pfad
 
-ADS = {"ad-koeln-a4": ["koeln-flug-herz", "koeln-herz-zu-rahmen"], "ad-koeln-a3": ["koeln-flug-herz", "koeln-a3-herz-zu-rahmen"]}
+ADS = {"ad-koeln-a4": ["koeln-flug-herz", "koeln-herz-zu-rahmen"], "ad-koeln-a3": ["koeln-a3-flug-herz", "koeln-a3-herz-zu-rahmen"]}
 CLIP_S, BLENDE_S = 8, 0.6
 
 if __name__ == "__main__":

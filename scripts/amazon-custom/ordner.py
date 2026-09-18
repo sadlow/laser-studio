@@ -41,7 +41,8 @@ HAUPTBILDER = {"01-hero-koeln-schwarz-echt-ultra-k4-a7-weiss.jpg": "A4 – Weiß
                "01-hero-koeln-schwarz-viel-echt-ultra-k4-a7-weiss.jpg": "A4 – viele Straßen geschnitten.jpg"}
 VIDEO = os.path.join(STUDIO, "export", "produktfoto", "video")
 VIDEOS = {"koeln-herz-zu-rahmen": "A4 – vom Herz zum ganzen Bild.mp4", "koeln-a3-herz-zu-rahmen": "A3 – vom Herz zum ganzen Bild.mp4",
-          "koeln-flug-herz": "Nahflug um das Herz.mp4", "ad-koeln-a4": "Ad A4 – Nahflug und Dollyzoom, 15 s.mp4",
+          "koeln-flug-herz": "A4 – Nahflug um das Herz.mp4", "koeln-a3-flug-herz": "A3 – Nahflug um das Herz.mp4",
+          "ad-koeln-a4": "Ad A4 – Nahflug und Dollyzoom, 15 s.mp4",
           "ad-koeln-a3": "Ad A3 – Nahflug und Dollyzoom, 15 s.mp4"}
 TEILE = ["0 Hauptbild", "1 Vorschau ohne Text", "2 Optionen", MASKEN, "3 Erklärbild", "4 Erklärbild", "4 Explosionszeichnung", QUADRAT,
          "4 Quadrat 30 x 30 (eigener Artikel)", "Kontrollbilder Textfelder", "6 Video"]

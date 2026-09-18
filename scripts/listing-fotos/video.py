@@ -29,6 +29,7 @@ CLIPS = {
     # A3: in der Totale wird die Gravur schmaler als ein Pixel und verschwand beim Rauszoomen (gravur.py)
     "koeln-a3-herz-zu-rahmen": {"basis": "hero-koeln-schwarz-a3", "art": "zoom", "gravur": True},
     "koeln-flug-herz": {"basis": "hero-koeln-schwarz", "art": "bogen"},
+    "koeln-a3-flug-herz": {"basis": "hero-koeln-schwarz-a3", "art": "bogen"},
 }
 QUER = {"seiten": "16:9", "breite": "1920", "hoehe": "1080"}
 ZOOM_START, BOGEN_GRAD, BOGEN_ZOOM = 6, 25, 1.25
