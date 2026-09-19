@@ -1,3 +1,4 @@
+import { weiter } from "./abbruch";
 import type { Punkt } from "./clip";
 import { laengenImFenster, waehleNetz } from "./dichte";
 import { brueckenStreifen } from "./bruecken";
@@ -65,7 +66,7 @@ const NACHRUECKEN_MAX_LOSE_ANTEIL = 0.1;
 // abdeckt – und so weit vom Loch des Pins weg, dass man die Gravur dort nicht sieht.
 const KLEBE_EINZUG_MM = 0.3;
 
-export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdaten, text: Textblock): Bausteine {
+export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdaten, text: Textblock, signal?: AbortSignal): Promise<Bausteine> {
   const { platte, kartenfenster: f } = layout;
   const plattenFl = rechteck(0, 0, platte.breiteMm, platte.hoeheMm);
   const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
@@ -87,6 +88,7 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   // geschnitten, sonst fehlte am Fluss die Klebeflaeche.
   const symbolLoch = imFenster ? ohneLoecher(zuFlaeche(eingepasst.ringe)) : [];
   const wasser = wasserImFenster(k, roh, fensterFl, vereinige(schutz, symbolLoch));
+  await weiter(signal);
 
   // --- Strassen. Breiten gelten fuer A4, wachsen mit dem Format und folgen der
   // Dichte vor Ort (dichte.ts). Gemessen wird auf dem Land: Wasser ist blau,
@@ -96,6 +98,7 @@ export function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdat
   const laengen = laengenImFenster(k, roh, f);
   let auswahl = waehleNetz(k, laengen, land, faktor);
   let n = baueNetz(k, roh, layout, schutz, auswahl, symbolLoch);
+  await weiter(signal);
   // Nachgerueckte Wege muessen ein Netz ergeben, keine losen Stuecke: Venedigs
   // Gassen bei 2 km liegen auf Inseln, deren Bruecken Fusswege und Treppen
   // sind – 78 % der Gassenflaeche lose. Dann bleibt es bei der Gravur.

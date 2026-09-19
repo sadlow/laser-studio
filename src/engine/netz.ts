@@ -1,8 +1,9 @@
 import { clipPolyline, type Punkt } from "./clip";
 import type { NetzAuswahl } from "./dichte";
-import { ausTeilen, flaecheMm2, puffereLinien, rechteck, schneide, teile, vereinige, ziehAb, ziehLinienAb, type Flaeche } from "./geometrie";
+import { ausTeilen, flaecheMm2, puffereLinien, rechteck, schneide, teile, vereinige, versatz, ziehAb, ziehLinienAb, type Flaeche } from "./geometrie";
 import type { KartenRohdaten } from "./kacheln";
 import { BRUECKE_RAND_MM, type BrueckenLinien } from "./bruecken";
+import { anschluesseAnRahmen } from "./randanschluss";
 import { REFERENZ_KARTENBREITE_MM, type Layout, type Schichtkarte } from "./typen";
 import { SPLITTER_MM2 } from "./wasser";
 
@@ -44,6 +45,10 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
   const gravur: Netz["gravur"] = [];
   const netzBruecken: BrueckenLinien[] = [];
   const gravurBruecken: BrueckenLinien[] = [];
+  // Alle geschnittenen Strassen: ob ein Ende an einer anderen haengt, entscheidet ueber den Anschluss an den Rahmen.
+  const alleNetzLinien = k.strassen
+    .filter((g) => g.ziel !== "aus" && auswahl.breiten.has(g.id))
+    .flatMap((g) => g.klassen.flatMap((kl) => roh.strassen.get(kl) ?? []));
   for (const gruppe of k.strassen) {
     if (gruppe.ziel === "aus") continue;
     const linien = gruppe.klassen.flatMap((kl) => roh.strassen.get(kl) ?? []);
@@ -51,8 +56,9 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
     const bruecken = gruppe.klassen.flatMap((kl) => roh.bruecken.get(kl) ?? []);
     const breite = auswahl.breiten.get(gruppe.id);
     if (breite !== undefined) {
-      netzTeile.push(puffereLinien(linien, breite));
-      netzLinien.push(...linien);
+      const mitRahmen = [...linien, ...anschluesseAnRahmen(linien, alleNetzLinien, f, breite)];
+      netzTeile.push(puffereLinien(mitRahmen, breite));
+      netzLinien.push(...mitRahmen);
       if (bruecken.length) netzBruecken.push({ linien: bruecken, breiteMm: breite });
       continue;
     }
@@ -65,10 +71,13 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
 
   // Kleine Bloecke zwischen Strassen und Texten loesen sich nicht sauber heraus.
   // Sie gehen im Netz auf – als Material, egal welche Farbe das Netz hat.
-  const kleineBloecke = teile(ziehAb(fensterFl, vereinige(strassen, schutz)), SPLITTER_MM2).filter(
-    (b) => b.flaecheMm2 < k.netzMinLochMm2,
-  );
-  const mitBloecken = ziehAb(kleineBloecke.length ? vereinige(strassen, ausTeilen(kleineBloecke)) : strassen, symbolLoch);
+  const bloecke = ziehAb(fensterFl, vereinige(strassen, schutz));
+  const kleineBloecke = teile(bloecke, SPLITTER_MM2).filter((b) => b.flaecheMm2 < k.netzMinLochMm2);
+  // Ebenso, was von einem Block schmaler als ein schneidbarer Spalt ist: Keile am Rahmen, Spalte zwischen eng
+  // laufenden Strassen. Oeffnen um den halben Spalt nimmt genau diese Teile weg – sie bleiben Material.
+  const r = k.netzMinSpaltMm / 2;
+  const schmal = r > 0 ? ziehAb(bloecke, versatz(versatz(bloecke, -r), r)) : [];
+  const mitBloecken = ziehAb(vereinige(strassen, ausTeilen(kleineBloecke), schmal), symbolLoch);
 
   // Lose Stuecke haengen nirgends am Netz (meist nur ueber einen gravierten Weg,
   // eine Treppe oder einen Tunnel) und fielen beim Schneiden heraus. Sie werden

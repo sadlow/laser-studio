@@ -155,6 +155,12 @@ export interface Schichtkarte {
   generalisierung: Generalisierung;
   /** Kleinere Bloecke zwischen Netzstrassen bleiben Material – 2 x 2 mm loesen sich nicht sauber. */
   netzMinLochMm2: number;
+  /**
+   * Schmalere Teile eines Blocks bleiben Material: der Keil zwischen einer schraeg auslaufenden Strasse und dem Rahmen,
+   * der Spalt zwischen zwei eng laufenden Strassen. Darunter schneidet der Laser keinen sauberen Spalt (Testblatt
+   * 17.09.2026: ab 0,5 mm), und die Strasse hing nur noch an einem Haar am Rahmen (Marcel 19.09.2026).
+   */
+  netzMinSpaltMm: number;
 
   /** Wasserflaechen aus Schwarz schneiden. */
   wasser: boolean;
@@ -184,15 +190,16 @@ export interface Schichtkarte {
   /** Breiten des Standort-Symbols als Reihe fuer alle Formate: A4 nimmt Stufe 2-4, A3 eine hoeher, A5 eine tiefer (symbole.ts). */
   symbolStufenMm: number[];
   /**
-   * Plattenstaerke nach Material. Spiegelacryl (Blau und Symbol) immer gleich; das Symbol wird auf den Hintergrund
-   * geklebt und steht ueber das Netz hinaus. Schwarz ist seit 18.09.2026 eigen: Frost-Acryl gibt es nur in 3 mm.
+   * Plattenstaerke nach Lage. `acryl`: glaenzendes Acryl – weisse Lagen und das schwarze Netz. `grundSchwarz`: der
+   * schwarze Hintergrund, auf dem graviert wird (Frost-Acryl gibt es nur in 3 mm, Marcel 18.09.2026). Spiegelacryl
+   * (Blau und Symbol) immer gleich; das Symbol wird auf den Hintergrund geklebt und steht ueber das Netz hinaus.
    */
-  staerkenMm: { weiss: number; schwarz: number; spiegel: number };
+  staerkenMm: { acryl: number; grundSchwarz: number; spiegel: number };
   /**
-   * Schwarzes Acryl mit feiner Frost-Oberflaeche (matt) statt glaenzend. Glaenzendes XT graviert glasig-grau statt
-   * weiss; Frost graviert heller (Marcel 18.09.2026). Die gelaserte Kante bleibt glaenzend.
+   * Schwarzer Hintergrund mit feiner Frost-Oberflaeche (matt) statt glaenzend: glaenzendes XT graviert glasig-grau,
+   * Frost heller (Marcel 18.09.2026). Das schwarze Netz bleibt glaenzend in 2 mm (19.09.) – dort wird nicht graviert.
    */
-  schwarzFrost: boolean;
+  grundSchwarzFrost: boolean;
   holzrahmenProfil: HolzrahmenProfil;
 
   /** Lose Teile der weissen Lage in der Vorschau markieren. */

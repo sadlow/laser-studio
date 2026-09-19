@@ -26,16 +26,24 @@ export default function Seite() {
   const [ergebnis, setErgebnis] = useState<SchichtkartenErgebnis | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
   const [laedt, setLaedt] = useState(false);
+  const [abgebrochen, setAbgebrochen] = useState(false);
   const laufNr = useRef(0);
+  const lauf = useRef<AbortController | null>(null);
 
   const rendern = useCallback(async (k: Schichtkarte) => {
+    // Eine neuere Eingabe ueberholt die laufende Rechnung: abbrechen, dann rechnet der Server nicht fuer niemanden weiter.
+    lauf.current?.abort();
+    const abbruch = new AbortController();
+    lauf.current = abbruch;
     const nr = ++laufNr.current;
     setLaedt(true);
+    setAbgebrochen(false);
     try {
       const res = await fetch("/api/vorschau", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(k),
+        signal: abbruch.signal,
       });
       const daten = await res.json();
       // Eine ueberholte Antwort darf die aktuelle nicht ueberschreiben.
@@ -46,11 +54,20 @@ export default function Seite() {
         setFehler(null);
       }
     } catch (err) {
+      if (abbruch.signal.aborted) return;
       if (nr === laufNr.current) setFehler(err instanceof Error ? err.message : String(err));
     } finally {
       if (nr === laufNr.current) setLaedt(false);
     }
   }, []);
+
+  // Abbrechen laesst die Vorschau auf dem letzten Stand; "Neu berechnen" holt die Rechnung nach.
+  const abbrechen = () => {
+    lauf.current?.abort();
+    laufNr.current++;
+    setLaedt(false);
+    setAbgebrochen(true);
+  };
 
   // Sammelt schnelle Aenderungen (Regler, Tippen) zu einem Lauf.
   useEffect(() => {
@@ -91,7 +108,16 @@ export default function Seite() {
       </aside>
 
       <section className="min-h-0 p-3">
-        <Komposer ergebnis={ergebnis} fehler={fehler} laedt={laedt} karte={karte} aendern={aendern} />
+        <Komposer
+          ergebnis={ergebnis}
+          fehler={fehler}
+          laedt={laedt}
+          abgebrochen={abgebrochen}
+          abbrechen={abbrechen}
+          neuRechnen={() => void rendern(karte)}
+          karte={karte}
+          aendern={aendern}
+        />
       </section>
 
       <aside className="space-y-3 overflow-y-auto border-l p-3" style={{ borderColor: "var(--linie)" }}>

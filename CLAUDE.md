@@ -27,7 +27,7 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 | `layout.ts`, `textblock.ts`, `ecken.ts` | Zonen; Texte im Poster bzw. in Reitern |
 | `poster-masse.ts`, `symbole.ts` | Gemessene Poster-Masse je Format; Standort-Symbole mit Anker |
 | `schnitt-text.ts`, `stencil.ts`, `stencil-schreib.ts`, `sonderzeichen.ts`, `strich.ts` | Schrift, wie sie geschnitten wird: Druckschrift Glyphe fuer Glyphe eckig verstaerkt, Stege wie gezeichnete Stencil-Schriften, Gradring, Abstaende; Titel nur aussen verstaerkt, Stege durch die duennste Wand |
-| `dichte.ts`, `netz.ts`, `bruecken.ts` | Netzklassen und Breiten nach Dichte vor Ort; lose Stuecke -> Gravur; Bruecken gravierter Strassen |
+| `dichte.ts`, `netz.ts`, `randanschluss.ts`, `bruecken.ts` | Netzklassen und Breiten nach Dichte vor Ort; Enden am Rahmen angeschlossen, Spalte < 0,5 mm zu; lose Stuecke -> Gravur; Bruecken gravierter Strassen |
 | `wasser.ts` | Wasser im Fenster, schmale Kanaele und kleine Inseln raus |
 | `lagen.ts` | Bausteine: Netz, Wasser, Textausschnitt, Gravur, Herz |
 | `stapel.ts` | Lagen je Aufbau (weisses oder schwarzes Netz) + Vorschau |
@@ -49,8 +49,8 @@ Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Gravur im Export: Mittellinie (Standard, Defocus 6 mm, durchgehende Wege), waehlbar Flaeche oder Kontur; nie unter Netz, Text oder Wasser
 - Titel hoechstens 20 Zeichen, jede Zeile darunter 30 – bei Ort + Koordinaten zaehlen die Koordinaten mit
 - Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 37/29/23 %, Strassen nur aus der eigenen Kachel); wenig graviert Wohnstrassen immer
-- Lose Netzstuecke graviert; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
-- Symbol auf Hintergrund geklebt (Gravurmarke), Ausschnitt im Netz, steht 1 mm vor; Weiss 2, Schwarz 3 mm Frost (matt), Spiegel 3 mm
+- Lose Netzstuecke graviert; Spalte < 0,5 mm bleiben Material; Netzstrassen laufen bis in den Rahmen; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
+- Symbol auf Hintergrund geklebt (Gravurmarke), Ausschnitt im Netz, steht 1 mm vor; Acryl 2 mm glaenzend, schwarzer Grund 3 mm Frost, Spiegel 3 mm
 - Holzrahmen optional (Holz schwarz/weiss/dunkelbraun, Eiche), ein Profil: 14 x 28 mm, Bild 6 mm tief, 4 mm Ueberstand
 - 3D (`ansicht-3d.tsx`, `buehne-3d.ts`): Hochglanz (Schwarz Frost matt), echter Spiegel, Motive fuer KI-Produktfotos (`motive-3d.ts`), Explosionszeichnung
 - Tunnel, Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet
@@ -85,7 +85,7 @@ npm install && npm run dev   # http://localhost:3010
 - Lesbarkeit der Zeilen schraeg: 0,5-mm-Schlitz in 2 mm zeigt Schwarz nur bis 14°; am Prototyp Book vs. Demi
 - Megastaedte wirken lichter als Berlin (Tokio 15 % Netz): Deckung zaehlt Hochstrassen doppelt
 - Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten, Symbol-Passung; Gravur als Linie (Strahlbreite mit Defokus messen)
-- A5 "viel": Strassen laufen zusammen – Netz-Grenzen (Strasse 0,6, Bloecke 1 mm², Spalt 0,5) noch nicht gesetzt
+- A5 "viel": Strassen laufen zusammen – Spalt 0,5 gesetzt, Strasse 0,6 und Bloecke 1 mm² noch nicht
 - Schrift mit DIN Alternate noch nicht geschnitten (`testblatt-schrift.ts`); fuer den Shop Lizenz noetig (macOS-Systemschrift) oder freie Entsprechung (D-DIN). Listing-Fotos und Amazon-Bilder mit der neuen Schrift erst neu erzeugen, wenn das erste Produkt geschnitten ist (Marcel 18.09.). Kreuzungen der Liniengravur noch nicht bewertet
 
 ## Umfeld

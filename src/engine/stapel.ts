@@ -106,10 +106,11 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
 }
 
 function lage(k: Schichtkarte, layout: Layout, key: LagenKey, titel: string, material: string, t: Teil[], gravur: Gravur = [], klebeflaeche: Teil[] = []): Lage {
-  const schwarz = material === "Acrylglas schwarz";
-  const staerkeMm = material.startsWith("Spiegelacryl") ? k.staerkenMm.spiegel : schwarz ? k.staerkenMm.schwarz : k.staerkenMm.weiss;
+  // Nur der schwarze Hintergrund wird graviert – er ist dick und matt; ein schwarzes Netz bleibt glaenzend.
+  const grundSchwarz = key === "hintergrund" && material === "Acrylglas schwarz";
+  const staerkeMm = material.startsWith("Spiegelacryl") ? k.staerkenMm.spiegel : grundSchwarz ? k.staerkenMm.grundSchwarz : k.staerkenMm.acryl;
   // Frost steht im Materialnamen: so erscheint es in der Pruefung, in jeder Laserdatei und in der 3D-Ansicht.
-  if (schwarz && k.schwarzFrost) material = "Acrylglas schwarz Frost";
+  if (grundSchwarz && k.grundSchwarzFrost) material = "Acrylglas schwarz Frost";
   const beschreibung = `Lage ${titel} – ${material}, ${staerkeMm} mm`;
   return { key, titel, material, staerkeMm, teile: t, gravur, klebeflaeche, laserSvg: laserSvg(layout, beschreibung, t, gravur, klebeflaeche) };
 }

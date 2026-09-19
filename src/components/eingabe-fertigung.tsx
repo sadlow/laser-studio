@@ -33,7 +33,7 @@ export function EingabeStrassen({ karte, aendern }: Props) {
         karte.aufbau === "netz-weiss" ? "schwarzen" : "weissen"
       } Hintergrund. Tunnel werden nie gezeichnet, Bruecken immer.`}
     >
-      <div className="mb-3 grid grid-cols-2 gap-3">
+      <div className="mb-3 grid grid-cols-3 gap-3">
         <Zahl
           titel="Netz mindestens"
           einheit="mm"
@@ -49,6 +49,14 @@ export function EingabeStrassen({ karte, aendern }: Props) {
           min={0}
           wert={karte.netzMinLochMm2}
           aendern={(v) => aendern({ netzMinLochMm2: v })}
+        />
+        <Zahl
+          titel="Spalt mindestens"
+          einheit="mm"
+          schritt={0.05}
+          min={0}
+          wert={karte.netzMinSpaltMm}
+          aendern={(v) => aendern({ netzMinSpaltMm: v })}
         />
       </div>
       <div className="mb-3 space-y-2 rounded-md p-3" style={{ background: "var(--grund)" }}>

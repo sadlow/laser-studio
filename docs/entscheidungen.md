@@ -16,12 +16,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Flaeche graviert, angeraut fuer den Kleber (17.09.), Pin-Loch ausgespart. Unter dem Symbol kein
   Wasserschnitt (Test: Herz zu 70 % ueber der Spree, Klebeflaeche voll). Netz und
   Deckschicht haben exakt die Aussenkontur als Ausschnitt (Pin ohne sein Loch).
-- **Staerken nach Material:** Acrylglas weiss 2 mm, schwarz 3 mm Frost (matt), Spiegelacryl 3 mm. Schwarz war bis
-  18.09.2026 glaenzendes XT in 2 mm – die Gravur darauf wurde glasig-grau statt weiss. Gegossenes GS graviert frostig
-  weiss, schwarz gibt es das aber erst ab 3 mm; Marcel nimmt schwarzes Frost-Acryl (nur 3 mm), das heller graviert.
-  Folgen: das Wasser liegt 3 mm tief (kleine Wasserflaechen wirken dunkler, hellerer Spiegel wird gesucht), und bei
-  schwarzem Netz steht das Symbol nicht mehr vor, sondern buendig (Warnung). Die 3D-Ansicht zeigt Frost matt, die
-  gelaserte Kante glaenzend.
+- **Staerken nach Lage:** glaenzendes Acryl 2 mm (weisse Lagen und ein schwarzes Netz), der schwarze Grund 3 mm Frost
+  (matt), Spiegelacryl 3 mm. Schwarz war bis 18.09.2026 glaenzendes XT in 2 mm – die Gravur darauf wurde glasig-grau
+  statt weiss. Gegossenes GS graviert frostig weiss, schwarz gibt es das aber erst ab 3 mm; Marcel nimmt schwarzes
+  Frost-Acryl (nur 3 mm), das heller graviert. Folge: das Wasser liegt 3 mm tief (kleine Wasserflaechen wirken dunkler,
+  hellerer Spiegel wird gesucht). Ist Schwarz das Netz, wird darauf nicht graviert – es bleibt glaenzend 2 mm, und das
+  Symbol steht weiter 1 mm vor (Marcel 19.09.2026). Die 3D-Ansicht zeigt Frost matt, die gelaserte Kante glaenzend.
 - **Holzrahmen optional: Holz schwarz, weiss, dunkelbraun, Eiche** (Marcel 16.09.2026), ein Profil:
   14 mm breit, 28 mm tief, Bild 6 mm eingelassen, 4 mm Ueberstand; Wahl in `kunde`, Profil
   in der Vorlage. Bei 7 mm Rand bleiben 3 mm sichtbar (Kennzahl). Warnung, wenn Karte,
@@ -72,8 +72,14 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Ausschnitt in km statt Zoom.** A3 zeigt denselben Kiez wie A5, nur groesser. Strassenbreiten und Herz
   gelten fuer A4 und wachsen mit (`REFERENZ_KARTENBREITE_MM`). Fest bleiben Rand und Stege. Ergebnis:
   22-24 % Netz im Fenster auf allen Formaten.
-- **Mindestbreite im Netz 0,8 mm**, **kleine Bloecke (< 4 mm²) bleiben Material.** Eine Grenze fuer schmale
-  Spalte gibt es nicht. A5 „viel", Goerzallee 3 km: 39 Bloecke zugefuellt, 64 von 256 geschnittenen ueberall schmaler
+- **Mindestbreite im Netz 0,8 mm**, **kleine Bloecke (< 4 mm²) bleiben Material**, **schmaler als 0,5 mm bleibt
+  Material** (`netzMinSpaltMm`, 19.09.2026: Bloecke um den halben Spalt geoeffnet; was dabei wegfaellt – Keile am Rahmen,
+  Spalte zwischen eng laufenden Strassen, Spitzen spitzer Bloecke – geht ins Netz; die Blockecken runden sich dabei um
+  0,25 mm). **Netzstrassen enden nicht knapp vor dem Rahmen** (`randanschluss.ts`): Sackgassen oder Strassen, die als
+  Fussweg, Zufahrt oder im Tunnel weiterlaufen, hingen mit einer Kuppe 0,2-4 mm vor dem Rahmen und waren durch einen
+  schmalen Schnitt von ihm getrennt (Marcel 19.09.). Zeigt das Ende auf den Rand (bis 60°), laeuft die Strasse bis in den
+  Rahmen; bleibt weniger als 1 mm Luft, fuehrt ein kurzes Stueck senkrecht hin. Tiergarten A5: 4 Anschluesse, ein loses
+  Netzstueck weniger; Rechenzeit +0,2-0,6 s. Vorher: A5 „viel", Goerzallee 3 km: 39 Bloecke zugefuellt, 64 von 256 geschnittenen ueberall schmaler
   als 0,5 mm; Zufahrten ruecken mit 0,8 mm nach und laufen zusammen. **Grenzwert-Testblatt** (`testblatt.ts`, 17.09.):
   Spalt 0,3-1,5, Strasse 0,4-1, Keil 5°/10°, Bloecke 1-6 mm² in 2-mm-Acryl. **Ergebnis in Weiss** (Foto 17.09.):
   Spalt offen ab 0,5 (0,4 und 0,3 nicht durchgehend offen, Rand verschmolzen); Strasse gerade ab 0,5 (0,4 verzieht sich
@@ -83,6 +89,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Oberflaeche (Marcel 16.09.2026)
 
+- **Rechnet die Vorschau, wird sie unscharf** und zeigt ein Ladezeichen mit „Abbrechen" (19.09.2026). Abbrechen laesst
+  den letzten Stand stehen, „Neu berechnen" holt die Rechnung nach. Eine neuere Eingabe bricht die laufende ab. Die
+  Engine hoert am naechsten Haltepunkt auf (`abbruch.ts`, zwischen Kacheln, Wasser, Netz und Lagen): bei 6 km etwa
+  0,5 s nach dem Abbruch statt nach dem ganzen Lauf.
+- **Kachel- und Schriftspeicher am globalen Objekt:** der Entwicklungsserver laedt Module bei jeder Codeaenderung neu
+  und behielt jede alte Kopie – nach drei Tagen 6 GB, er antwortete nicht mehr (19.09.2026).
 - **Drei Spalten:** links, was der Kunde einstellt (Standort bis Symbolgroesse), Mitte der Komposer, rechts Technik, aufklappbar.
 - **Standort als Adresse oder Dezimal-Koordinaten** (Google-Format, auch mit Komma), Ortsname per Rueckwaertssuche.
 - **3D-Reiter** (`ansicht-3d.tsx`, `buehne-3d.ts`, `szene-3d.ts`): Lagen mit Staerke extrudiert, Holzrahmen mit Gehrung, drehbar,

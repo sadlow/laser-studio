@@ -4,10 +4,11 @@ import { ringeInMm } from "./geometrie";
 import { gravurMasse } from "./gravur-export";
 import { holzrahmenPruefen } from "./holzrahmen";
 import { ladeKartenRohdaten } from "./kacheln";
+import { weiter } from "./abbruch";
 import { baueBausteine } from "./lagen";
 import { berechneLayout } from "./layout";
 import { stapleLagen } from "./stapel";
-import { standardSchichtkarte } from "./standard";
+import { standardSchichtkarte, staerkenAus } from "./standard";
 import { setzePosterText } from "./textblock";
 import { REFERENZ_KARTENBREITE_MM, type Schichtkarte, type SchichtkartenErgebnis } from "./typen";
 import { zeichenWarnungen } from "./zeichen";
@@ -32,16 +33,16 @@ export {
  * Live-Vorschau und spaeter die Produktion – sonst gaebe es zwei Geometrien
  * fuer dasselbe Produkt, und die driften unbemerkt auseinander.
  */
-export async function rendereSchichtkarte(eingabe: Schichtkarte, token: string): Promise<SchichtkartenErgebnis> {
-  // Ein offenes Browserfenster oder eine aeltere Vorlage kennt die Grenzwerte vom Testblatt noch nicht – und hatte
-  // eine gemeinsame Staerke fuer Weiss und Schwarz ("acryl", bis 18.09.2026).
+export async function rendereSchichtkarte(eingabe: Schichtkarte, token: string, signal?: AbortSignal): Promise<SchichtkartenErgebnis> {
+  // Ein offenes Browserfenster oder eine aeltere Vorlage kennt die Grenzwerte vom Testblatt noch nicht – und hat die
+  // Plattenstaerken noch in alter Form (staerkenAus).
   const basis = standardSchichtkarte();
-  const alt = eingabe.staerkenMm as Partial<Schichtkarte["staerkenMm"]> & { acryl?: number };
   const k: Schichtkarte = {
     ...eingabe,
-    staerkenMm: { weiss: alt.weiss ?? alt.acryl ?? basis.staerkenMm.weiss, schwarz: alt.schwarz ?? basis.staerkenMm.schwarz, spiegel: alt.spiegel ?? basis.staerkenMm.spiegel },
-    schwarzFrost: eingabe.schwarzFrost ?? basis.schwarzFrost,
+    staerkenMm: staerkenAus(eingabe.staerkenMm),
+    grundSchwarzFrost: eingabe.grundSchwarzFrost ?? (eingabe as { schwarzFrost?: boolean }).schwarzFrost ?? basis.grundSchwarzFrost,
     stegMinMm: eingabe.stegMinMm ?? basis.stegMinMm,
+    netzMinSpaltMm: eingabe.netzMinSpaltMm ?? basis.netzMinSpaltMm,
     titelStil: { ...eingabe.titelStil, minStrichMm: eingabe.titelStil.minStrichMm ?? basis.titelStil.minStrichMm },
     zeilenStil: { ...eingabe.zeilenStil, minStrichMm: eingabe.zeilenStil.minStrichMm ?? basis.zeilenStil.minStrichMm },
   };
@@ -65,12 +66,16 @@ export async function rendereSchichtkarte(eingabe: Schichtkarte, token: string):
     fenster: layout.kartenfenster,
     zugabeMm: breitesteStrasse + 1,
     token,
+    signal,
   });
+  await weiter(signal);
 
   const textblock = k.layoutArt === "eingebettet" ? setzeEingebettet(k, layout) : setzePosterText(k, layout);
   warnungen.push(...zeichenWarnungen(k), ...textblock.warnungen);
 
-  const b = baueBausteine(k, layout, roh, textblock);
+  await weiter(signal);
+  const b = await baueBausteine(k, layout, roh, textblock, signal);
+  await weiter(signal);
   const s = stapleLagen(k, layout, b);
   const netzFarbe = k.aufbau === "netz-weiss" ? "weissen" : "schwarzen";
 

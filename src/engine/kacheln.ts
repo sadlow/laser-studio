@@ -42,15 +42,18 @@ const WEGETYPEN_OHNE = new Set([
 const NICHT_VORHANDEN = new Set(["proposed", "construction", "razed", "abandoned"]);
 
 // Kacheln aendern sich nicht, waehrend jemand am Titel tippt. Ohne Cache laedt
-// jede Aenderung im Formular die ganze Karte neu von Mapbox.
-const KACHEL_CACHE = new Map<string, ArrayBuffer | null>();
+// jede Aenderung im Formular die ganze Karte neu von Mapbox. Am globalen Objekt: der Entwicklungsserver laedt das
+// Modul bei jeder Codeaenderung neu und behielt sonst jede alte Kopie samt Kacheln – nach drei Tagen 6 GB und
+// keine Antwort mehr (19.09.2026).
+const global = globalThis as typeof globalThis & { __laserKacheln?: Map<string, ArrayBuffer | null> };
+const KACHEL_CACHE = (global.__laserKacheln ??= new Map<string, ArrayBuffer | null>());
 const CACHE_MAX = 400;
 
-async function ladeKachel(z: number, x: number, y: number, token: string): Promise<ArrayBuffer | null> {
+async function ladeKachel(z: number, x: number, y: number, token: string, signal?: AbortSignal): Promise<ArrayBuffer | null> {
   const schluessel = `${z}/${x}/${y}`;
   if (KACHEL_CACHE.has(schluessel)) return KACHEL_CACHE.get(schluessel) ?? null;
   const url = `https://api.mapbox.com/v4/${TILESET}/${z}/${x}/${y}.mvt?access_token=${encodeURIComponent(token)}`;
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(url, { cache: "no-store", signal });
   if (res.status !== 404 && !res.ok) {
     throw new Error(`Mapbox antwortete mit HTTP ${res.status} fuer Kachel ${schluessel}`);
   }
@@ -77,8 +80,10 @@ export async function ladeKartenRohdaten(opts: {
   fenster: Zone;
   zugabeMm: number;
   token: string;
+  /** Abgebrochene Vorschau: noch offene Kachelabrufe enden mit. */
+  signal?: AbortSignal;
 }): Promise<KartenRohdaten> {
-  const { lon, lat, ausschnittBreiteM, fenster, zugabeMm, token } = opts;
+  const { lon, lat, ausschnittBreiteM, fenster, zugabeMm, token, signal } = opts;
 
   const ausschnittMeter = {
     breite: ausschnittBreiteM,
@@ -107,7 +112,7 @@ export async function ladeKartenRohdaten(opts: {
   for (let tx = tx0; tx <= tx1; tx++) {
     for (let ty = ty0; ty <= ty1; ty++) {
       anfragen.push(
-        ladeKachel(DATEN_ZOOM, tx, ty, token).then((buf) =>
+        ladeKachel(DATEN_ZOOM, tx, ty, token, signal).then((buf) =>
           buf && buf.byteLength ? { x: tx, y: ty, tile: new VectorTile(new Pbf(new Uint8Array(buf))) } : null,
         ),
       );

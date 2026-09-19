@@ -16,7 +16,9 @@ const SUCHORTE = [
   "/System/Library/Fonts",
 ];
 
-const cache = new Map<string, opentype.Font>();
+// Am globalen Objekt, damit der Entwicklungsserver nach Codeaenderungen nicht jede Schrift erneut im Speicher haelt.
+const global = globalThis as typeof globalThis & { __laserSchriften?: Map<string, opentype.Font> };
+const cache = (global.__laserSchriften ??= new Map<string, opentype.Font>());
 
 /**
  * Laedt eine Schrift aus den Suchorten. `Datei.ttc#Schnitt` waehlt aus einer Sammeldatei den Schnitt, dessen

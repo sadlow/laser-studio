@@ -90,6 +90,8 @@ export function standardSchichtkarte(): Schichtkarte {
       },
     },
     netzMinLochMm2: 4,
+    // Testblatt 17.09.2026 in 2 mm Weiss: ein Spalt loest sich ab 0,5 mm.
+    netzMinSpaltMm: 0.5,
     wasser: true,
     wasserlaeufe: false,
     wasserlaufBreiteMm: 1.2,
@@ -105,10 +107,11 @@ export function standardSchichtkarte(): Schichtkarte {
     stencilMinInselBreiteMm: 0.8,
     // A4 wie bisher 8 / 11 / 15 mm, je Formatstufe etwa Faktor 1,4 (A5 bisher 5,5-10,2, A3 11,5-21,7 mm).
     symbolStufenMm: [6, 8, 11, 15, 21, 29],
-    // Weiss 2 mm, Spiegelacryl 3 mm (Marcel 16.09.2026). Schwarz 3 mm Frost (18.09.): glaenzendes XT gravierte nicht
-    // weiss, das matte Frost-Acryl heller – das gibt es nur in 3 mm. Das Wasser liegt dadurch 3 mm tief.
-    staerkenMm: { weiss: 2, schwarz: 3, spiegel: 3 },
-    schwarzFrost: true,
+    // Acryl 2 mm glaenzend, Spiegelacryl 3 mm (Marcel 16.09.2026). Der schwarze Hintergrund 3 mm Frost (18.09.):
+    // glaenzendes XT gravierte nicht weiss, das matte Frost-Acryl heller – das gibt es nur in 3 mm, das Wasser liegt
+    // dadurch 3 mm tief. Ein schwarzes Netz bleibt glaenzend 2 mm (19.09.).
+    staerkenMm: { acryl: 2, grundSchwarz: 3, spiegel: 3 },
+    grundSchwarzFrost: true,
     // Marcel 16.09.2026, gleiches Profil fuer alle Groessen. Bei 7 mm Rand und
     // 4 mm Ueberstand bleiben im Rahmen 3 mm Rand sichtbar.
     holzrahmenProfil: { breiteMm: 14, tiefeMm: 28, einlassMm: 6, ueberstandMm: 4 },
@@ -131,3 +134,16 @@ export const TITELSCHRIFTEN = [
 
 /** Die Zeilenschriften mit bekannter Schnittgroesse (poster-masse.ts). ExtraLight (0,2 mm Strich) ist raus. */
 export const ZEILENSCHRIFTEN = Object.keys(ZEILENSCHRIFT_MASSE);
+
+/**
+ * Plattenstaerken auch aus aelteren Eingaben: bis 17.09.2026 eine Staerke "acryl" fuer Weiss und Schwarz, am 18.09.
+ * "weiss" und "schwarz" (Schwarz war dabei immer der Hintergrund).
+ */
+export function staerkenAus(alt: Partial<Record<"acryl" | "weiss" | "schwarz" | "grundSchwarz" | "spiegel", number>> | undefined): Schichtkarte["staerkenMm"] {
+  const basis = { acryl: 2, grundSchwarz: 3, spiegel: 3 };
+  return {
+    acryl: alt?.acryl ?? alt?.weiss ?? basis.acryl,
+    grundSchwarz: alt?.grundSchwarz ?? alt?.schwarz ?? basis.grundSchwarz,
+    spiegel: alt?.spiegel ?? basis.spiegel,
+  };
+}

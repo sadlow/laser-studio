@@ -61,14 +61,17 @@ export function EingabePlatte({ karte, aendern }: Props) {
             <Zahl titel="Ueberstand" einheit="mm" schritt={0.5} min={0} wert={profil.ueberstandMm} aendern={(v) => aendern({ holzrahmenProfil: { ...profil, ueberstandMm: v } })} />
           </div>
         </div>
-        <Zahl titel="Acryl weiss" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.weiss}
-          aendern={(v) => aendern({ staerkenMm: { ...karte.staerkenMm, weiss: v } })} />
-        <Zahl titel="Acryl schwarz" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.schwarz}
-          aendern={(v) => aendern({ staerkenMm: { ...karte.staerkenMm, schwarz: v } })} />
+        <Zahl titel="Acryl glaenzend" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.acryl}
+          aendern={(v) => aendern({ staerkenMm: { ...karte.staerkenMm, acryl: v } })} />
+        <Zahl titel="Schwarzer Grund" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.grundSchwarz}
+          aendern={(v) => aendern({ staerkenMm: { ...karte.staerkenMm, grundSchwarz: v } })} />
         <Zahl titel="Spiegelacryl" einheit="mm" schritt={0.5} min={0.5} wert={karte.staerkenMm.spiegel}
           aendern={(v) => aendern({ staerkenMm: { ...karte.staerkenMm, spiegel: v } })} />
         <div className="col-span-3">
-          <Haken titel="Schwarz mit Frost-Oberflaeche (matt)" wert={karte.schwarzFrost} aendern={(v) => aendern({ schwarzFrost: v })} />
+          <Haken titel="Schwarzer Grund mit Frost-Oberflaeche (matt)" wert={karte.grundSchwarzFrost} aendern={(v) => aendern({ grundSchwarzFrost: v })} />
+          <p className="mt-1 text-xs" style={{ color: "var(--gedaempft)" }}>
+            Glaenzend: weisse Lagen und ein schwarzes Netz. Der schwarze Grund traegt die Gravur und ist darum Frost-Acryl.
+          </p>
         </div>
         <div className="col-span-3">
           <span className="beschriftung">Symbolgroessen – eine Reihe fuer alle Formate</span>

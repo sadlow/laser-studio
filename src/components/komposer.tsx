@@ -13,6 +13,10 @@ interface Props {
   ergebnis: SchichtkartenErgebnis | null;
   fehler: string | null;
   laedt: boolean;
+  /** Die letzte Rechnung wurde abgebrochen – die Vorschau zeigt den Stand davor. */
+  abgebrochen: boolean;
+  abbrechen: () => void;
+  neuRechnen: () => void;
   karte: Schichtkarte;
   aendern: (teil: Aenderung) => void;
 }
@@ -23,7 +27,7 @@ type Ansicht = "gesamt" | "3d" | LagenKey;
  * Das grosse Arbeitsfeld in der Mitte: zusammengesetzte Karte zum Anfassen,
  * daneben jede Lage als Laseransicht. Kennzahlen und Hinweise stehen rechts.
  */
-export function Komposer({ ergebnis, fehler, laedt, karte, aendern }: Props) {
+export function Komposer({ ergebnis, fehler, laedt, abgebrochen, abbrechen, neuRechnen, karte, aendern }: Props) {
   const [ansicht, setAnsicht] = useState<Ansicht>("gesamt");
   // ?ansicht=3d oeffnet direkt die 3D-Ansicht (fuer Tests und geteilte Links).
   useEffect(() => {
@@ -77,7 +81,9 @@ export function Komposer({ ergebnis, fehler, laedt, karte, aendern }: Props) {
         </span>
       </div>
 
-      <div className={`karte flex min-h-0 flex-1 items-center justify-center ${aktiv === "3d" ? "p-0" : "p-4"} ${aktiv === "gesamt" || aktiv === "3d" ? "" : "laser"}`}>
+      <div className={`karte relative flex min-h-0 flex-1 items-center justify-center ${aktiv === "3d" ? "p-0" : "p-4"} ${aktiv === "gesamt" || aktiv === "3d" ? "" : "laser"}`}>
+        {/* Waehrend gerechnet wird, wird das Bild unscharf: man sieht sofort, dass es nicht der neue Stand ist. */}
+        <div className={`flex h-full min-h-0 w-full items-center justify-center transition duration-200 ${laedt ? "opacity-60 blur-[3px]" : ""}`}>
         {fehler ? (
           <p className="max-w-md text-sm text-red-700">{fehler}</p>
         ) : ergebnis && aktiv === "3d" ? (
@@ -92,8 +98,20 @@ export function Komposer({ ergebnis, fehler, laedt, karte, aendern }: Props) {
           />
         ) : (
           <p className="text-sm" style={{ color: "var(--gedaempft)" }}>
-            rechnet die erste Karte…
+            {abgebrochen ? "Berechnung abgebrochen." : "rechnet die erste Karte…"}
           </p>
+        )}
+        </div>
+        {laedt && <Rechnet abbrechen={abbrechen} />}
+        {!laedt && abgebrochen && (
+          <div className="absolute inset-x-0 top-3 flex justify-center">
+            <div className="flex items-center gap-3 rounded-lg px-4 py-2 text-sm shadow" style={{ background: "var(--karte)", border: "1px solid var(--linie)" }}>
+              <span>Abgebrochen – die Vorschau zeigt den letzten Stand.</span>
+              <button onClick={neuRechnen} className="whitespace-nowrap rounded-md px-3 py-1 font-medium text-white" style={{ background: "var(--akzent)" }}>
+                Neu berechnen
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
@@ -116,6 +134,24 @@ export function Komposer({ ergebnis, fehler, laedt, karte, aendern }: Props) {
             </button>
           )
         )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Ladezeichen ueber der unscharfen Vorschau, mit Abbrechen. Die Karte darunter bleibt bedienbar: wer weiterzieht
+ * oder tippt, ueberholt die laufende Rechnung.
+ */
+function Rechnet({ abbrechen }: { abbrechen: () => void }) {
+  return (
+    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+      <div className="pointer-events-auto flex items-center gap-3 rounded-lg px-4 py-3 text-sm shadow-lg" style={{ background: "var(--karte)", border: "1px solid var(--linie)" }}>
+        <span className="h-5 w-5 animate-spin rounded-full border-2" style={{ borderColor: "var(--linie)", borderTopColor: "var(--akzent)" }} />
+        <span className="whitespace-nowrap">Karte wird berechnet …</span>
+        <button onClick={abbrechen} className="whitespace-nowrap rounded-md px-3 py-1" style={{ border: "1px solid var(--linie)" }}>
+          Abbrechen
+        </button>
       </div>
     </div>
   );
