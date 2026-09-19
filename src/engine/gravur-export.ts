@@ -47,6 +47,17 @@ export function gravurFuerExport(lage: Lage, e: GravurExport): { flaechen: Teil[
   return { flaechen: [], pfade };
 }
 
+/**
+ * Gravur, wie sie auf der Platte erscheint – fuer 2D-Vorschau und 3D-Ansicht. Als Mittellinie ist jede Linie so breit
+ * wie der Strahl, gleich welche Strassenklasse (erste A5-Karten, 19.09.2026: alle Linien gleich breit); die Kontur
+ * deckt mindestens die Sollbreite, die Flaeche genau sie.
+ */
+export function sichtbareGravur(gravur: Lage["gravur"], e: GravurExport | undefined): Lage["gravur"] {
+  // Ohne Angabe (ein Ergebnis aus der Zeit vor gravurExport im offenen Fenster) die Sollbreiten.
+  if (!e || e.art === "flaeche") return gravur;
+  return gravur.map((g) => ({ ...g, breiteMm: e.art === "mittellinie" ? e.strahlMm : Math.max(g.breiteMm, e.strahlMm) }));
+}
+
 /** Laenge aller Gravurlinien in m und ihre Flaeche in mm² samt Klebeflaeche – zum Abschaetzen der Laserzeit. */
 export function gravurMasse(lagen: Lage[]): { wegM: number; flaecheMm2: number } {
   let weg = 0;

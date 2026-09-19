@@ -101,6 +101,14 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   gezeichnet nur bei Aenderung. Acryl hochglaenzend, das Blau spiegelt echt und dunkel (`Reflector`, Softboxen nur im Spiegelbild).
   Lichtstimmungen (`licht-3d.ts`): Studio, Sonne durch Blaetter, Sonne durchs Fenster (SpotLight mit Maske, neutral statt gelb);
   Licht und Raum drehen mit der Kamera, Ziehen wirkt wie das Produkt wenden (`?drehen=`).
+- **Nach den ersten A5-Karten abgeglichen** (Fotos 19.09.2026, jede Farbe gegen das weisse Acryl daneben gemessen):
+  Eiche heller Naturton mit dichten, geraden, unterbrochenen Porenstreifen (vorher glatt und gelblich wie Kiefer; im
+  Render 0,87/0,66/0,48 von Weiss, Foto 0,85/0,66/0,50; die 2D-Vorschau hellt die unbeleuchtete Textur auf den Fototon
+  auf). Gravur ist eine Rille, samt Waenden etwa 0,4-0,45 mm (dunkler Kern 0,2-0,25) – die 0,5 mm Strahl stimmen
+  ungefaehr. Auf Weiss grauer Kern, obere Wand im Schatten, gut lesbar; auf schwarzem Frost dunkler Grund, nur die
+  untere Wand hell – von weitem kaum heller als die Flaeche (vorher hellgrau, viel zu kraeftig). Frost ist Anthrazit,
+  nicht Tiefschwarz. Als Mittellinie zeichnen 2D und 3D jede Gravurlinie so breit wie der Strahl, nicht nach
+  Strassenklasse (`sichtbareGravur`). Offen: das glaenzende schwarze Netz spiegelt am Foto hellgrau, im 3D bleibt es schwarz.
 - **Explosionszeichnung** (17.09., `explosion-3d.ts`): Regler 0-200 mm, Kamera und Licht folgen der Stapelmitte. Hintergrund
   warm, grau oder dunkel (auf Hell verschwanden die weissen Lagen); aufgezogen zeigt das Blau Farbe statt Spiegelflecken. Keine
   Beschriftung: Texte und Linien setzt Marcel im Listing Designer, geliefert werden fertige Bilder. Einstellungen in der URL.

@@ -86,7 +86,7 @@ export function baueSzene(ergebnis: SchichtkartenErgebnis): Stapel {
     const mesh = new THREE.Mesh(geo, materialien(lage));
     mesh.castShadow = true;
     mesh.receiveShadow = true;
-    const gravur = gravurFlaeche(lage, b, h);
+    const gravur = gravurFlaeche(lage, b, h, ergebnis.gravurExport);
     const echt = lage.key === "blau" ? spiegelFlaeche(b, h) : undefined;
     const spiegel = echt?.spiegel;
     gruppe.add(mesh);
@@ -145,7 +145,7 @@ export function gravurDetail(stapel: Stapel, ergebnis: SchichtkartenErgebnis, be
     }
     p.gravur.visible = !bereich;
     if (!bereich) continue;
-    p.gravurDetail = gravurFlaeche(p.lage, b, h, bereich);
+    p.gravurDetail = gravurFlaeche(p.lage, b, h, ergebnis.gravurExport, bereich);
     if (!p.gravurDetail) continue;
     p.gravurDetail.position.z = p.gravur.position.z + 0.01;
     stapel.gruppe.add(p.gravurDetail);

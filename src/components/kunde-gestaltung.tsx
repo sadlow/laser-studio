@@ -41,7 +41,7 @@ const RAHMEN: { wert: Holzrahmen; titel: string; farbe?: string }[] = [
   { wert: "ohne", titel: "ohne" },
   { wert: "schwarz", titel: "schwarz", farbe: "#1d1c1a" },
   { wert: "weiss", titel: "weiss", farbe: "#f4f2ed" },
-  { wert: "eiche", titel: "Eiche", farbe: "#9c7147" },
+  { wert: "eiche", titel: "Eiche", farbe: "#b88e6f" },
   { wert: "dunkelbraun", titel: "dunkelbraun", farbe: "#4a3223" },
 ];
 

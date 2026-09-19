@@ -18,9 +18,10 @@ export function materialien(lage: Lage): [THREE.Material, THREE.Material] {
   // der Umgebung, flach liegend vor einer dunklen Wand war das Herz schwarzrot.
   if (m.includes("rot")) return [new THREE.MeshPhysicalMaterial({ color: 0xd01f2e, metalness: 0.55, roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.02 }), kante(0xa3141f)];
   // Schwarzes Frost-Acryl (18.09.2026): fein matt, die Raumspiegelung verschwimmt zu einem Schimmer. Die gelaserte
-  // Kante schmilzt und bleibt glaenzend schwarz.
+  // Kante schmilzt und bleibt glaenzend schwarz. Am Foto Anthrazit (19.09.): mit 0x0d0d0d war es liegend fast
+  // tiefschwarz; aufrecht bleibt es bei gut einem Viertel der Helligkeit von Weiss, wie am Foto.
   if (m.includes("frost")) {
-    return [new THREE.MeshPhysicalMaterial({ color: 0x0d0d0d, roughness: 0.55, specularIntensity: 0.3, envMapIntensity: 1.2 }), kante(0x050505)];
+    return [new THREE.MeshPhysicalMaterial({ color: 0x1a1a1a, roughness: 0.55, specularIntensity: 0.45, envMapIntensity: 1.2 }), kante(0x050505)];
   }
   // Schwarzes Hochglanz-Acryl: Spiegelung mit wenig Anteil. Stumpf (roughness 0,4)
   // verschmierte die helle Raumumgebung zu Grau. Das gerichtete Licht stand als greller

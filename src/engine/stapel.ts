@@ -1,4 +1,5 @@
 import { enthaelt, schwerpunkt, teile, vereinige, ziehAb } from "./geometrie";
+import { sichtbareGravur } from "./gravur-export";
 import type { Bausteine } from "./lagen";
 import { SYMBOL_TITEL } from "./symbole";
 import { SPLITTER_MM2 } from "./wasser";
@@ -13,10 +14,12 @@ export interface Stapel {
   hintergrundTeile: number;
 }
 
-// Gravur auf Schwarz wird hell. Auf Weiss wird sie eine feine graue Rille mit
-// leichtem Schatten – am Musterstueck (Ziegelwand in weissem PMMA) gut zu sehen.
-const GRAVUR_AUF_SCHWARZ = "#b9b6ae";
-const GRAVUR_AUF_WEISS = "#c7c2b6";
+// Nach den ersten A5-Karten (19.09.2026), gegen die Flaeche daneben gemessen: auf Weiss eine graue Rille, gut
+// lesbar. Schwarzes Frost-Acryl ist Anthrazit, nicht Tiefschwarz; seine Gravur ist eine Rille mit dunklem Grund und
+// heller Kante – von weitem ein feiner, nur wenig hellerer Strich (vorher hellgrau, viel zu kraeftig).
+const GRAVUR_AUF_SCHWARZ = "#565654";
+const GRAVUR_AUF_WEISS = "#bcbcb9";
+const FARBE_FROST = "#2a2a2a";
 
 /**
  * Setzt aus den Bausteinen die Lagen des gewaehlten Aufbaus zusammen. Alle
@@ -35,6 +38,7 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
   const hintergrund = teile(ziehAb(b.plattenFl, ziehAb(b.wasser, b.netz)), SPLITTER_MM2);
   const blau = teile(b.plattenFl);
   const symbolTitel = SYMBOL_TITEL[k.kunde.symbol] ?? "Symbol";
+  const gravur = sichtbareGravur(b.gravur, k.gravurExport);
 
   if (k.aufbau === "netz-schwarz") {
     const deck = teile(ziehAb(vereinige(rahmen, b.schutz), vereinige(b.textAusschnitt, b.symbolLoch)), SPLITTER_MM2);
@@ -46,7 +50,7 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
     const schritte: Malschritt[] = [
       { art: "flaeche", teile: blau, fuellung: "url(#blau)" },
       { art: "flaeche", teile: hintergrund, fuellung: FARBE_WEISS, schatten: true },
-      { art: "gravur", gravur: b.gravur, farbe: GRAVUR_AUF_WEISS },
+      { art: "gravur", gravur, farbe: GRAVUR_AUF_WEISS },
       { art: "flaeche", teile: b.klebeflaeche, fuellung: GRAVUR_AUF_WEISS },
       { art: "flaeche", teile: netzHaupt ? [netzHaupt] : [], fuellung: FARBE_SCHWARZ, schatten: true },
       { art: "flaeche", teile: netzLose, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : FARBE_SCHWARZ },
@@ -76,7 +80,7 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
     : [FARBE_WEISS, "Weiss (Netz)", "Acrylglas weiss"];
   const [grundFarbe, grundTitel, grundMaterial] = schwarz
     ? [FARBE_WEISS, "Weiss", "Acrylglas weiss"]
-    : [FARBE_SCHWARZ, "Schwarz", "Acrylglas schwarz"];
+    : [k.grundSchwarzFrost ? FARBE_FROST : FARBE_SCHWARZ, "Schwarz", "Acrylglas schwarz"];
   const netz = teile(ziehAb(vereinige(rahmen, b.netz, b.schutz), vereinige(b.textAusschnitt, b.symbolLoch)), SPLITTER_MM2);
   const [netzHaupt, ...lose] = netz;
   const loseText = lose.filter((t) => enthaelt(b.textBereich, schwerpunkt(t)));
@@ -85,7 +89,7 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
   const schritte: Malschritt[] = [
     { art: "flaeche", teile: blau, fuellung: "url(#blau)" },
     { art: "flaeche", teile: hintergrund, fuellung: grundFarbe, schatten: true },
-    { art: "gravur", gravur: b.gravur, farbe: schwarz ? GRAVUR_AUF_WEISS : GRAVUR_AUF_SCHWARZ },
+    { art: "gravur", gravur, farbe: schwarz ? GRAVUR_AUF_WEISS : GRAVUR_AUF_SCHWARZ },
     { art: "flaeche", teile: b.klebeflaeche, fuellung: schwarz ? GRAVUR_AUF_WEISS : GRAVUR_AUF_SCHWARZ },
     { art: "flaeche", teile: netzHaupt ? [netzHaupt, ...loseText] : [], fuellung: netzFarbe, schatten: true },
     { art: "flaeche", teile: loseNetz, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : netzFarbe },

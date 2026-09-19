@@ -52,7 +52,7 @@ Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Lose Netzstuecke graviert; Spalte < 0,5 mm bleiben Material; Netzstrassen laufen bis in den Rahmen; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
 - Symbol auf Hintergrund geklebt (Gravurmarke), Ausschnitt im Netz, steht 1 mm vor; Acryl 2 mm glaenzend, schwarzer Grund 3 mm Frost, Spiegel 3 mm
 - Holzrahmen optional (Holz schwarz/weiss/dunkelbraun, Eiche), ein Profil: 14 x 28 mm, Bild 6 mm tief, 4 mm Ueberstand
-- 3D (`ansicht-3d.tsx`, `buehne-3d.ts`): Hochglanz (Schwarz Frost matt), echter Spiegel, Motive fuer KI-Produktfotos (`motive-3d.ts`), Explosionszeichnung
+- 3D (`ansicht-3d.tsx`, `buehne-3d.ts`): Hochglanz (Schwarz Frost matt), echter Spiegel, Motive fuer KI-Produktfotos (`motive-3d.ts`), Explosionszeichnung; Eiche, Gravur als Rille und Frost an den ersten A5-Karten abgeglichen (19.09.)
 - Tunnel, Gehwege, Ueberwege, Einfahrten, Parkplatzgassen werden nicht gezeichnet
 - Zeilenschrift kraeftig statt verstaerkt: DIN Alternate Bold, A5 4,8 mm (Marcel 18.09.); Stege gerade wie in Stencil-Schriften, im Titel quer durch den duennsten Strich
 - opentype.js gepatcht (`patches/`) wegen AvantGardeCE-Demi.otf; .ttc-Schnitte als `Datei.ttc#Schnitt` (`schrift-datei.ts`)
@@ -84,9 +84,9 @@ npm install && npm run dev   # http://localhost:3010
 - Holzrahmen: was haelt den Stapel an der Lippe? Hinter 7 mm (9 mm vierlagig) bleiben 15 (13) mm Falz frei
 - Lesbarkeit der Zeilen schraeg: 0,5-mm-Schlitz in 2 mm zeigt Schwarz nur bis 14°; am Prototyp Book vs. Demi
 - Megastaedte wirken lichter als Berlin (Tokio 15 % Netz): Deckung zaehlt Hochstrassen doppelt
-- Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten, Symbol-Passung; Gravur als Linie (Strahlbreite mit Defokus messen)
+- Nicht am Werkstueck bestaetigt: Stegbreite, Mindestbreiten, Gravurbreiten, Symbol-Passung; Gravur als Linie: am Foto 0,4-0,45 mm samt Rillenwand (Strahl 0,5 angenommen)
 - A5 "viel": Strassen laufen zusammen – Spalt 0,5 gesetzt, Strasse 0,6 und Bloecke 1 mm² noch nicht
-- Schrift mit DIN Alternate noch nicht geschnitten (`testblatt-schrift.ts`); fuer den Shop Lizenz noetig (macOS-Systemschrift) oder freie Entsprechung (D-DIN). Listing-Fotos und Amazon-Bilder mit der neuen Schrift erst neu erzeugen, wenn das erste Produkt geschnitten ist (Marcel 18.09.). Kreuzungen der Liniengravur noch nicht bewertet
+- DIN Alternate an den ersten A5-Karten geschnitten (19.09.); fuer den Shop Lizenz noetig (macOS-Systemschrift) oder freie Entsprechung (D-DIN). Listing-Fotos und Amazon-Bilder mit neuer Schrift und abgeglichenem 3D neu erzeugen – das erste Produkt ist geschnitten, Marcel gibt den Start frei. Kreuzungen der Liniengravur noch nicht bewertet
 
 ## Umfeld
 

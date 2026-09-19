@@ -3,6 +3,7 @@
 
 import type { Punkt } from "./clip";
 import type { Holzrahmen, HolzrahmenProfil } from "./typen";
+import type { GravurExport } from "./typen-fertigung";
 
 export interface Zone {
   xMm: number;
@@ -98,6 +99,8 @@ export interface SchichtkartenErgebnis {
   /** Wo die gesetzten Zeilen stehen ("Titel", "Namen", "Letzte Zeile") – fuer Kameramotive. */
   textZonen: { name: string; zone: Zone }[];
   ausschnittMeter: { breite: number; hoehe: number };
+  /** Wie graviert wird – die 3D-Ansicht zeichnet die Linien so breit, wie der Laser sie macht (sichtbareGravur). */
+  gravurExport: GravurExport;
   kennzahlen: Kennzahlen;
   warnungen: string[];
 }

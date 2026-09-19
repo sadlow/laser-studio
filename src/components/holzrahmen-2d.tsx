@@ -6,7 +6,7 @@ import { HOLZ_MM, holzBild, type Holz } from "./holz-muster";
 import type { SvgLage } from "./svg-lage";
 
 type Farbe = NonNullable<SchichtkartenErgebnis["rahmen"]>["farbe"];
-const FARBEN: Record<Farbe, string> = { schwarz: "#1d1c1a", weiss: "#f4f2ed", eiche: "#9c7147", dunkelbraun: "#4a3223" };
+const FARBEN: Record<Farbe, string> = { schwarz: "#1d1c1a", weiss: "#f4f2ed", eiche: "#b88e6f", dunkelbraun: "#4a3223" };
 // Holz mit Maserung statt Flaeche (Marcel 16.09.2026: "die Eiche sieht aus wie ein brauner Block").
 const HOLZ: Partial<Record<Farbe, Holz>> = { eiche: "eiche", dunkelbraun: "dunkelbraun" };
 
