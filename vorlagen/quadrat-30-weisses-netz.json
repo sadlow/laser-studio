@@ -3,7 +3,7 @@
   "name": "Quadrat 30 – weisses Netz",
   "beschreibung": "Karte ueber die ganze Platte, Titel oben und Namen/Koordinaten unten in abgerundeten Reitern.",
   "karte": {
-    "ausschnittKm": 3.5,
+    "ausschnittKm": 5.1,
     "format": "quadrat30",
     "rahmenMm": 7,
     "aufbau": "netz-weiss",

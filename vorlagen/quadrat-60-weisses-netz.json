@@ -3,7 +3,7 @@
   "name": "Quadrat 60 – weisses Netz",
   "beschreibung": "60 x 60 aus je zwei Rohplatten 60 x 30,5 pro Lage, nur mit Holzrahmen. Naht je Lage automatisch, Front immer oben-unten. Alle Lagen ausser Blau mindestens 3 mm (Marcel 25.09.2026).",
   "karte": {
-    "ausschnittKm": 3.5,
+    "ausschnittKm": 10.5,
     "format": "quadrat60",
     "rahmenMm": 7,
     "aufbau": "netz-weiss",

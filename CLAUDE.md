@@ -45,7 +45,7 @@ Exemplare je Rohplatte, ein Parameter variiert).
 
 Alle mit Messwert in **`docs/entscheidungen.md`** – vor Aenderungen an Breiten,
 Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
-- Ausschnitt in km, Strassen wachsen mit dem Format; Mindestbreite Netz 0,8 mm
+- Gleicher Massstab als Start: A4 bei 3,5 km (30 x 30 5,1 km, 60 x 60 10,1 km); Strassen wachsen mit, Dichte gleicht aus; Mindestbreite Netz 0,8 mm
 - Testblatt 2 mm Weiss: Spalt, Strasse ab 0,5 mm. Stege 0,7 mm (0,5 brach beim Herausdruecken), Schrift mind. 0,8 mm Strich, 0,7 mm Material zwischen Buchstaben
 - Gravur im Export: Mittellinie (Standard, Defocus 6 mm, durchgehende Wege), waehlbar Flaeche oder Kontur; nie unter Netz, Text oder Wasser
 - Titel hoechstens 20 Zeichen, jede Zeile darunter 30 – bei Ort + Koordinaten zaehlen die Koordinaten mit

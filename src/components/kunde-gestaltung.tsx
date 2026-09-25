@@ -1,6 +1,7 @@
 "use client";
 
 import { FORMATE } from "@/engine/formate";
+import { massstabsgleicherAusschnittKm } from "@/engine/layout";
 import { standardLayoutWerte, zeilenGroesse } from "@/engine/poster-masse";
 import { SYMBOL_TITEL, symbolPfad, type SymbolArt, type SymbolGroesse } from "@/engine/symbole";
 import type { Aufbau, FormatKey, Holzrahmen, Kundeneingabe, LayoutArt, Schichtkarte, TitelLage, ZeilenLage } from "@/engine/typen";
@@ -73,6 +74,8 @@ export function KundeGestaltung({ karte, aendern }: Props) {
     const rahmenPflicht = NUR_MIT_RAHMEN.includes(format) && (k.holzrahmen ?? "ohne") === "ohne";
     aendern({
       format,
+      // Gleicher Massstab auf jedem Format: A4 bei 3,5 km (Marcel 25.09.2026) – groesser zeigt mehr Umgebung.
+      ausschnittKm: massstabsgleicherAusschnittKm({ ...karte, format, layoutArt: w.layoutArt }),
       // Neue Plattengroesse, neue Naehte.
       teilungWahl: undefined,
       ...(rahmenPflicht ? { kunde: { holzrahmen: "schwarz" } } : {}),

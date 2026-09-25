@@ -69,9 +69,13 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 ## Massstab und Formate
 
-- **Ausschnitt in km statt Zoom.** A3 zeigt denselben Kiez wie A5, nur groesser. Strassenbreiten und Herz
-  gelten fuer A4 und wachsen mit (`REFERENZ_KARTENBREITE_MM`). Fest bleiben Rand und Stege. Ergebnis:
-  22-24 % Netz im Fenster auf allen Formaten.
+- **Ausschnitt in km statt Zoom.** Strassenbreiten gelten fuer A4 und wachsen mit (`REFERENZ_KARTENBREITE_MM`),
+  die Dichte vor Ort gleicht aus. Fest bleiben Rand und Stege.
+- **Gleicher Massstab als Start** (Marcel 25.09.2026, ersetzt "A3 zeigt denselben Kiez wie A5"): jedes Format startet
+  so skaliert wie A4 bei 3,5 km (`massstabsgleicherAusschnittKm`) – A5 2,4, A3 und 30 x 30 5,1, 60 x 60 10,1 km
+  (Reiter 10,5). Groesser zeigt mehr Umgebung. Berlin: Netz 22/21/21 % (A4/30/60), die Dichte gleicht den
+  Formatfaktor aus (60 x 60: x 2,90 x 0,33), die Strassen sind damit etwa so breit wie bei A4. Symbol und Zeilen
+  bleiben ohnehin wie A3/30 x 30. 60 x 60 bei 10 km: volle Rechnung 11,5 s, die Skizze sofort.
 - **Mindestbreite im Netz 0,8 mm**, **kleine Bloecke (< 4 mm²) bleiben Material**, **schmaler als 0,5 mm bleibt
   Material** (`netzMinSpaltMm`, 19.09.2026: Bloecke um den halben Spalt geoeffnet; was dabei wegfaellt – Keile am Rahmen,
   Spalte zwischen eng laufenden Strassen, Spitzen spitzer Bloecke – geht ins Netz; die Blockecken runden sich dabei um

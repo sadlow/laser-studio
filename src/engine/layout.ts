@@ -1,5 +1,5 @@
 import { masseAusFormat } from "./formate";
-import type { Layout, Schichtkarte } from "./typen";
+import { REFERENZ_KARTENBREITE_MM, type Layout, type Schichtkarte } from "./typen";
 
 /**
  * Parameter -> Zonen.
@@ -44,4 +44,16 @@ export function berechneLayout(k: Schichtkarte): Layout {
 /** Rand rundum: beim Titel auf der Kante bringt das Layout seinen eigenen, breiteren mit. */
 export function randMm(k: Schichtkarte): number {
   return Math.max(0, k.layoutArt === "kante" ? k.kante.rahmenMm : k.rahmenMm);
+}
+
+/**
+ * Standardmassstab (Marcel 25.09.2026): A4 mit 3,5 km Ausschnitt. Jedes Format startet so, dass die Karte gleich
+ * skaliert ist – ein groesseres Format zeigt mehr Umgebung statt dasselbe groesser. 30 x 30 rund 5,1 km, 60 x 60
+ * rund 10 km. Der Kunde zoomt davon aus weiter.
+ */
+export const STANDARD_AUSSCHNITT_KM = 3.5;
+
+export function massstabsgleicherAusschnittKm(k: Schichtkarte): number {
+  const km = (STANDARD_AUSSCHNITT_KM * berechneLayout(k).kartenfenster.breiteMm) / REFERENZ_KARTENBREITE_MM;
+  return Math.round(km * 10) / 10;
 }

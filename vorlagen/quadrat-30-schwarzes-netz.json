@@ -3,7 +3,7 @@
   "name": "Quadrat 30 – schwarzes Netz",
   "beschreibung": "Wie Quadrat 30, mit schwarzem Netz auf Weiss unter einer weissen Deckschicht.",
   "karte": {
-    "ausschnittKm": 3.5,
+    "ausschnittKm": 5.1,
     "format": "quadrat30",
     "rahmenMm": 7,
     "aufbau": "netz-schwarz",
