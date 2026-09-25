@@ -109,9 +109,13 @@ export function schliesse(flaeche: Flaeche, radius: number): Flaeche {
  * Zerlegt eine Flaeche in physische Teile: jede Aussenkontur mit ihren
  * Loechern ist ein Stueck Acryl. Das ist die Zahl, die in der Werkstatt zaehlt.
  */
-export function teile(flaeche: Flaeche, minFlaecheMm2 = 0.05): Teil[] {
+export function teile(flaeche: Flaeche, minFlaecheMm2 = 0.05, strikt = false): Teil[] {
   if (!flaeche.length) return [];
   const c = new ClipperLib.Clipper();
+  // strikt (StrictlySimple): gedacht fuer Loecher, die Clipper dem falschen Teil zuordnet (Entwurf "Titel auf der
+  // Kante", 25.09.2026). Kein Standard: an den Referenzorten ist locker fehlerfrei, strikt ordnet selbst falsch zu
+  // (New York A4) und rechnet bis 100-mal laenger – Messwerte in docs/entscheidungen.md.
+  c.StrictlySimple = strikt;
   c.AddPaths(flaeche, ClipperLib.PolyType.ptSubject, true);
   const baum = new ClipperLib.PolyTree();
   c.Execute(ClipperLib.ClipType.ctUnion, baum, NONZERO, NONZERO);

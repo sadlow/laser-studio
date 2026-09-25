@@ -287,3 +287,25 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Stelle 40 x 40 mm vergroessert.
 - Offen: eine Naht, die um kleine Einzelteile im Band herumlaeuft (Zacken statt Gerade), wuerde im Allgaeu einige
   der 8 Stuecke sparen.
+
+## Teile und Loecher (`geometrie.ts` `teile()`, 25.09.2026)
+
+- **`teile()` bleibt ohne `StrictlySimple`** (`strikt = false`). Befund: im Entwurf "Titel auf der Kante"
+  (60 x 60, Berlin 5,5 km, 3-ort-links) haengt Clipper 14 Loecher an ein Teil mit -3227 mm², das Hauptteil ist
+  3227 mm² zu gross – dort geschnittene Bloecke fehlen. Messung `scripts/teile-strikt.ts`: jeder `teile()`-Aufruf
+  der Engine, 6 Vorlagen x 8 Referenzorte, Summe der Teile gegen Flaeche der Eingabe, Teil mit negativer Flaeche,
+  Loch ausserhalb seiner Aussenkontur.
+- **Locker: 0 Fehler in 48 Faellen** (60 x 60 ab Allgaeu nur locker). Die Gesamtflaeche stimmt bis auf
+  weggefilterte Splitter (Tokio 60 x 60 1,6 mm²). Einziger Treffer der Lochpruefung ein entartetes Loch von 0 mm²
+  in der Nahtbewertung.
+- **Strikt ist selbst falsch und viel langsamer:** New York (alle A4), Bogota und Venedig (Quadrat 30) je zwei
+  Aufrufe mit falsch zugeordneten Loechern (New York A4: Netz-Lage 2960 mm² zu viel Material, 5 Loecher im
+  falschen Teil), in der 60 x 60-Nahtbewertung Allgaeu ein 624-mm²-Loch an einem Teil von 0 mm². Karte gesamt:
+  A4 Bogota 1,6 -> 39 s, Allgaeu 0,5 -> 21 s; Quadrat 30 Tokio 5,1 -> 387 s; 60 x 60 Berlin 2,0 -> 104 s,
+  Allgaeu ueber 30 min (abgebrochen). Im Kanten-Entwurf ein Aufruf 75 ms -> 27-180 s.
+- Strikt trennt, was sich in einem Punkt beruehrt: Netzloecher A4 Berlin 335 -> 695, zugefuellte Bloecke
+  7 -> 8 (Bogota 91 -> 100, Tokio Q30 162 -> 171), weil Teilbloecke unter die Mindestflaeche fallen. Lose
+  Netzstuecke und "lose -> Gravur" blieben in allen Faellen gleich.
+- Offen: Loecher selbst zuordnen (kleinste Aussenkontur, die das Loch enthaelt; Punkt-in-Polygon mit dem
+  ersten Eckpunkt nicht auf der Kante). Im Kanten-Entwurf richtig (117 668 mm², 701 Loecher), 77 ms wie locker,
+  sonst gleiche Teile. Noch nicht in der Engine; `strikt = true` ist kein verlaesslicher Ersatz.
