@@ -107,6 +107,8 @@ export interface SchichtkartenErgebnis {
   teilung: TeilungsErgebnis | null;
   /** Groesser als das Laserfeld – auch wenn die Naehte (noch) nicht gerechnet sind. */
   teilungNoetig: boolean;
+  /** Aus welchen Kartendaten gerechnet wurde ("protomaps-4" oder "mapbox.mapbox-streets-v8"). */
+  kartenQuelle: string;
   warnungen: string[];
 }
 
@@ -120,4 +122,5 @@ export type Anzeige = Pick<SchichtkartenErgebnis, "vorschauSvg" | "layout" | "ka
 
 export interface Skizze extends Anzeige {
   rechenzeitMs: number;
+  kartenQuelle: string;
 }

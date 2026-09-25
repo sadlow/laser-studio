@@ -23,7 +23,7 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 
 | Datei | Aufgabe |
 |---|---|
-| `kacheln.ts` | Mapbox-Vector-Tiles -> Linien/Flaechen in mm, Tunnel und Gehwege raus |
+| `kacheln.ts`, `quelle*.ts` | Vector-Tiles -> Linien/Flaechen in mm, Tunnel und Gehwege raus; Quelle: eigenes Archiv (Protomaps, `KARTE_ARCHIV`), Mapbox als Rueckfall |
 | `layout.ts`, `textblock.ts`, `ecken.ts`, `kante.ts` | Zonen; Texte im Poster, in Reitern oder Titel als Material auf der unteren Kante |
 | `poster-masse.ts`, `symbole.ts` | Gemessene Poster-Masse je Format; Standort-Symbole mit Anker |
 | `schnitt-text.ts`, `stencil.ts`, `stencil-schreib.ts`, `sonderzeichen.ts`, `strich.ts` | Schrift, wie sie geschnitten wird: Druckschrift Glyphe fuer Glyphe eckig verstaerkt, Stege wie gezeichnete Stencil-Schriften, Gradring, Abstaende; Titel nur aussen verstaerkt, Stege durch die duennste Wand |
@@ -67,7 +67,7 @@ fetch-vector-tiles.js`. GMS-Format: `decimalToDMS()` im Bulk-Script. Felder:
 ## Start und Pruefung
 
 ```bash
-cp .env.example .env.local   # MAPBOX_ACCESS_TOKEN wie in shared/config-local.jsx
+cp .env.example .env.local   # KARTE_ARCHIV (eigenes Archiv) + MAPBOX_ACCESS_TOKEN (Rueckfall, Ortssuche)
 npm install && npm run dev   # http://localhost:3010
 ```
 

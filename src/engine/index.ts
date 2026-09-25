@@ -11,6 +11,12 @@ import { stapleLagen } from "./stapel";
 import { berechneTeilung, mussGeteiltWerden } from "./teilung";
 import { rahmenPflicht, teilungsWarnungen } from "./teilung-hinweise";
 import { vervollstaendige } from "./vervollstaendige";
+import type { KachelQuelle } from "./quelle";
+import { mapboxTokenQuelle } from "./quelle-mapbox";
+
+export type { KachelQuelle, Merkmal } from "./quelle";
+export { mapboxTokenQuelle } from "./quelle-mapbox";
+export { protomapsQuelle } from "./quelle-protomaps";
 
 export { teilungFuer } from "./teilung-hinweise";
 import { setzePosterText } from "./textblock";
@@ -40,7 +46,9 @@ export {
  */
 export async function rendereSchichtkarte(
   eingabe: Schichtkarte,
-  token: string,
+  // Woher die Kacheln kommen (quelle.ts): das eigene Archiv oder Mapbox. Ein String ist ein Mapbox-Token – so rechnen
+  // die Skripte weiter wie bisher.
+  quelleOderToken: KachelQuelle | string,
   signal?: AbortSignal,
   // Die Nahtsuche einer geteilten Karte kostet bis zu Sekunden – die Live-Vorschau laesst sie weg und holt sie bei
   // Bedarf nach (teilungFuer), Export und Skripte rechnen sie mit (Marcel 25.09.2026).
@@ -60,13 +68,14 @@ export async function rendereSchichtkarte(
   );
 
   const kartenMitte = k.kartenMitte ?? { lon: k.lon, lat: k.lat };
+  const quelle = typeof quelleOderToken === "string" ? mapboxTokenQuelle(quelleOderToken) : quelleOderToken;
   const roh = await ladeKartenRohdaten({
     lon: kartenMitte.lon,
     lat: kartenMitte.lat,
     ausschnittBreiteM: k.ausschnittKm * 1000,
     fenster: layout.kartenfenster,
     zugabeMm: breitesteStrasse + 1,
-    token,
+    quelle,
     signal,
   });
   await weiter(signal);
@@ -174,6 +183,7 @@ export async function rendereSchichtkarte(
     },
     teilung,
     teilungNoetig,
+    kartenQuelle: quelle.name,
     warnungen,
   };
 }

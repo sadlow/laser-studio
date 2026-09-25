@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { mitKartenQuelle } from "@/server/karten-quelle";
 import { rendereSchichtkarte, teilungFuer, type Schichtkarte } from "@/engine";
 import { gemerkt, merke } from "@/server/ergebnis-cache";
 
@@ -9,15 +10,13 @@ export const runtime = "nodejs";
  * noch im Speicher, wird nur die Nahtsuche gerechnet – auch beim Umwaehlen einer Naht.
  */
 export async function POST(request: Request) {
-  const token = process.env.MAPBOX_ACCESS_TOKEN;
-  if (!token) return NextResponse.json({ fehler: "MAPBOX_ACCESS_TOKEN fehlt." }, { status: 500 });
   try {
     const karte = (await request.json()) as Schichtkarte;
     let r = gemerkt(karte);
     const t0 = Date.now();
     const treffer = !!r;
     if (!r) {
-      r = await rendereSchichtkarte(karte, token, request.signal, { teilung: false });
+      r = (await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q, request.signal, { teilung: false }))).wert;
       merke(karte, r);
     }
     const t1 = Date.now();

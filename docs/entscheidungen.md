@@ -346,3 +346,22 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - Offen: Loecher selbst zuordnen (kleinste Aussenkontur, die das Loch enthaelt; Punkt-in-Polygon mit dem
   ersten Eckpunkt nicht auf der Kante). Im Kanten-Entwurf richtig (117 668 mm², 701 Loecher), 77 ms wie locker,
   sonst gleiche Teile. Noch nicht in der Engine; `strikt = true` ist kein verlaesslicher Ersatz.
+
+## Kartendaten (`quelle*.ts`, `src/server/karten-quelle.ts`, Marcel 25.09.2026)
+
+- **Eigenes Archiv zuerst, Mapbox als Rueckfall.** Dieselbe Quelle wie der Baseline Customizer: der OSM-Planet als
+  PMTiles-Datei (Protomaps 4, Zoom 15), gelesen ueber Byte-Bereiche; `KARTE_ARCHIV` ist die https-Adresse (lokal der
+  oeffentliche Tagesbau 20260923, derselbe Stand wie `karte/basiskarte-welt-20260923.pmtiles` im Bucket). Fehlt die
+  Variable oder faellt das Archiv aus, rechnet die ganze Karte mit Mapbox – nie gemischt – und die Pruefung sagt es.
+  Waehlbar unter "Platte und Ausschnitt" (`kartenQuelle`), angezeigt in der Pruefung, vermerkt in `uebersicht.txt`.
+- `quelle.ts`, `quelle-protomaps.ts`, `quelle-mapbox.ts` und `kacheln.ts` sind die Fassungen aus
+  `baseline-customizer/app/domain/laserkarte/engine` (dort aus 4530558 portiert); die Engine denkt weiter in den
+  Klassen von mapbox-streets-v8, die Protomaps-Quelle uebersetzt (Abgleich dort: 88-98 % je Klasse).
+- Gemessen an den 8 Referenzorten, A4 3,5 km: Netz und Deckung gleich (Tokio 15 -> 17 %, Venedig 1 -> 2 %),
+  Gravurweg bis +30 % (Berlin 9,1 -> 11,8 m, Zoom 15 fuehrt mehr Wege), lose Stuecke 0-3 statt 0-4. Rechenzeit warm
+  +20-50 %, kalt 2,4-3,9 s ueber den Tagesbau (Verzeichnis + viermal so viele Kacheln). Bild Berlin 30 x 30 praktisch
+  deckungsgleich. `scripts/quellen-vergleich.ts`.
+- Grund ueber die Technik hinaus (Customizer 23.09.): die Mapbox-Bedingungen begrenzen Druck auf 100 Kopien je Konto
+  und verbieten Zwischenspeicher; OSM verlangt nur die Nennung "© OpenStreetMap-Mitwirkende".
+- Offen: Ortssuche (`/api/ort`) laeuft noch ueber Mapbox (Customizer: Photon); der Tagesbau verschwindet nach einigen
+  Tagen – fuer Dauerbetrieb die Bucket-Datei mit S3-Zugang (wie `pmtiles.server.ts` im Customizer).

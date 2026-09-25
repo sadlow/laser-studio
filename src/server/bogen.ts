@@ -5,6 +5,7 @@ import { bogenSvg, f, gravurBeschreibung } from "@/engine/produktion";
 import { standardSchichtkarte } from "@/engine/standard";
 import type { GeoPunkt, Kundeneingabe, Schichtkarte } from "@/engine/typen";
 import { EXPORT_ORDNER } from "./export";
+import { mitKartenQuelle } from "./karten-quelle";
 import { slug, type Vorlage } from "./vorlagen";
 
 /**
@@ -36,7 +37,7 @@ export interface BogenAuftrag {
   kartenMitte?: GeoPunkt;
 }
 
-export async function erzeugeBogen(a: BogenAuftrag, token: string) {
+export async function erzeugeBogen(a: BogenAuftrag) {
   const p = PLATTEN[a.platte];
   const jetzt = new Date();
   const datum = jetzt.toISOString().slice(0, 16).replace("T", " ");
@@ -64,7 +65,8 @@ export async function erzeugeBogen(a: BogenAuftrag, token: string) {
     const wert = a.werte[i];
     if (a.variation === "ausschnittKm" && wert > 0) karte.ausschnittKm = wert;
     if (a.variation === "stegMm" && wert > 0) karte.stegMm = wert;
-    const r = await rendereSchichtkarte(karte, token);
+    const { wert: r, hinweis } = await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q));
+    if (hinweis) r.warnungen.unshift(hinweis);
     const kennung = a.variation === "keine" ? `platz ${i + 1}` : `${a.variation === "ausschnittKm" ? "Ausschnitt" : "Steg"} ${wert}`;
     fs.writeFileSync(path.join(ordner, `vorschau-platz-${i + 1}.svg`), r.vorschauSvg);
     fs.writeFileSync(path.join(ordner, `parameter-platz-${i + 1}.json`), JSON.stringify(karte, null, 2) + "\n");

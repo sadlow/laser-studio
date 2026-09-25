@@ -2,7 +2,7 @@
 // Aufruf: npx tsx scripts/referenzorte.ts [zielordner] [netz-weiss|netz-schwarz] [km] [viel|ausgewogen|wenig]
 import fs from "node:fs";
 import path from "node:path";
-import { berechneLayout, rendereSchichtkarte, standardSchichtkarte, type Schichtkarte, type Teil } from "../src/engine";
+import { berechneLayout, mapboxTokenQuelle, rendereSchichtkarte, standardSchichtkarte, type Schichtkarte, type Teil } from "../src/engine";
 import { ladeKartenRohdaten } from "../src/engine/kacheln";
 import { REFERENZORTE } from "../src/referenzorte";
 
@@ -38,7 +38,7 @@ async function main() {
 
     // Strassenmix im Fenster in km Wirklichkeit (Kacheln kommen aus dem Cache).
     const layout = berechneLayout(k);
-    const roh = await ladeKartenRohdaten({ lon: k.lon, lat: k.lat, ausschnittBreiteM: km * 1000, fenster: layout.kartenfenster, zugabeMm: 0, token });
+    const roh = await ladeKartenRohdaten({ lon: k.lon, lat: k.lat, ausschnittBreiteM: km * 1000, fenster: layout.kartenfenster, zugabeMm: 0, quelle: mapboxTokenQuelle(token) });
     const mProMm = (km * 1000) / layout.kartenfenster.breiteMm;
     const mix = k.strassen
       .map((g) => ({ g, km: g.klassen.flatMap((kl) => roh.strassen.get(kl) ?? []).reduce((s, l) => s + laenge(l), 0) * mProMm / 1000 }))

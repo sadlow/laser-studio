@@ -50,6 +50,7 @@ export function TechnikPruefung({ ergebnis }: { ergebnis: SchichtkartenErgebnis 
           </ul>
         )}
         <p className="text-xs" style={{ color: "var(--gedaempft)" }}>
+          Kartendaten: {ergebnis.kartenQuelle?.startsWith("protomaps") ? "eigenes Archiv (OpenStreetMap, Protomaps)" : "Mapbox"} ·
           Kartenfenster {f.breiteMm.toFixed(0)} × {f.hoeheMm.toFixed(0)} mm · Ausschnitt{" "}
           {(ergebnis.ausschnittMeter.breite / 1000).toFixed(2)} × {(ergebnis.ausschnittMeter.hoehe / 1000).toFixed(2)} km
         </p>

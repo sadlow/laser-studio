@@ -1,18 +1,12 @@
 import { NextResponse } from "next/server";
 import { rendereSchichtkarte, type Schichtkarte } from "@/engine";
 import { merke } from "@/server/ergebnis-cache";
+import { mitKartenQuelle } from "@/server/karten-quelle";
 
 // Node-Laufzeit: Kachel-Parser und Schriftdateien brauchen Buffer und fs.
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const token = process.env.MAPBOX_ACCESS_TOKEN;
-  if (!token) {
-    return NextResponse.json(
-      { fehler: "MAPBOX_ACCESS_TOKEN fehlt. Trage ihn in .env.local ein (Vorlage: .env.example)." },
-      { status: 500 },
-    );
-  }
 
   let karte: Schichtkarte;
   try {
@@ -25,7 +19,8 @@ export async function POST(request: Request) {
     // Das Signal endet, wenn die Vorschau abbricht oder eine neuere Eingabe sie ueberholt: dann hoert die Engine nach
     // dem laufenden Schritt auf, statt fuer niemanden weiterzurechnen.
     // Ohne Nahtsuche: die holt /api/teilung bei Bedarf nach, aus dem Speicher.
-    const r = await rendereSchichtkarte(karte, token, request.signal, { teilung: false });
+    const { wert: r, hinweis } = await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q, request.signal, { teilung: false }));
+    if (hinweis) r.warnungen.unshift(hinweis);
     merke(karte, r);
     return NextResponse.json(r);
   } catch (e) {

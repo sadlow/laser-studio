@@ -6,6 +6,7 @@ import { gravurBeschreibung, produktionsSvg } from "@/engine/produktion";
 import { standardSchichtkarte } from "@/engine/standard";
 import type { GeoPunkt, Kundeneingabe, Schichtkarte } from "@/engine/typen";
 import { geteilteDateien } from "./export-geteilt";
+import { mitKartenQuelle } from "./karten-quelle";
 import { slug, type Produktparameter } from "./vorlagen";
 
 export const EXPORT_ORDNER = path.join(process.cwd(), "export");
@@ -35,7 +36,7 @@ export interface ExportErgebnis {
  * ein Stueck spaeter exakt nachbauen laesst – auch wenn die Vorlage bis dahin weiterentwickelt wurde.
  * Eine einzelne Variante (der Exportknopf) landet direkt im Ordner, mehrere je in einem Unterordner.
  */
-export async function exportiere(auftrag: ExportAuftrag, token: string): Promise<ExportErgebnis> {
+export async function exportiere(auftrag: ExportAuftrag): Promise<ExportErgebnis> {
   // Ortszeit im Ordnernamen – UTC stand zwei Stunden daneben.
   const jetzt = new Date(Date.now() - new Date().getTimezoneOffset() * 60000);
   const datum = jetzt.toISOString().slice(0, 16).replace("T", " ");
@@ -50,7 +51,8 @@ export async function exportiere(auftrag: ExportAuftrag, token: string): Promise
     const karte: Schichtkarte = { ...v.karte, kunde: auftrag.kunde, lon: auftrag.lon, lat: auftrag.lat, kartenMitte: auftrag.kartenMitte };
     // Ein Entwurf aus einem offenen Browserfenster kennt die Einstellung vielleicht noch nicht.
     karte.gravurExport ??= standardSchichtkarte().gravurExport;
-    const r = await rendereSchichtkarte(karte, token);
+    const { wert: r, hinweis } = await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q));
+    if (hinweis) r.warnungen.unshift(hinweis);
     const ziel = auftrag.varianten.length === 1 ? ordner : path.join(ordner, v.id);
     fs.mkdirSync(ziel, { recursive: true });
 
@@ -104,6 +106,7 @@ function uebersicht(name: string, datum: string, karte: Schichtkarte, r: Awaited
     `Platte:     ${platte.breiteMm} x ${platte.hoeheMm} mm (${karte.format}, ${karte.layoutArt}, ${karte.aufbau})`,
     `Ort (Symbol-Anker): ${karte.lat.toFixed(5)}, ${karte.lon.toFixed(5)} – ${karte.kunde.symbol}, ${karte.kunde.symbolGroesse}`,
     `Ausschnitt: ${karte.ausschnittKm} km breit um ${r.kartenMitte.lat.toFixed(5)}, ${r.kartenMitte.lon.toFixed(5)}`,
+    `Kartendaten: ${r.kartenQuelle.startsWith("protomaps") ? "eigenes Archiv, OpenStreetMap (© OpenStreetMap-Mitwirkende)" : "Mapbox"} (${r.kartenQuelle})`,
     `Texte:      ${r.texte.titel} / ${r.texte.zeile1} / ${r.texte.zeile2}`,
     ``,
     `Lagen von oben nach unten (Dateinummer = Reihenfolge):`,

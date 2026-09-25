@@ -13,8 +13,6 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const token = process.env.MAPBOX_ACCESS_TOKEN;
-  if (!token) return NextResponse.json({ fehler: "MAPBOX_ACCESS_TOKEN fehlt." }, { status: 500 });
   try {
     const a = (await request.json()) as {
       platte: PlattenKey;
@@ -34,7 +32,7 @@ export async function POST(request: Request) {
         ? { id: "entwurf", name: "Aktueller Entwurf", beschreibung: "", karte: a.aktuell }
         : ladeVorlage(a.vorlageId);
     if (!vorlage) throw new Error(`Vorlage "${a.vorlageId}" nicht gefunden.`);
-    return NextResponse.json(await erzeugeBogen({ ...a, vorlage }, token));
+    return NextResponse.json(await erzeugeBogen({ ...a, vorlage }));
   } catch (e) {
     return NextResponse.json({ fehler: e instanceof Error ? e.message : String(e) }, { status: 500 });
   }

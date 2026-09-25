@@ -18,8 +18,6 @@ interface Anfrage {
 }
 
 export async function POST(request: Request) {
-  const token = process.env.MAPBOX_ACCESS_TOKEN;
-  if (!token) return NextResponse.json({ fehler: "MAPBOX_ACCESS_TOKEN fehlt." }, { status: 500 });
 
   try {
     const a = (await request.json()) as Anfrage;
@@ -34,7 +32,7 @@ export async function POST(request: Request) {
     }
     if (!varianten.length) return NextResponse.json({ fehler: "Keine Variante ausgewaehlt." }, { status: 400 });
 
-    return NextResponse.json(await exportiere({ varianten, kunde: a.kunde, lon: a.lon, lat: a.lat, kartenMitte: a.kartenMitte }, token));
+    return NextResponse.json(await exportiere({ varianten, kunde: a.kunde, lon: a.lon, lat: a.lat, kartenMitte: a.kartenMitte }));
   } catch (e) {
     return NextResponse.json({ fehler: e instanceof Error ? e.message : String(e) }, { status: 500 });
   }

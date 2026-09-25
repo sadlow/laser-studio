@@ -14,6 +14,8 @@ import { symbolBreiteMm, symbolEinpassen } from "./symbole";
 import { setzePosterText } from "./textblock";
 import { REFERENZ_KARTENBREITE_MM, type Schichtkarte, type Skizze } from "./typen";
 import { vervollstaendige } from "./vervollstaendige";
+import type { KachelQuelle } from "./quelle";
+import { mapboxTokenQuelle } from "./quelle-mapbox";
 
 // Wie netz.ts: herabgestufte Netzklassen werden in dieser Breite graviert.
 const GRAVUR_HERABGESTUFT_MM = 0.45;
@@ -24,7 +26,7 @@ const GRAVUR_HERABGESTUFT_MM = 0.45;
  * Strassen als Striche statt verschmolzener Flaechen, das Wasser ungefiltert, keine Stege, Spalte oder losen Stuecke.
  * Sieht aus wie das Produkt und kostet einen Bruchteil; geschnitten wird nie danach, sondern nach rendereSchichtkarte.
  */
-export async function skizziereSchichtkarte(eingabe: Schichtkarte, token: string, signal?: AbortSignal): Promise<Skizze> {
+export async function skizziereSchichtkarte(eingabe: Schichtkarte, quelleOderToken: KachelQuelle | string, signal?: AbortSignal): Promise<Skizze> {
   const start = Date.now();
   const k = vervollstaendige(eingabe);
   const layout = berechneLayout(k);
@@ -32,8 +34,10 @@ export async function skizziereSchichtkarte(eingabe: Schichtkarte, token: string
   const faktor = f.breiteMm / REFERENZ_KARTENBREITE_MM;
   const breiteste = Math.max(k.netzMinBreiteMm, ...k.strassen.filter((s) => s.ziel === "netz").map((s) => s.breiteMm * faktor));
   const kartenMitte = k.kartenMitte ?? { lon: k.lon, lat: k.lat };
+  const quelle = typeof quelleOderToken === "string" ? mapboxTokenQuelle(quelleOderToken) : quelleOderToken;
   const roh = await ladeKartenRohdaten({
-    lon: kartenMitte.lon, lat: kartenMitte.lat, ausschnittBreiteM: k.ausschnittKm * 1000, fenster: f, zugabeMm: breiteste + 1, token, signal,
+    lon: kartenMitte.lon, lat: kartenMitte.lat, ausschnittBreiteM: k.ausschnittKm * 1000, fenster: f, zugabeMm: breiteste + 1, signal,
+    quelle,
   });
 
   const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
@@ -101,6 +105,7 @@ export async function skizziereSchichtkarte(eingabe: Schichtkarte, token: string
     ausschnittMeter: roh.ausschnittMeter,
     rahmen: (k.kunde.holzrahmen ?? "ohne") === "ohne" ? null : { farbe: k.kunde.holzrahmen as Exclude<typeof k.kunde.holzrahmen, "ohne">, ...k.holzrahmenProfil },
     rechenzeitMs: Date.now() - start,
+    kartenQuelle: quelle.name,
   };
 }
 

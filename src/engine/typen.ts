@@ -218,6 +218,8 @@ export interface Schichtkarte {
   teilung: Teilungsvorgabe;
   /** Im Studio umgewaehlte Naehte – sonst sucht die Engine die sauberste. */
   teilungWahl?: TeilungsWahl;
+  /** Kartendaten: das eigene Archiv (OpenStreetMap, Standard) oder Mapbox (Rueckfall, Abgleich) – Marcel 25.09.2026. */
+  kartenQuelle?: "archiv" | "mapbox";
 }
 
 export * from "./typen-ergebnis";

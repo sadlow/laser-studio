@@ -6,7 +6,7 @@ import { symbolBreiteMm } from "@/engine/symbole";
 import { TITELSCHRIFTEN, ZEILENSCHRIFTEN } from "@/engine/standard";
 import { REFERENZ_KARTENBREITE_MM, type Anker, type EingebettetesLayout, type LayoutArt, type Schichtkarte, type TextForm, type TextStil } from "@/engine/typen";
 import { EingabeKante } from "./eingabe-kante";
-import { Anteil, Auswahl, Block, Haken, Zahl } from "./felder";
+import { Anteil, Auswahl, Block, Haken, Wahl, Zahl } from "./felder";
 import type { Aenderung } from "./aenderung";
 
 interface Props {
@@ -37,6 +37,17 @@ export function EingabePlatte({ karte, aendern }: Props) {
       hinweis="A3 zeigt denselben Ausschnitt wie A5, nur groesser – wie beim Poster. Strassenbreiten und Schrift wachsen mit, das Symbol springt je Format eine Stufe seiner Groessenreihe. Fest bleiben Rand, Stege und das Profil des Holzrahmens."
     >
       <div className="grid grid-cols-3 gap-3">
+        <div className="col-span-3">
+          <span className="beschriftung">Kartendaten</span>
+          <Wahl<"archiv" | "mapbox">
+            wert={karte.kartenQuelle ?? "archiv"}
+            optionen={[{ wert: "archiv", titel: "Eigenes Archiv (OSM)" }, { wert: "mapbox", titel: "Mapbox" }]}
+            aendern={(v) => aendern({ kartenQuelle: v })}
+          />
+          <p className="mt-1 text-xs" style={{ color: "var(--gedaempft)" }}>
+            Eigenes Archiv wie im Customizer (Protomaps, Zoom 15). Ist es nicht erreichbar, rechnet das Studio mit Mapbox und sagt es in der Pruefung.
+          </p>
+        </div>
         <div className="col-span-3">
           <Haken
             titel="Freies Format (Prototyp-Masse)"
