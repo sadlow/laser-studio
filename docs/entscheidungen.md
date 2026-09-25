@@ -172,7 +172,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 
 - **Titel auf der Kante** (`kante.ts`, Marcel 25.09.2026, Vorbild Kettle Falls; Standard fuer 60 x 60): Titel in
   Versalien (Bebas Neue) als Material auf der Innenkante des unteren Rands, links, mittig oder rechts – der Kunde waehlt.
-  Hoechstens ein Drittel der Breite (60 x 60: 20 cm) und 8 % der Hoehe, hoechstens 15 Zeichen. Graben 3 mm ohne
+  Hoechstens ein Drittel der Breite (60 x 60: 20 cm) und 8 % der Hoehe, hoechstens 15 Zeichen. Die Zeile im Rand so hoch
+  wie die Zeilen der anderen Layouts (60 x 60: wie 30 x 30). Graben 3 mm ohne
   Strassen, zwischen den Buchstaben keine (sonst 19 lose Stummel, jetzt 2). Namen und letzte Zeile als eine Zeile
   negativ im Rand (16 mm, unten 36 mm), links, mittig oder rechts. Keine Stege im Titel; Umlautpunkte sind lose
   Textteile zum Aufkleben. Von drei Entwuerfen (Block rechts, Schreibschrift mittig, Ortsname links) gewaehlt.
@@ -279,6 +280,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Laser 60 x 30,5 cm, Rohplatte genauso gross.** 60 x 60 nutzt die volle Breite: Kartenkanten = Plattenkanten,
   dort wird nicht geschnitten (`bogenSvg(…, kantenOffen)`), nur Naht und Inneres. Die Naht bleibt 2 mm von der
   gegenueberliegenden Plattenkante: 297-303 mm, probiert in 1-mm-Schritten.
+- **Mehr Karte, nicht groesser** (Marcel 25.09.2026): Symbol wie bei A3 und 30 x 30 (11/15/21 mm), Namen, Freitext
+  und Koordinaten so hoch wie beim 30 x 30 (5,9 mm, `zeilenBezugMm`). Nur Titel, Rand und Strassenbreiten wachsen.
 - **Nur mit Holzrahmen**: er haelt die Haelften zusammen und deckt die Plattenkanten; "ohne" ist im Studio gesperrt.
 - **Blau ungeteilt** (Rohformat bestellen), Symbol klein auf irgendeiner Platte. Alle anderen Lagen mindestens 3 mm
   (Vorlage `quadrat-60-weisses-netz`); das Symbol (Spiegel 3 mm) steht dann nicht mehr ueber das Netz.

@@ -1,4 +1,5 @@
 import { rechteck, ringeInMm, schliesse, vereinige, versatz, verschiebe, ziehAb, type Flaeche } from "./geometrie";
+import { zeilenBezugMm } from "./formate";
 import { setzeSchnittText } from "./schnitt-text";
 import type { Layout, Schichtkarte } from "./typen";
 import { schnittRegeln, zeilenAusEingabe, type GesetzteZeile, type Textblock } from "./zeilen";
@@ -55,7 +56,8 @@ export function setzeKante(k: Schichtkarte, layout: Layout): Textblock {
   // Namen und letzte Zeile nebeneinander, mittig im sichtbaren Rand – den aeusseren Streifen deckt der Holzrahmen.
   const zeileText = [texte.zeile1, texte.zeile2].filter(Boolean).join("   ");
   if (zeileText) {
-    const versal = p.hoeheMm * kt.zeileVersalAnteil;
+    // So gross wie die Zeilen der anderen Layouts, bei 60 x 60 wie beim 30 x 30 (zeilenBezugMm).
+    const versal = zeilenBezugMm(k.format, p.hoeheMm) * k.zeilenStil.hoeheAnteil;
     const maxBreite = f.breiteMm - 2 * kt.einzugMm;
     const z = setzeSchnittText({ text: zeileText, schrift: k.zeilenStil.schrift, versalhoeheMm: versal, sperrungEm: kt.zeileSperrung, mitteX: 0, mitteY: 0, maxBreiteMm: maxBreite }, "druck", regeln);
     if (z.faktor < 0.999) warnungen.push(`Namen und letzte Zeile passen nicht in den Rand und wurden auf ${Math.round(z.faktor * 100)} % verkleinert.`);

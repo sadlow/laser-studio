@@ -71,9 +71,11 @@ function form(art: SymbolArt): Form {
  * A4 nimmt die Stufen 2 bis 4 (klein, mittel, gross), A3 eine Stufe hoeher, A5 eine tiefer: das mittlere
  * bei A4 ist das kleine bei A3 und das grosse bei A5. Eine Formatstufe ist Faktor Wurzel 2 in der
  * Kartenbreite – so ordnen sich auch Quadrat und freie Formate ein. Fuer A5 bis A3 reichen 5 Groessen.
+ * Groesser als A3 waechst das Symbol nicht mehr (Marcel 25.09.2026): 60 x 60 zeigt mehr Karte, es ist kein
+ * vergroessertes 30 x 30 – das Herz bleibt so gross wie bei A3 und 30 x 30.
  */
 export function symbolBreiteMm(stufenMm: number[], groesse: SymbolGroesse, formatfaktor: number): number {
-  const verschiebung = Math.round(2 * Math.log2(Math.max(0.05, formatfaktor)));
+  const verschiebung = Math.min(1, Math.round(2 * Math.log2(Math.max(0.05, formatfaktor))));
   const i = 1 + ["klein", "mittel", "gross"].indexOf(groesse) + verschiebung;
   return stufenMm[Math.min(stufenMm.length - 1, Math.max(0, i))] ?? 11;
 }

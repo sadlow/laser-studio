@@ -30,7 +30,6 @@ export function EingabeKante({ karte, aendern }: { karte: Schichtkarte; aendern:
       <Zahl titel="Rand" einheit="mm" schritt={0.5} min={0} wert={kt.rahmenMm} aendern={(v) => setze({ rahmenMm: v })} />
       <Zahl titel="Rand unten" einheit="mm" schritt={0.5} min={0} wert={kt.rahmenUntenMm} aendern={(v) => setze({ rahmenUntenMm: v })} />
       <Zahl titel="Einzug seitlich" einheit="mm" schritt={0.5} min={0} wert={kt.einzugMm} aendern={(v) => setze({ einzugMm: v })} />
-      <Zahl titel={`Zeile im Rand${mm(kt.zeileVersalAnteil)}`} einheit="% Hoehe" schritt={0.01} min={0.1} wert={r(kt.zeileVersalAnteil * 100)} aendern={(v) => setze({ zeileVersalAnteil: v / 100 })} />
       <Zahl titel="Sperrung Zeile" einheit="em" schritt={0.01} wert={kt.zeileSperrung} aendern={(v) => setze({ zeileSperrung: v })} />
     </div>
   );

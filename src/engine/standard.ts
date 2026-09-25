@@ -132,7 +132,6 @@ export function standardSchichtkarte(): Schichtkarte {
       titelMaxBreiteAnteil: 1 / 3,
       grabenMm: 3,
       konturMm: 2.5,
-      zeileVersalAnteil: 0.0142,
       zeileSperrung: 0.08,
     },
     teilung: { rohplatte: { breiteMm: 600, hoeheMm: 305 }, randMm: 2, gewichtEinzelteil: 4, kleinMm2: 400, schrittMm: 1 },

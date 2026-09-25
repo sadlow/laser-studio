@@ -1,3 +1,4 @@
+import { zeilenBezugMm } from "./formate";
 import { rechteck, ringeInMm, ziehAb } from "./geometrie";
 import { setzeSchnittText } from "./schnitt-text";
 import type { Layout, Schichtkarte, TextStil } from "./typen";
@@ -30,7 +31,7 @@ export function setzePosterText(k: Schichtkarte, layout: Layout): Textblock {
   for (const [name, text, s, mitteAnteil, art] of zeilen) {
     if (!text) continue;
     try {
-      const versalhoeheMm = platte.hoeheMm * s.hoeheAnteil;
+      const versalhoeheMm = (art === "druck" ? zeilenBezugMm(k.format, platte.hoeheMm) : platte.hoeheMm) * s.hoeheAnteil;
       const satz = { text, schrift: s.schrift, versalhoeheMm, sperrungEm: s.sperrung, mitteX, mitteY: platte.hoeheMm * mitteAnteil, maxBreiteMm: maxBreite };
       const zeile = setzeSchnittText(satz, art, schnittRegeln(k, s));
       if (zeile.faktor < 0.999) {

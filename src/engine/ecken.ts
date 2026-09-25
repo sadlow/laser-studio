@@ -1,3 +1,4 @@
+import { zeilenBezugMm } from "./formate";
 import {
   abgerundetesRechteck,
   ohneLoecher,
@@ -59,7 +60,8 @@ export function setzeEingebettet(k: Schichtkarte, layout: Layout): Textblock {
   for (const [name, text, s, anker, art] of eingaben) {
     if (!text) continue;
     try {
-      const versalhoeheMm = platte.hoeheMm * s.hoeheAnteil;
+      // Zeilen (Druckschrift) behalten bei 60 x 60 die Groesse des 30 x 30, der Titel waechst mit.
+      const versalhoeheMm = (art === "druck" ? zeilenBezugMm(k.format, platte.hoeheMm) : platte.hoeheMm) * s.hoeheAnteil;
       const maxBreite = (anker.endsWith("mitte") ? 0.7 : 0.45) * f.breiteMm;
       const z = setzeSchnittText({ text, schrift: s.schrift, versalhoeheMm, sperrungEm: s.sperrung, mitteX: 0, mitteY: 0, maxBreiteMm: maxBreite }, art, schnittRegeln(k, s));
       if (z.faktor < 0.999) {

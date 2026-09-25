@@ -24,6 +24,5 @@ export interface KantenLayout {
    * eine Umrandung so breit – Kontrast gegen den weissen Grund, und die Strassen haengen daran (Marcel 25.09.2026).
    */
   konturMm: number;
-  zeileVersalAnteil: number;
   zeileSperrung: number;
 }
