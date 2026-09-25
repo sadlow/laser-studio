@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   try {
     const karte = (await request.json()) as Schichtkarte;
-    const { wert } = await mitKartenQuelle(karte.kartenQuelle, (q) => skizziereSchichtkarte(karte, q, request.signal));
+    const { wert } = await mitKartenQuelle(karte.kartenQuelle, (q) => skizziereSchichtkarte(karte, q, request.signal), karte.ausschnittKm);
     return NextResponse.json(wert);
   } catch (e) {
     if (request.signal.aborted) return new Response(null, { status: 499 });

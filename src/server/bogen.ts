@@ -65,7 +65,7 @@ export async function erzeugeBogen(a: BogenAuftrag) {
     const wert = a.werte[i];
     if (a.variation === "ausschnittKm" && wert > 0) karte.ausschnittKm = wert;
     if (a.variation === "stegMm" && wert > 0) karte.stegMm = wert;
-    const { wert: r, hinweis } = await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q));
+    const { wert: r, hinweis } = await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q), karte.ausschnittKm);
     if (hinweis) r.warnungen.unshift(hinweis);
     const kennung = a.variation === "keine" ? `platz ${i + 1}` : `${a.variation === "ausschnittKm" ? "Ausschnitt" : "Steg"} ${wert}`;
     fs.writeFileSync(path.join(ordner, `vorschau-platz-${i + 1}.svg`), r.vorschauSvg);

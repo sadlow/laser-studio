@@ -12,7 +12,7 @@ if (parentPort) {
   const port = parentPort;
   port.on("message", async ({ id, karte }: AnVollWorker) => {
     try {
-      const { wert, hinweis } = await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q, undefined, { teilung: false }));
+      const { wert, hinweis } = await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q, undefined, { teilung: false }), karte.ausschnittKm);
       if (hinweis) wert.warnungen.unshift(hinweis);
       port.postMessage({ id, ergebnis: wert });
     } catch (e) {

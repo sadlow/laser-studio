@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     const t0 = Date.now();
     const treffer = !!r;
     if (!r) {
-      r = (await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q, request.signal, { teilung: false }))).wert;
+      r = (await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q, request.signal, { teilung: false }), karte.ausschnittKm)).wert;
       merke(karte, r);
     }
     const t1 = Date.now();

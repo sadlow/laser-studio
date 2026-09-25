@@ -6,6 +6,7 @@ import { symbolBreiteMm } from "@/engine/symbole";
 import { TITELSCHRIFTEN, ZEILENSCHRIFTEN } from "@/engine/standard";
 import { REFERENZ_KARTENBREITE_MM, type Anker, type EingebettetesLayout, type LayoutArt, type Schichtkarte, type TextForm, type TextStil } from "@/engine/typen";
 import { EingabeKante } from "./eingabe-kante";
+import { zoomStufenKm } from "./zoom-knoepfe";
 import { Anteil, Auswahl, Block, Haken, Wahl, Zahl } from "./felder";
 import type { Aenderung } from "./aenderung";
 
@@ -98,8 +99,8 @@ export function EingabePlatte({ karte, aendern }: Props) {
           </p>
         </div>
         <div className="col-span-3">
-          <span className="beschriftung">Ausschnitt: {karte.ausschnittKm.toFixed(2)} km breit – bei jedem Format gleich</span>
-          <input type="range" className="w-full" min={0.8} max={12} step={0.05} value={karte.ausschnittKm}
+          <span className="beschriftung">Ausschnitt: {karte.ausschnittKm.toFixed(2)} km breit – Massstab wie A4 bei 3,5 km: {(3.5 * faktor).toFixed(1)} km</span>
+          <input type="range" className="w-full" min={zoomStufenKm(faktor)[0]} max={zoomStufenKm(faktor).at(-1)} step={0.05} value={karte.ausschnittKm}
             onChange={(e) => aendern({ ausschnittKm: Number(e.target.value) })} />
         </div>
       </div>

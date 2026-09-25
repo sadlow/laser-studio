@@ -22,6 +22,23 @@ function zuPfad(linie: Punkt[]): ClipperLib.Path {
   return linie.map((p) => ({ X: Math.round(p.x * S), Y: Math.round(p.y * S) }));
 }
 
+/**
+ * Offener Pfad fuer Clipper ohne aufeinanderfolgende gleiche Punkte (nach dem Runden auf Mikrometer). Ein Segment der
+ * Laenge null am Anfang – die Kacheldaten enthalten solche Linien – laesst Clipper bei offenen Pfaden ohne Ende rechnen
+ * und Speicher fressen: 60 x 60 bei 16 km lief so ueber 5 GB voll, eine einzige Linie mit sieben Punkten genuegte
+ * (25.09.2026). Weniger als zwei Punkte: kein Pfad.
+ */
+function zuLinienPfad(linie: Punkt[]): ClipperLib.Path | null {
+  const pfad: ClipperLib.Path = [];
+  for (const p of linie) {
+    const X = Math.round(p.x * S);
+    const Y = Math.round(p.y * S);
+    const letzter = pfad[pfad.length - 1];
+    if (!letzter || letzter.X !== X || letzter.Y !== Y) pfad.push({ X, Y });
+  }
+  return pfad.length >= 2 ? pfad : null;
+}
+
 function vonPfad(pfad: ClipperLib.Path): Punkt[] {
   return pfad.map((p) => ({ x: p.X / S, y: p.Y / S }));
 }
@@ -157,7 +174,7 @@ export function ohneLoecher(flaeche: Flaeche, minFlaecheMm2 = 0.05): Flaeche {
 export function ziehLinienAb(linien: Punkt[][], flaeche: Flaeche, innen = false): Punkt[][] {
   if (!flaeche.length || !linien.length) return innen ? [] : linien;
   const c = new ClipperLib.Clipper();
-  c.AddPaths(linien.filter((l) => l.length >= 2).map(zuPfad), ClipperLib.PolyType.ptSubject, false);
+  c.AddPaths(linien.map(zuLinienPfad).filter((p): p is ClipperLib.Path => p !== null), ClipperLib.PolyType.ptSubject, false);
   c.AddPaths(flaeche, ClipperLib.PolyType.ptClip, true);
   const baum = new ClipperLib.PolyTree();
   c.Execute(innen ? ClipperLib.ClipType.ctIntersection : ClipperLib.ClipType.ctDifference, baum, NONZERO, NONZERO);

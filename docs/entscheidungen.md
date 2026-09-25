@@ -375,5 +375,17 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Ortsname kommt ohne Postleitzahl (`stadt`, Abweichung vom Customizer). Antwortet Photon nicht, sucht Enter ueber die
   alte Mapbox-Suche (`/api/ort`). "Luebeck" ergibt jetzt Luebeck (vorher Luebecker Strasse in Koeln). Der Suchtext
   zaehlt nicht zum Kartenstand – Tippen rechnet die Karte nicht mehr neu.
+- **Weit herauszoomen** (Marcel 25.09.2026): die Zoomstufen sind die A4-Reihe mal Kartenbreite/196 mm – jedes Format
+  zoomt im Massstab von A4 und rastet beim Standardausschnitt ein (`zoomStufenKm`, hoechstens 36 km). 60 x 60:
+  10,1 / 13 / 15,9 / 20,3 / 26,1 / 34,8 km (davor 12 km fest). Kachelstufe nach Ausschnitt (`archivZoom`): bis 12,5 km
+  Zoom 15, bis 25 km 14, darueber 13 – bei 30 km waeren es sonst 1 600 Kacheln; Kacheln je Abruf hoechstens 32
+  parallel (sonst Verbindungs-Timeout). Skizze 60 x 60 bei 36 km: 1,4 s warm; volle Rechnung 20-46 s, 1,5-1,8 GB.
+- **Absturz bei grossen Ausschnitten war eine Linie** (`zuLinienPfad`, geometrie.ts): eine Gravurlinie mit einem
+  doppelten Punkt am Anfang (Segment der Laenge null, aus den Kacheldaten) laesst Clipper bei offenen Pfaden ohne Ende
+  rechnen und Speicher fressen – ab 16 km ueber 5 GB („Heap out of memory“), bei kleinen Karten trifft man so eine
+  Linie nicht. Gefunden ueber ein 50-Linien-Paket und Einzelabruf, eine Linie mit 7 Punkten genuegte, mit und ohne
+  `clipper-schnell.ts`. Doppelte Punkte werden vor dem Beschnitt entfernt; Schnitt und Gravurweg an fuenf Karten
+  unveraendert. Falsche Faehrten davor: die Vereinigung in `netz.ts` (37 000 Loecher), Linien in Paketen, Kachelstufe –
+  alle nicht die Ursache, Aenderung an `netz.ts` zurueckgenommen.
 - Offen: der Tagesbau verschwindet nach einigen Tagen – fuer Dauerbetrieb die Bucket-Datei mit S3-Zugang (wie
   `pmtiles.server.ts` im Customizer).

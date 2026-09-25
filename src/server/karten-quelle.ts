@@ -9,16 +9,35 @@
  */
 import { gunzipSync } from "node:zlib";
 import { Compression, PMTiles, SharedPromiseCache, type RangeResponse, type Source } from "pmtiles";
-import { mapboxTokenQuelle, protomapsQuelle, type KachelQuelle } from "@/engine";
+import { ARCHIV_ZOOM, mapboxTokenQuelle, protomapsQuelle, type KachelQuelle } from "@/engine";
 
 export type QuellenWahl = "archiv" | "mapbox";
+
+// Hoechstens so viele Bereichsabrufe gleichzeitig: ein weit herausgezoomter Ausschnitt braucht tausend Kacheln (60 x 60
+// bei 30 km rund 1 600), auf einen Schlag lief der Server in den Verbindungs-Timeout (25.09.2026).
+const MAX_PARALLEL = 32;
+let laufend = 0;
+const warteschlange: (() => void)[] = [];
+async function platz<T>(arbeit: () => Promise<T>): Promise<T> {
+  if (laufend >= MAX_PARALLEL) await new Promise<void>((weiter) => warteschlange.push(weiter));
+  laufend++;
+  try {
+    return await arbeit();
+  } finally {
+    laufend--;
+    warteschlange.shift()?.();
+  }
+}
 
 class NetzQuelle implements Source {
   constructor(private url: string) {}
   getKey() {
     return this.url;
   }
-  async getBytes(offset: number, length: number, signal?: AbortSignal): Promise<RangeResponse> {
+  getBytes(offset: number, length: number, signal?: AbortSignal): Promise<RangeResponse> {
+    return platz(() => this.hole(offset, length, signal));
+  }
+  private async hole(offset: number, length: number, signal?: AbortSignal): Promise<RangeResponse> {
     const antwort = await fetch(this.url, { headers: { Range: `bytes=${offset}-${offset + length - 1}` }, signal });
     if (antwort.status !== 206) throw new Error(`Kartenarchiv antwortete mit HTTP ${antwort.status}`);
     return { data: await antwort.arrayBuffer() };
@@ -57,9 +76,22 @@ function archiv(adresse: string) {
   return ablage.__kartenArchiv;
 }
 
-function archivQuelle(adresse: string): KachelQuelle {
+/**
+ * Kachelstufe nach Ausschnitt (Marcel 25.09.2026, 60 x 60 weit herausgezoomt): Zoom 15 gilt bis 12 km – dort braucht
+ * eine 60 x 60 rund 250 Kacheln. Weiter draussen waeren es bei 30 km 1 600 (Hunderte MB) fuer Zufahrten und Fusswege,
+ * die bei 1 mm = 50 m niemand sieht; jede Stufe darunter viertelt die Kacheln. Das Archiv fuehrt Strassen dann ab
+ * Wohnstrasse (Zoom 13) bzw. Nebenstrasse.
+ */
+export function archivZoom(ausschnittKm: number): number {
+  // Zum Messen: KARTE_ZOOM erzwingt eine Stufe (scripts/voll-weit.ts).
+  if (process.env.KARTE_ZOOM) return Number(process.env.KARTE_ZOOM);
+  return ausschnittKm <= 12.5 ? ARCHIV_ZOOM : ausschnittKm <= 25 ? 14 : 13;
+}
+
+function archivQuelle(adresse: string, ausschnittKm: number): KachelQuelle {
   const a = archiv(adresse);
-  return protomapsQuelle(async (z, x, y) => {
+  const zoom = archivZoom(ausschnittKm);
+  const basis = protomapsQuelle(async (z, x, y) => {
     const schluessel = `${z}/${x}/${y}`;
     const da = a.kacheln.get(schluessel);
     if (da) return da;
@@ -70,6 +102,7 @@ function archivQuelle(adresse: string): KachelQuelle {
     while (a.kacheln.size > MAX_KACHELN) a.kacheln.delete(a.kacheln.keys().next().value!);
     return abruf;
   });
+  return { ...basis, zoom };
 }
 
 /**
@@ -79,12 +112,13 @@ function archivQuelle(adresse: string): KachelQuelle {
 export async function mitKartenQuelle<T>(
   wahl: QuellenWahl | undefined,
   rechne: (quelle: KachelQuelle) => Promise<T>,
+  ausschnittKm = 3.5,
 ): Promise<{ wert: T; quelle: string; hinweis: string | null }> {
   const token = process.env.MAPBOX_ACCESS_TOKEN ?? "";
   const adresse = archivAdresse();
   if ((wahl ?? "archiv") === "archiv" && adresse) {
     try {
-      const q = archivQuelle(adresse);
+      const q = archivQuelle(adresse, ausschnittKm);
       return { wert: await rechne(q), quelle: q.name, hinweis: null };
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") throw e;

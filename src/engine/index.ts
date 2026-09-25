@@ -16,7 +16,7 @@ import { mapboxTokenQuelle } from "./quelle-mapbox";
 
 export type { KachelQuelle, Merkmal } from "./quelle";
 export { mapboxTokenQuelle } from "./quelle-mapbox";
-export { protomapsQuelle } from "./quelle-protomaps";
+export { ARCHIV_ZOOM, protomapsQuelle } from "./quelle-protomaps";
 
 export { teilungFuer } from "./teilung-hinweise";
 import { setzePosterText } from "./textblock";

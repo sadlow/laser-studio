@@ -78,7 +78,7 @@ npm install && npm run dev   # http://localhost:3010
 
 ## Offen
 
-- Rechenzeit bei grossem Ausschnitt (8,6 km A4: 5,3 s; 60 x 60 Barcelona 7 km: 15 s, 12 km Minuten) – Datenzoom/Vereinfachung
+- Rechenzeit: 60 x 60 Berlin 9 km volle Rechnung 13 s, 20 km 24 s, 36 km 46 s (Skizze immer unter 2 s); Ausschnitt bis 36 km, Kachelstufe 15/14/13
 - Exportdateien noch nicht in xTool Studio geoeffnet
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
 - Kartenarchiv lokal ueber den oeffentlichen Tagesbau (verschwindet nach Tagen) – Dauerbetrieb braucht den Bucket-Zugang

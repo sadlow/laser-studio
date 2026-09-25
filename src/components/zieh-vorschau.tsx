@@ -10,7 +10,8 @@ import { KartenKopie } from "./karten-kopie";
 import { NahtUeberlagerung } from "./naht-ueberlagerung";
 import { StandortZentrieren } from "./standort-zentrieren";
 import { useSvgLage } from "./svg-lage";
-import { ZOOM_STUFEN_KM, ZoomKnoepfe } from "./zoom-knoepfe";
+import { zoomStufenKm, ZoomKnoepfe } from "./zoom-knoepfe";
+import { REFERENZ_KARTENBREITE_MM } from "@/engine/typen";
 import type { Aenderung } from "./aenderung";
 
 interface Props {
@@ -40,10 +41,12 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
   const [gezogen, setGezogen] = useState(false);
   const [haltenFuer, setHaltenFuer] = useState<Anzeige | null>(null);
   const [zeiger, setZeiger] = useState<"karte" | "symbol" | null>(null);
-  const aktuell = useRef({ karte, aendern });
-  aktuell.current = { karte, aendern };
-
   const { platte, kartenfenster: f } = ergebnis.layout;
+  // Zoomstufen im Massstab von A4: das Format bestimmt, wie weit hinaus (zoom-knoepfe.tsx).
+  const faktor = f.breiteMm / REFERENZ_KARTENBREITE_MM;
+  const aktuell = useRef({ karte, aendern, faktor });
+  aktuell.current = { karte, aendern, faktor };
+
   const lage = useSvgLage(box, svg, platte.breiteMm);
 
   // Neue Vorschau da: verschobene Ansicht aufloesen.
@@ -78,7 +81,8 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
       e.preventDefault();
       const { karte: k, aendern: setze } = aktuell.current;
       const schritt = Math.min(1.25, Math.max(0.8, Math.exp(e.deltaY * 0.01)));
-      const km = Math.min(ZOOM_STUFEN_KM[ZOOM_STUFEN_KM.length - 1], Math.max(ZOOM_STUFEN_KM[0], k.ausschnittKm * schritt));
+      const stufen = zoomStufenKm(aktuell.current.faktor);
+      const km = Math.min(stufen[stufen.length - 1], Math.max(stufen[0], k.ausschnittKm * schritt));
       setze({ ausschnittKm: Math.round(km * 100) / 100 });
     };
     el.addEventListener("wheel", rad, { passive: false });
@@ -178,6 +182,7 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
       {lage && <RahmenUmriss ergebnis={ergebnis} lage={lage} />}
       {lage && (
         <ZoomKnoepfe
+          faktor={faktor}
           km={karte.ausschnittKm}
           setzeKm={(km) => aendern({ ausschnittKm: km })}
           style={{ left: lage.links + (f.xMm + f.breiteMm) * s - 44 - 8, top: lage.oben + f.yMm * s + 8 }}

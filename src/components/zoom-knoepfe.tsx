@@ -10,20 +10,33 @@ import type { CSSProperties } from "react";
  */
 export const ZOOM_STUFEN_KM = [0.8, 1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4.5, 5.5, 7, 9, 12];
 
+/** Weiter als das nicht: Kachelmenge und Rechenzeit (60 x 60 bei 36 km: Skizze 1,4 s, ganz Berlin samt Umland). */
+export const ZOOM_MAX_KM = 36;
+
+/**
+ * Die Stufen fuer ein Format (Marcel 25.09.2026): die A4-Reihe mal Kartenbreite / A4-Kartenbreite – jedes Format
+ * zoomt im selben Massstab wie A4 und rastet beim Standardausschnitt ein. 60 x 60: 2,3 bis 34,8 km statt 0,8 bis 12.
+ */
+export function zoomStufenKm(faktor: number): number[] {
+  const stufen = ZOOM_STUFEN_KM.map((s) => Math.round(s * faktor * 10) / 10).filter((s) => s <= ZOOM_MAX_KM);
+  return stufen.filter((s, i) => stufen.indexOf(s) === i);
+}
+
 /** Naechste Stufe ab einem beliebigen Wert – auch ab einem, den der Regler gesetzt hat. */
-export function naechsteStufe(km: number, richtung: "rein" | "raus"): number | null {
+export function naechsteStufe(km: number, richtung: "rein" | "raus", faktor = 1): number | null {
+  const stufen = zoomStufenKm(faktor);
   const stufe =
     richtung === "rein"
-      ? [...ZOOM_STUFEN_KM].reverse().find((s) => s < km - 1e-6)
-      : ZOOM_STUFEN_KM.find((s) => s > km + 1e-6);
+      ? [...stufen].reverse().find((s) => s < km - 1e-6)
+      : stufen.find((s) => s > km + 1e-6);
   return stufe ?? null;
 }
 
 const kmText = (km: number) => km.toLocaleString("de-DE", { maximumFractionDigits: 2 });
 
-export function ZoomKnoepfe({ km, setzeKm, style }: { km: number; setzeKm: (km: number) => void; style: CSSProperties }) {
-  const rein = naechsteStufe(km, "rein");
-  const raus = naechsteStufe(km, "raus");
+export function ZoomKnoepfe({ km, setzeKm, style, faktor = 1 }: { km: number; setzeKm: (km: number) => void; style: CSSProperties; faktor?: number }) {
+  const rein = naechsteStufe(km, "rein", faktor);
+  const raus = naechsteStufe(km, "raus", faktor);
   const knopf = "h-8 w-11 text-lg leading-none outline-none disabled:opacity-30 hover:bg-black/5 focus-visible:bg-black/10";
   return (
     <div

@@ -27,7 +27,7 @@ function starte(): Platz {
   // zusammengesetzt statt aufgeloest, sonst packt Next tsx samt esbuild in den Server-Bundle.
   const tsx = join(process.cwd(), "node_modules/tsx/dist/cjs/api/index.cjs");
   const quelle = join(process.cwd(), "src/server/voll-worker.ts");
-  const worker = new Worker(`require(${JSON.stringify(tsx)}).register(); require(${JSON.stringify(quelle)});`, { eval: true });
+  const worker = new Worker(`require(${JSON.stringify(tsx)}).register(); require(${JSON.stringify(quelle)});`, { eval: true, resourceLimits: { maxOldGenerationSizeMb: 6144 } });
   let bereitMelden: () => void = () => {};
   const platz: Platz = { worker, bereit: new Promise((r) => (bereitMelden = r)), auftrag: null };
   worker.on("message", (n: { bereit?: true; id?: number; ergebnis?: SchichtkartenErgebnis; fehler?: string }) => {
@@ -86,7 +86,7 @@ export async function rechneVoll(karte: Schichtkarte, signal?: AbortSignal): Pro
 }
 
 async function imHauptprozess(karte: Schichtkarte, signal?: AbortSignal) {
-  const { wert, hinweis } = await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q, signal, { teilung: false }));
+  const { wert, hinweis } = await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q, signal, { teilung: false }), karte.ausschnittKm);
   if (hinweis) wert.warnungen.unshift(hinweis);
   return wert;
 }

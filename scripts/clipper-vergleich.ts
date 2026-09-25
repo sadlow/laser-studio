@@ -12,6 +12,7 @@ const FAELLE: [string, string, number][] = [
   ["quadrat-60-titel-kante", "amsterdam", 3.5],
   ["quadrat-60-weisses-netz", "allgaeu", 3.5],
   ["quadrat-60-titel-kante", "berlin", 9],
+  ["quadrat-60-titel-kante", "hamburg", 12],
 ];
 
 async function main() {
@@ -23,7 +24,7 @@ async function main() {
     const k: Schichtkarte = { ...v.karte, ausschnittKm: km, lon: ort.lon, lat: ort.lat, kunde: { ...basis.kunde, ortText: ort.ortText, holzrahmen: "schwarz" } };
     await rendereSchichtkarte(k, token); // Kacheln in den Cache
     const t0 = performance.now();
-    const r = await rendereSchichtkarte(k, token);
+    const r = await rendereSchichtkarte(k, token, undefined, { teilung: true });
     const ms = Math.round(performance.now() - t0);
     const hash = crypto.createHash("sha1").update(r.vorschauSvg + r.lagen.map((l) => l.laserSvg).join("") + JSON.stringify(r.teilung)).digest("hex").slice(0, 12);
     console.log(`${vorlage.padEnd(26)} ${ortId.padEnd(10)} ${String(km).padStart(4)} km  ${String(ms).padStart(6)} ms  ${hash}`);

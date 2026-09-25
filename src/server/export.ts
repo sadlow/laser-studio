@@ -51,7 +51,7 @@ export async function exportiere(auftrag: ExportAuftrag): Promise<ExportErgebnis
     const karte: Schichtkarte = { ...v.karte, kunde: auftrag.kunde, lon: auftrag.lon, lat: auftrag.lat, kartenMitte: auftrag.kartenMitte };
     // Ein Entwurf aus einem offenen Browserfenster kennt die Einstellung vielleicht noch nicht.
     karte.gravurExport ??= standardSchichtkarte().gravurExport;
-    const { wert: r, hinweis } = await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q));
+    const { wert: r, hinweis } = await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q), karte.ausschnittKm);
     if (hinweis) r.warnungen.unshift(hinweis);
     const ziel = auftrag.varianten.length === 1 ? ordner : path.join(ordner, v.id);
     fs.mkdirSync(ziel, { recursive: true });
