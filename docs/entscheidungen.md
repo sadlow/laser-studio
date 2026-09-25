@@ -296,7 +296,18 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Stelle 40 x 40 mm vergroessert.
 - **Naehte nur auf Abruf**: die Live-Vorschau rechnet nur die Karte (`rendereSchichtkarte(…, { teilung: false })`),
   die Naehte kommen per Knopf im Block "Teilung" oder im Export. Der Server merkt sich die letzten drei Karten
-  (`ergebnis-cache.ts`), Umwaehlen einer Naht baut die Karte nicht neu. Berlin 3,5 km: Naehte 0,8 s (tsx), 3,3 s im
+  (`ergebnis-cache.ts`), Umwaehlen einer Naht baut die Karte nicht neu. Sind die Naehte gerechnet, zeigen die
+  Laser-Reiter die Rohplatten wie im Export (`teilung-ansicht.ts`): Haelften A/B gedreht, Deckschicht als Rahmenbogen. Berlin 3,5 km: Naehte 0,8 s (tsx), 3,3 s im
   Dev-Server.
 - Offen: eine Naht, die um kleine Einzelteile im Band herumlaeuft (Zacken statt Gerade), wuerde im Allgaeu einige
   der 8 Stuecke sparen.
+
+## Rechenzeit (Profil 25.09.2026, `scripts/clipper-vergleich.ts`)
+
+- Berlin 60 x 60, 9 km: Kacheln 0,6 s kalt / 0,03 s aus dem Cache, Text 0,1 s, Netz und Lagen 15 s, JSON 0,04 s
+  (7,5 MB). Die Zeit steckt in der Geometrie auf dem Server, nicht im Kartenabruf und nicht im Browser; 3D rechnet
+  nur, wenn der Reiter offen ist.
+- clipper-lib fuegte lokale Minima und Scanlinien einzeln in sortierte Listen ein – quadratisch. `clipper-schnell.ts`
+  baut dieselben Listen sortiert bzw. mit Zeiger aufs Ende: gleiche Dateien (Hash an 5 Faellen), Berlin 9 km
+  23,7 -> 15,3 s mit Naehten, Amsterdam 60 x 60 8,2 -> 7,0 s. Der Rest ist echte Schnittarbeit (BuildIntersectList).
+- Groebere Boegen (Toleranz 0,1 statt 0,03 mm) brachten nur 10 % – verworfen.

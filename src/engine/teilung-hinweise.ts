@@ -1,5 +1,6 @@
 import { berechneTeilung } from "./teilung";
-import type { Schichtkarte, SchichtkartenErgebnis, Zone } from "./typen";
+import { plattenAnsichten } from "./teilung-ansicht";
+import type { LagenKey, Schichtkarte, SchichtkartenErgebnis, Zone } from "./typen";
 import type { TeilungsErgebnis } from "./typen-teilung";
 import { vervollstaendige } from "./vervollstaendige";
 
@@ -7,10 +8,16 @@ import { vervollstaendige } from "./vervollstaendige";
  * Die Nahtsuche fuer ein fertiges Ergebnis nachholen – die Live-Vorschau rechnet ohne sie. Dieselben Lagen, dieselbe
  * Rechnung wie im Export; nur die Karte wird nicht noch einmal gebaut.
  */
-export function teilungFuer(r: SchichtkartenErgebnis, eingabe: Schichtkarte): { teilung: TeilungsErgebnis | null; warnungen: string[] } {
+export function teilungFuer(r: SchichtkartenErgebnis, eingabe: Schichtkarte): {
+  teilung: TeilungsErgebnis | null;
+  warnungen: string[];
+  /** Laseransicht je geteilter Lage: die Rohplatten, wie sie in den Export gehen. */
+  ansichten: Partial<Record<LagenKey, string>>;
+} {
   const k = vervollstaendige(eingabe);
   const teilung = berechneTeilung(r.layout.platte, r.lagen, k.teilung, k.teilungWahl);
-  return { teilung, warnungen: teilung ? teilungsWarnungen(teilung, k, r.textZonen) : [] };
+  if (!teilung) return { teilung, warnungen: [], ansichten: {} };
+  return { teilung, warnungen: teilungsWarnungen(teilung, k, r.textZonen), ansichten: plattenAnsichten(r, k, teilung) };
 }
 
 /** Geteilte Karten nur mit Holzrahmen – unabhaengig davon, ob die Naehte schon gerechnet sind. */

@@ -126,7 +126,8 @@ export function Komposer({ ergebnis, fehler, laedt, abgebrochen, abbrechen, neuR
         ) : (
           lage && (
             <button
-              onClick={() => speichern(lage.laserSvg, `schichtkarte-${lage.key}.svg`)}
+              // Geteilt zeigt der Reiter die Rohplatten als Ansicht; die einzelnen Laserdateien legt der Export ab.
+              onClick={() => speichern(lage.laserSvg, `schichtkarte-${lage.key}${ergebnis?.teilung ? "-rohplatten" : ""}.svg`)}
               className="rounded-md px-3 py-1.5 text-sm font-medium text-white"
               style={{ background: "var(--akzent)" }}
             >

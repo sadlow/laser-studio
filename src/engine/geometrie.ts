@@ -1,4 +1,5 @@
 import ClipperLib from "clipper-lib";
+import "./clipper-schnell";
 import type { Punkt } from "./clip";
 import type { Teil } from "./typen";
 
