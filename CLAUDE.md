@@ -72,7 +72,7 @@ npm install && npm run dev   # http://localhost:3010
 ```
 
 `npx tsc --noEmit` · `npx tsx scripts/referenzorte.ts` (8 Orte weltweit) · `formatvergleich.ts` · `quadrat-varianten.ts` ·
-`ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts` · `testblatt-grenzwerte.ts` · `gravurprobe-weiss.ts` · `testblatt-schrift-linien.ts` · `testblatt-schrift.ts` · `schrift-vergleich-a5.ts` · `teilung-referenzorte.ts` · `teilung-export.ts` ·
+`ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts` · `testblatt-grenzwerte.ts` · `gravurprobe-weiss.ts` · `testblatt-schrift-linien.ts` · `testblatt-schrift.ts` · `schrift-vergleich-a5.ts` · `teilung-referenzorte.ts` · `teilung-export.ts` · `teile-strikt.ts` ·
 `bash scripts/referenzbilder.sh <name> "foto=symbol"` (3D-Referenzbild) · `scripts/listing-fotos/` (Listing-Set per Leonardo, Video-Ad `video.py`: 3D-Keyframes + Veo 3.1) ·
 `scripts/amazon-custom/` (textfelder.ts, bilder.py, masken.py, symbole.py, erklaerbild.py, zeilen.py, ordner.py: Karten, Masken, Textfelder, Explosionszeichnungen)
 

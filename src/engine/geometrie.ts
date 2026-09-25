@@ -113,8 +113,9 @@ export function schliesse(flaeche: Flaeche, radius: number): Flaeche {
 export function teile(flaeche: Flaeche, minFlaecheMm2 = 0.05, strikt = false): Teil[] {
   if (!flaeche.length) return [];
   const c = new ClipperLib.Clipper();
-  // strikt: Loecher, die die Aussenkante in einem Punkt beruehren, ordnet Clipper sonst manchmal dem falschen Teil zu –
-  // das Loch fehlt dann (Entwurf "Titel auf der Kante", 25.09.2026). Noch nicht Standard: Auswirkung auf die Lagen offen.
+  // strikt (StrictlySimple): gedacht fuer Loecher, die Clipper dem falschen Teil zuordnet (Entwurf "Titel auf der
+  // Kante", 25.09.2026). Kein Standard: an den Referenzorten ist locker fehlerfrei, strikt ordnet selbst falsch zu
+  // (New York A4) und rechnet bis 100-mal laenger – Messwerte in docs/entscheidungen.md.
   c.StrictlySimple = strikt;
   c.AddPaths(flaeche, ClipperLib.PolyType.ptSubject, true);
   const baum = new ClipperLib.PolyTree();

@@ -297,8 +297,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Naehte nur auf Abruf**: die Live-Vorschau rechnet nur die Karte (`rendereSchichtkarte(…, { teilung: false })`),
   die Naehte kommen per Knopf im Block "Teilung" oder im Export. Der Server merkt sich die letzten drei Karten
   (`ergebnis-cache.ts`), Umwaehlen einer Naht baut die Karte nicht neu. Sind die Naehte gerechnet, zeigen die
-  Laser-Reiter die Rohplatten wie im Export (`teilung-ansicht.ts`): Haelften A/B gedreht, Deckschicht als Rahmenbogen. Berlin 3,5 km: Naehte 0,8 s (tsx), 3,3 s im
-  Dev-Server.
+  Laser-Reiter die Rohplatten wie im Export (`teilung-ansicht.ts`): Haelften A/B gedreht, Deckschicht als
+  Rahmenbogen. Berlin 3,5 km: Naehte 0,8 s (tsx), 3,3 s im Dev-Server.
 - Offen: eine Naht, die um kleine Einzelteile im Band herumlaeuft (Zacken statt Gerade), wuerde im Allgaeu einige
   der 8 Stuecke sparen.
 
@@ -311,3 +311,25 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   baut dieselben Listen sortiert bzw. mit Zeiger aufs Ende: gleiche Dateien (Hash an 5 Faellen), Berlin 9 km
   23,7 -> 15,3 s mit Naehten, Amsterdam 60 x 60 8,2 -> 7,0 s. Der Rest ist echte Schnittarbeit (BuildIntersectList).
 - Groebere Boegen (Toleranz 0,1 statt 0,03 mm) brachten nur 10 % – verworfen.
+
+## Teile und Loecher (`geometrie.ts` `teile()`, 25.09.2026)
+
+- **`teile()` bleibt ohne `StrictlySimple`** (`strikt = false`). Befund: im Entwurf "Titel auf der Kante"
+  (60 x 60, Berlin 5,5 km, 3-ort-links) haengt Clipper 14 Loecher an ein Teil mit -3227 mm², das Hauptteil ist
+  3227 mm² zu gross – dort geschnittene Bloecke fehlen. Messung `scripts/teile-strikt.ts`: jeder `teile()`-Aufruf
+  der Engine, 6 Vorlagen x 8 Referenzorte, Summe der Teile gegen Flaeche der Eingabe, Teil mit negativer Flaeche,
+  Loch ausserhalb seiner Aussenkontur.
+- **Locker: 0 Fehler in 48 Faellen** (60 x 60 ab Allgaeu nur locker). Die Gesamtflaeche stimmt bis auf
+  weggefilterte Splitter (Tokio 60 x 60 1,6 mm²). Einziger Treffer der Lochpruefung ein entartetes Loch von 0 mm²
+  in der Nahtbewertung.
+- **Strikt ist selbst falsch und viel langsamer:** New York (alle A4), Bogota und Venedig (Quadrat 30) je zwei
+  Aufrufe mit falsch zugeordneten Loechern (New York A4: Netz-Lage 2960 mm² zu viel Material, 5 Loecher im
+  falschen Teil), in der 60 x 60-Nahtbewertung Allgaeu ein 624-mm²-Loch an einem Teil von 0 mm². Karte gesamt:
+  A4 Bogota 1,6 -> 39 s, Allgaeu 0,5 -> 21 s; Quadrat 30 Tokio 5,1 -> 387 s; 60 x 60 Berlin 2,0 -> 104 s,
+  Allgaeu ueber 30 min (abgebrochen). Im Kanten-Entwurf ein Aufruf 75 ms -> 27-180 s.
+- Strikt trennt, was sich in einem Punkt beruehrt: Netzloecher A4 Berlin 335 -> 695, zugefuellte Bloecke
+  7 -> 8 (Bogota 91 -> 100, Tokio Q30 162 -> 171), weil Teilbloecke unter die Mindestflaeche fallen. Lose
+  Netzstuecke und "lose -> Gravur" blieben in allen Faellen gleich.
+- Offen: Loecher selbst zuordnen (kleinste Aussenkontur, die das Loch enthaelt; Punkt-in-Polygon mit dem
+  ersten Eckpunkt nicht auf der Kante). Im Kanten-Entwurf richtig (117 668 mm², 701 Loecher), 77 ms wie locker,
+  sonst gleiche Teile. Noch nicht in der Engine; `strikt = true` ist kein verlaesslicher Ersatz.
