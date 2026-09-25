@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { rendereSchichtkarte, type Schichtkarte } from "@/engine";
+import type { Schichtkarte } from "@/engine";
 import { merke } from "@/server/ergebnis-cache";
-import { mitKartenQuelle } from "@/server/karten-quelle";
+import { rechneVoll } from "@/server/rechenwerk";
 
 // Node-Laufzeit: Kachel-Parser und Schriftdateien brauchen Buffer und fs.
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-
   let karte: Schichtkarte;
   try {
     karte = (await request.json()) as Schichtkarte;
@@ -16,11 +15,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Das Signal endet, wenn die Vorschau abbricht oder eine neuere Eingabe sie ueberholt: dann hoert die Engine nach
-    // dem laufenden Schritt auf, statt fuer niemanden weiterzurechnen.
-    // Ohne Nahtsuche: die holt /api/teilung bei Bedarf nach, aus dem Speicher.
-    const { wert: r, hinweis } = await mitKartenQuelle(karte.kartenQuelle, (q) => rendereSchichtkarte(karte, q, request.signal, { teilung: false }));
-    if (hinweis) r.warnungen.unshift(hinweis);
+    // Im Worker-Thread (rechenwerk.ts), damit die Skizze im Hauptprozess frei bleibt. Bricht die Vorschau ab oder
+    // ueberholt eine neuere Eingabe, wird der Worker beendet. Ohne Nahtsuche: die holt /api/teilung bei Bedarf nach.
+    const r = await rechneVoll(karte, request.signal);
     merke(karte, r);
     return NextResponse.json(r);
   } catch (e) {

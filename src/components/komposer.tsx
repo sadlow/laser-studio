@@ -14,6 +14,8 @@ interface Props {
   anzeige: Anzeige | null;
   /** Die Ansicht ist eine Skizze; die volle Rechnung laeuft noch oder kommt gleich. */
   nurSkizze: boolean;
+  /** Die Skizze gehoert zum aktuellen Stand; sonst ist schon die naechste unterwegs. */
+  skizzeAktuell: boolean;
   ergebnis: SchichtkartenErgebnis | null;
   fehler: string | null;
   laedt: boolean;
@@ -31,7 +33,7 @@ type Ansicht = "gesamt" | "3d" | LagenKey;
  * Das grosse Arbeitsfeld in der Mitte: zusammengesetzte Karte zum Anfassen,
  * daneben jede Lage als Laseransicht. Kennzahlen und Hinweise stehen rechts.
  */
-export function Komposer({ anzeige, nurSkizze, ergebnis, fehler, laedt: rechnet, abgebrochen, abbrechen, neuRechnen, karte, aendern }: Props) {
+export function Komposer({ anzeige, nurSkizze, skizzeAktuell, ergebnis, fehler, laedt: rechnet, abgebrochen, abbrechen, neuRechnen, karte, aendern }: Props) {
   const [ansicht, setAnsicht] = useState<Ansicht>("gesamt");
   // ?ansicht=3d oeffnet direkt die 3D-Ansicht (fuer Tests und geteilte Links).
   useEffect(() => {
@@ -84,7 +86,7 @@ export function Komposer({ anzeige, nurSkizze, ergebnis, fehler, laedt: rechnet,
         ))}
         <span className="ml-auto text-xs" style={{ color: "var(--gedaempft)" }}>
           {nurSkizze && aktiv === "gesamt"
-            ? rechnet ? "Skizze · Produktionsdaten rechnen…" : "Skizze"
+            ? !skizzeAktuell ? "Skizze wird aktualisiert…" : rechnet ? "Skizze · Produktionsdaten rechnen…" : "Skizze"
             : laedt ? "rechnet…" : ergebnis ? `${ergebnis.kennzahlen.rechenzeitMs} ms` : ""}
         </span>
       </div>

@@ -89,7 +89,11 @@ export default function Seite() {
   const skizze = useSkizze(karte, stand);
   const vollAktuell = ergebnisStand === stand;
   const skizzeAktuell = skizze?.stand === stand;
-  const anzeige = vollAktuell ? naehte.anzeige : skizzeAktuell ? skizze.daten : (naehte.anzeige ?? skizze?.daten ?? null);
+  // Zwischen zwei Staenden die juengere Ansicht: die Skizze, ausser die volle Rechnung gehoert zu ihrem Stand. Sonst
+  // tauchte nach einem Zoom die letzte volle Rechnung auf – bei 60 x 60 oft noch die A4-Karte, weil die volle
+  // Rechnung dort laenger braucht, als zwischen zwei Klicks liegt (Marcel 25.09.2026).
+  const vollZurSkizze = !!skizze && skizze.stand === ergebnisStand;
+  const anzeige = vollAktuell || (!skizzeAktuell && vollZurSkizze) ? naehte.anzeige : (skizze?.daten ?? naehte.anzeige);
 
   const aendern = (teil: Aenderung) => setKarte((alt) => mischen(alt, teil));
 
@@ -126,7 +130,8 @@ export default function Seite() {
       <section className="min-h-0 p-3">
         <Komposer
           anzeige={anzeige}
-          nurSkizze={!vollAktuell && skizzeAktuell}
+          nurSkizze={!vollAktuell && !!skizze}
+          skizzeAktuell={skizzeAktuell}
           ergebnis={naehte.anzeige}
           fehler={fehler}
           laedt={laedt}

@@ -324,6 +324,11 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Spalte und lose Stuecke. Berlin 60 x 60 9 km: 164 ms statt 9 s (tsx), im Studio 0,4-0,5 s bis zum Bild. Die volle
   Rechnung startet 1,2 s nach der letzten Aenderung im Hintergrund, ohne Schleier, und loest die Skizze ab; Lagen,
   Pruefung, 3D und Export nehmen nur die volle Rechnung.
+- **Volle Rechnung im Worker-Thread** (`rechenwerk.ts`, `voll-worker.ts`, 25.09.2026): im selben Prozess wartete die
+  Skizze hinter der vollen Rechnung – Node rechnet eines zur Zeit, 60 x 60 bei 12 km 18 s am Stueck, ein Abbruch greift
+  erst zwischen den Schritten. Jetzt ein Worker (tsx, CommonJS-Register), die neueste Eingabe beendet ihn hart. 60 x 60
+  zoomen: Skizze nach 0,5-1,6 s statt ueber 15 s. Zwischen zwei Staenden zeigt die Vorschau die juengere Skizze, nicht
+  die letzte volle Rechnung (vorher tauchte nach dem Zoom die A4-Karte auf), ohne Schleier solange eine Skizze da ist.
 
 ## Teile und Loecher (`geometrie.ts` `teile()`, 25.09.2026)
 
