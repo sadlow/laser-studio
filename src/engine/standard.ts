@@ -119,6 +119,8 @@ export function standardSchichtkarte(): Schichtkarte {
     // Mittellinie mit Defocus 6 mm ist Marcels normale Gravur (Gravurprobe 17.09., Marcel 18.09.2026). 0,5 mm Linienbreite
     // ist angenommen, noch nicht unter der Lupe gemessen – sie kuerzt nur die Stichenden vor Kreuzungen (wege.ts).
     gravurExport: { art: "mittellinie", strahlMm: 0.5 },
+    // Laser 60 x 30,5 cm, Rohplatte genauso gross (Marcel 25.09.2026). Naht 2 mm von der Plattenkante: 297-303 mm.
+    teilung: { rohplatte: { breiteMm: 600, hoeheMm: 305 }, randMm: 2, gewichtEinzelteil: 4, kleinMm2: 400, schrittMm: 1 },
   };
 }
 

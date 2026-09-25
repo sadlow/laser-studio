@@ -5,6 +5,7 @@ import { HOLZRAHMEN_TITEL } from "@/engine/holzrahmen";
 import { gravurBeschreibung, produktionsSvg } from "@/engine/produktion";
 import { standardSchichtkarte } from "@/engine/standard";
 import type { GeoPunkt, Kundeneingabe, Schichtkarte } from "@/engine/typen";
+import { geteilteDateien } from "./export-geteilt";
 import { slug, type Produktparameter } from "./vorlagen";
 
 export const EXPORT_ORDNER = path.join(process.cwd(), "export");
@@ -54,19 +55,25 @@ export async function exportiere(auftrag: ExportAuftrag, token: string): Promise
     fs.mkdirSync(ziel, { recursive: true });
 
     const dateien: string[] = [];
-    const schreibe = (name: string, inhalt: string) => {
+    const schreibe = (name: string, inhalt: string | Buffer) => {
       fs.writeFileSync(path.join(ziel, name), inhalt);
       dateien.push(name);
     };
 
     schreibe("00-vorschau.svg", r.vorschauSvg);
-    r.lagen.forEach((lage, i) => {
-      const nummer = i + 1;
-      const name = `${String(nummer).padStart(2, "0")}-${slug(lage.titel)}.svg`;
-      schreibe(name, produktionsSvg(r.layout, lage, { vorlage: v.name, datum, nummer, gravurExport: karte.gravurExport }));
-    });
+    // Groesser als das Laserfeld: je Lage zwei Rohplatten und ein Montageplan (export-geteilt.ts).
+    const geteilt = r.teilung
+      ? geteilteDateien(r, karte, { vorlage: v.name, datum, angaben: angaben(karte, r) }, schreibe)
+      : null;
+    if (!geteilt) {
+      r.lagen.forEach((lage, i) => {
+        const nummer = i + 1;
+        const name = `${String(nummer).padStart(2, "0")}-${slug(lage.titel)}.svg`;
+        schreibe(name, produktionsSvg(r.layout, lage, { vorlage: v.name, datum, nummer, gravurExport: karte.gravurExport }));
+      });
+    }
     schreibe("parameter.json", JSON.stringify(karte, null, 2) + "\n");
-    schreibe("uebersicht.txt", uebersicht(v.name, datum, karte, r));
+    schreibe("uebersicht.txt", uebersicht(v.name, datum, karte, r, geteilt));
 
     ergebnis.varianten.push({
       id: v.id,
@@ -79,7 +86,16 @@ export async function exportiere(auftrag: ExportAuftrag, token: string): Promise
   return ergebnis;
 }
 
-function uebersicht(name: string, datum: string, karte: Schichtkarte, r: Awaited<ReturnType<typeof rendereSchichtkarte>>): string {
+/** Kopfzeilen fuer den Montageplan. */
+function angaben(karte: Schichtkarte, r: Awaited<ReturnType<typeof rendereSchichtkarte>>): string[] {
+  return [
+    `Texte: ${r.texte.titel} / ${r.texte.zeile1} / ${r.texte.zeile2}`,
+    `Ort: ${karte.lat.toFixed(5)}, ${karte.lon.toFixed(5)} · Ausschnitt ${karte.ausschnittKm} km · ${karte.aufbau}`,
+    r.rahmen ? `Holzrahmen: ${HOLZRAHMEN_TITEL[r.rahmen.farbe]}` : "Holzrahmen: ohne – bei dieser Groesse nicht vorgesehen",
+  ];
+}
+
+function uebersicht(name: string, datum: string, karte: Schichtkarte, r: Awaited<ReturnType<typeof rendereSchichtkarte>>, geteilt: string[] | null): string {
   const { platte } = r.layout;
   const zeilen = [
     `Schichtkarte – ${name}`,
@@ -91,7 +107,12 @@ function uebersicht(name: string, datum: string, karte: Schichtkarte, r: Awaited
     `Texte:      ${r.texte.titel} / ${r.texte.zeile1} / ${r.texte.zeile2}`,
     ``,
     `Lagen von oben nach unten (Dateinummer = Reihenfolge):`,
-    ...r.lagen.map((l, i) => `  ${String(i + 1).padStart(2, "0")}  ${l.titel.padEnd(16)} ${l.material.padEnd(24)} ${String(l.staerkeMm).padStart(3)} mm  ${l.teile.length} Teil(e)`),
+    ...(geteilt ? [
+      `Geteilt auf Rohplatten ${r.teilung!.rohplatte.breiteMm} x ${r.teilung!.rohplatte.hoeheMm} mm: Kartenkanten = Plattenkanten, geschnitten wird nur die Naht und das Innere.`,
+      `Montageplan mit Einzelteilen (E) und kritischen Uebergaengen (K): montageplan.pdf`,
+      ...geteilt,
+    ] : []),
+    ...(geteilt ? [] : r.lagen).map((l, i) => `  ${String(i + 1).padStart(2, "0")}  ${l.titel.padEnd(16)} ${l.material.padEnd(24)} ${String(l.staerkeMm).padStart(3)} mm  ${l.teile.length} Teil(e)`),
     // Das Symbol wird zuletzt eingesetzt: auf die Klebeflaeche im Hintergrund, durch den Ausschnitt im Netz.
     `Symbol: auf die gravierte Klebeflaeche des Hintergrunds kleben (Tropfen Sekundenkleber), Netz hat den Ausschnitt; steht ${r.kennzahlen.symbolUeberNetzMm.toFixed(1)} mm ueber dem Netz.`,
     r.rahmen

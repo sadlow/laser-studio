@@ -4,6 +4,7 @@
 import type { Punkt } from "./clip";
 import type { Holzrahmen, HolzrahmenProfil } from "./typen";
 import type { GravurExport } from "./typen-fertigung";
+import type { TeilungsErgebnis } from "./typen-teilung";
 
 export interface Zone {
   xMm: number;
@@ -102,5 +103,7 @@ export interface SchichtkartenErgebnis {
   /** Wie graviert wird – die 3D-Ansicht zeichnet die Linien so breit, wie der Laser sie macht (sichtbareGravur). */
   gravurExport: GravurExport;
   kennzahlen: Kennzahlen;
+  /** Nur wenn die Platte groesser als das Laserfeld ist: je Lage die Naht und ihre kritischen Stellen. */
+  teilung: TeilungsErgebnis | null;
   warnungen: string[];
 }

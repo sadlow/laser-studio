@@ -44,12 +44,17 @@ export interface Dateiinfo {
   beschreibung: string;
 }
 
-export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo, gravurExport: GravurExport): string {
+/**
+ * kantenOffen: die Plattenkanten sind die Kanten des Stuecks (geteilte 60 x 60 auf 60 x 30,5) – dort wird nicht
+ * geschnitten, direkt an der Kante schnitte der Laser halb in der Luft. Die Umrisse werden zu offenen Linien.
+ */
+export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo, gravurExport: GravurExport, kantenOffen = false): string {
   const flaechen: Punkt[][][] = [];
   const klebeflaechen: Punkt[][][] = [];
   const linien: string[] = [];
-  const innen: Punkt[][] = [];
-  const aussen: Punkt[][] = [];
+  const innen: string[] = [];
+  const aussen: string[] = [];
+  const umriss = (r: Punkt[]) => (kantenOffen ? ohnePlattenkante(r, platte).map((l) => linie(l, false)) : [pfad([r], false)]);
 
   for (const { lage, dx, dy } of stuecke) {
     const schiebe = (r: Punkt[]) => r.map((p) => ({ x: p.x + dx, y: p.y + dy }));
@@ -60,10 +65,10 @@ export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo, 
     // Umriss des groessten Teils zuletzt; alles andere liegt innerhalb.
     const [haupt, ...rest] = lage.teile;
     if (haupt) {
-      aussen.push(schiebe(haupt.aussen));
-      innen.push(...haupt.loecher.map(schiebe));
+      aussen.push(...umriss(schiebe(haupt.aussen)));
+      innen.push(...haupt.loecher.map((r) => pfad([schiebe(r)], false)));
     }
-    for (const t of rest) innen.push(schiebe(t.aussen), ...t.loecher.map(schiebe));
+    for (const t of rest) innen.push(...umriss(schiebe(t.aussen)), ...t.loecher.map((r) => pfad([schiebe(r)], false)));
   }
 
   const { breiteMm: b, hoeheMm: h } = platte;
@@ -78,8 +83,8 @@ export function bogenSvg(platte: Rohplatte, stuecke: Stueck[], info: Dateiinfo, 
     `<title>${esc(info.titel)}</title>\n<desc>${esc(`${info.beschreibung}; Gravur: ${gravurBeschreibung(gravurExport)}`)}</desc>\n` +
     gravurEbene +
     ebene("Klebeflaeche", "2 Klebeflaeche", `fill="#00E000" stroke="none"`, klebeflaechen.map((ringe) => pfad(ringe, true))) +
-    ebene("Schnitt_innen", "3 Schnitt innen", `fill="none" stroke="#FF0000" stroke-width="${HAARLINIE_MM}"`, innen.map((r) => pfad([r], false))) +
-    ebene("Schnitt_aussen", "4 Schnitt aussen", `fill="none" stroke="#0000FF" stroke-width="${HAARLINIE_MM}"`, aussen.map((r) => pfad([r], false))) +
+    ebene("Schnitt_innen", "3 Schnitt innen", `fill="none" stroke="#FF0000" stroke-width="${HAARLINIE_MM}"`, innen) +
+    ebene("Schnitt_aussen", "4 Schnitt aussen", `fill="none" stroke="#0000FF" stroke-width="${HAARLINIE_MM}"`, aussen) +
     `</svg>\n`
   );
 }
@@ -93,6 +98,33 @@ export function produktionsSvg(layout: Layout, lage: Lage, meta: { vorlage: stri
       `Vorlage: ${meta.vorlage}; Material: ${lage.material}; Platte ${f(breiteMm)} x ${f(hoeheMm)} mm; ` +
       `Reihenfolge: Gravur, Klebeflaeche, Schnitt innen, Schnitt aussen; erstellt ${meta.datum}`,
   }, meta.gravurExport);
+}
+
+/** Ein Ring ohne die Strecken, die auf der Plattenkante liegen – als offene Linien. */
+function ohnePlattenkante(r: Punkt[], p: Rohplatte): Punkt[][] {
+  const e = 0.01;
+  const kante = (a: Punkt, b: Punkt) =>
+    (Math.abs(a.x) < e && Math.abs(b.x) < e) || (Math.abs(a.y) < e && Math.abs(b.y) < e) ||
+    (Math.abs(a.x - p.breiteMm) < e && Math.abs(b.x - p.breiteMm) < e) || (Math.abs(a.y - p.hoeheMm) < e && Math.abs(b.y - p.hoeheMm) < e);
+  const n = r.length;
+  const start = r.findIndex((q, i) => kante(q, r[(i + 1) % n]));
+  if (start < 0) return [r.concat([r[0]])];
+  // Ab dem Ende einer Kantenstrecke einmal herum sammeln; jede Kantenstrecke beendet eine Linie.
+  const linien: Punkt[][] = [];
+  let lauf: Punkt[] = [];
+  for (let j = 1; j <= n; j++) {
+    const a = r[(start + j) % n];
+    const b = r[(start + j + 1) % n];
+    if (kante(a, b)) {
+      if (lauf.length) linien.push([...lauf, a]);
+      lauf = [];
+    } else {
+      if (!lauf.length) lauf.push(a);
+      lauf.push(b);
+    }
+  }
+  if (lauf.length) linien.push(lauf);
+  return linien.filter((l) => l.length >= 2);
 }
 
 export function gravurBeschreibung(e: GravurExport): string {

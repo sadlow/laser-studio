@@ -12,8 +12,9 @@
 import type { SymbolArt, SymbolGroesse } from "./symbole";
 import type { GravurExport } from "./typen-fertigung";
 import type { Generalisierung, StrassenGruppe, StrassenStufe } from "./typen-strassen";
+import type { Teilungsvorgabe, TeilungsWahl } from "./typen-teilung";
 
-export type FormatKey = "a5" | "a4" | "a3" | "quadrat30" | "frei";
+export type FormatKey = "a5" | "a4" | "a3" | "quadrat30" | "quadrat60" | "frei";
 
 export interface GeoPunkt {
   lon: number;
@@ -206,8 +207,13 @@ export interface Schichtkarte {
   loseTeileMarkieren: boolean;
   /** Gravur in der Laserdatei als Flaeche, Mittellinie oder Kontur (typen-fertigung.ts). */
   gravurExport: GravurExport;
+  /** Laserfeld und Gewichte, falls die Platte nicht auf eine Rohplatte passt (teilung.ts). */
+  teilung: Teilungsvorgabe;
+  /** Im Studio umgewaehlte Naehte – sonst sucht die Engine die sauberste. */
+  teilungWahl?: TeilungsWahl;
 }
 
 export * from "./typen-ergebnis";
 export * from "./typen-fertigung";
 export * from "./typen-strassen";
+export * from "./typen-teilung";

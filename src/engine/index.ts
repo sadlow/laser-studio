@@ -8,6 +8,8 @@ import { weiter } from "./abbruch";
 import { baueBausteine } from "./lagen";
 import { berechneLayout } from "./layout";
 import { stapleLagen } from "./stapel";
+import { berechneTeilung } from "./teilung";
+import { teilungsWarnungen } from "./teilung-hinweise";
 import { standardSchichtkarte, staerkenAus } from "./standard";
 import { setzePosterText } from "./textblock";
 import { REFERENZ_KARTENBREITE_MM, type Schichtkarte, type SchichtkartenErgebnis } from "./typen";
@@ -44,6 +46,7 @@ export async function rendereSchichtkarte(eingabe: Schichtkarte, token: string, 
     stegMinMm: eingabe.stegMinMm ?? basis.stegMinMm,
     netzMinSpaltMm: eingabe.netzMinSpaltMm ?? basis.netzMinSpaltMm,
     gravurExport: eingabe.gravurExport ?? basis.gravurExport,
+    teilung: { ...basis.teilung, ...eingabe.teilung },
     titelStil: { ...eingabe.titelStil, minStrichMm: eingabe.titelStil.minStrichMm ?? basis.titelStil.minStrichMm },
     zeilenStil: { ...eingabe.zeilenStil, minStrichMm: eingabe.zeilenStil.minStrichMm ?? basis.zeilenStil.minStrichMm },
   };
@@ -142,6 +145,9 @@ export async function rendereSchichtkarte(eingabe: Schichtkarte, token: string, 
   const holz = holzrahmenPruefen(k, layout, b.symbolLage, textZonen, stapelMm);
   const gravur = gravurMasse(s.lagen);
   warnungen.push(...holz.warnungen);
+  await weiter(signal);
+  const teilung = berechneTeilung(layout.platte, s.lagen, k.teilung, k.teilungWahl);
+  if (teilung) warnungen.push(...teilungsWarnungen(teilung, k, textZonen));
 
   return {
     vorschauSvg: s.vorschauSvg,
@@ -166,6 +172,7 @@ export async function rendereSchichtkarte(eingabe: Schichtkarte, token: string, 
       gravurFlaecheMm2: gravur.flaecheMm2,
       rechenzeitMs: Date.now() - start,
     },
+    teilung,
     warnungen,
   };
 }

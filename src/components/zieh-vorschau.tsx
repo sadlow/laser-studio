@@ -7,6 +7,7 @@ import { FARBE_SCHWARZ, FARBE_WEISS } from "@/engine/svg";
 import type { Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
 import { RahmenUmriss, rahmenPlatz } from "./holzrahmen-2d";
 import { KartenKopie } from "./karten-kopie";
+import { NahtUeberlagerung } from "./naht-ueberlagerung";
 import { StandortZentrieren } from "./standort-zentrieren";
 import { useSvgLage } from "./svg-lage";
 import { ZOOM_STUFEN_KM, ZoomKnoepfe } from "./zoom-knoepfe";
@@ -173,6 +174,7 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
           <path d={form.d} fill="#d23a45" fillRule="evenodd" stroke="#fff" strokeWidth={0.03} />
         </svg>
       )}
+      {lage && !zieht && <NahtUeberlagerung ergebnis={ergebnis} lage={lage} />}
       {lage && <RahmenUmriss ergebnis={ergebnis} lage={lage} />}
       {lage && (
         <ZoomKnoepfe

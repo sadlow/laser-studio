@@ -42,7 +42,7 @@ export function Block({ titel, children, hinweis, zu }: { titel: string; childre
 }
 
 /** Umschalter aus wenigen Knoepfen – fuer Kundenwahl ohne Aufklappliste. */
-export function Wahl<T extends string>(props: { wert: T; optionen: { wert: T; titel: ReactNode }[]; aendern: (v: T) => void; spalten?: number }) {
+export function Wahl<T extends string>(props: { wert: T; optionen: { wert: T; titel: ReactNode; aus?: string }[]; aendern: (v: T) => void; spalten?: number }) {
   return (
     <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${props.spalten ?? props.optionen.length}, minmax(0, 1fr))` }}>
       {props.optionen.map((o) => (
@@ -50,7 +50,10 @@ export function Wahl<T extends string>(props: { wert: T; optionen: { wert: T; ti
           key={o.wert}
           type="button"
           onClick={() => props.aendern(o.wert)}
-          className="rounded-md border px-2 py-1.5 text-xs leading-tight"
+          // aus: nicht waehlbar, der Text sagt warum (Tooltip).
+          disabled={!!o.aus}
+          title={o.aus}
+          className="rounded-md border px-2 py-1.5 text-xs leading-tight disabled:cursor-not-allowed disabled:opacity-40"
           style={props.wert === o.wert ? { background: "var(--akzent)", borderColor: "var(--akzent)", color: "#fff" } : { borderColor: "var(--linie)", background: "var(--karte)" }}
         >
           {o.titel}

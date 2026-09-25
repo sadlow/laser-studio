@@ -46,7 +46,7 @@ export function TechnikExport({ karte }: { karte: Schichtkarte }) {
     <Block
       titel="Export"
       zu={false}
-      hinweis="Je Lage eine Laserdatei mit den Ebenen 1 Gravur, 2 Klebeflaeche, 3 Schnitt innen, 4 Schnitt aussen – dazu Vorschau, Parameter und Uebersicht fuer die Werkstatt."
+      hinweis="Je Lage eine Laserdatei mit den Ebenen 1 Gravur, 2 Klebeflaeche, 3 Schnitt innen, 4 Schnitt aussen – dazu Vorschau, Parameter und Uebersicht fuer die Werkstatt. Bei 60 × 60 je Lage zwei Dateien (Haelfte A und B) und montageplan.pdf."
     >
       <div className="space-y-3">
         <Auswahl karte={karte} />

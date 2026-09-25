@@ -32,6 +32,7 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 | `lagen.ts` | Bausteine: Netz, Wasser, Textausschnitt, Gravur, Herz |
 | `stapel.ts` | Lagen je Aufbau (weisses oder schwarzes Netz) + Vorschau |
 | `produktion.ts`, `gravur-export.ts`, `wege.ts` | Exportdatei: Ebenen 1 Gravur / 2 Klebeflaeche / 3 Schnitt innen / 4 Schnitt aussen; Gravur als Flaeche, Mittellinie (durchgehende Wege) oder Kontur |
+| `teilung.ts`, `teilung-export.ts`, `montageplan.ts`, `pdf.ts` | 60 x 60 auf Rohplatten 60 x 30,5: sauberste Naht je Lage (Front oben-unten, 297-303 mm, Uebergaenge + 4 je Einzelteil), Blau ungeteilt, nur mit Holzrahmen; Haelften A/B, Montageplan-PDF |
 | `testblatt.ts` | Grenzwert-Testblatt Netz: Spalt, Strassenbreite, Keile, kleine Bloecke |
 | `zeichen.ts` | Hoechstlaengen der Kundentexte (Titel 20, Zeilen 30), ohne Kartenabhaengigkeit |
 | `geometrie.ts` | Clipper-Wrapper in mm |
@@ -71,13 +72,13 @@ npm install && npm run dev   # http://localhost:3010
 ```
 
 `npx tsc --noEmit` · `npx tsx scripts/referenzorte.ts` (8 Orte weltweit) · `formatvergleich.ts` · `quadrat-varianten.ts` ·
-`ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts` · `testblatt-grenzwerte.ts` · `gravurprobe-weiss.ts` · `testblatt-schrift-linien.ts` · `testblatt-schrift.ts` · `schrift-vergleich-a5.ts` ·
+`ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts` · `testblatt-grenzwerte.ts` · `gravurprobe-weiss.ts` · `testblatt-schrift-linien.ts` · `testblatt-schrift.ts` · `schrift-vergleich-a5.ts` · `teilung-referenzorte.ts` · `teilung-export.ts` ·
 `bash scripts/referenzbilder.sh <name> "foto=symbol"` (3D-Referenzbild) · `scripts/listing-fotos/` (Listing-Set per Leonardo, Video-Ad `video.py`: 3D-Keyframes + Veo 3.1) ·
 `scripts/amazon-custom/` (textfelder.ts, bilder.py, masken.py, symbole.py, erklaerbild.py, zeilen.py, ordner.py: Karten, Masken, Textfelder, Explosionszeichnungen)
 
 ## Offen
 
-- Rechenzeit bei grossem Ausschnitt (8,6 km: 5,3 s) – fuer den Shop Datenzoom/Vereinfachung pruefen
+- Rechenzeit bei grossem Ausschnitt (8,6 km A4: 5,3 s; 60 x 60 Barcelona 7 km: 15 s, 12 km Minuten) – Datenzoom/Vereinfachung
 - Exportdateien noch nicht in xTool Studio geoeffnet
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
 - Standort-Bestaetigung: "Luebeck" fand Luebecker Strasse in Koeln

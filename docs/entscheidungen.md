@@ -264,3 +264,26 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **30 x 30 traegt einen Prototyp 296 x 296 mm** – aus demselben Grund mit Rand.
 - Material je Exemplar: dreilagig 1 weiss / 1 schwarz / 1 blau, vierlagig 2 weiss. Lager 16.09.2026: je
   2 A4 weiss, schwarz, blau, je 1 x 30x30 – 4 A4-Prototypen dreilagig oder 2 vierlagig, Quadrat nur dreilagig.
+
+## Geteilte Karte 60 x 60 (`teilung.ts`, `teilung-export.ts`, `montageplan.ts`, Marcel 25.09.2026)
+
+- **Laser 60 x 30,5 cm, Rohplatte genauso gross.** 60 x 60 nutzt die volle Breite: Kartenkanten = Plattenkanten,
+  dort wird nicht geschnitten (`bogenSvg(…, kantenOffen)`), nur Naht und Inneres. Die Naht bleibt 2 mm von der
+  gegenueberliegenden Plattenkante: 297-303 mm, probiert in 1-mm-Schritten.
+- **Nur mit Holzrahmen**: er haelt die Haelften zusammen und deckt die Plattenkanten; "ohne" ist im Studio gesperrt.
+- **Blau ungeteilt** (Rohformat bestellen), Symbol klein auf irgendeiner Platte. Alle anderen Lagen mindestens 3 mm
+  (Vorlage `quadrat-60-weisses-netz`); das Symbol (Spiegel 3 mm) steht dann nicht mehr ueber das Netz.
+- **Front immer oben-unten**, sonst laeuft die Naht durch Titel und Zeilen; alle anderen Lagen beide Richtungen.
+- **Bewertung je Naht**: sichtbare Uebergaenge (Material der Lage auf der Naht, nicht von Lagen darueber verdeckt)
+  + kritische Uebergaenge + 4 je Einzelteil, Einzelteile unter 4 cm² doppelt (Marcel: "Gewichtung passt so").
+  Kritisch: Fuge unter 1,5 mm oder Netzstrasse flacher als 35° zur Naht (spitze Enden). Gleichstand -> naeher an der Mitte.
+- Messwerte 3,5 km, Front: Berlin 19 Uebergaenge / 2 Einzelteile, Amsterdam 36/1, Allgaeu 20/8 (lange Sackgassen
+  ueber die Naht), Venedig 3/0; Hintergrund meist 0 Einzelteile, Venedig 5. Innerhalb der 6 mm schwankte Berlin
+  zwischen 11/0 und 19/4 – eine feste Naht bei 300 mm waere deutlich schlechter.
+- **Haelften nur gedreht, nie gespiegelt** (Frost und Gravur bleiben oben): oben-unten B um 180°, links-rechts
+  A/B um 90°, lange Seite auf die Plattenbreite.
+- **Montageplan als PDF** (A3 quer, eigene kleine PDF-Ausgabe `pdf.ts` ohne Abhaengigkeit): Ueberblick mit Dateien
+  und Reihenfolge, je Lage die ganze Karte mit Einzelteilen (E, orange) und kritischen Uebergaengen (K), dann jede
+  Stelle 40 x 40 mm vergroessert.
+- Offen: eine Naht, die um kleine Einzelteile im Band herumlaeuft (Zacken statt Gerade), wuerde im Allgaeu einige
+  der 8 Stuecke sparen.

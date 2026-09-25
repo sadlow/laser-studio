@@ -6,6 +6,8 @@ export const FORMATE: Record<Exclude<FormatKey, "frei">, { breiteMm: number; hoe
   a4: { breiteMm: 210, hoeheMm: 297, titel: "DIN A4" },
   a3: { breiteMm: 297, hoeheMm: 420, titel: "DIN A3" },
   quadrat30: { breiteMm: 300, hoeheMm: 300, titel: "Quadrat 30 x 30" },
+  // Groesser als das Laserfeld: jede Lage aus zwei Rohplatten, nur mit Holzrahmen (Marcel 25.09.2026).
+  quadrat60: { breiteMm: 600, hoeheMm: 600, titel: "Quadrat 60 x 60" },
 };
 
 /** Loest das gewaehlte Format in konkrete Masse auf. */

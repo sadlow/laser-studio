@@ -11,7 +11,7 @@ import type { Schichtkarte } from "@/engine/typen";
  * Abgelegt als JSON im Repo (vorlagen/), damit sie versioniert sind und ein
  * anderes System sie lesen kann, ohne diese App zu kennen.
  */
-export type Produktparameter = Omit<Schichtkarte, "kunde" | "lon" | "lat" | "kartenMitte">;
+export type Produktparameter = Omit<Schichtkarte, "kunde" | "lon" | "lat" | "kartenMitte" | "teilungWahl">;
 
 export interface Vorlage {
   id: string;
@@ -61,6 +61,7 @@ function lese(datei: string): Vorlage {
       grundSchwarzFrost: k.grundSchwarzFrost ?? (k as { schwarzFrost?: boolean }).schwarzFrost ?? basis.grundSchwarzFrost,
       holzrahmenProfil: { ...basis.holzrahmenProfil, ...k.holzrahmenProfil },
       gravurExport: { ...basis.gravurExport, ...k.gravurExport },
+      teilung: { ...basis.teilung, ...k.teilung },
       titelStil: { ...basis.titelStil, ...k.titelStil },
       zeilenStil: { ...basis.zeilenStil, ...k.zeilenStil },
     },
@@ -72,7 +73,7 @@ export function speichereVorlage(name: string, beschreibung: string, karte: Schi
   const id = slug(name);
   if (!id) throw new Error("Die Vorlage braucht einen Namen.");
   // Kunde und Ort gehoeren zur Bestellung, nicht zum Produkt.
-  const { kunde: _kunde, lon: _lon, lat: _lat, kartenMitte: _mitte, ...produkt } = karte;
+  const { kunde: _kunde, lon: _lon, lat: _lat, kartenMitte: _mitte, teilungWahl: _naht, ...produkt } = karte;
   const vorlage: Vorlage = { id, name: name.trim(), beschreibung: beschreibung.trim(), karte: produkt };
   fs.mkdirSync(VORLAGEN_ORDNER, { recursive: true });
   fs.writeFileSync(path.join(VORLAGEN_ORDNER, `${id}.json`), JSON.stringify(vorlage, null, 2) + "\n");

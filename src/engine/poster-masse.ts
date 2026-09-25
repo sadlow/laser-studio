@@ -91,7 +91,7 @@ export interface LayoutWerte {
 export function standardLayoutWerte(format: FormatKey): LayoutWerte {
   const m = format === "a5" || format === "a3" ? POSTER_MASSE[format] : POSTER_MASSE.a4;
   return {
-    layoutArt: format === "quadrat30" ? "eingebettet" : "poster",
+    layoutArt: format === "quadrat30" || format === "quadrat60" ? "eingebettet" : "poster",
     kartenEndeAnteil: m.kartenEnde,
     titelMitteAnteil: m.titelMitte,
     zeile1MitteAnteil: m.zeile1Mitte,
