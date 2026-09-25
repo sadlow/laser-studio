@@ -43,6 +43,8 @@ export interface Bausteine {
   netz: Flaeche;
   /** Weisse Form um die Texte (Reiter oder Kontur), im Fenster. */
   schutz: Flaeche;
+  /** Schwarze Umrandung unter einem Titel der Deckschicht (kante.ts), im Fenster. */
+  traeger: Flaeche;
   /** Geschnittenes Wasser, ohne den Bereich unter den Texten. */
   wasser: Flaeche;
   /** Was aus der weissen Oberseite fuer die Buchstaben herausgeschnitten wird. */
@@ -71,6 +73,10 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
   const plattenFl = rechteck(0, 0, platte.breiteMm, platte.hoeheMm);
   const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
   const schutz = schneide(text.schutz, fensterFl);
+  const freiraum = text.freiraum ? schneide(text.freiraum, fensterFl) : [];
+  const traeger = text.traeger ? schneide(text.traeger, fensterFl) : [];
+  // Fuer das Netz zaehlt die Umrandung unter dem Titel wie Text: Strassen, die an ihr enden, haengen am Netz.
+  const schutzNetz = traeger.length ? vereinige(schutz, traeger) : schutz;
   const faktor = f.breiteMm / REFERENZ_KARTENBREITE_MM;
 
   // --- Standort-Symbol: Anker auf dem Ort (Spitze bei Herz und Pin), Groesse
@@ -87,7 +93,7 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
   // Loch des Pins eine lose Scheibe. Unter dem Symbol wird kein Wasser
   // geschnitten, sonst fehlte am Fluss die Klebeflaeche.
   const symbolLoch = imFenster ? ohneLoecher(zuFlaeche(eingepasst.ringe)) : [];
-  const wasser = wasserImFenster(k, roh, fensterFl, vereinige(schutz, symbolLoch));
+  const wasser = wasserImFenster(k, roh, fensterFl, vereinige(schutz, symbolLoch, traeger));
   await weiter(signal);
 
   // --- Strassen. Breiten gelten fuer A4, wachsen mit dem Format und folgen der
@@ -97,7 +103,7 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
   const land = flaecheMm2(ziehAb(fensterFl, wasser.gesamt));
   const laengen = laengenImFenster(k, roh, f);
   let auswahl = waehleNetz(k, laengen, land, faktor);
-  let n = baueNetz(k, roh, layout, schutz, auswahl, symbolLoch);
+  let n = baueNetz(k, roh, layout, schutzNetz, auswahl, symbolLoch, freiraum);
   await weiter(signal);
   // Nachgerueckte Wege muessen ein Netz ergeben, keine losen Stuecke: Venedigs
   // Gassen bei 2 km liegen auf Inseln, deren Bruecken Fusswege und Treppen
@@ -106,7 +112,7 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
   if (auswahl.nachgerueckt.length && n.loseAnteil > NACHRUECKEN_MAX_LOSE_ANTEIL) {
     nachrueckenVerworfen.push(...auswahl.nachgerueckt);
     auswahl = waehleNetz(k, laengen, land, faktor, true);
-    n = baueNetz(k, roh, layout, schutz, auswahl, symbolLoch);
+    n = baueNetz(k, roh, layout, schutzNetz, auswahl, symbolLoch, freiraum);
   }
   const { netz, gravur: gravurRoh } = n;
 
@@ -133,7 +139,7 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
   // noch ueber Wasser (dort ist kein Material, der Laser graviert Luft) noch
   // unter dem Netz (unsichtbar). Das Netz allein spart gemessen 31 % Gravurweg
   // bei 160 ms Rechenzeit – A4 Berlin: 15,0 m auf 10,4 m.
-  const gravurAus = vereinige(schutz, inseln.wasser, netz, symbolLoch);
+  const gravurAus = vereinige(schutz, traeger, inseln.wasser, netz, symbolLoch);
   const gravur = gravurRoh.map((g) => ({ linien: ziehLinienAb(g.linien, gravurAus), breiteMm: g.breiteMm }));
   // Unter dem Symbol eine gravierte Flaeche statt einer Umrisslinie (Marcel 17.09.2026): angeraut
   // haelt der Kleber besser, und die Stelle ist beim Aufsetzen markiert.
@@ -144,6 +150,7 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
     fensterFl,
     netz,
     schutz,
+    traeger,
     wasser: inseln.wasser,
     textAusschnitt: vereinige(...ausschnitte),
     gravur,

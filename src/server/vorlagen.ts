@@ -62,6 +62,7 @@ function lese(datei: string): Vorlage {
       holzrahmenProfil: { ...basis.holzrahmenProfil, ...k.holzrahmenProfil },
       gravurExport: { ...basis.gravurExport, ...k.gravurExport },
       teilung: { ...basis.teilung, ...k.teilung },
+      kante: { ...basis.kante, ...k.kante },
       titelStil: { ...basis.titelStil, ...k.titelStil },
       zeilenStil: { ...basis.zeilenStil, ...k.zeilenStil },
     },

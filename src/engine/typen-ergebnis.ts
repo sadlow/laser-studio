@@ -105,5 +105,7 @@ export interface SchichtkartenErgebnis {
   kennzahlen: Kennzahlen;
   /** Nur wenn die Platte groesser als das Laserfeld ist: je Lage die Naht und ihre kritischen Stellen. */
   teilung: TeilungsErgebnis | null;
+  /** Groesser als das Laserfeld – auch wenn die Naehte (noch) nicht gerechnet sind. */
+  teilungNoetig: boolean;
   warnungen: string[];
 }

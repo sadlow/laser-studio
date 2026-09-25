@@ -1,14 +1,28 @@
-import type { Schichtkarte, Zone } from "./typen";
+import { berechneTeilung } from "./teilung";
+import type { Schichtkarte, SchichtkartenErgebnis, Zone } from "./typen";
 import type { TeilungsErgebnis } from "./typen-teilung";
+import { vervollstaendige } from "./vervollstaendige";
 
-/** Hinweise zur geteilten Karte fuer die Warnliste. */
+/**
+ * Die Nahtsuche fuer ein fertiges Ergebnis nachholen – die Live-Vorschau rechnet ohne sie. Dieselben Lagen, dieselbe
+ * Rechnung wie im Export; nur die Karte wird nicht noch einmal gebaut.
+ */
+export function teilungFuer(r: SchichtkartenErgebnis, eingabe: Schichtkarte): { teilung: TeilungsErgebnis | null; warnungen: string[] } {
+  const k = vervollstaendige(eingabe);
+  const teilung = berechneTeilung(r.layout.platte, r.lagen, k.teilung, k.teilungWahl);
+  return { teilung, warnungen: teilung ? teilungsWarnungen(teilung, k, r.textZonen) : [] };
+}
+
+/** Geteilte Karten nur mit Holzrahmen – unabhaengig davon, ob die Naehte schon gerechnet sind. */
+export function rahmenPflicht(k: Schichtkarte): string[] {
+  return (k.kunde.holzrahmen ?? "ohne") === "ohne"
+    ? ["Diese Groesse gibt es nur mit Holzrahmen: er haelt die Haelften zusammen und deckt die Plattenkanten (Marcel 25.09.2026)."]
+    : [];
+}
+
+/** Hinweise zu den gewaehlten Naehten fuer die Warnliste. */
 export function teilungsWarnungen(t: TeilungsErgebnis, k: Schichtkarte, textZonen: { name: string; zone: Zone }[]): string[] {
   const raus: string[] = [];
-  if ((k.kunde.holzrahmen ?? "ohne") === "ohne") {
-    raus.push(
-      "Diese Groesse gibt es nur mit Holzrahmen: er haelt die Haelften zusammen und deckt die Plattenkanten (Marcel 25.09.2026).",
-    );
-  }
   for (const l of t.lagen) {
     const n = l.gewaehlt;
     if (l.front) {

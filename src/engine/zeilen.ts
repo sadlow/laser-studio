@@ -25,6 +25,10 @@ export interface Textblock {
   schutz: Flaeche;
   /** Wo Text steht – lose Teile darin zaehlen als Text, nicht als Netz. */
   textBereich: Flaeche;
+  /** Hier laufen keine Strassen: der Graben um einen Titel, der als Material in der Karte steht (Layout "kante"). */
+  freiraum?: Flaeche;
+  /** Schwarze Umrandung unter einem Titel der Deckschicht – gehoert zum Netz, die Strassen laufen hinein. */
+  traeger?: Flaeche;
   warnungen: string[];
 }
 

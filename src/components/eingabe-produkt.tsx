@@ -5,6 +5,7 @@ import { standardLayoutWerte, zeilenGroesse } from "@/engine/poster-masse";
 import { symbolBreiteMm } from "@/engine/symbole";
 import { TITELSCHRIFTEN, ZEILENSCHRIFTEN } from "@/engine/standard";
 import { REFERENZ_KARTENBREITE_MM, type Anker, type EingebettetesLayout, type LayoutArt, type Schichtkarte, type TextForm, type TextStil } from "@/engine/typen";
+import { EingabeKante } from "./eingabe-kante";
 import { Anteil, Auswahl, Block, Haken, Zahl } from "./felder";
 import type { Aenderung } from "./aenderung";
 
@@ -98,6 +99,7 @@ export function EingabePlatte({ karte, aendern }: Props) {
 const LAYOUT_OPTIONEN: { wert: LayoutArt; titel: string }[] = [
   { wert: "poster", titel: "Poster – Karte oben, Text darunter" },
   { wert: "eingebettet", titel: "Eingebettet – Texte in der Karte" },
+  { wert: "kante", titel: "Kante – Titel steht auf dem unteren Rand" },
 ];
 
 const ANKER_OPTIONEN: { wert: Anker; titel: string }[] = [
@@ -123,7 +125,9 @@ export function EingabeLayout({ karte, aendern }: Props) {
       hinweis={
         karte.layoutArt === "poster"
           ? `Positionen und Groessen als Anteil der Plattenhoehe, vermessen am Poster "Zuhause" in ${posterFormat}. Jedes Poster-Format hat eigene Werte.`
-          : "Jeder Text steht an seinem Rand in einer weissen Schutzkontur, die in Rahmen und Strassennetz uebergeht. Darunter wird weder Wasser geschnitten noch graviert."
+          : karte.layoutArt === "kante"
+            ? "Der Titel steht in Versalien als Material auf dem unteren Rand, um ihn laufen keine Strassen. Namen und letzte Zeile stehen ausgeschnitten im Rand. Die Titelschrift unten gilt fuer die anderen Layouts."
+            : "Jeder Text steht an seinem Rand in einer weissen Schutzkontur, die in Rahmen und Strassennetz uebergeht. Darunter wird weder Wasser geschnitten noch graviert."
       }
     >
       <div className="space-y-3">
@@ -134,7 +138,7 @@ export function EingabeLayout({ karte, aendern }: Props) {
           style={{ borderColor: "var(--linie)" }}
           title="Lage, Groessen, Schriften und Sperrung wie gemessen"
         >
-          Auf Standard zuruecksetzen ({karte.format === "quadrat30" ? "Quadrat" : `Poster ${posterFormat}`})
+          Auf Standard zuruecksetzen ({karte.format === "quadrat30" || karte.format === "quadrat60" ? "Quadrat" : `Poster ${posterFormat}`})
         </button>
         <Auswahl titel="Layout-Art" wert={karte.layoutArt} optionen={LAYOUT_OPTIONEN} aendern={(v) => aendern({ layoutArt: v })} />
 
@@ -145,6 +149,8 @@ export function EingabeLayout({ karte, aendern }: Props) {
             <Anteil titel="Namen Mitte" wert={karte.zeile1MitteAnteil} min={0.5} max={0.98} aendern={(v) => aendern({ zeile1MitteAnteil: v })} />
             <Anteil titel="Letzte Zeile Mitte" wert={karte.zeile2MitteAnteil} min={0.5} max={0.98} aendern={(v) => aendern({ zeile2MitteAnteil: v })} />
           </>
+        ) : karte.layoutArt === "kante" ? (
+          <EingabeKante karte={karte} aendern={aendern} />
         ) : (
           <div className="grid grid-cols-2 gap-3">
             <Auswahl titel="Titel" wert={e.titelAnker} optionen={ANKER_OPTIONEN} aendern={(v) => ein({ titelAnker: v })} />

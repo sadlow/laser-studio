@@ -109,9 +109,12 @@ export function schliesse(flaeche: Flaeche, radius: number): Flaeche {
  * Zerlegt eine Flaeche in physische Teile: jede Aussenkontur mit ihren
  * Loechern ist ein Stueck Acryl. Das ist die Zahl, die in der Werkstatt zaehlt.
  */
-export function teile(flaeche: Flaeche, minFlaecheMm2 = 0.05): Teil[] {
+export function teile(flaeche: Flaeche, minFlaecheMm2 = 0.05, strikt = false): Teil[] {
   if (!flaeche.length) return [];
   const c = new ClipperLib.Clipper();
+  // strikt: Loecher, die die Aussenkante in einem Punkt beruehren, ordnet Clipper sonst manchmal dem falschen Teil zu –
+  // das Loch fehlt dann (Entwurf "Titel auf der Kante", 25.09.2026). Noch nicht Standard: Auswirkung auf die Lagen offen.
+  c.StrictlySimple = strikt;
   c.AddPaths(flaeche, ClipperLib.PolyType.ptSubject, true);
   const baum = new ClipperLib.PolyTree();
   c.Execute(ClipperLib.ClipType.ctUnion, baum, NONZERO, NONZERO);

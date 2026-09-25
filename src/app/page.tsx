@@ -14,6 +14,7 @@ import { TechnikPruefung } from "@/components/technik-pruefung";
 import { TechnikReferenzorte } from "@/components/technik-referenzorte";
 import { TechnikTeilung } from "@/components/technik-teilung";
 import { TechnikVorlagen } from "@/components/technik-vorlagen";
+import { useNaehte } from "@/components/use-naehte";
 import { standardSchichtkarte } from "@/engine/standard";
 import type { Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
 
@@ -70,11 +71,17 @@ export default function Seite() {
     setAbgebrochen(true);
   };
 
-  // Sammelt schnelle Aenderungen (Regler, Tippen) zu einem Lauf.
+  // Sammelt schnelle Aenderungen (Regler, Tippen) zu einem Lauf. Die Nahtwahl aendert die Karte nicht – sie rechnet
+  // nur die Naehte nach (useNaehte).
+  const { teilungWahl: _wahl, ...kartenStand } = karte;
+  const stand = JSON.stringify(kartenStand);
+  const aktuelleKarte = useRef(karte);
+  aktuelleKarte.current = karte;
   useEffect(() => {
-    const t = setTimeout(() => void rendern(karte), 450);
+    const t = setTimeout(() => void rendern(aktuelleKarte.current), 450);
     return () => clearTimeout(t);
-  }, [karte, rendern]);
+  }, [stand, rendern]);
+  const naehte = useNaehte(karte, ergebnis);
 
   const aendern = (teil: Aenderung) => setKarte((alt) => mischen(alt, teil));
 
@@ -110,7 +117,7 @@ export default function Seite() {
 
       <section className="min-h-0 p-3">
         <Komposer
-          ergebnis={ergebnis}
+          ergebnis={naehte.anzeige}
           fehler={fehler}
           laedt={laedt}
           abgebrochen={abgebrochen}
@@ -125,8 +132,8 @@ export default function Seite() {
         <p className="px-1 pt-1 text-xs font-medium" style={{ color: "var(--gedaempft)" }}>
           Technik und Prototypenbau
         </p>
-        <TechnikPruefung ergebnis={ergebnis} />
-        <TechnikTeilung ergebnis={ergebnis} karte={karte} aendern={aendern} />
+        <TechnikPruefung ergebnis={naehte.anzeige} />
+        <TechnikTeilung ergebnis={naehte.anzeige} karte={karte} aendern={aendern} rechnen={naehte.rechnen} laeuft={naehte.laeuft} fehler={naehte.fehler} />
         <TechnikExport karte={karte} />
         <PrototypPlatten karte={karte} />
         <TechnikReferenzorte karte={karte} aendern={aendern} />

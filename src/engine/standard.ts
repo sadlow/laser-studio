@@ -120,6 +120,21 @@ export function standardSchichtkarte(): Schichtkarte {
     // ist angenommen, noch nicht unter der Lupe gemessen – sie kuerzt nur die Stichenden vor Kreuzungen (wege.ts).
     gravurExport: { art: "mittellinie", strahlMm: 0.5 },
     // Laser 60 x 30,5 cm, Rohplatte genauso gross (Marcel 25.09.2026). Naht 2 mm von der Plattenkante: 297-303 mm.
+    // Titel auf der Kante, gemessen an den Entwuerfen 60 x 60 (Marcel 25.09.2026): Rand 16 mm, unten 36 mm, Titel
+    // hoechstens ein Drittel der Breite (20 cm) und 48 mm hoch, Zeile 8,5 mm.
+    kante: {
+      rahmenMm: 16,
+      rahmenUntenMm: 36,
+      einzugMm: 14,
+      titelSchrift: "BebasNeue-Regular.ttf",
+      titelSperrung: 0.04,
+      titelVersalAnteil: 0.08,
+      titelMaxBreiteAnteil: 1 / 3,
+      grabenMm: 3,
+      konturMm: 2.5,
+      zeileVersalAnteil: 0.0142,
+      zeileSperrung: 0.08,
+    },
     teilung: { rohplatte: { breiteMm: 600, hoeheMm: 305 }, randMm: 2, gewichtEinzelteil: 4, kleinMm2: 400, schrittMm: 1 },
   };
 }
@@ -133,6 +148,9 @@ export const TITELSCHRIFTEN = [
   "Cinderella.otf",
   "Westover.ttf",
 ];
+
+/** Blockschriften fuer den Titel auf der Kante – er steht als Material, Versalien, ohne Stege. */
+export const KANTEN_SCHRIFTEN = ["BebasNeue-Regular.ttf", "DIN Condensed Bold.ttf", "AvantGardeCE-Demi.otf", "JosefinSans-Bold.ttf"];
 
 /** Die Zeilenschriften mit bekannter Schnittgroesse (poster-masse.ts). ExtraLight (0,2 mm Strich) ist raus. */
 export const ZEILENSCHRIFTEN = Object.keys(ZEILENSCHRIFT_MASSE);

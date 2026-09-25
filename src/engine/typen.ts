@@ -12,6 +12,7 @@
 import type { SymbolArt, SymbolGroesse } from "./symbole";
 import type { GravurExport } from "./typen-fertigung";
 import type { Generalisierung, StrassenGruppe, StrassenStufe } from "./typen-strassen";
+import type { KantenLayout, TitelLage, ZeilenLage } from "./typen-kante";
 import type { Teilungsvorgabe, TeilungsWahl } from "./typen-teilung";
 
 export type FormatKey = "a5" | "a4" | "a3" | "quadrat30" | "quadrat60" | "frei";
@@ -39,6 +40,9 @@ export interface Kundeneingabe {
   symbolGroesse: SymbolGroesse;
   /** Optionaler Holzrahmen – das Profil legt die Vorlage fest. */
   holzrahmen: Holzrahmen;
+  /** Nur Layout "kante": Titel links oder rechts auf der Kante, Zeile im Rand links, mittig oder rechts. */
+  titelLage?: TitelLage;
+  zeilenLage?: ZeilenLage;
 }
 
 export type Holzrahmen = "ohne" | "schwarz" | "weiss" | "eiche" | "dunkelbraun";
@@ -60,8 +64,10 @@ export interface HolzrahmenProfil {
  * eingebettet: Karte ueber die ganze Platte, die Texte liegen in der Karte auf
  *              einer weissen Schutzkontur, die ins Netz und den Rahmen uebergeht.
  *              Entworfen fuer das Quadrat (Marcel 16.09.2026).
+ * kante:       Titel als Material auf der unteren Rahmenkante, Zeile negativ im breiten Rand (typen-kante.ts, Marcel
+ *              25.09.2026).
  */
-export type LayoutArt = "poster" | "eingebettet";
+export type LayoutArt = "poster" | "eingebettet" | "kante";
 
 export type Anker = "oben-mitte" | "oben-links" | "oben-rechts" | "unten-mitte" | "unten-links" | "unten-rechts";
 
@@ -138,6 +144,7 @@ export interface Schichtkarte {
   aufbau: Aufbau;
   layoutArt: LayoutArt;
   eingebettet: EingebettetesLayout;
+  kante: KantenLayout;
 
   // --- nur layoutArt "poster" ---
   /** Unterkante des Kartenfensters als Anteil der Plattenhoehe. */
@@ -217,3 +224,4 @@ export * from "./typen-ergebnis";
 export * from "./typen-fertigung";
 export * from "./typen-strassen";
 export * from "./typen-teilung";
+export * from "./typen-kante";

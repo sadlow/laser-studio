@@ -44,7 +44,7 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
     const deck = teile(ziehAb(vereinige(rahmen, b.schutz), vereinige(b.textAusschnitt, b.symbolLoch)), SPLITTER_MM2);
     // Unter den Texten bleibt das Schwarz voll: die Buchstaben zeigen schwarz,
     // und die Deckschicht hat dort Flaeche zum Aufkleben.
-    const netz = teile(ziehAb(vereinige(rahmen, b.netz, b.schutz), b.symbolLoch), SPLITTER_MM2);
+    const netz = teile(ziehAb(vereinige(rahmen, b.netz, b.schutz, b.traeger), b.symbolLoch), SPLITTER_MM2);
     const [netzHaupt, ...netzLose] = netz;
 
     const schritte: Malschritt[] = [

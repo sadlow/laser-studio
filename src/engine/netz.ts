@@ -32,7 +32,7 @@ export interface Netz {
  * Zufahrten und Feldwege nicht: in diesen Klassen stecken Stege, Anleger und Pontons – in
  * Hamburg wurden die Bootsanleger zu schwarzen Kaemmen im Hafenbecken.
  */
-export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, schutz: Flaeche, auswahl: NetzAuswahl, symbolLoch: Flaeche = []): Netz {
+export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, schutz: Flaeche, auswahl: NetzAuswahl, symbolLoch: Flaeche = [], freiraum: Flaeche = []): Netz {
   const { platte, kartenfenster: f } = layout;
   const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
   const imFenster = (linien: Punkt[][]) =>
@@ -67,7 +67,8 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
     const befahren = gruppe.ziel === "netz" || gruppe.klassen.some((kl) => kl.endsWith("_rail"));
     if (befahren && bruecken.length) gravurBruecken.push({ linien: bruecken, breiteMm: brueckeFuer(strich) });
   }
-  const strassen = schneide(vereinige(...netzTeile), fensterFl);
+  // Im Freiraum (Graben um den Titel auf der Kante) enden die Strassen; was dadurch abreisst, wird unten lose -> Gravur.
+  const strassen = ziehAb(schneide(vereinige(...netzTeile), fensterFl), freiraum);
 
   // Kleine Bloecke zwischen Strassen und Texten loesen sich nicht sauber heraus.
   // Sie gehen im Netz auf – als Material, egal welche Farbe das Netz hat.

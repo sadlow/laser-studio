@@ -8,10 +8,13 @@ import { weiter } from "./abbruch";
 import { baueBausteine } from "./lagen";
 import { berechneLayout } from "./layout";
 import { stapleLagen } from "./stapel";
-import { berechneTeilung } from "./teilung";
-import { teilungsWarnungen } from "./teilung-hinweise";
-import { standardSchichtkarte, staerkenAus } from "./standard";
+import { berechneTeilung, mussGeteiltWerden } from "./teilung";
+import { rahmenPflicht, teilungsWarnungen } from "./teilung-hinweise";
+import { vervollstaendige } from "./vervollstaendige";
+
+export { teilungFuer } from "./teilung-hinweise";
 import { setzePosterText } from "./textblock";
+import { setzeKante } from "./kante";
 import { REFERENZ_KARTENBREITE_MM, type Schichtkarte, type SchichtkartenErgebnis } from "./typen";
 import { zeichenWarnungen } from "./zeichen";
 
@@ -35,21 +38,15 @@ export {
  * Live-Vorschau und spaeter die Produktion – sonst gaebe es zwei Geometrien
  * fuer dasselbe Produkt, und die driften unbemerkt auseinander.
  */
-export async function rendereSchichtkarte(eingabe: Schichtkarte, token: string, signal?: AbortSignal): Promise<SchichtkartenErgebnis> {
-  // Ein offenes Browserfenster oder eine aeltere Vorlage kennt die Grenzwerte vom Testblatt noch nicht – und hat die
-  // Plattenstaerken noch in alter Form (staerkenAus).
-  const basis = standardSchichtkarte();
-  const k: Schichtkarte = {
-    ...eingabe,
-    staerkenMm: staerkenAus(eingabe.staerkenMm),
-    grundSchwarzFrost: eingabe.grundSchwarzFrost ?? (eingabe as { schwarzFrost?: boolean }).schwarzFrost ?? basis.grundSchwarzFrost,
-    stegMinMm: eingabe.stegMinMm ?? basis.stegMinMm,
-    netzMinSpaltMm: eingabe.netzMinSpaltMm ?? basis.netzMinSpaltMm,
-    gravurExport: eingabe.gravurExport ?? basis.gravurExport,
-    teilung: { ...basis.teilung, ...eingabe.teilung },
-    titelStil: { ...eingabe.titelStil, minStrichMm: eingabe.titelStil.minStrichMm ?? basis.titelStil.minStrichMm },
-    zeilenStil: { ...eingabe.zeilenStil, minStrichMm: eingabe.zeilenStil.minStrichMm ?? basis.zeilenStil.minStrichMm },
-  };
+export async function rendereSchichtkarte(
+  eingabe: Schichtkarte,
+  token: string,
+  signal?: AbortSignal,
+  // Die Nahtsuche einer geteilten Karte kostet bis zu Sekunden – die Live-Vorschau laesst sie weg und holt sie bei
+  // Bedarf nach (teilungFuer), Export und Skripte rechnen sie mit (Marcel 25.09.2026).
+  optionen: { teilung?: boolean } = {},
+): Promise<SchichtkartenErgebnis> {
+  const k = vervollstaendige(eingabe);
   const start = Date.now();
   const layout = berechneLayout(k);
   const warnungen: string[] = [];
@@ -74,7 +71,8 @@ export async function rendereSchichtkarte(eingabe: Schichtkarte, token: string, 
   });
   await weiter(signal);
 
-  const textblock = k.layoutArt === "eingebettet" ? setzeEingebettet(k, layout) : setzePosterText(k, layout);
+  const textblock =
+    k.layoutArt === "eingebettet" ? setzeEingebettet(k, layout) : k.layoutArt === "kante" ? setzeKante(k, layout) : setzePosterText(k, layout);
   warnungen.push(...zeichenWarnungen(k), ...textblock.warnungen);
 
   await weiter(signal);
@@ -146,7 +144,9 @@ export async function rendereSchichtkarte(eingabe: Schichtkarte, token: string, 
   const gravur = gravurMasse(s.lagen);
   warnungen.push(...holz.warnungen);
   await weiter(signal);
-  const teilung = berechneTeilung(layout.platte, s.lagen, k.teilung, k.teilungWahl);
+  const teilungNoetig = mussGeteiltWerden(layout.platte, k.teilung);
+  if (teilungNoetig) warnungen.push(...rahmenPflicht(k));
+  const teilung = teilungNoetig && optionen.teilung !== false ? berechneTeilung(layout.platte, s.lagen, k.teilung, k.teilungWahl) : null;
   if (teilung) warnungen.push(...teilungsWarnungen(teilung, k, textZonen));
 
   return {
@@ -173,6 +173,7 @@ export async function rendereSchichtkarte(eingabe: Schichtkarte, token: string, 
       rechenzeitMs: Date.now() - start,
     },
     teilung,
+    teilungNoetig,
     warnungen,
   };
 }

@@ -11,6 +11,8 @@ import type { Schichtkarte } from "./typen";
  * die darueber liegen – etwa aus einem Link oder einer aelteren Sitzung.
  */
 export const MAX_ZEICHEN = { titel: 20, zeile: 30 } as const;
+/** Titel auf der Kante: hoechstens ein Drittel der Breite, darum kuerzer (Marcel 25.09.2026). */
+export const MAX_TITEL_KANTE = 15;
 
 export interface Zeichenstand {
   /** Zeichen der Zeile auf dem Poster. */
@@ -34,7 +36,8 @@ export function letzteZeileText(k: Schichtkarte) {
 }
 
 export function zeichenstand(k: Schichtkarte): Record<"titel" | "zeile1" | "zeile2", Zeichenstand> {
-  const { titel, zeile } = MAX_ZEICHEN;
+  const { zeile } = MAX_ZEICHEN;
+  const titel = k.layoutArt === "kante" ? MAX_TITEL_KANTE : MAX_ZEICHEN.titel;
   const ortPlatz = Math.max(0, zeile - laenge(koordinatenText(k)) - 1);
   return {
     titel: { zeichen: laenge(k.kunde.titel.trim()), max: titel, feldMax: titel },

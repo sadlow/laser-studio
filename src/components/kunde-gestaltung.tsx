@@ -3,7 +3,7 @@
 import { FORMATE } from "@/engine/formate";
 import { standardLayoutWerte, zeilenGroesse } from "@/engine/poster-masse";
 import { SYMBOL_TITEL, symbolPfad, type SymbolArt, type SymbolGroesse } from "@/engine/symbole";
-import type { Aufbau, FormatKey, Holzrahmen, Kundeneingabe, Schichtkarte } from "@/engine/typen";
+import type { Aufbau, FormatKey, Holzrahmen, Kundeneingabe, LayoutArt, Schichtkarte, TitelLage, ZeilenLage } from "@/engine/typen";
 import { Block, Wahl } from "./felder";
 import { STUFEN } from "./stufen-tabelle";
 import type { Aenderung } from "./aenderung";
@@ -116,6 +116,30 @@ export function KundeGestaltung({ karte, aendern }: Props) {
             aendern={formatWaehlen}
           />
         </div>
+        {(karte.format === "quadrat30" || karte.format === "quadrat60") && (
+          <div>
+            <span className="beschriftung">Titel</span>
+            <Wahl<LayoutArt>
+              wert={karte.layoutArt}
+              optionen={[{ wert: "eingebettet", titel: "im Reiter" }, { wert: "kante", titel: "auf der Kante" }]}
+              aendern={(v) => aendern({ layoutArt: v, teilungWahl: undefined })}
+            />
+            {karte.layoutArt === "kante" && (
+              <div className="mt-1 space-y-1">
+                <Wahl<TitelLage>
+                  wert={k.titelLage ?? "rechts"}
+                  optionen={[{ wert: "links", titel: "Titel links" }, { wert: "mitte", titel: "mittig" }, { wert: "rechts", titel: "rechts" }]}
+                  aendern={(v) => setze({ titelLage: v })}
+                />
+                <Wahl<ZeilenLage>
+                  wert={k.zeilenLage ?? "links"}
+                  optionen={[{ wert: "links", titel: "Zeile links" }, { wert: "mitte", titel: "mittig" }, { wert: "rechts", titel: "rechts" }]}
+                  aendern={(v) => setze({ zeilenLage: v })}
+                />
+              </div>
+            )}
+          </div>
+        )}
         <div>
           <span className="beschriftung">Strassennetz</span>
           <Wahl wert={k.strassenStufe} spalten={1} optionen={STUFEN} aendern={(v) => setze({ strassenStufe: v })} />

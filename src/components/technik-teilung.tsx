@@ -1,7 +1,7 @@
 "use client";
 
 import type { Naht, Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
-import { Block } from "./felder";
+import { Block, Knopf } from "./felder";
 import type { Aenderung } from "./aenderung";
 
 const RICHTUNG = { "oben-unten": "oben/unten", "links-rechts": "links/rechts" } as const;
@@ -20,9 +20,27 @@ function Zahlen({ n }: { n: Naht }) {
  * die naechstbesten zum Umwaehlen. Punkte = Uebergaenge + kritische + 4 je Einzelteil (kleine doppelt) – kleiner ist
  * sauberer. Die Wahl gehoert zur Bestellung und geht in den Export und den Montageplan.
  */
-export function TechnikTeilung({ ergebnis, karte, aendern }: { ergebnis: SchichtkartenErgebnis | null; karte: Schichtkarte; aendern: (teil: Aenderung) => void }) {
-  const t = ergebnis?.teilung;
-  if (!t) return null;
+export function TechnikTeilung({ ergebnis, karte, aendern, rechnen, laeuft, fehler }: {
+  ergebnis: SchichtkartenErgebnis | null;
+  karte: Schichtkarte;
+  aendern: (teil: Aenderung) => void;
+  rechnen: () => void;
+  laeuft: boolean;
+  fehler: string | null;
+}) {
+  if (!ergebnis?.teilungNoetig) return null;
+  const t = ergebnis.teilung;
+  // Die Vorschau rechnet nur die Karte; die Nahtsuche kostet bis zu Sekunden und kommt auf Knopfdruck (25.09.2026).
+  if (!t) {
+    return (
+      <Block titel="Teilung" zu={false} hinweis="Die Karte ist groesser als das Laserfeld. Die Naehte werden erst hier oder beim Export gerechnet, nicht bei jeder Verschiebung.">
+        <div className="space-y-2 text-xs">
+          <Knopf onClick={rechnen} aus={laeuft} voll>{laeuft ? "rechnet Naehte…" : "Naehte berechnen"}</Knopf>
+          {fehler && <p className="text-red-700">{fehler}</p>}
+        </div>
+      </Block>
+    );
+  }
   const waehle = (key: string, n: Naht | null) => {
     const wahl = { ...karte.teilungWahl };
     if (n) wahl[key as keyof typeof wahl] = { richtung: n.richtung, posMm: n.posMm };

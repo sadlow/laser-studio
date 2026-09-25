@@ -12,11 +12,11 @@ import type { Layout, Schichtkarte } from "./typen";
  */
 export function berechneLayout(k: Schichtkarte): Layout {
   const { breiteMm, hoeheMm } = masseAusFormat(k.format, k.breiteMm, k.hoeheMm);
-  const rahmen = Math.max(0, k.rahmenMm);
+  const rahmen = randMm(k);
 
-  // Eingebettet: die Karte fuellt alles innerhalb des Rahmens, unten breiter.
-  if (k.layoutArt === "eingebettet") {
-    const unten = Math.max(rahmen, k.eingebettet.rahmenUntenMm);
+  // Eingebettet und Kante: die Karte fuellt alles innerhalb des Rahmens, unten breiter.
+  if (k.layoutArt === "eingebettet" || k.layoutArt === "kante") {
+    const unten = Math.max(rahmen, k.layoutArt === "kante" ? k.kante.rahmenUntenMm : k.eingebettet.rahmenUntenMm);
     return {
       platte: { xMm: 0, yMm: 0, breiteMm, hoeheMm },
       kartenfenster: {
@@ -39,4 +39,9 @@ export function berechneLayout(k: Schichtkarte): Layout {
       hoeheMm: Math.max(1, kartenEnde - rahmen),
     },
   };
+}
+
+/** Rand rundum: beim Titel auf der Kante bringt das Layout seinen eigenen, breiteren mit. */
+export function randMm(k: Schichtkarte): number {
+  return Math.max(0, k.layoutArt === "kante" ? k.kante.rahmenMm : k.rahmenMm);
 }

@@ -17,7 +17,7 @@ export { haelften } from "./teilung-bewertung";
 export function berechneTeilung(platte: Zone, lagen: Lage[], v: Teilungsvorgabe, wahl: TeilungsWahl = {}): TeilungsErgebnis | null {
   const { breiteMm: B, hoeheMm: H } = platte;
   const { breiteMm: rb, hoeheMm: rh } = v.rohplatte;
-  if ((B <= rb && H <= rh) || (B <= rh && H <= rb)) return null;
+  if (!mussGeteiltWerden(platte, v)) return null;
 
   // Beide Haelften muessen mit Rand auf die Rohplatte passen, die lange Seite auf die Breite.
   const max = rh - v.randMm;
@@ -93,6 +93,13 @@ export function berechneTeilung(platte: Zone, lagen: Lage[], v: Teilungsvorgabe,
     ungeteilt: lagen.filter((l) => l.key === "symbol" || l.key === "blau").map((l) => l.key),
     gehrung: deck ? ["deck"] : [],
   };
+}
+
+/** Passt die Platte in keiner Lage aufs Laserfeld? */
+export function mussGeteiltWerden(platte: Zone, v: Teilungsvorgabe): boolean {
+  const { breiteMm: B, hoeheMm: H } = platte;
+  const { breiteMm: rb, hoeheMm: rh } = v.rohplatte;
+  return !((B <= rb && H <= rh) || (B <= rh && H <= rb));
 }
 
 /** Die besten Alternativen, jede Richtung vertreten, Nachbarn im Abstand von mindestens 2 mm. */

@@ -1,3 +1,4 @@
+import { randMm } from "./layout";
 import type { Holzrahmen, Layout, Schichtkarte, SchichtkartenErgebnis, Zone } from "./typen";
 
 export const HOLZRAHMEN_TITEL: Record<Holzrahmen, string> = { ohne: "ohne", schwarz: "Holz schwarz", weiss: "Holz weiss", eiche: "Eiche", dunkelbraun: "Holz dunkelbraun" };
@@ -16,7 +17,7 @@ export function holzrahmenPruefen(
   stapelMm: number,
 ): { rahmen: SchichtkartenErgebnis["rahmen"]; warnungen: string[]; randImRahmenMm: number } {
   const p = k.holzrahmenProfil;
-  const randImRahmenMm = k.rahmenMm - p.ueberstandMm;
+  const randImRahmenMm = randMm(k) - p.ueberstandMm;
   const farbe = k.kunde.holzrahmen;
   if (!farbe || farbe === "ohne") return { rahmen: null, warnungen: [], randImRahmenMm };
 
@@ -27,7 +28,7 @@ export function holzrahmenPruefen(
   const verdeckt = (z: Zone) => z.xMm < u || z.yMm < u || z.xMm + z.breiteMm > platte.breiteMm - u || z.yMm + z.hoeheMm > platte.hoeheMm - u;
 
   if (randImRahmenMm < 0) {
-    warnungen.push(`Der Holzrahmen steht ${u} mm ueber das Motiv, der Rand ist nur ${k.rahmenMm} mm – ${(-randImRahmenMm).toFixed(1)} mm der Karte liegen unter dem Rahmen.`);
+    warnungen.push(`Der Holzrahmen steht ${u} mm ueber das Motiv, der Rand ist nur ${randMm(k)} mm – ${(-randImRahmenMm).toFixed(1)} mm der Karte liegen unter dem Rahmen.`);
   }
   if (symbol && verdeckt(symbol)) {
     warnungen.push("Das Standort-Symbol reicht unter den Holzrahmen und stuende gegen die Rahmenkante. Symbol weiter nach innen ziehen.");

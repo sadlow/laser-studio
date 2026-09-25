@@ -52,7 +52,7 @@ export function NahtUeberlagerung({ ergebnis, lage }: { ergebnis: SchichtkartenE
         // Sonst faengt die Vorschau den Druck als Ziehen der Karte ab.
         onPointerDown={(e) => e.stopPropagation()}
         className="absolute rounded-md border px-2 py-1 text-[11px] shadow-sm"
-        style={{ left: lage.links + 8, top: lage.oben + H * s - 34, background: "var(--karte)", borderColor: "var(--linie)" }}
+        style={{ left: lage.links + 8, top: lage.oben + 8, background: "var(--karte)", borderColor: "var(--linie)" }}
         title="Naehte, Einzelteile (orange) und kritische Uebergaenge (Ring) ein- oder ausblenden"
       >
         {an ? "Naehte ausblenden" : "Naehte zeigen"}

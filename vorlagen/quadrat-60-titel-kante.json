@@ -1,0 +1,214 @@
+{
+  "id": "quadrat-60-titel-kante",
+  "name": "Quadrat 60 – Titel auf der Kante",
+  "beschreibung": "60 x 60, weisses Netz, Titel in Versalien als Material auf der unteren Rahmenkante (links oder rechts), Namen und Koordinaten negativ im breiten unteren Rand. Zwei Rohplatten je Lage, nur mit Holzrahmen, Lagen mind. 3 mm.",
+  "karte": {
+    "ausschnittKm": 3.5,
+    "format": "quadrat60",
+    "rahmenMm": 7,
+    "aufbau": "netz-weiss",
+    "layoutArt": "kante",
+    "eingebettet": {
+      "titelAnker": "oben-mitte",
+      "zeile1Anker": "unten-mitte",
+      "zeile2Anker": "unten-mitte",
+      "form": "rechteck",
+      "schutzMm": 5,
+      "eckenRadiusMm": 6,
+      "rahmenUntenMm": 14
+    },
+    "kartenEndeAnteil": 0.68,
+    "titelMitteAnteil": 0.743,
+    "zeile1MitteAnteil": 0.878,
+    "zeile2MitteAnteil": 0.912,
+    "titelStil": {
+      "schrift": "Bacalisties.ttf",
+      "hoeheAnteil": 0.07,
+      "sperrung": 0,
+      "versalien": false
+    },
+    "zeilenStil": {
+      "schrift": "DIN Alternate Bold.ttf",
+      "hoeheAnteil": 0.01955,
+      "sperrung": 0.05,
+      "versalien": true
+    },
+    "strassen": [
+      {
+        "id": "fern",
+        "titel": "Autobahn / Schnellstrasse",
+        "klassen": [
+          "motorway",
+          "motorway_link",
+          "trunk",
+          "trunk_link"
+        ],
+        "ziel": "netz",
+        "breiteMm": 2.6
+      },
+      {
+        "id": "primaer",
+        "titel": "Primaer",
+        "klassen": [
+          "primary",
+          "primary_link"
+        ],
+        "ziel": "netz",
+        "breiteMm": 2.2
+      },
+      {
+        "id": "sekundaer",
+        "titel": "Sekundaer",
+        "klassen": [
+          "secondary",
+          "secondary_link"
+        ],
+        "ziel": "netz",
+        "breiteMm": 1.8
+      },
+      {
+        "id": "tertiaer",
+        "titel": "Tertiaer",
+        "klassen": [
+          "tertiary",
+          "tertiary_link"
+        ],
+        "ziel": "netz",
+        "breiteMm": 1.4
+      },
+      {
+        "id": "bahn",
+        "titel": "Bahn",
+        "klassen": [
+          "major_rail"
+        ],
+        "ziel": "netz",
+        "breiteMm": 1.2
+      },
+      {
+        "id": "wohn",
+        "titel": "Wohnstrassen",
+        "klassen": [
+          "street",
+          "street_limited"
+        ],
+        "ziel": "netz",
+        "breiteMm": 1
+      },
+      {
+        "id": "service",
+        "titel": "Zufahrten",
+        "klassen": [
+          "service"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.3,
+        "nachruecken": true
+      },
+      {
+        "id": "fussgaenger",
+        "titel": "Fussgaengerzonen",
+        "klassen": [
+          "pedestrian"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.25,
+        "nachruecken": true
+      },
+      {
+        "id": "feldwege",
+        "titel": "Feldwege",
+        "klassen": [
+          "track"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.25,
+        "nachruecken": true
+      },
+      {
+        "id": "fuss",
+        "titel": "Fuss- und Radwege",
+        "klassen": [
+          "path"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.25
+      },
+      {
+        "id": "nebenbahn",
+        "titel": "Nebengleise",
+        "klassen": [
+          "minor_rail",
+          "service_rail"
+        ],
+        "ziel": "gravur",
+        "breiteMm": 0.25
+      }
+    ],
+    "netzMinBreiteMm": 0.8,
+    "generalisierung": {
+      "aktiv": true,
+      "maxFaktor": 1.4,
+      "stufen": {
+        "viel": {
+          "zielDeckung": 0.37,
+          "maxAufdickung": 2,
+          "nachruecken": "immer"
+        },
+        "ausgewogen": {
+          "zielDeckung": 0.29,
+          "maxAufdickung": 1.4,
+          "nachruecken": "licht"
+        },
+        "wenig": {
+          "zielDeckung": 0.23,
+          "maxAufdickung": 1,
+          "nachruecken": "nie"
+        }
+      }
+    },
+    "netzMinLochMm2": 4,
+    "wasser": true,
+    "wasserlaeufe": false,
+    "wasserlaufBreiteMm": 1.2,
+    "wasserMinFlaecheMm2": 6,
+    "wasserMinBreiteMm": 1,
+    "wasserInselMinMm2": 15,
+    "stegMm": 0.7,
+    "stencilMinInselBreiteMm": 0.8,
+    "staerkenMm": {
+      "acryl": 3,
+      "grundSchwarz": 3,
+      "spiegel": 3
+    },
+    "grundSchwarzFrost": true,
+    "holzrahmenProfil": {
+      "breiteMm": 14,
+      "tiefeMm": 28,
+      "einlassMm": 6,
+      "ueberstandMm": 4
+    },
+    "loseTeileMarkieren": true,
+    "symbolStufenMm": [
+      6,
+      8,
+      11,
+      15,
+      21,
+      29
+    ],
+    "kante": {
+      "rahmenMm": 16,
+      "rahmenUntenMm": 36,
+      "einzugMm": 14,
+      "titelSchrift": "BebasNeue-Regular.ttf",
+      "titelSperrung": 0.04,
+      "titelVersalAnteil": 0.08,
+      "titelMaxBreiteAnteil": 0.3333,
+      "grabenMm": 3,
+      "zeileVersalAnteil": 0.0142,
+      "zeileSperrung": 0.08,
+      "konturMm": 2.5
+    }
+  }
+}

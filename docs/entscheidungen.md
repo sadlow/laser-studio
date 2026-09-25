@@ -170,6 +170,15 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Entwuerfe nur als Warnung. 20 Zeichen Schreibschrift: 54-63 % Groesse (voll passen rund 11). Beruehren
   sich Zeilen, meldet die Engine es – das haengt am Kundentext.
 
+- **Titel auf der Kante** (`kante.ts`, Marcel 25.09.2026, Vorbild Kettle Falls; Standard fuer 60 x 60): Titel in
+  Versalien (Bebas Neue) als Material auf der Innenkante des unteren Rands, links, mittig oder rechts – der Kunde waehlt.
+  Hoechstens ein Drittel der Breite (60 x 60: 20 cm) und 8 % der Hoehe, hoechstens 15 Zeichen. Graben 3 mm ohne
+  Strassen, zwischen den Buchstaben keine (sonst 19 lose Stummel, jetzt 2). Namen und letzte Zeile als eine Zeile
+  negativ im Rand (16 mm, unten 36 mm), links, mittig oder rechts. Keine Stege im Titel; Umlautpunkte sind lose
+  Textteile zum Aufkleben. Von drei Entwuerfen (Block rechts, Schreibschrift mittig, Ortsname links) gewaehlt.
+  Mit Deckschicht ("Schwarz, weisser Rahmen") sitzt der weisse Titel in der Deckschicht, darunter im schwarzen Netz
+  eine 2,5 mm breite Umrandung statt des Grabens: Kontrast gegen den weissen Grund, die Strassen haengen daran.
+
 ## Stencil (`stencil.ts`, `stencil-schreib.ts`, `sonderzeichen.ts`)
 
 - **Stege wie in gezeichneten Stencil-Schriften** (18.09.2026): gerade Rechtecke von 0,7 mm. B, D, P, R und 4 am
@@ -285,5 +294,9 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Montageplan als PDF** (A3 quer, eigene kleine PDF-Ausgabe `pdf.ts` ohne Abhaengigkeit): Ueberblick mit Dateien
   und Reihenfolge, je Lage die ganze Karte mit Einzelteilen (E, orange) und kritischen Uebergaengen (K), dann jede
   Stelle 40 x 40 mm vergroessert.
+- **Naehte nur auf Abruf**: die Live-Vorschau rechnet nur die Karte (`rendereSchichtkarte(…, { teilung: false })`),
+  die Naehte kommen per Knopf im Block "Teilung" oder im Export. Der Server merkt sich die letzten drei Karten
+  (`ergebnis-cache.ts`), Umwaehlen einer Naht baut die Karte nicht neu. Berlin 3,5 km: Naehte 0,8 s (tsx), 3,3 s im
+  Dev-Server.
 - Offen: eine Naht, die um kleine Einzelteile im Band herumlaeuft (Zacken statt Gerade), wuerde im Allgaeu einige
   der 8 Stuecke sparen.
