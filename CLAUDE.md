@@ -81,7 +81,7 @@ npm install && npm run dev   # http://localhost:3010
 - Rechenzeit bei grossem Ausschnitt (8,6 km A4: 5,3 s; 60 x 60 Barcelona 7 km: 15 s, 12 km Minuten) – Datenzoom/Vereinfachung
 - Exportdateien noch nicht in xTool Studio geoeffnet
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
-- Standort-Bestaetigung: "Luebeck" fand Luebecker Strasse in Koeln
+- Kartenarchiv lokal ueber den oeffentlichen Tagesbau (verschwindet nach Tagen) – Dauerbetrieb braucht den Bucket-Zugang
 - Holzrahmen: was haelt den Stapel an der Lippe? Hinter 7 mm (9 mm vierlagig) bleiben 15 (13) mm Falz frei
 - Lesbarkeit der Zeilen schraeg: 0,5-mm-Schlitz in 2 mm zeigt Schwarz nur bis 14°; am Prototyp Book vs. Demi
 - Megastaedte wirken lichter als Berlin (Tokio 15 % Netz): Deckung zaehlt Hochstrassen doppelt

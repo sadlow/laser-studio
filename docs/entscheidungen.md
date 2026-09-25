@@ -363,5 +363,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   deckungsgleich. `scripts/quellen-vergleich.ts`.
 - Grund ueber die Technik hinaus (Customizer 23.09.): die Mapbox-Bedingungen begrenzen Druck auf 100 Kopien je Konto
   und verbieten Zwischenspeicher; OSM verlangt nur die Nennung "© OpenStreetMap-Mitwirkende".
-- Offen: Ortssuche (`/api/ort`) laeuft noch ueber Mapbox (Customizer: Photon); der Tagesbau verschwindet nach einigen
-  Tagen – fuer Dauerbetrieb die Bucket-Datei mit S3-Zugang (wie `pmtiles.server.ts` im Customizer).
+- **Ortssuche wie im Customizer** (Marcel 25.09.2026): ein Feld fuer Adresse oder Koordinaten, Vorschlaege beim
+  Tippen aus Photon (OpenStreetMap, `/api/orte`, `src/server/orte.ts`, 350 ms nach dem letzten Tastendruck, ab drei
+  Zeichen, gedrosselt und zwischengespeichert). Dezimalgrad, Grad/Minuten/Sekunden und kopierte Google-Maps-Adressen
+  liest `engine/orte.ts` selbst; bei Koordinaten sucht Photon `reverse` nur den Ortsnamen fuer die letzte Zeile. Der
+  Ortsname kommt ohne Postleitzahl (`stadt`, Abweichung vom Customizer). Antwortet Photon nicht, sucht Enter ueber die
+  alte Mapbox-Suche (`/api/ort`). "Luebeck" ergibt jetzt Luebeck (vorher Luebecker Strasse in Koeln). Der Suchtext
+  zaehlt nicht zum Kartenstand – Tippen rechnet die Karte nicht mehr neu.
+- Offen: der Tagesbau verschwindet nach einigen Tagen – fuer Dauerbetrieb die Bucket-Datei mit S3-Zugang (wie
+  `pmtiles.server.ts` im Customizer).

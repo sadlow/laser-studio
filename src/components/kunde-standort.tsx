@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { leseKoordinaten } from "@/engine/geo";
+import { useEffect, useRef, useState } from "react";
+import { leseOrt, type Ortsvorschlag } from "@/engine/orte";
 import type { Schichtkarte } from "@/engine/typen";
-import { Block, Wahl } from "./felder";
+import { Block } from "./felder";
 import type { Aenderung } from "./aenderung";
 
 interface Props {
@@ -11,81 +11,106 @@ interface Props {
   aendern: (teil: Aenderung) => void;
 }
 
-type Modus = "adresse" | "koordinaten";
-
 /**
- * Wo die Karte hinzeigt: Adresse suchen oder Dezimal-Koordinaten aus Google
- * Maps einfuegen (Marcel 16.09.2026). Beides setzt den Ort (Symbol-Anker),
- * zentriert die Karte neu und traegt den Ortsnamen vor den Koordinaten ein.
+ * Wo die Karte hinzeigt – wie im Baseline Customizer (Marcel 25.09.2026): ein Feld fuer Adresse oder Koordinaten,
+ * Vorschlaege beim Tippen aus Photon (OpenStreetMap), Treffer fett, Rest grau. Dezimalgrad, Grad/Minuten/Sekunden und
+ * kopierte Google-Maps-Adressen liest das Feld selbst (engine/orte.ts). Antwortet Photon nicht, sucht die alte
+ * Mapbox-Suche (`/api/ort`). Jede Wahl setzt den Ort (Symbol-Anker), zentriert die Karte und traegt den Ortsnamen
+ * vor den Koordinaten ein.
  */
 export function KundeStandort({ karte, aendern }: Props) {
   const k = karte.kunde;
-  const [modus, setModus] = useState<Modus>("adresse");
-  const [koordinaten, setKoordinaten] = useState("");
-  const [laeuft, setLaeuft] = useState(false);
+  const [vorschlaege, setVorschlaege] = useState<Ortsvorschlag[]>([]);
+  const [offen, setOffen] = useState(false);
   const [meldung, setMeldung] = useState<{ text: string; fehler?: boolean } | null>(null);
+  const [photonWeg, setPhotonWeg] = useState(false);
+  const lauf = useRef<AbortController | null>(null);
 
-  const setzeOrt = (lon: number, lat: number, stadt: string, adresse?: string) =>
-    aendern({ lon, lat, kartenMitte: undefined, kunde: { ...(stadt ? { ortText: stadt } : {}), ...(adresse ? { adresse } : {}) } });
+  // Vorschlaege 350 ms nach dem letzten Tastendruck, wie im Customizer.
+  useEffect(() => {
+    const q = k.adresse.trim();
+    if (!offen || q.length < 3 || leseOrt(q)) return setVorschlaege([]);
+    const uhr = window.setTimeout(async () => {
+      lauf.current?.abort();
+      const abbruch = new AbortController();
+      lauf.current = abbruch;
+      try {
+        const res = await fetch(`/api/orte?q=${encodeURIComponent(q)}&lang=de`, { signal: abbruch.signal });
+        const d = await res.json();
+        // Eine aeltere Suche, die spaeter ankommt, darf die Liste der aktuellen Eingabe nicht ueberschreiben.
+        if (abbruch.signal.aborted || lauf.current !== abbruch) return;
+        if (!res.ok) throw new Error(d.fehler);
+        setVorschlaege(d.vorschlaege ?? []);
+        setPhotonWeg(false);
+        setMeldung(null);
+      } catch {
+        if (!abbruch.signal.aborted) setPhotonWeg(true);
+      }
+    }, 350);
+    return () => window.clearTimeout(uhr);
+  }, [k.adresse, offen]);
 
-  const abfragen = async (url: string) => {
-    setLaeuft(true);
+  const setze = (lon: number, lat: number, adresse: string, stadt: string) => {
+    aendern({ lon, lat, kartenMitte: undefined, kunde: { adresse, ...(stadt ? { ortText: stadt } : {}) } });
+    setOffen(false);
+    setVorschlaege([]);
+  };
+  const waehle = (v: Ortsvorschlag) => {
+    setze(v.lon, v.lat, [v.name, v.zusatz].filter(Boolean).join(", "), v.stadt);
     setMeldung(null);
-    try {
-      const res = await fetch(url);
-      const d = await res.json();
-      return res.ok ? d : (setMeldung({ text: d.fehler ?? "Nicht gefunden", fehler: true }), null);
-    } finally {
-      setLaeuft(false);
+  };
+
+  const absenden = async () => {
+    const text = k.adresse.trim();
+    const ort = leseOrt(text);
+    if (ort) {
+      // Koordinaten: der Ort bleibt genau dort, nur der Name fuer die letzte Zeile wird gesucht.
+      const stadt = await fetch(`/api/orte?lon=${ort.lon}&lat=${ort.lat}`)
+        .then((r) => r.json())
+        .then((d) => (d.ort as Ortsvorschlag | null)?.stadt ?? "")
+        .catch(() => "");
+      setze(ort.lon, ort.lat, text, stadt);
+      return setMeldung({ text: stadt ? `Koordinaten gesetzt, in ${stadt}` : "Koordinaten gesetzt" });
     }
-  };
-
-  const suchen = async () => {
-    const d = await abfragen(`/api/ort?q=${encodeURIComponent(k.adresse)}`);
-    if (!d) return;
-    setzeOrt(d.lon, d.lat, d.stadt);
-    setMeldung({ text: d.adresse });
-  };
-
-  const uebernehmen = async () => {
-    const p = leseKoordinaten(koordinaten);
-    if (!p) return setMeldung({ text: "Zwei Zahlen erwartet, Breite zuerst – z. B. 52.51640, 13.33750", fehler: true });
-    const d = await abfragen(`/api/ort?lon=${p.lon}&lat=${p.lat}`);
-    setzeOrt(p.lon, p.lat, d?.stadt ?? "", d?.adresse || undefined);
-    setMeldung({ text: d?.adresse ? `in der Naehe: ${d.adresse}` : "Ort gesetzt" });
+    if (vorschlaege[0]) return waehle(vorschlaege[0]);
+    if (text.length < 3) return setMeldung({ text: "Bitte mindestens drei Zeichen.", fehler: true });
+    // Rueckfall: die bisherige Mapbox-Suche, ein Treffer.
+    const res = await fetch(`/api/ort?q=${encodeURIComponent(text)}`);
+    const d = await res.json();
+    if (!res.ok) return setMeldung({ text: d.fehler ?? "Kein Ort gefunden.", fehler: true });
+    setze(d.lon, d.lat, d.adresse || text, d.stadt);
+    setMeldung({ text: `${d.adresse} (Mapbox, Photon nicht erreichbar)` });
   };
 
   return (
     <Block titel="Standort">
       <div className="space-y-2">
-        <Wahl<Modus>
-          wert={modus}
-          optionen={[{ wert: "adresse", titel: "Adresse" }, { wert: "koordinaten", titel: "Koordinaten" }]}
-          aendern={(v) => { setModus(v); setMeldung(null); }}
-        />
-        {/* Formular statt onKeyDown: Enter loest dann zuverlaessig die Suche aus. */}
-        <form
-          className="flex gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void (modus === "adresse" ? suchen() : uebernehmen());
-          }}
-        >
-          {modus === "adresse" ? (
-            <input className="feld" value={k.adresse} placeholder="Strasse, Ort" onChange={(e) => aendern({ kunde: { adresse: e.target.value } })} />
-          ) : (
-            <input className="feld" value={koordinaten} placeholder="52.51640, 13.33750" onChange={(e) => setKoordinaten(e.target.value)} />
-          )}
-          <button
-            type="submit"
-            disabled={laeuft || !(modus === "adresse" ? k.adresse : koordinaten).trim()}
-            className="shrink-0 rounded-md px-3 text-sm text-white disabled:opacity-50"
-            style={{ background: "var(--akzent)" }}
-          >
-            {laeuft ? "…" : modus === "adresse" ? "Suchen" : "Setzen"}
-          </button>
+        {/* Formular: Enter nimmt Koordinaten oder den ersten Vorschlag. */}
+        <form onSubmit={(e) => { e.preventDefault(); void absenden(); }}>
+          <input
+            className="feld"
+            value={k.adresse}
+            placeholder="Strasse, Ort oder Koordinaten"
+            aria-label="Ort"
+            autoComplete="off"
+            onChange={(e) => { aendern({ kunde: { adresse: e.target.value } }); setOffen(true); }}
+            onFocus={() => setOffen(true)}
+          />
         </form>
+        {offen && vorschlaege.length > 0 && (
+          <ul className="overflow-hidden rounded-md border text-xs" style={{ borderColor: "var(--linie)", background: "var(--karte)" }} role="listbox">
+            {vorschlaege.map((v, i) => (
+              <li key={`${v.lat},${v.lon},${i}`} className="border-t first:border-t-0" style={{ borderColor: "var(--linie)" }}>
+                <button type="button" className="block w-full px-3 py-2 text-left hover:bg-black/5" onClick={() => waehle(v)}>
+                  <strong className="block text-sm font-medium">{v.name}</strong>
+                  {v.zusatz && <span style={{ color: "var(--gedaempft)" }}>{v.zusatz}</span>}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
         <p className="text-xs" style={{ color: meldung?.fehler ? "#b3261e" : "var(--gedaempft)" }}>
+          {photonWeg ? "Photon nicht erreichbar – Enter sucht ueber Mapbox · " : ""}
           {meldung ? `${meldung.text} · ` : ""}
           {karte.lat.toFixed(5)}, {karte.lon.toFixed(5)}
         </p>

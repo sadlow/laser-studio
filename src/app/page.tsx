@@ -157,8 +157,12 @@ export default function Seite() {
   );
 }
 
-/** Kartenstand ohne Nahtwahl: sie aendert die Karte nicht, nur die Naehte (useNaehte). */
+/**
+ * Kartenstand ohne Nahtwahl (aendert nur die Naehte, useNaehte) und ohne den Suchtext im Adressfeld – der Ort
+ * aendert sich erst mit der Wahl eines Vorschlags, jeder Tastendruck rechnete sonst die Karte neu.
+ */
 function standVon(k: Schichtkarte): string {
-  const { teilungWahl: _wahl, ...rest } = k;
-  return JSON.stringify(rest);
+  const { teilungWahl: _wahl, kunde, ...rest } = k;
+  const { adresse: _adresse, ...kundeOhneSuche } = kunde;
+  return JSON.stringify({ ...rest, kunde: kundeOhneSuche });
 }
