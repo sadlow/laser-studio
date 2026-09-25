@@ -311,6 +311,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   baut dieselben Listen sortiert bzw. mit Zeiger aufs Ende: gleiche Dateien (Hash an 5 Faellen), Berlin 9 km
   23,7 -> 15,3 s mit Naehten, Amsterdam 60 x 60 8,2 -> 7,0 s. Der Rest ist echte Schnittarbeit (BuildIntersectList).
 - Groebere Boegen (Toleranz 0,1 statt 0,03 mm) brachten nur 10 % – verworfen.
+- **Live-Ansicht und Produktion getrennt** (Marcel 25.09.2026: "der Kunde darf in der Liveansicht nicht warten"):
+  jede Aenderung zeigt sofort die Skizze (`skizze.ts`, `/api/skizze`): dieselben Kacheln, Strassenauswahl, Breiten,
+  Texte und Farben, aber Strassen als Striche statt verschmolzener Flaechen, Wasser ungefiltert, ohne Stege,
+  Spalte und lose Stuecke. Berlin 60 x 60 9 km: 164 ms statt 9 s (tsx), im Studio 0,4-0,5 s bis zum Bild. Die volle
+  Rechnung startet 1,2 s nach der letzten Aenderung im Hintergrund, ohne Schleier, und loest die Skizze ab; Lagen,
+  Pruefung, 3D und Export nehmen nur die volle Rechnung.
 
 ## Teile und Loecher (`geometrie.ts` `teile()`, 25.09.2026)
 

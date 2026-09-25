@@ -1,20 +1,20 @@
 "use client";
 
 import { useMemo, type CSSProperties } from "react";
-import type { SchichtkartenErgebnis } from "@/engine/typen";
+import type { Anzeige } from "@/engine/typen";
 import { HOLZ_MM, holzBild, type Holz } from "./holz-muster";
 import type { SvgLage } from "./svg-lage";
 
-type Farbe = NonNullable<SchichtkartenErgebnis["rahmen"]>["farbe"];
+type Farbe = NonNullable<Anzeige["rahmen"]>["farbe"];
 const FARBEN: Record<Farbe, string> = { schwarz: "#1d1c1a", weiss: "#f4f2ed", eiche: "#b88e6f", dunkelbraun: "#4a3223" };
 // Holz mit Maserung statt Flaeche (Marcel 16.09.2026: "die Eiche sieht aus wie ein brauner Block").
 const HOLZ: Partial<Record<Farbe, Holz>> = { eiche: "eiche", dunkelbraun: "dunkelbraun" };
 
 /** Was der Holzrahmen ueber die Platte hinausragt, in mm je Seite. */
-const zugabeMm = (e: SchichtkartenErgebnis) => (e.rahmen ? e.rahmen.breiteMm - e.rahmen.ueberstandMm : 0);
+const zugabeMm = (e: Anzeige) => (e.rahmen ? e.rahmen.breiteMm - e.rahmen.ueberstandMm : 0);
 
 /** Platz fuer den Rahmen: die Vorschau-SVG wird um das kleiner, was er nach aussen braucht. */
-export function rahmenPlatz(e: SchichtkartenErgebnis): CSSProperties {
+export function rahmenPlatz(e: Anzeige): CSSProperties {
   const { breiteMm: b, hoeheMm: h } = e.layout.platte;
   const z = zugabeMm(e);
   return {
@@ -29,7 +29,7 @@ export function rahmenPlatz(e: SchichtkartenErgebnis): CSSProperties {
  * der Schatten an der Innenkante zeigt, dass das Bild tiefer liegt. Vier Leisten
  * mit Gehrung, die Maserung laeuft entlang jeder Leiste – wie beim 3D-Rahmen.
  */
-export function RahmenUmriss({ ergebnis, lage }: { ergebnis: SchichtkartenErgebnis; lage: SvgLage }) {
+export function RahmenUmriss({ ergebnis, lage }: { ergebnis: Anzeige; lage: SvgLage }) {
   const r = ergebnis.rahmen;
   const holz = r ? HOLZ[r.farbe] : undefined;
   const bild = useMemo(() => (holz ? holzBild(holz) : null), [holz]);

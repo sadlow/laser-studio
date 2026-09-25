@@ -17,9 +17,9 @@ export interface Stapel {
 // Nach den ersten A5-Karten (19.09.2026), gegen die Flaeche daneben gemessen: auf Weiss eine graue Rille, gut
 // lesbar. Schwarzes Frost-Acryl ist Anthrazit, nicht Tiefschwarz; seine Gravur ist eine Rille mit dunklem Grund und
 // heller Kante – von weitem ein feiner, nur wenig hellerer Strich (vorher hellgrau, viel zu kraeftig).
-const GRAVUR_AUF_SCHWARZ = "#565654";
-const GRAVUR_AUF_WEISS = "#bcbcb9";
-const FARBE_FROST = "#2a2a2a";
+export const GRAVUR_AUF_SCHWARZ = "#565654";
+export const GRAVUR_AUF_WEISS = "#bcbcb9";
+export const FARBE_FROST = "#2a2a2a";
 
 /**
  * Setzt aus den Bausteinen die Lagen des gewaehlten Aufbaus zusammen. Alle

@@ -15,6 +15,7 @@ import { TechnikReferenzorte } from "@/components/technik-referenzorte";
 import { TechnikTeilung } from "@/components/technik-teilung";
 import { TechnikVorlagen } from "@/components/technik-vorlagen";
 import { useNaehte } from "@/components/use-naehte";
+import { useSkizze } from "@/components/use-skizze";
 import { standardSchichtkarte } from "@/engine/standard";
 import type { Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
 
@@ -26,6 +27,8 @@ import type { Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
 export default function Seite() {
   const [karte, setKarte] = useState<Schichtkarte>(standardSchichtkarte);
   const [ergebnis, setErgebnis] = useState<SchichtkartenErgebnis | null>(null);
+  // Fuer welchen Kartenstand das volle Ergebnis gilt – aelter heisst: die Skizze ist aktueller.
+  const [ergebnisStand, setErgebnisStand] = useState<string | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
   const [laedt, setLaedt] = useState(false);
   const [abgebrochen, setAbgebrochen] = useState(false);
@@ -53,6 +56,7 @@ export default function Seite() {
       if (!res.ok) setFehler(daten.fehler ?? "Unbekannter Fehler");
       else {
         setErgebnis(daten as SchichtkartenErgebnis);
+        setErgebnisStand(standVon(k));
         setFehler(null);
       }
     } catch (err) {
@@ -73,15 +77,19 @@ export default function Seite() {
 
   // Sammelt schnelle Aenderungen (Regler, Tippen) zu einem Lauf. Die Nahtwahl aendert die Karte nicht – sie rechnet
   // nur die Naehte nach (useNaehte).
-  const { teilungWahl: _wahl, ...kartenStand } = karte;
-  const stand = JSON.stringify(kartenStand);
+  const stand = standVon(karte);
   const aktuelleKarte = useRef(karte);
   aktuelleKarte.current = karte;
+  // Die volle Rechnung erst, wenn eine Weile nichts geaendert wurde – bis dahin zeigt die Skizze den Stand.
   useEffect(() => {
-    const t = setTimeout(() => void rendern(aktuelleKarte.current), 450);
+    const t = setTimeout(() => void rendern(aktuelleKarte.current), 1200);
     return () => clearTimeout(t);
   }, [stand, rendern]);
   const naehte = useNaehte(karte, ergebnis);
+  const skizze = useSkizze(karte, stand);
+  const vollAktuell = ergebnisStand === stand;
+  const skizzeAktuell = skizze?.stand === stand;
+  const anzeige = vollAktuell ? naehte.anzeige : skizzeAktuell ? skizze.daten : (naehte.anzeige ?? skizze?.daten ?? null);
 
   const aendern = (teil: Aenderung) => setKarte((alt) => mischen(alt, teil));
 
@@ -117,6 +125,8 @@ export default function Seite() {
 
       <section className="min-h-0 p-3">
         <Komposer
+          anzeige={anzeige}
+          nurSkizze={!vollAktuell && skizzeAktuell}
           ergebnis={naehte.anzeige}
           fehler={fehler}
           laedt={laedt}
@@ -145,4 +155,10 @@ export default function Seite() {
       </aside>
     </main>
   );
+}
+
+/** Kartenstand ohne Nahtwahl: sie aendert die Karte nicht, nur die Naehte (useNaehte). */
+function standVon(k: Schichtkarte): string {
+  const { teilungWahl: _wahl, ...rest } = k;
+  return JSON.stringify(rest);
 }

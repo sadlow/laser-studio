@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { SchichtkartenErgebnis } from "@/engine/typen";
+import type { Anzeige } from "@/engine/typen";
 import type { SvgLage } from "./svg-lage";
 
 // Je Lage eine Farbe: die Front rot wie im Montageplan, die Lagen darunter blau.
@@ -11,7 +11,7 @@ const FARBEN = ["#d81f26", "#1f6fd8", "#7a3fc4"];
  * Die Naehte einer geteilten Karte ueber der Vorschau (60 x 60): je Lage eine Linie, dazu die Einzelteile orange und
  * die kritischen Uebergaenge als Ring – dieselben Stellen wie im Montageplan. Abschaltbar, damit das Motiv frei bleibt.
  */
-export function NahtUeberlagerung({ ergebnis, lage }: { ergebnis: SchichtkartenErgebnis; lage: SvgLage }) {
+export function NahtUeberlagerung({ ergebnis, lage }: { ergebnis: Anzeige; lage: SvgLage }) {
   const [an, setAn] = useState(true);
   const t = ergebnis.teilung;
   if (!t) return null;

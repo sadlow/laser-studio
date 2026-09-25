@@ -30,7 +30,7 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 | `dichte.ts`, `netz.ts`, `randanschluss.ts`, `bruecken.ts` | Netzklassen und Breiten nach Dichte vor Ort; Enden am Rahmen angeschlossen, Spalte < 0,5 mm zu; lose Stuecke -> Gravur; Bruecken gravierter Strassen |
 | `wasser.ts` | Wasser im Fenster, schmale Kanaele und kleine Inseln raus |
 | `lagen.ts` | Bausteine: Netz, Wasser, Textausschnitt, Gravur, Herz |
-| `stapel.ts` | Lagen je Aufbau (weisses oder schwarzes Netz) + Vorschau |
+| `stapel.ts`, `skizze.ts` | Lagen je Aufbau (weisses oder schwarzes Netz) + Vorschau; Skizze fuer die Live-Ansicht (Striche statt Flaechen, ms) |
 | `produktion.ts`, `gravur-export.ts`, `wege.ts` | Exportdatei: Ebenen 1 Gravur / 2 Klebeflaeche / 3 Schnitt innen / 4 Schnitt aussen; Gravur als Flaeche, Mittellinie (durchgehende Wege) oder Kontur |
 | `teilung.ts`, `teilung-export.ts`, `montageplan.ts`, `pdf.ts` | 60 x 60 auf Rohplatten 60 x 30,5: sauberste Naht je Lage (Front oben-unten, 297-303 mm, Uebergaenge + 4 je Einzelteil), Blau ungeteilt, nur mit Holzrahmen; Haelften A/B, Montageplan-PDF |
 | `testblatt.ts` | Grenzwert-Testblatt Netz: Spalt, Strassenbreite, Keile, kleine Bloecke |

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { mmZuOrt } from "@/engine/geo";
 import { symbolPfad } from "@/engine/symbole";
 import { FARBE_SCHWARZ, FARBE_WEISS } from "@/engine/svg";
-import type { Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
+import type { Anzeige, Schichtkarte } from "@/engine/typen";
 import { RahmenUmriss, rahmenPlatz } from "./holzrahmen-2d";
 import { KartenKopie } from "./karten-kopie";
 import { NahtUeberlagerung } from "./naht-ueberlagerung";
@@ -15,7 +15,7 @@ import type { Aenderung } from "./aenderung";
 
 interface Props {
   svg: string;
-  ergebnis: SchichtkartenErgebnis;
+  ergebnis: Anzeige;
   karte: Schichtkarte;
   aendern: (teil: Aenderung) => void;
 }
@@ -38,7 +38,7 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const [zug, setZug] = useState<Zug | null>(null);
   const [gezogen, setGezogen] = useState(false);
-  const [haltenFuer, setHaltenFuer] = useState<SchichtkartenErgebnis | null>(null);
+  const [haltenFuer, setHaltenFuer] = useState<Anzeige | null>(null);
   const [zeiger, setZeiger] = useState<"karte" | "symbol" | null>(null);
   const aktuell = useRef({ karte, aendern });
   aktuell.current = { karte, aendern };

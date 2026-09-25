@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import type { LagenKey, Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
+import type { Anzeige, LagenKey, Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
 import { ZiehVorschau } from "./zieh-vorschau";
 
 // three.js braucht das Fenster – nur im Browser laden, erst wenn der Reiter offen ist.
@@ -10,6 +10,10 @@ const Ansicht3D = dynamic(() => import("./ansicht-3d").then((m) => m.Ansicht3D),
 import type { Aenderung } from "./aenderung";
 
 interface Props {
+  /** Was die zusammengesetzte Ansicht zeigt: die Skizze, bis die volle Rechnung fuer denselben Stand da ist. */
+  anzeige: Anzeige | null;
+  /** Die Ansicht ist eine Skizze; die volle Rechnung laeuft noch oder kommt gleich. */
+  nurSkizze: boolean;
   ergebnis: SchichtkartenErgebnis | null;
   fehler: string | null;
   laedt: boolean;
@@ -27,7 +31,7 @@ type Ansicht = "gesamt" | "3d" | LagenKey;
  * Das grosse Arbeitsfeld in der Mitte: zusammengesetzte Karte zum Anfassen,
  * daneben jede Lage als Laseransicht. Kennzahlen und Hinweise stehen rechts.
  */
-export function Komposer({ ergebnis, fehler, laedt, abgebrochen, abbrechen, neuRechnen, karte, aendern }: Props) {
+export function Komposer({ anzeige, nurSkizze, ergebnis, fehler, laedt: rechnet, abgebrochen, abbrechen, neuRechnen, karte, aendern }: Props) {
   const [ansicht, setAnsicht] = useState<Ansicht>("gesamt");
   // ?ansicht=3d oeffnet direkt die 3D-Ansicht (fuer Tests und geteilte Links).
   useEffect(() => {
@@ -47,7 +51,9 @@ export function Komposer({ ergebnis, fehler, laedt, abgebrochen, abbrechen, neuR
   // Der Aufbau bestimmt, welche Lagen es gibt – die Reiter kommen aus dem Ergebnis.
   const lage = ergebnis?.lagen.find((l) => l.key === ansicht);
   const aktiv: Ansicht = ansicht !== "gesamt" && ansicht !== "3d" && ergebnis && !lage ? "gesamt" : ansicht;
-  const svg = aktiv === "gesamt" ? ergebnis?.vorschauSvg : lage?.laserSvg;
+  const svg = aktiv === "gesamt" ? anzeige?.vorschauSvg : lage?.laserSvg;
+  // Mit Skizze blockiert die volle Rechnung nichts mehr: kein Schleier, kein Ladefenster ueber der Karte.
+  const laedt = rechnet && !(nurSkizze && aktiv === "gesamt");
   const reiter: { key: Ansicht; titel: string }[] = [
     { key: "gesamt", titel: "Zusammengesetzt" },
     ...(ergebnis?.lagen ?? []).map((l) => ({ key: l.key as Ansicht, titel: l.titel })),
@@ -77,7 +83,9 @@ export function Komposer({ ergebnis, fehler, laedt, abgebrochen, abbrechen, neuR
           </button>
         ))}
         <span className="ml-auto text-xs" style={{ color: "var(--gedaempft)" }}>
-          {laedt ? "rechnet…" : ergebnis ? `${ergebnis.kennzahlen.rechenzeitMs} ms` : ""}
+          {nurSkizze && aktiv === "gesamt"
+            ? rechnet ? "Skizze · Produktionsdaten rechnen…" : "Skizze"
+            : laedt ? "rechnet…" : ergebnis ? `${ergebnis.kennzahlen.rechenzeitMs} ms` : ""}
         </span>
       </div>
 
@@ -88,8 +96,8 @@ export function Komposer({ ergebnis, fehler, laedt, abgebrochen, abbrechen, neuR
           <p className="max-w-md text-sm text-red-700">{fehler}</p>
         ) : ergebnis && aktiv === "3d" ? (
           <Ansicht3D ergebnis={ergebnis} />
-        ) : svg && ergebnis && aktiv === "gesamt" ? (
-          <ZiehVorschau svg={svg} ergebnis={ergebnis} karte={karte} aendern={aendern} />
+        ) : svg && anzeige && aktiv === "gesamt" ? (
+          <ZiehVorschau svg={svg} ergebnis={anzeige} karte={karte} aendern={aendern} />
         ) : svg ? (
           <div
             className="w-full [&>svg]:mx-auto [&>svg]:h-auto [&>svg]:max-h-[calc(100vh-9rem)] [&>svg]:w-auto [&>svg]:max-w-full"

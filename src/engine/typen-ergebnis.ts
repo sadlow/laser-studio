@@ -109,3 +109,15 @@ export interface SchichtkartenErgebnis {
   teilungNoetig: boolean;
   warnungen: string[];
 }
+
+/**
+ * Was die Vorschau zum Anfassen braucht. Die Skizze (skizze.ts) liefert es in Millisekunden, das volle Ergebnis
+ * spaeter mit allen Lagen – die Vorschau zeigt, was gerade da ist.
+ */
+export type Anzeige = Pick<SchichtkartenErgebnis, "vorschauSvg" | "layout" | "kartenMitte" | "symbol" | "ausschnittMeter" | "rahmen"> & {
+  teilung?: TeilungsErgebnis | null;
+};
+
+export interface Skizze extends Anzeige {
+  rechenzeitMs: number;
+}

@@ -1,13 +1,13 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import type { Schichtkarte, SchichtkartenErgebnis } from "@/engine/typen";
+import type { Anzeige, Schichtkarte } from "@/engine/typen";
 import type { Aenderung } from "./aenderung";
 import type { SvgLage } from "./svg-lage";
 
 interface Props {
   karte: Schichtkarte;
-  ergebnis: SchichtkartenErgebnis;
+  ergebnis: Anzeige;
   lage: SvgLage;
   aendern: (teil: Aenderung) => void;
   /** Zeigt die alte Vorschau verschoben, bis die neue gerechnet ist – wie nach dem Ziehen. */
