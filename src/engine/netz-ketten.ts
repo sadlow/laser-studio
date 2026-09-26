@@ -135,3 +135,24 @@ export function spannen(k: Kette, ki: number): Spanne[] {
   if (letzte < n) aus.push({ kette: ki, von: letzte, bis: n, wert: 2 * len(letzte, n), frei: "ende" });
   return aus;
 }
+
+/**
+ * Stuecke, die breiter geschnitten werden muessen, als ihre Klasse es waere (Stabilitaets-Testbogen 27.09.2026): ein
+ * Strang, der laenger als `rasterSpanneMm` frei laeuft, mindestens `freiMm`; bei duenner Platte (bis 2 mm) Sackgassen
+ * ueber 30 mm und Straenge ueber 100 mm mindestens `langMm`.
+ */
+export function verstaerkungen(ketten: Kette[], r: { rasterSpanneMm: number; freiMm: number; langMm: number; duenn: boolean }): { linie: Punkt[]; breiteMm: number }[] {
+  const aus: { linie: Punkt[]; breiteMm: number }[] = [];
+  ketten.forEach((k, ki) => {
+    for (const s of spannen(k, ki)) {
+      const laenge = (s.bis - s.von) * PROBE_MM;
+      let soll = laenge > r.rasterSpanneMm ? r.freiMm : 0;
+      if (r.duenn && ((s.frei !== "keins" && laenge > SACKGASSE_LANG_MM) || laenge > STRANG_LANG_MM)) soll = Math.max(soll, r.langMm);
+      if (soll > k.breiteMm) aus.push({ linie: k.proben.slice(s.von, s.bis + 1), breiteMm: soll });
+    }
+  });
+  return aus;
+}
+// Testbogen 2 mm: 0,8-mm-Sackgasse mit 40 mm grenzwertig, Serpentine ueber 100 mm nicht mehr.
+const SACKGASSE_LANG_MM = 30;
+const STRANG_LANG_MM = 100;

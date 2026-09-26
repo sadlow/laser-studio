@@ -1,7 +1,7 @@
 // Gravurprobe Abstand (Marcel 26.09.2026): ab welchem Abstand bleiben zwei parallele Gravurlinien zwei Linien, statt
 // als eine tiefere Rille zu brennen? Zwei gleiche Bloecke fuer Defocus 4 und 6, je auf eigener Ebene: Linienpaare
 // 0,2-1,5 mm, ein Keil mit Marken, Kreuzungen, T-Einmuendung, Stern, und dreimal die dichteste Stelle Berlin 60 x 60 bei
-// 20,3 km – alle Linien, Mindestabstand 0,5 und 1,0 (gravur-duenn.ts). Material egal: dieselbe Datei auf Weiss 2 mm
+// 20,3 km mit Mindestabstand 0,5 / 0,75 / 1,0 (gravur-duenn.ts), Kreuzungen nur einmal gebrannt (wege-kreuzung.ts). Material egal: dieselbe Datei auf Weiss 2 mm
 // und Schwarz Frost 3 mm. Aufruf: npx tsx scripts/gravurprobe-abstand.ts   -> export/<zeit>_gravurprobe-abstand/
 import fs from "node:fs";
 import path from "node:path";
@@ -17,7 +17,8 @@ import { ladeVorlage } from "../src/server/vorlagen";
 import { exportOrdner, kopie, schnitte, schnittText, svgDatei } from "./testblatt-teile";
 
 const ABSTAENDE = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1, 1.2, 1.5];
-const KARTE = [{ text: "alle", abstand: 0 }, { text: "0,5", abstand: 0.5 }, { text: "1,0", abstand: 1 }];
+// Zweite Runde (27.09.2026): parallel ab 0,5 getrennt, 1,0 sauber – dazwischen 0,75; Kreuzungen nur einmal gebrannt.
+const KARTE = [{ text: "0,5", abstand: 0.5 }, { text: "0,75", abstand: 0.75 }, { text: "1,0", abstand: 1 }];
 const BLOCK = { b: 125, h: 112 };
 const RAND = 5;
 const FELD = { b: 36, h: 30 };
@@ -135,8 +136,8 @@ async function main() {
     `Unten: dichteste Stelle Berlin 60 x 60 bei 20,3 km, ${FELD.b} x ${FELD.h} mm, Mittellinie. Gravurweg je Stueck:`,
     ...wege,
     ``,
-    `Ergebnis Defocus 4: Paare getrennt ab ___ mm, Keil getrennt ab Marke ___, Kartenstueck am besten: alle / 0,5 / 1,0`,
-    `Ergebnis Defocus 6: Paare getrennt ab ___ mm, Keil getrennt ab Marke ___, Kartenstueck am besten: alle / 0,5 / 1,0`,
+    `Ergebnis Defocus 4: Paare getrennt ab ___ mm, Keil getrennt ab Marke ___, Kartenstueck am besten: 0,5 / 0,75 / 1,0`,
+    `Ergebnis Defocus 6: Paare getrennt ab ___ mm, Keil getrennt ab Marke ___, Kartenstueck am besten: 0,5 / 0,75 / 1,0`,
     `Linienbreite unter der Lupe: Defocus 4 ___ mm, Defocus 6 ___ mm. Knoten im Stern: sauber / Loch / Brandfleck`,
     ``,
   ].join("\n"));

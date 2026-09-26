@@ -1,7 +1,7 @@
 import { clipPolyline, type Punkt } from "./clip";
 import type { NetzAuswahl } from "./dichte";
 import type { KartenRohdaten } from "./kacheln";
-import { baueKetten, PROBE_MM, schluessel, spannen, type Kette, type Spanne } from "./netz-ketten";
+import { baueKetten, PROBE_MM, schluessel, spannen, verstaerkungen, type Kette, type Spanne } from "./netz-ketten";
 import type { Schichtkarte, StrassenStufe, Zone } from "./typen";
 
 /**
@@ -24,9 +24,12 @@ export function stuetzMm(k: Schichtkarte): number {
   return k.generalisierung.stufen[s]?.stuetzMm ?? STUETZ_STANDARD[s] ?? 0;
 }
 
-export function querverbindungen(k: Schichtkarte, roh: KartenRohdaten, f: Zone, auswahl: NetzAuswahl): Querverbindung[] {
+/**
+ * Querverbindungen und Verstaerkungen zusammen: beide brauchen die Straenge. Die Verstaerkung kommt nach den
+ * Querverbindungen – was eine Verbindung stuetzt, muss nicht breiter werden.
+ */
+export function stuetzeNetz(k: Schichtkarte, roh: KartenRohdaten, f: Zone, auswahl: NetzAuswahl): { querverbindungen: Querverbindung[]; verstaerkt: Querverbindung[] } {
   const grenze = stuetzMm(k);
-  if (!(grenze > 0) || !k.generalisierung.aktiv) return [];
   const imFenster = (ls: Punkt[][]) => ls.flatMap((l) => clipPolyline(l, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm));
   const netz: { l: Punkt[]; w: number }[] = [];
   const kandidaten: { l: Punkt[]; w: number }[] = [];
@@ -36,11 +39,22 @@ export function querverbindungen(k: Schichtkarte, roh: KartenRohdaten, f: Zone, 
     const linien = imFenster(g.klassen.flatMap((kl) => roh.strassen.get(kl) ?? []));
     if (w !== undefined) netz.push(...linien.map((l) => ({ l, w })));
     // Kandidaten: gravierte Netzklassen in ihrer Breite, Zufahrten und Feldwege auf Mindestbreite.
-    else if (g.ziel === "netz") kandidaten.push(...linien.map((l) => ({ l, w: Math.max(k.netzMinBreiteMm, g.breiteMm * auswahl.breitenfaktor) })));
-    else if (g.nachruecken) kandidaten.push(...linien.map((l) => ({ l, w: k.netzMinBreiteMm })));
+    else if (g.ziel === "netz") kandidaten.push(...linien.map((l) => ({ l, w: Math.max(k.stabilitaet.rasterMm, g.breiteMm * auswahl.breitenfaktor) })));
+    else if (g.nachruecken) kandidaten.push(...linien.map((l) => ({ l, w: k.stabilitaet.rasterMm })));
   }
-  if (!netz.length || !kandidaten.length) return [];
+  if (!netz.length) return { querverbindungen: [], verstaerkt: [] };
   const ketten = baueKetten(netz, f);
+  const querverbindungen = grenze > 0 && k.generalisierung.aktiv && kandidaten.length ? verbinde(ketten, kandidaten, grenze, k) : [];
+  const r = { rasterSpanneMm: k.stabilitaet.rasterSpanneMm, freiMm: k.netzMinBreiteMm, langMm: k.stabilitaet.langMm, duenn: k.staerkenMm.acryl <= 2 };
+  // Eine Verbindung ist selbst ein Strang: laenger als das Raster frei, mindestens so breit wie ein freier Strang.
+  for (const q of querverbindungen) {
+    const laenge = q.linie.reduce((a, p, i) => (i ? a + Math.hypot(p.x - q.linie[i - 1].x, p.y - q.linie[i - 1].y) : a), 0);
+    if (laenge > r.rasterSpanneMm) q.breiteMm = Math.max(q.breiteMm, r.freiMm);
+  }
+  return { querverbindungen, verstaerkt: verstaerkungen(ketten, r) };
+}
+
+function verbinde(ketten: Kette[], kandidaten: { l: Punkt[]; w: number }[], grenze: number, k: Schichtkarte): Querverbindung[] {
 
   // Kandidatengraph ueber gemeinsame Punkte; jeder Punkt, der an einem Strang liegt, ist ein Anschluss.
   const nachbarn = new Map<string, { k: string; d: number; w: number }[]>();

@@ -287,6 +287,17 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Verbindungen, New York 30 km 79 / 0, Berlin A4 3,5 km 0. Skizze New York 30 km 0,7 s warm.
 - **Brücken New York** (26.09.2026 geprueft): Manhattan–Brooklyn hat drei Bruecken (Brooklyn, Manhattan,
   Williamsburg), alle geschnitten; der Rest sind Tunnel. Bei 30 km (Kachelstufe 13) fehlt nur die kleine Pulaski Bridge.
+- **Stabilitaet nach Strangspanne** (`netz-ketten.ts` `verstaerkungen`, Stabilitaets-Testbogen Marcel 27.09.2026,
+  2 und 3 mm, `testblatt-stabilitaet.ts`): gerade Streifen mit 0,8 mm hielten ueber 100 mm, Raster ab 0,7 mm sauber (0,6
+  verbog sich in der Hitze); nur in 2 mm wurden 0,8-mm-Sackgassen mit 40 mm und Serpentinen ueber 100 mm grenzwertig.
+  Darum: Klassen duerfen bis 0,7 mm schmal werden (`stabilitaet.rasterMm`); laeuft ein Strang laenger als 20 mm frei,
+  mindestens 0,8 (`netzMinBreiteMm`); bei Netz bis 2 mm Sackgassen ueber 30 mm und Straenge ueber 100 mm mindestens
+  1,0 (`langMm`). Midtown Manhattan A4: Wohnstrassen bleiben mit 0,7 geschnitten, 3 Straenge verstaerkt; Tokio A4 15;
+  Berlin unveraendert.
+- **Kreuzungen nur einmal brennen** (`wege-kreuzung.ts`, Marcel 27.09.2026: der Stern und viele Kreuzungen der
+  Kartenstuecke gingen sehr tief). Jeder durchlaufende Weg brannte den Knoten erneut (Stern 4x, Kreuzung 2x). Jetzt
+  laeuft nur der laengste durch, die anderen setzen aus, so weit sie in seiner Rille laegen: halbe Linienbreite durch den
+  Sinus des Winkels (90 Grad 0,25 mm je Seite, hoechstens 1,5 mm). Endende Wege halten wie bisher davor an.
 - **Gefuellte Bloecke waren Rechenreste** (`saeubere`, geometrie.ts, 26.09.2026): das Oeffnen der Bloecke um den
   halben Spalt hinterliess tausende Ringe ohne Flaeche (Bali 13 km: 6 235 unter 0,001 mm²). Beim Vereinigen mit den
   Strassen ordnete Clipper daran einen Blockrand falsch zu – ein ganzer Block wurde Netz: der Danau Buyan schwarz statt
@@ -297,7 +308,8 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   (breitere Klasse, laengere Linie) bleibt, Kreuzungen bleiben. Berlin 60 x 60 bei 34,8 km: 230 -> 170 m, Anteil mit
   paralleler Nachbarlinie unter 0,5 mm 49,5 -> 1,5 % (`gravur-dichte.ts`). Abgeschnittene Reste unter 4 x Abstand
   fallen mit weg (sonst Schnipsel und Punkte); ganze kurze Wege bleiben. Welcher Abstand am Werkstueck getrennt bleibt,
-  zeigt `gravurprobe-abstand.ts`: Paare 0,2-1,5 mm, Keil, Kreuzungen, T, Stern und Berlin 20 km mit 0 / 0,5 / 1,0,
+  zeigt `gravurprobe-abstand.ts` (Marcel 27.09.2026: Paare ab 0,5 mm getrennt, Kartenstueck 0,5 geht, 1,0 sauber –
+  Standard 0,75): Paare 0,2-1,5 mm, Keil, Kreuzungen, T, Stern und Berlin 20 km mit 0 / 0,5 / 1,0,
   je fuer Defocus 4 und 6 (Kartenstueck 36 x 30 mm: 1,55 / 0,89 / 0,57 m).
 - **Textreiter zaehlen zur Landflaeche** (sonst Quadrat 38 statt 33 %). Megastaedte
   wirken lichter (Tokio 15 % Netz): parallele Fahrbahnen zaehlen doppelt.

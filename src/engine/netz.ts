@@ -3,7 +3,7 @@ import type { NetzAuswahl } from "./dichte";
 import { ausTeilen, flaecheMm2, puffereLinien, rechteck, saeubere, schneide, teile, vereinige, versatz, ziehAb, ziehLinienAb, type Flaeche } from "./geometrie";
 import type { KartenRohdaten } from "./kacheln";
 import { BRUECKE_RAND_MM, type BrueckenLinien } from "./bruecken";
-import { querverbindungen } from "./querverbindung";
+import { stuetzeNetz } from "./querverbindung";
 import { anschluesseAnRahmen } from "./randanschluss";
 import type { Layout, Schichtkarte } from "./typen";
 import { SPLITTER_MM2 } from "./wasser";
@@ -21,6 +21,8 @@ export interface Netz {
   kleineBloecke: number;
   /** Einzelne Wege, die als Stuetze mitgeschnitten werden (querverbindung.ts). */
   querverbindungen: number;
+  /** Straenge, die fuer die Stabilitaet breiter geschnitten werden als ihre Klasse (netz-ketten.ts). */
+  verstaerkt: number;
   /** Lose Stuecke, die statt geschnitten graviert werden. */
   loseZurGravur: number;
   /** Ihr Anteil an der Netzflaeche im Fenster. */
@@ -69,11 +71,13 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
     const befahren = gruppe.ziel === "netz" || gruppe.klassen.some((kl) => kl.endsWith("_rail"));
     if (befahren && bruecken.length) gravurBruecken.push({ linien: bruecken, breiteMm: brueckeFuer(strich) });
   }
-  const stuetzen = querverbindungen(k, roh, layout.kartenfenster, auswahl);
+  const { querverbindungen: stuetzen, verstaerkt } = stuetzeNetz(k, roh, layout.kartenfenster, auswahl);
   for (const q of stuetzen) {
     netzTeile.push(puffereLinien([q.linie], q.breiteMm));
     netzLinien.push(q.linie);
   }
+  // Verstaerkt wird nur die Breite – die Linie steckt schon in netzLinien.
+  for (const q of verstaerkt) netzTeile.push(puffereLinien([q.linie], q.breiteMm));
   // Im Freiraum (Graben um den Titel auf der Kante) enden die Strassen; was dadurch abreisst, wird unten lose -> Gravur.
   const strassen = ziehAb(schneide(vereinige(...netzTeile), fensterFl), freiraum);
 
@@ -106,6 +110,7 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
     bruecken: { graviert: gravurBruecken, netz: netzBruecken.map((b) => ({ ...b, linien: ziehLinienAb(b.linien, loseFl) })) },
     kleineBloecke: kleineBloecke.length,
     querverbindungen: stuetzen.length,
+    verstaerkt: verstaerkt.length,
     loseZurGravur: lose.length,
     loseAnteil: lose.reduce((a, t) => a + t.flaecheMm2, 0) / Math.max(1, flaecheMm2(mitBloecken)),
   };

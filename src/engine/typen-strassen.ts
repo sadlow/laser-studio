@@ -91,3 +91,16 @@ export interface StufenWerte {
    */
   stuetzMm?: number;
 }
+
+/**
+ * Stabilitaets-Testbogen (Marcel 27.09.2026, 2 und 3 mm): gerade Streifen halten mit 0,8 mm selbst ueber 100 mm, ein
+ * Raster ab 0,7 mm (0,6 verbog sich in der Hitze). Nur in 2 mm wurden 0,8-mm-Sackgassen ab 40 mm und gewundene Streifen
+ * ueber 100 mm grenzwertig.
+ */
+export interface NetzStabilitaet {
+  /** So schmal darf ein Strang werden, der hoechstens `rasterSpanneMm` frei laeuft. */
+  rasterMm: number;
+  rasterSpanneMm: number;
+  /** Nur bei Netz bis 2 mm: Sackgassen ueber 30 mm und Straenge ueber 100 mm frei mindestens so breit. */
+  langMm: number;
+}

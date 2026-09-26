@@ -90,8 +90,10 @@ export function waehleNetz(
   // Feinste zuerst: sie werden als erste graviert statt geschnitten.
   let netz = k.strassen.filter((s) => s.ziel === "netz" && lang(s)).sort((a, b) => a.breiteMm - b.breiteMm);
   const nachgerueckt: StrassenGruppe[] = [];
+  // Untergrenze ist die Rasterbreite; wo ein Strang laenger frei laeuft, verstaerkt netz-ketten.ts auf netzMinBreiteMm.
+  const mindest = k.stabilitaet?.rasterMm ?? k.netzMinBreiteMm;
   const breite = (x: StrassenGruppe, df: number) =>
-    nachgerueckt.includes(x) ? k.netzMinBreiteMm : Math.max(k.netzMinBreiteMm, x.breiteMm * formatfaktor * df);
+    nachgerueckt.includes(x) ? mindest : Math.max(mindest, x.breiteMm * formatfaktor * df);
   const deckungMit = (gruppen: StrassenGruppe[], df: number) =>
     gruppen.reduce((s, x) => s + laengen.get(x.id)! * breite(x, df), 0) / land;
   // Weiter draussen wird "viel" nicht breiter als "ausgewogen" – breitere Strassen fuellten in New York bei 30 km nur
@@ -100,7 +102,7 @@ export function waehleNetz(
   const loeseFuer = (gruppen: StrassenGruppe[]) => loese((d) => deckungMit(gruppen, d), ziel, maxFaktor);
   const schneidbar = (gruppen: StrassenGruppe[], df: number) => {
     const feinste = gruppen.find((x) => !nachgerueckt.includes(x));
-    return !feinste || feinste.breiteMm * formatfaktor * df * stufe.maxAufdickung >= k.netzMinBreiteMm;
+    return !feinste || feinste.breiteMm * formatfaktor * df * stufe.maxAufdickung >= mindest;
   };
   const deckungVorOrt = netz.reduce((s, x) => s + laengen.get(x.id)! * x.breiteMm * formatfaktor, 0) / land;
   const herabgestuft: string[] = [];
@@ -145,7 +147,7 @@ export function waehleNetz(
   const breiten = new Map<string, number>();
   const anMindestbreite: string[] = [];
   for (const x of netz) {
-    if (!nachgerueckt.includes(x) && x.breiteMm * formatfaktor * df < k.netzMinBreiteMm) anMindestbreite.push(x.titel);
+    if (!nachgerueckt.includes(x) && x.breiteMm * formatfaktor * df < mindest) anMindestbreite.push(x.titel);
     breiten.set(x.id, breite(x, df));
   }
   return { breiten, dichtefaktor: df, breitenfaktor: formatfaktor * df, deckungVorOrt, herabgestuft, nachgerueckt: nachgerueckt.map((x) => x.titel), anMindestbreite };

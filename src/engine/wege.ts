@@ -1,4 +1,5 @@
 import type { Punkt } from "./clip";
+import { kreuzungenEinmal } from "./wege-kreuzung";
 
 // Endpunkte naeher als das sind derselbe Knoten.
 const FANG_MM = 0.02;
@@ -89,9 +90,10 @@ export function verbindeWege(linien: Punkt[][], kuerzenMm: number): Punkt[][] {
 
   // Wege ablaufen: erst von offenen Enden aus, dann die Ringe.
   const benutzt = new Set<number>();
-  const wege: { punkte: Punkt[]; start: number; ende: number }[] = [];
+  const wege: { punkte: Punkt[]; start: number; ende: number; durch: { knoten: number; index: number }[] }[] = [];
   const laufe = (kante: number, seite: 0 | 1) => {
     const punkte: Punkt[] = [];
+    const durch: { knoten: number; index: number }[] = [];
     const start = seite === 0 ? kanten[kante].von : kanten[kante].nach;
     let [k, s] = [kante, seite];
     let ende = start;
@@ -103,22 +105,22 @@ export function verbindeWege(linien: Punkt[][], kuerzenMm: number): Punkt[][] {
       ende = gegen.seite === 0 ? kanten[k].von : kanten[k].nach;
       const weiter = partner.get(name(gegen));
       if (!weiter) break;
+      if ((grad.get(ende) ?? 0) > 2) durch.push({ knoten: ende, index: punkte.length - 1 });
       [k, s] = [weiter.kante, weiter.seite];
     }
-    wege.push({ punkte, start, ende });
+    wege.push({ punkte, start, ende, durch });
   };
   for (const enden of anKnoten.values()) for (const e of enden) if (!partner.has(name(e)) && !benutzt.has(e.kante)) laufe(e.kante, e.seite);
   kanten.forEach((_, i) => !benutzt.has(i) && laufe(i, 0));
 
-  // Endet ein Weg an einer Kreuzung, laeuft dort ein anderer durch: kurz davor anhalten.
-  const ergebnis: Punkt[][] = [];
-  for (const w of wege) {
-    let pts = w.punkte;
-    if (kuerzenMm > 0 && (grad.get(w.start) ?? 0) > 2) pts = kuerze(pts, kuerzenMm);
-    if (kuerzenMm > 0 && (grad.get(w.ende) ?? 0) > 2) pts = kuerze([...pts].reverse(), kuerzenMm).reverse();
-    if (pts.length >= 2 && laenge(pts) >= MIN_WEG_MM) ergebnis.push(pts);
-  }
-  return ergebnis;
+  // Endet ein Weg an einer Kreuzung, laeuft dort ein anderer durch: kurz davor anhalten. Laufen mehrere durch, brennt
+  // nur der laengste den Knoten, die anderen setzen dort aus (wege-kreuzung.ts).
+  const kreuzung = (id: number) => kuerzenMm > 0 && (grad.get(id) ?? 0) > 2;
+  const geschnitten = kreuzungenEinmal(
+    wege.map((w) => ({ punkte: w.punkte, durch: w.durch, kuerzeAnfang: kreuzung(w.start), kuerzeEnde: kreuzung(w.ende) })),
+    kuerzenMm,
+  );
+  return geschnitten.filter((pts) => pts.length >= 2 && laenge(pts) >= MIN_WEG_MM);
 }
 
 function laenge(l: Punkt[]): number {
@@ -136,15 +138,4 @@ function punktBei(l: Punkt[], abstand: number): Punkt {
     rest -= d;
   }
   return l[l.length - 1];
-}
-
-/** Nimmt vom Anfang der Linie `mm` weg. */
-function kuerze(l: Punkt[], mm: number): Punkt[] {
-  let rest = mm;
-  for (let i = 1; i < l.length; i++) {
-    const d = Math.hypot(l[i].x - l[i - 1].x, l[i].y - l[i - 1].y);
-    if (rest < d) return [punktBei([l[i - 1], l[i]], rest), ...l.slice(i)];
-    rest -= d;
-  }
-  return [];
 }

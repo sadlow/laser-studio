@@ -48,6 +48,8 @@ export interface Kennzahlen {
   netzLoecherZugefuellt: number;
   /** Einzelne Wege, die als Stuetze langer Straenge mitgeschnitten werden. */
   querverbindungen: number;
+  /** Straenge, die fuer die Stabilitaet breiter geschnitten werden als ihre Klasse. */
+  verstaerkt: number;
   /** Strassengruppen, deren Breite durch das Format unter die Mindestbreite fiele. */
   netzAnMindestbreite: string[];
   formatfaktor: number;

@@ -71,6 +71,8 @@ export function standardSchichtkarte(): Schichtkarte {
     ...standardLayoutWerte("a4"),
     strassen: STRASSEN_STANDARD.map((g) => ({ ...g, klassen: [...g.klassen] })),
     netzMinBreiteMm: 0.8,
+    // Stabilitaets-Testbogen 27.09.2026: Raster ab 0,7 mm, lange Straenge in 2 mm ab 1 mm (netz-ketten.ts).
+    stabilitaet: { rasterMm: 0.7, rasterSpanneMm: 20, langMm: 1 },
     // Hoechstens 1,4-fach breiter als entworfen, sonst klobig.
     // ausgewogen – Ziel 29 %: Berlin-Tiergarten bei 3,5 km, fuer das die Breiten
     // entworfen sind, bleibt unveraendert (bis 17.09. 42/33/26 % – die Kachelraender
@@ -120,7 +122,7 @@ export function standardSchichtkarte(): Schichtkarte {
     loseTeileMarkieren: true,
     // Mittellinie mit Defocus 6 mm ist Marcels normale Gravur (Gravurprobe 17.09., Marcel 18.09.2026). 0,5 mm Linienbreite
     // ist angenommen, noch nicht unter der Lupe gemessen – sie kuerzt nur die Stichenden vor Kreuzungen (wege.ts).
-    gravurExport: { art: "mittellinie", strahlMm: 0.5, minAbstandMm: 0.5 },
+    gravurExport: { art: "mittellinie", strahlMm: 0.5, minAbstandMm: 0.75 },
     // Laser 60 x 30,5 cm, Rohplatte genauso gross (Marcel 25.09.2026). Naht 2 mm von der Plattenkante: 297-303 mm.
     // Titel auf der Kante, gemessen an den Entwuerfen 60 x 60 (Marcel 25.09.2026): Rand 16 mm, unten 36 mm, Titel
     // hoechstens ein Drittel der Breite (20 cm) und 48 mm hoch, Zeile 8,5 mm.

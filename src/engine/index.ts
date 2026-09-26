@@ -112,7 +112,7 @@ export async function rendereSchichtkarte(
   }
   if (b.kennzahlen.netzAnMindestbreite.length > 0) {
     warnungen.push(
-      `${b.kennzahlen.netzAnMindestbreite.join(", ")} waeren hier schmaler als ${k.netzMinBreiteMm} mm ` +
+      `${b.kennzahlen.netzAnMindestbreite.join(", ")} waeren hier schmaler als ${k.stabilitaet.rasterMm} mm ` +
         "und werden auf die Mindestbreite gehalten – sie wirken dadurch kraeftiger als die uebrigen Strassen.",
     );
   }

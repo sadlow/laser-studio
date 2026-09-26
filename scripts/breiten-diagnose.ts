@@ -27,7 +27,7 @@ async function main() {
     }
     const { wert: r, quelle } = await mitKartenQuelle(process.env.QUELLE === "mapbox" ? "mapbox" : "archiv", (q) => rendereSchichtkarte(k, q, undefined, { teilung: false }), km);
     const kz = r.kennzahlen;
-    console.log(`\n${km} km (${quelle}): format ${kz.formatfaktor.toFixed(2)} dichte ${kz.dichtefaktor.toFixed(2)} deckungVorOrt ${(kz.deckungVorOrt * 100).toFixed(1)} % netz ${(kz.netzAnteilFenster * 100).toFixed(1)} % zugefuellt ${kz.netzLoecherZugefuellt} quer ${kz.querverbindungen} zeit ${kz.rechenzeitMs} ms lose ${kz.loseZurGravur}`);
+    console.log(`\n${km} km (${quelle}): format ${kz.formatfaktor.toFixed(2)} dichte ${kz.dichtefaktor.toFixed(2)} deckungVorOrt ${(kz.deckungVorOrt * 100).toFixed(1)} % netz ${(kz.netzAnteilFenster * 100).toFixed(1)} % zugefuellt ${kz.netzLoecherZugefuellt} quer ${kz.querverbindungen} verst ${kz.verstaerkt} zeit ${kz.rechenzeitMs} ms lose ${kz.loseZurGravur}`);
     console.log(`  herabgestuft ${kz.herabgestuft.join(", ") || "-"} | nachgerueckt ${kz.nachgerueckt.join(", ") || "-"} | Mindestbreite ${kz.netzAnMindestbreite.join(", ") || "-"} | Gravur ${kz.gravurWegM.toFixed(0)} m`);
     const d = (r as unknown as { diagnose?: unknown }).diagnose;
     if (d) console.log(d);

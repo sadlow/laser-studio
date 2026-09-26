@@ -11,7 +11,7 @@
 
 import type { SymbolArt, SymbolGroesse } from "./symbole";
 import type { GravurExport } from "./typen-fertigung";
-import type { Generalisierung, StrassenGruppe, StrassenStufe } from "./typen-strassen";
+import type { Generalisierung, NetzStabilitaet, StrassenGruppe, StrassenStufe } from "./typen-strassen";
 import type { KantenLayout, TitelLage, ZeilenLage } from "./typen-kante";
 import type { Teilungsvorgabe, TeilungsWahl } from "./typen-teilung";
 
@@ -158,8 +158,10 @@ export interface Schichtkarte {
   zeilenStil: TextStil;
 
   strassen: StrassenGruppe[];
-  /** Schmaler wird kein Netzstreifen, auch wenn Format oder Ausschnitt ihn schrumpfen liessen. */
+  /** Schmaler wird kein frei laufender Netzstreifen, auch wenn Format oder Ausschnitt ihn schrumpfen liessen. */
   netzMinBreiteMm: number;
+  /** Stabilitaet nach Strangspanne (Stabilitaets-Testbogen 27.09.2026, netz-ketten.ts). */
+  stabilitaet: NetzStabilitaet;
   generalisierung: Generalisierung;
   /** Kleinere Bloecke zwischen Netzstrassen bleiben Material – 2 x 2 mm loesen sich nicht sauber. */
   netzMinLochMm2: number;

@@ -44,9 +44,9 @@ Server (`src/server/`): `vorlagen.ts` (JSON), `export.ts` (Exportknopf: Produkti
 
 Alle mit Messwert in **`docs/entscheidungen.md`** – vor Aenderungen an Breiten,
 Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
-- Gleicher Massstab als Start: A4 bei 3,5 km (30 x 30 5,1 km, 60 x 60 10,1 km, hoechstens 30); Breiten wachsen mit dem Format nur bis 30 x 30, weiter draussen nicht breiter in Metern, ab 1,5-fachem Massstab eine Klasse mehr graviert; Mindestbreite Netz 0,8 mm
+- Gleicher Massstab als Start: A4 bei 3,5 km (30 x 30 5,1 km, 60 x 60 10,1 km, hoechstens 30); Breiten wachsen mit dem Format nur bis 30 x 30, weiter draussen nicht breiter in Metern, ab 1,5-fachem Massstab eine Klasse mehr graviert; Netz im Raster ab 0,7 mm, frei laufend 0,8, in 2 mm lange Straenge 1,0 (Stabilitaets-Testbogen)
 - Testblatt 2 mm Weiss: Spalt, Strasse ab 0,5 mm. Stege 0,7 mm (0,5 brach beim Herausdruecken), Schrift mind. 0,8 mm Strich, 0,7 mm Material zwischen Buchstaben
-- Gravur im Export: Mittellinie (Standard, Defocus 6 mm, durchgehende Wege), waehlbar Flaeche oder Kontur; nie unter Netz, Text oder Wasser; parallele Linien unter 0,5 mm nur einmal
+- Gravur im Export: Mittellinie (Standard, Defocus 6 mm, durchgehende Wege, Kreuzungen einmal gebrannt), waehlbar Flaeche oder Kontur; nie unter Netz, Text oder Wasser; parallele Linien unter 0,75 mm nur einmal
 - Titel hoechstens 20 Zeichen, jede Zeile darunter 30 – bei Ort + Koordinaten zaehlen die Koordinaten mit
 - Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 37/29/23 %, Strassen nur aus der eigenen Kachel); wenig graviert Wohnstrassen immer
 - Lose Netzstuecke graviert; Spalte < 0,5 mm bleiben Material; Netzstrassen laufen bis in den Rahmen; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
@@ -71,7 +71,7 @@ npm install && npm run dev   # http://localhost:3010
 ```
 
 `npx tsc --noEmit` · `npx tsx scripts/referenzorte.ts` (8 Orte weltweit) · `formatvergleich.ts` · `quadrat-varianten.ts` ·
-`ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts` · `testblatt-grenzwerte.ts` · `gravurprobe-weiss.ts` · `gravurprobe-abstand.ts` · `testblatt-schrift-linien.ts` · `testblatt-schrift.ts` · `schrift-vergleich-a5.ts` · `teilung-referenzorte.ts` · `teilung-export.ts` · `teile-strikt.ts` · `breiten-diagnose.ts` · `gravur-dichte.ts` ·
+`ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts` · `testblatt-grenzwerte.ts` · `gravurprobe-weiss.ts` · `gravurprobe-abstand.ts` · `testblatt-stabilitaet.ts` · `testblatt-schrift-linien.ts` · `testblatt-schrift.ts` · `schrift-vergleich-a5.ts` · `teilung-referenzorte.ts` · `teilung-export.ts` · `teile-strikt.ts` · `breiten-diagnose.ts` · `gravur-dichte.ts` ·
 `bash scripts/referenzbilder.sh <name> "foto=symbol"` (3D-Referenzbild) · `scripts/listing-fotos/` (Listing-Set per Leonardo, Video-Ad `video.py`: 3D-Keyframes + Veo 3.1) ·
 `scripts/amazon-custom/` (textfelder.ts, bilder.py, masken.py, symbole.py, erklaerbild.py, zeilen.py, ordner.py: Karten, Masken, Textfelder, Explosionszeichnungen)
 

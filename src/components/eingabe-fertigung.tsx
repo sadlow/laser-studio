@@ -36,7 +36,7 @@ export function EingabeStrassen({ karte, aendern }: Props) {
     >
       <div className="mb-3 grid grid-cols-3 gap-3">
         <Zahl
-          titel="Netz mindestens"
+          titel="Netz frei mindestens"
           einheit="mm"
           schritt={0.05}
           min={0.3}
@@ -60,6 +60,19 @@ export function EingabeStrassen({ karte, aendern }: Props) {
           aendern={(v) => aendern({ netzMinSpaltMm: v })}
         />
       </div>
+      <div className="mb-1 grid grid-cols-3 gap-3">
+        <Zahl titel="Im Raster mindestens" einheit="mm" schritt={0.05} min={0.3} wert={karte.stabilitaet.rasterMm}
+          aendern={(v) => aendern({ stabilitaet: { ...karte.stabilitaet, rasterMm: v } })} />
+        <Zahl titel="Raster bis Spanne" einheit="mm" schritt={1} min={0} wert={karte.stabilitaet.rasterSpanneMm}
+          aendern={(v) => aendern({ stabilitaet: { ...karte.stabilitaet, rasterSpanneMm: v } })} />
+        <Zahl titel="Lange Straenge bei 2 mm" einheit="mm" schritt={0.05} min={0} wert={karte.stabilitaet.langMm}
+          aendern={(v) => aendern({ stabilitaet: { ...karte.stabilitaet, langMm: v } })} />
+      </div>
+      <p className="mb-3 text-xs" style={{ color: "var(--gedaempft)" }}>
+        Stabilitaets-Testbogen 27.09.: Raster ab 0,7 mm sauber, gerade Streifen mit 0,8 mm auch ueber 100 mm stabil. Ein Strang,
+        der laenger als die Rasterspanne frei laeuft, bekommt mindestens „frei"; bei Netz bis 2 mm Sackgassen ueber 30 mm und
+        Straenge ueber 100 mm mindestens „lange Straenge".
+      </p>
       <div className="mb-3 space-y-2 rounded-md p-3" style={{ background: "var(--grund)" }}>
         <Zahl titel="Mit dem Format hoechstens breiter" einheit="x" schritt={0.05} min={0.5} wert={gen.formatBis ?? FORMAT_BIS}
           aendern={(v) => setzeGen({ formatBis: v })} />
