@@ -86,9 +86,9 @@ export function standardSchichtkarte(): Schichtkarte {
       formatBis: 1.46,
       mehrGravurAb: 1.5,
       stufen: {
-        viel: { zielDeckung: 0.37, maxAufdickung: 2, nachruecken: "immer", feinsteGraviert: 0 },
-        ausgewogen: { zielDeckung: 0.29, maxAufdickung: 1.4, nachruecken: "licht", feinsteGraviert: 0 },
-        wenig: { zielDeckung: 0.23, maxAufdickung: 1, nachruecken: "nie", feinsteGraviert: 1 },
+        viel: { zielDeckung: 0.37, maxAufdickung: 2, nachruecken: "immer", feinsteGraviert: 0, stuetzMm: 30 },
+        ausgewogen: { zielDeckung: 0.29, maxAufdickung: 1.4, nachruecken: "licht", feinsteGraviert: 0, stuetzMm: 80 },
+        wenig: { zielDeckung: 0.23, maxAufdickung: 1, nachruecken: "nie", feinsteGraviert: 1, stuetzMm: 0 },
       },
     },
     netzMinLochMm2: 4,

@@ -85,4 +85,9 @@ export interface StufenWerte {
    * der Wert (aeltere Vorlage, offenes Browserfenster), gilt der Standard der Stufe (dichte.ts).
    */
   feinsteGraviert?: number;
+  /**
+   * Laenger darf ein geschnittener Strang nicht frei laufen, sonst holt die Stufe einzelne Wege als Querverbindung ins
+   * Netz (querverbindung.ts; mm auf der Platte, Sackgassen zaehlen doppelt, 0 = aus). Ohne Wert: viel 30, ausgewogen 80.
+   */
+  stuetzMm?: number;
 }

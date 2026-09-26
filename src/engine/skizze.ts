@@ -1,6 +1,7 @@
 import type { Punkt } from "./clip";
 import { clipPolyline } from "./clip";
 import { breitenbezug, laengenImFenster, waehleNetz } from "./dichte";
+import { querverbindungen } from "./querverbindung";
 import { ortZuMm } from "./geo";
 import { flaecheMm2, rechteck, ringeInMm, schneide, zuFlaeche, type Flaeche } from "./geometrie";
 import { setzeEingebettet } from "./ecken";
@@ -63,6 +64,9 @@ export async function skizziereSchichtkarte(eingabe: Schichtkarte, quelleOderTok
       gravur.push(striche(linien.flatMap((l) => clipPolyline(l, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm)), strahl ?? Math.max(0.15, soll)));
     }
   }
+
+  // Querverbindungen wie im Netz (querverbindung.ts).
+  for (const q of querverbindungen(k, roh, f, auswahl)) netz.push(striche([q.linie], q.breiteMm));
 
   // Farben wie stapel.ts: weisses Netz auf Schwarz, schwarzes Netz auf Weiss, schwarzes Netz unter weisser Deckschicht.
   const deck = k.aufbau === "netz-schwarz";

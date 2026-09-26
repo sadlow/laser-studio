@@ -46,6 +46,8 @@ export interface Kennzahlen {
   /** Wieviel vom Kartenfenster ist Strassennetz – das Mass fuer "zu dicht". */
   netzAnteilFenster: number;
   netzLoecherZugefuellt: number;
+  /** Einzelne Wege, die als Stuetze langer Straenge mitgeschnitten werden. */
+  querverbindungen: number;
   /** Strassengruppen, deren Breite durch das Format unter die Mindestbreite fiele. */
   netzAnMindestbreite: string[];
   formatfaktor: number;

@@ -4,7 +4,7 @@ import type { Generalisierung, Schichtkarte, StrassenGruppe, StrassenZiel } from
 import { FORMAT_BIS, MEHR_GRAVUR_AB } from "@/engine/dichte";
 import { Block, Haken, Zahl } from "./felder";
 import { GravurWahl } from "./gravur-wahl";
-import { StufenTabelle } from "./stufen-tabelle";
+import { StufenTabelle, StuetzWerte } from "./stufen-tabelle";
 import type { Aenderung } from "./aenderung";
 
 interface Props {
@@ -70,6 +70,7 @@ export function EingabeStrassen({ karte, aendern }: Props) {
         {gen.aktiv && (
           <>
             <StufenTabelle gen={gen} setzeGen={setzeGen} />
+            <StuetzWerte gen={gen} setzeGen={setzeGen} />
             <div className="grid grid-cols-2 gap-3">
               <Zahl titel="Hoechstens breiter als entworfen" einheit="x" schritt={0.05} min={1} wert={gen.maxFaktor}
                 aendern={(v) => setzeGen({ maxFaktor: v })} />

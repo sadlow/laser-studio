@@ -94,7 +94,10 @@ export function waehleNetz(
     nachgerueckt.includes(x) ? k.netzMinBreiteMm : Math.max(k.netzMinBreiteMm, x.breiteMm * formatfaktor * df);
   const deckungMit = (gruppen: StrassenGruppe[], df: number) =>
     gruppen.reduce((s, x) => s + laengen.get(x.id)! * breite(x, df), 0) / land;
-  const loeseFuer = (gruppen: StrassenGruppe[]) => loese((d) => deckungMit(gruppen, d), stufe.zielDeckung, maxFaktor);
+  // Weiter draussen wird "viel" nicht breiter als "ausgewogen" – breitere Strassen fuellten in New York bei 30 km nur
+  // Bloecke zu; der Unterschied kommt dort aus den Querverbindungen (querverbindung.ts, Marcel 26.09.2026).
+  const ziel = bezug.massstab > NACHRUECKEN_MAX_MASSSTAB ? Math.min(stufe.zielDeckung, g.stufen.ausgewogen?.zielDeckung ?? stufe.zielDeckung) : stufe.zielDeckung;
+  const loeseFuer = (gruppen: StrassenGruppe[]) => loese((d) => deckungMit(gruppen, d), ziel, maxFaktor);
   const schneidbar = (gruppen: StrassenGruppe[], df: number) => {
     const feinste = gruppen.find((x) => !nachgerueckt.includes(x));
     return !feinste || feinste.breiteMm * formatfaktor * df * stufe.maxAufdickung >= k.netzMinBreiteMm;

@@ -1,6 +1,7 @@
 "use client";
 
 import { feinsteGraviert } from "@/engine/dichte";
+import { STUETZ_STANDARD } from "@/engine/querverbindung";
 import type { Generalisierung, Nachruecken, StrassenStufe, StufenWerte } from "@/engine/typen";
 
 export const STUFEN: { wert: StrassenStufe; titel: string }[] = [
@@ -60,5 +61,26 @@ export function StufenTabelle({ gen, setzeGen }: { gen: Generalisierung; setzeGe
         ))}
       </tbody>
     </table>
+  );
+}
+
+/**
+ * Querverbindungen je Stufe (querverbindung.ts): laenger darf ein geschnittener Strang nicht frei laufen, sonst wird
+ * ein einzelner Weg als Stuetze mitgeschnitten. Eigene Zeile – als sechste Spalte wurde die Tabelle zu eng.
+ */
+export function StuetzWerte({ gen, setzeGen }: { gen: Generalisierung; setzeGen: (teil: Partial<Generalisierung>) => void }) {
+  return (
+    <div className="space-y-1">
+      <p className="text-xs font-medium" style={{ color: "var(--gedaempft)" }}>Querverbindung, wenn ein Strang laenger frei laeuft als (mm, 0 = aus)</p>
+      <div className="grid grid-cols-3 gap-2">
+        {STUFEN.map(({ wert }) => (
+          <label key={wert} className="flex flex-col gap-0.5 text-xs" style={{ color: "var(--gedaempft)" }}>
+            {wert}
+            <input type="number" className="feld" step={5} min={0} value={gen.stufen[wert].stuetzMm ?? STUETZ_STANDARD[wert]}
+              onChange={(e) => setzeGen({ stufen: { ...gen.stufen, [wert]: { ...gen.stufen[wert], stuetzMm: Math.max(0, Number(e.target.value)) } } })} />
+          </label>
+        ))}
+      </div>
+    </div>
   );
 }

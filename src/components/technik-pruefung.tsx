@@ -20,6 +20,7 @@ function KennzahlenRaster({ kz }: { kz: Kennzahlen }) {
       <Kennzahl titel="Breitenfaktor" wert={`× ${(kz.breitenfaktor ?? kz.formatfaktor * kz.dichtefaktor).toFixed(2)}`} />
       <Kennzahl titel="entspricht Zoom" wert={kz.zoomEntsprechung.toFixed(1)} />
       <Kennzahl titel="Bloecke zugefuellt" wert={String(kz.netzLoecherZugefuellt)} />
+      <Kennzahl titel="Querverbindungen" wert={String(kz.querverbindungen ?? 0)} />
       <Kennzahl titel="lose → Gravur" wert={String(kz.loseZurGravur)} />
       <Kennzahl titel="Stencil-Stege" wert={String(kz.stencilStege)} />
       <Kennzahl titel="Innenflaechen zu" wert={String(kz.inselnZugefuellt)} />

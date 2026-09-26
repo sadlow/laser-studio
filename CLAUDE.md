@@ -27,7 +27,7 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 | `layout.ts`, `textblock.ts`, `ecken.ts`, `kante.ts` | Zonen; Texte im Poster, in Reitern oder Titel als Material auf der unteren Kante |
 | `poster-masse.ts`, `symbole.ts` | Gemessene Poster-Masse je Format; Standort-Symbole mit Anker |
 | `schnitt-text.ts`, `stencil.ts`, `stencil-schreib.ts`, `sonderzeichen.ts`, `strich.ts` | Schrift, wie sie geschnitten wird: Druckschrift Glyphe fuer Glyphe eckig verstaerkt, Stege wie gezeichnete Stencil-Schriften, Gradring, Abstaende; Titel nur aussen verstaerkt, Stege durch die duennste Wand |
-| `dichte.ts`, `netz.ts`, `randanschluss.ts`, `bruecken.ts` | Netzklassen und Breiten nach Dichte vor Ort; Enden am Rahmen angeschlossen, Spalte < 0,5 mm zu; lose Stuecke -> Gravur; Bruecken gravierter Strassen |
+| `dichte.ts`, `netz.ts`, `randanschluss.ts`, `bruecken.ts`, `querverbindung.ts` | Netzklassen und Breiten nach Dichte vor Ort; Enden am Rahmen angeschlossen, Spalte < 0,5 mm zu; lose Stuecke -> Gravur; Bruecken gravierter Strassen; lange freie Straenge per Querverbindung gestuetzt |
 | `wasser.ts` | Wasser im Fenster, schmale Kanaele und kleine Inseln raus |
 | `lagen.ts` | Bausteine: Netz, Wasser, Textausschnitt, Gravur, Herz |
 | `stapel.ts`, `skizze.ts` | Lagen je Aufbau (weisses oder schwarzes Netz) + Vorschau; Skizze fuer die Live-Ansicht (Striche statt Flaechen, ms) |

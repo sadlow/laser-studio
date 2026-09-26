@@ -277,6 +277,16 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
      Wohnstrassen 17.
   Lanzarote 60 x 60, 20,3 km: Primaer 5,67 -> 2,25 mm, Netz 14,8 -> 5,5 %. Bali 13 km: Primaer 8,9 -> 3,5 mm.
   Berlin A4 3,5 km und das 30 x 30 bleiben gleich (Deckung 29,4 %, Faktor 0,99).
+- **Querverbindungen statt breiter** (`querverbindung.ts`, `netz-ketten.ts`, Marcel 26.09.2026: „viel" und
+  „ausgewogen" sahen bei 30 km gleich aus, lange duenne Straenge wie auf Bali sind instabil). Das geschnittene Netz
+  zerfaellt in Straenge zwischen Kreuzungen; laeuft einer laenger frei als die Stufe erlaubt (`stuetzMm`: viel 30,
+  ausgewogen 80, wenig aus; Sackgassen doppelt), wird von seiner Mitte der kuerzeste Weg ueber gravierte Strassen oder
+  Zufahrten/Feldwege zu einem anderen Strang mitgeschnitten – hoechstens so lang wie die Grenze. „viel" setzt erst die
+  Verbindungen von „ausgewogen" und stuetzt dann enger nach. Weiter draussen (Massstab ueber 1,25) wird „viel" nicht
+  breiter als „ausgewogen" – das fuellte in New York Bloecke zu. Mit viel 30 mm (Marcel): Lanzarote 30 km 69 / 17
+  Verbindungen, New York 30 km 79 / 0, Berlin A4 3,5 km 0. Skizze New York 30 km 0,7 s warm.
+- **Brücken New York** (26.09.2026 geprueft): Manhattan–Brooklyn hat drei Bruecken (Brooklyn, Manhattan,
+  Williamsburg), alle geschnitten; der Rest sind Tunnel. Bei 30 km (Kachelstufe 13) fehlt nur die kleine Pulaski Bridge.
 - **Gefuellte Bloecke waren Rechenreste** (`saeubere`, geometrie.ts, 26.09.2026): das Oeffnen der Bloecke um den
   halben Spalt hinterliess tausende Ringe ohne Flaeche (Bali 13 km: 6 235 unter 0,001 mm²). Beim Vereinigen mit den
   Strassen ordnete Clipper daran einen Blockrand falsch zu – ein ganzer Block wurde Netz: der Danau Buyan schwarz statt
