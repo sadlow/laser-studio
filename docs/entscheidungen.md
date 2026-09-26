@@ -265,6 +265,30 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - **Lose Netzstuecke werden graviert statt geschnitten** (Marcel: "meist nur
   Artefakte", 1-13 mm2, angebunden nur ueber Fussweg, Treppe oder Tunnel). Stege
   zu nahen Stuecken waeren die Alternative, bisher nicht gebaut.
+- **Weit draussen schmaler, nicht klobiger** (Marcel 26.09.2026, Lanzarote und Bali auf 60 x 60: Hauptstrassen
+  verschmolzen, Kurven verschwanden, Orte liefen zu). Drei Ursachen, drei Regeln (`dichte.ts`, Skript `breiten-diagnose.ts`):
+  1. Das Format zaehlt fuer die Breite hoechstens wie beim 30 x 30 (`formatBis` 1,46, wie Symbol und Schrift). Mit
+     Faktor 2,9 wurde eine Primaerstrasse an lichten Orten 8,9 mm breit (A4: 2,2-3,1 mm).
+  2. Aufdicken gilt fuer den Start-Massstab (A4 bei 3,5 km); weiter draussen hoechstens `maxFaktor / Massstab` – eine
+     Strasse wird in Metern nicht breiter. Dichte Orte tun das ueber die Deckung schon, lichte blieben beim
+     Hoechstfaktor stehen. Nachruecken nur bis Massstab 1,25 (sonst 19 m Feldwege auf Mindestbreite bei 20 km).
+  3. Ab Massstab 1,5 graviert jede Stufe eine Netzklasse mehr (`mehrGravurAb`; 60 x 60 ab 15 km, 30 x 30 ab 7,6,
+     A4 ab 5,3): Arrecife bei 20 km hatte 626 zugefuellte Bloecke und war ein schwarzer Fleck, mit gravierten
+     Wohnstrassen 17.
+  Lanzarote 60 x 60, 20,3 km: Primaer 5,67 -> 2,25 mm, Netz 14,8 -> 5,5 %. Bali 13 km: Primaer 8,9 -> 3,5 mm.
+  Berlin A4 3,5 km und das 30 x 30 bleiben gleich (Deckung 29,4 %, Faktor 0,99).
+- **Gefuellte Bloecke waren Rechenreste** (`saeubere`, geometrie.ts, 26.09.2026): das Oeffnen der Bloecke um den
+  halben Spalt hinterliess tausende Ringe ohne Flaeche (Bali 13 km: 6 235 unter 0,001 mm²). Beim Vereinigen mit den
+  Strassen ordnete Clipper daran einen Blockrand falsch zu – ein ganzer Block wurde Netz: der Danau Buyan schwarz statt
+  blau, ein Block ums Herz auf Lanzarote. `CleanPolygons` mit 1,4 µm vor dem Vereinigen. Die Richtung ueber den
+  Clipper-Baum zu reparieren half nicht: der Ring war dort keine Lochkontur.
+- **Parallele Gravurlinien nur einmal** (`gravur-duenn.ts`, `minAbstandMm` 0,5, Marcel 26.09.2026): liegen zwei
+  Mittellinien naeher als der Mindestabstand nebeneinander (bis 35 Grad), brennt der Strahl eine Rille. Die wichtigere
+  (breitere Klasse, laengere Linie) bleibt, Kreuzungen bleiben. Berlin 60 x 60 bei 34,8 km: 230 -> 170 m, Anteil mit
+  paralleler Nachbarlinie unter 0,5 mm 49,5 -> 1,5 % (`gravur-dichte.ts`). Abgeschnittene Reste unter 4 x Abstand
+  fallen mit weg (sonst Schnipsel und Punkte); ganze kurze Wege bleiben. Welcher Abstand am Werkstueck getrennt bleibt,
+  zeigt `gravurprobe-abstand.ts`: Paare 0,2-1,5 mm, Keil, Kreuzungen, T, Stern und Berlin 20 km mit 0 / 0,5 / 1,0,
+  je fuer Defocus 4 und 6 (Kartenstueck 36 x 30 mm: 1,55 / 0,89 / 0,57 m).
 - **Textreiter zaehlen zur Landflaeche** (sonst Quadrat 38 statt 33 %). Megastaedte
   wirken lichter (Tokio 15 % Netz): parallele Fahrbahnen zaehlen doppelt.
 
@@ -376,8 +400,9 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   alte Mapbox-Suche (`/api/ort`). "Luebeck" ergibt jetzt Luebeck (vorher Luebecker Strasse in Koeln). Der Suchtext
   zaehlt nicht zum Kartenstand – Tippen rechnet die Karte nicht mehr neu.
 - **Weit herauszoomen** (Marcel 25.09.2026): die Zoomstufen sind die A4-Reihe mal Kartenbreite/196 mm – jedes Format
-  zoomt im Massstab von A4 und rastet beim Standardausschnitt ein (`zoomStufenKm`, hoechstens 36 km). 60 x 60:
-  10,1 / 13 / 15,9 / 20,3 / 26,1 / 34,8 km (davor 12 km fest). Kachelstufe nach Ausschnitt (`archivZoom`): bis 12,5 km
+  zoomt im Massstab von A4 und rastet beim Standardausschnitt ein (`zoomStufenKm`, seit 26.09. hoechstens 30 km). 60 x 60:
+  10,1 / 13 / 15,9 / 20,3 / 26,1 / 30 km (davor 12 km fest, kurz bis 34,8; mit den Breitenregeln unten sauber:
+  Berlin 30 km Netz 12 %, Lanzarote 3 %, keine zugelaufenen Orte). Kachelstufe nach Ausschnitt (`archivZoom`): bis 12,5 km
   Zoom 15, bis 25 km 14, darueber 13 – bei 30 km waeren es sonst 1 600 Kacheln; Kacheln je Abruf hoechstens 32
   parallel (sonst Verbindungs-Timeout). Skizze 60 x 60 bei 36 km: 1,4 s warm; volle Rechnung 20-46 s, 1,5-1,8 GB.
 - **Absturz bei grossen Ausschnitten war eine Linie** (`zuLinienPfad`, geometrie.ts): eine Gravurlinie mit einem

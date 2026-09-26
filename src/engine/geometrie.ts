@@ -97,6 +97,15 @@ export function puffereLinien(linien: Punkt[][], breiteMm: number): Flaeche {
   return ergebnis;
 }
 
+/**
+ * Ohne Spitzen und Ringe ohne Flaeche. Ein Versatz hin und zurueck hinterlaesst tausende davon (Bali 60 x 60 bei 13 km:
+ * 6 235 Ringe unter 0,001 mm²); an ihnen ordnete Clipper beim Vereinigen einen Blockrand falsch zu und fuellte den
+ * ganzen Block – ein See und ein Block ums Herz wurden Netz (26.09.2026). Abstand 1,415 µm: nur Rechenreste.
+ */
+export function saeubere(flaeche: Flaeche): Flaeche {
+  return ClipperLib.Clipper.CleanPolygons(flaeche, 1.415);
+}
+
 /** Waechst eine Flaeche nach aussen (positiv) oder schrumpft sie (negativ). */
 export function versatz(flaeche: Flaeche, mm: number): Flaeche {
   if (!flaeche.length) return [];

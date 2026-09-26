@@ -37,17 +37,16 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 | `zeichen.ts` | Hoechstlaengen der Kundentexte (Titel 20, Zeilen 30), ohne Kartenabhaengigkeit |
 | `geometrie.ts` | Clipper-Wrapper in mm |
 
-Server (`src/server/`): `vorlagen.ts` (JSON lesen/schreiben), `export.ts`
-(Exportknopf: Produktionsdaten der Eingabe nach `export/<zeit>_<ort>/`), `bogen.ts` (Prototyp-Platten: mehrere
-Exemplare je Rohplatte, ein Parameter variiert).
+Server (`src/server/`): `vorlagen.ts` (JSON), `export.ts` (Exportknopf: Produktionsdaten nach `export/<zeit>_<ort>/`),
+`bogen.ts` (Prototyp-Platten: mehrere Exemplare je Rohplatte, ein Parameter variiert).
 
 ## Entscheidungen
 
 Alle mit Messwert in **`docs/entscheidungen.md`** – vor Aenderungen an Breiten,
 Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
-- Gleicher Massstab als Start: A4 bei 3,5 km (30 x 30 5,1 km, 60 x 60 10,1 km); Strassen wachsen mit, Dichte gleicht aus; Mindestbreite Netz 0,8 mm
+- Gleicher Massstab als Start: A4 bei 3,5 km (30 x 30 5,1 km, 60 x 60 10,1 km, hoechstens 30); Breiten wachsen mit dem Format nur bis 30 x 30, weiter draussen nicht breiter in Metern, ab 1,5-fachem Massstab eine Klasse mehr graviert; Mindestbreite Netz 0,8 mm
 - Testblatt 2 mm Weiss: Spalt, Strasse ab 0,5 mm. Stege 0,7 mm (0,5 brach beim Herausdruecken), Schrift mind. 0,8 mm Strich, 0,7 mm Material zwischen Buchstaben
-- Gravur im Export: Mittellinie (Standard, Defocus 6 mm, durchgehende Wege), waehlbar Flaeche oder Kontur; nie unter Netz, Text oder Wasser
+- Gravur im Export: Mittellinie (Standard, Defocus 6 mm, durchgehende Wege), waehlbar Flaeche oder Kontur; nie unter Netz, Text oder Wasser; parallele Linien unter 0,5 mm nur einmal
 - Titel hoechstens 20 Zeichen, jede Zeile darunter 30 – bei Ort + Koordinaten zaehlen die Koordinaten mit
 - Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 37/29/23 %, Strassen nur aus der eigenen Kachel); wenig graviert Wohnstrassen immer
 - Lose Netzstuecke graviert; Spalte < 0,5 mm bleiben Material; Netzstrassen laufen bis in den Rahmen; Wasser < 1 mm und Inseln < 15 mm2 nicht geschnitten
@@ -72,13 +71,13 @@ npm install && npm run dev   # http://localhost:3010
 ```
 
 `npx tsc --noEmit` · `npx tsx scripts/referenzorte.ts` (8 Orte weltweit) · `formatvergleich.ts` · `quadrat-varianten.ts` ·
-`ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts` · `testblatt-grenzwerte.ts` · `gravurprobe-weiss.ts` · `testblatt-schrift-linien.ts` · `testblatt-schrift.ts` · `schrift-vergleich-a5.ts` · `teilung-referenzorte.ts` · `teilung-export.ts` · `teile-strikt.ts` ·
+`ausschnittvergleich.ts` · `schriftvergleich.ts` · `strichstaerke.ts` · `inseln-titel.ts` · `titel-lage.ts` · `testblatt-grenzwerte.ts` · `gravurprobe-weiss.ts` · `gravurprobe-abstand.ts` · `testblatt-schrift-linien.ts` · `testblatt-schrift.ts` · `schrift-vergleich-a5.ts` · `teilung-referenzorte.ts` · `teilung-export.ts` · `teile-strikt.ts` · `breiten-diagnose.ts` · `gravur-dichte.ts` ·
 `bash scripts/referenzbilder.sh <name> "foto=symbol"` (3D-Referenzbild) · `scripts/listing-fotos/` (Listing-Set per Leonardo, Video-Ad `video.py`: 3D-Keyframes + Veo 3.1) ·
 `scripts/amazon-custom/` (textfelder.ts, bilder.py, masken.py, symbole.py, erklaerbild.py, zeilen.py, ordner.py: Karten, Masken, Textfelder, Explosionszeichnungen)
 
 ## Offen
 
-- Rechenzeit: 60 x 60 Berlin 9 km volle Rechnung 13 s, 20 km 24 s, 36 km 46 s (Skizze immer unter 2 s); Ausschnitt bis 36 km, Kachelstufe 15/14/13
+- Rechenzeit: 60 x 60 Berlin 9 km volle Rechnung 13 s, 20 km 24 s, 36 km 46 s (Skizze immer unter 2 s); Ausschnitt bis 30 km, Kachelstufe 15/14/13
 - Exportdateien noch nicht in xTool Studio geoeffnet
 - Textsatz ueber opentype.js ohne `calt` – fuer Produktion HarfBuzz wie Direktsatz
 - Kartenarchiv lokal ueber den oeffentlichen Tagesbau (verschwindet nach Tagen) – Dauerbetrieb braucht den Bucket-Zugang

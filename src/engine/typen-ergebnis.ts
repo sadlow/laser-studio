@@ -51,6 +51,8 @@ export interface Kennzahlen {
   formatfaktor: number;
   /** Anteil der Breite, der aus der Dichte vor Ort kommt (1 ohne Generalisierung). */
   dichtefaktor: number;
+  /** Damit werden die Breiten der Tabelle multipliziert: Format (hoechstens wie 30 x 30) x Dichte. */
+  breitenfaktor: number;
   /** Strassenlaenge x Vorlagenbreite / Land – so dicht waere das Netz ohne Anpassung. */
   deckungVorOrt: number;
   /** Netzklassen, die hier zu dicht fuer schneidbare Breiten waeren und graviert werden. */

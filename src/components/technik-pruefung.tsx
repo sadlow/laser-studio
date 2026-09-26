@@ -17,7 +17,7 @@ function KennzahlenRaster({ kz }: { kz: Kennzahlen }) {
     <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
       <Kennzahl titel="Netz im Fenster" wert={`${Math.round(kz.netzAnteilFenster * 100)} %`} />
       <Kennzahl titel="Deckung vor Ort" wert={`${Math.round(kz.deckungVorOrt * 100)} %`} />
-      <Kennzahl titel="Breitenfaktor" wert={`× ${(kz.formatfaktor * kz.dichtefaktor).toFixed(2)}`} />
+      <Kennzahl titel="Breitenfaktor" wert={`× ${(kz.breitenfaktor ?? kz.formatfaktor * kz.dichtefaktor).toFixed(2)}`} />
       <Kennzahl titel="entspricht Zoom" wert={kz.zoomEntsprechung.toFixed(1)} />
       <Kennzahl titel="Bloecke zugefuellt" wert={String(kz.netzLoecherZugefuellt)} />
       <Kennzahl titel="lose → Gravur" wert={String(kz.loseZurGravur)} />

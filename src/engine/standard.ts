@@ -83,6 +83,8 @@ export function standardSchichtkarte(): Schichtkarte {
     generalisierung: {
       aktiv: true,
       maxFaktor: 1.4,
+      formatBis: 1.46,
+      mehrGravurAb: 1.5,
       stufen: {
         viel: { zielDeckung: 0.37, maxAufdickung: 2, nachruecken: "immer", feinsteGraviert: 0 },
         ausgewogen: { zielDeckung: 0.29, maxAufdickung: 1.4, nachruecken: "licht", feinsteGraviert: 0 },
@@ -118,7 +120,7 @@ export function standardSchichtkarte(): Schichtkarte {
     loseTeileMarkieren: true,
     // Mittellinie mit Defocus 6 mm ist Marcels normale Gravur (Gravurprobe 17.09., Marcel 18.09.2026). 0,5 mm Linienbreite
     // ist angenommen, noch nicht unter der Lupe gemessen – sie kuerzt nur die Stichenden vor Kreuzungen (wege.ts).
-    gravurExport: { art: "mittellinie", strahlMm: 0.5 },
+    gravurExport: { art: "mittellinie", strahlMm: 0.5, minAbstandMm: 0.5 },
     // Laser 60 x 30,5 cm, Rohplatte genauso gross (Marcel 25.09.2026). Naht 2 mm von der Plattenkante: 297-303 mm.
     // Titel auf der Kante, gemessen an den Entwuerfen 60 x 60 (Marcel 25.09.2026): Rand 16 mm, unten 36 mm, Titel
     // hoechstens ein Drittel der Breite (20 cm) und 48 mm hoch, Zeile 8,5 mm.

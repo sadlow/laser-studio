@@ -46,6 +46,17 @@ export interface Generalisierung {
   aktiv: boolean;
   /** So viel breiter als entworfen darf eine Strasse in lichten Gegenden werden. */
   maxFaktor: number;
+  /**
+   * Mit dem Format wachsen die Breiten hoechstens um diesen Faktor (Standard 1,46 = 30 x 30, dichte.ts). Das 60 x 60
+   * bekommt so die Breiten des 30 x 30 – wie Symbol und Schrift.
+   */
+  formatBis?: number;
+  /**
+   * Ab diesem Massstab (Meter je mm im Verhaeltnis zu A4 bei 3,5 km) graviert jede Stufe eine Netzklasse mehr
+   * (Standard 1,5: 60 x 60 ab 15 km, A4 ab 5,3 km). Weiter draussen liegen die Wohnstrassen einer Stadt so dicht, dass
+   * fast jeder Block zugefuellt wird und der Ort ein schwarzer Fleck ist (Lanzarote 20 km: 626 Bloecke, 26.09.2026).
+   */
+  mehrGravurAb?: number;
   /** Was die Stufen bedeuten, die der Kunde waehlt. */
   stufen: Record<StrassenStufe, StufenWerte>;
 }

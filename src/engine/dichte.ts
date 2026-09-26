@@ -1,7 +1,7 @@
 import { clipPolyline, type Punkt } from "./clip";
 import type { KartenRohdaten } from "./kacheln";
 import { standardSchichtkarte } from "./standard";
-import type { Generalisierung, Schichtkarte, StrassenGruppe, StrassenStufe, Zone } from "./typen";
+import { REFERENZ_KARTENBREITE_MM, type Generalisierung, type Schichtkarte, type StrassenGruppe, type StrassenStufe, type Zone } from "./typen";
 
 /**
  * Welche Strassen geschnitten werden und wie breit – aus der Dichte vor Ort
@@ -18,11 +18,37 @@ import type { Generalisierung, Schichtkarte, StrassenGruppe, StrassenStufe, Zone
 // feiner dosieren (Venedig bei 2 km: Gassen 35 %).
 const NACHRUECKEN_UNTER = 0.5;
 const NACHRUECKEN_BIS = 1.1;
+const NACHRUECKEN_MAX_MASSSTAB = 1.25;
+
+/**
+ * Breiten wachsen mit dem Format hoechstens so weit wie beim 30 x 30 (Marcel 26.09.2026). Das 60 x 60 zeigt seit dem
+ * gleichen Start-Massstab viermal so viel Land wie das A4, nicht dasselbe Bild vergroessert: mit Formatfaktor 2,9 wurde
+ * an lichten Orten eine Primaerstrasse 8,9 mm breit (Lanzarote, Bali: Kurven verschwanden, Orte liefen zu).
+ */
+export const FORMAT_BIS = 1.46;
+/** Standard fuer `mehrGravurAb` (typen-strassen.ts). */
+export const MEHR_GRAVUR_AB = 1.5;
+// Meter je mm Karte beim Start-Massstab: A4 bei 3,5 km.
+const START_M_JE_MM = 3500 / REFERENZ_KARTENBREITE_MM;
+
+/** Wie gross das Format ist und wie weit der Ausschnitt ueber den Start-Massstab hinausgeht. */
+export interface Breitenbezug {
+  /** Kartenbreite / A4-Kartenbreite. */
+  formatfaktor: number;
+  /** Meter je mm im Verhaeltnis zu A4 bei 3,5 km (60 x 60 bei 20 km: 2). */
+  massstab: number;
+}
+
+export function breitenbezug(k: Schichtkarte, f: Zone): Breitenbezug {
+  return { formatfaktor: f.breiteMm / REFERENZ_KARTENBREITE_MM, massstab: (k.ausschnittKm * 1000) / f.breiteMm / START_M_JE_MM };
+}
 
 export interface NetzAuswahl {
   /** Breite je Gruppen-id aller geschnittenen Gruppen, in mm auf der Platte. */
   breiten: Map<string, number>;
   dichtefaktor: number;
+  /** Formatanteil x Dichtefaktor: damit wird jede Breite der Tabelle multipliziert (auch die Gravurstriche). */
+  breitenfaktor: number;
   /** Deckung mit den Breiten der Vorlage (x Format), vor jeder Anpassung. */
   deckungVorOrt: number;
   herabgestuft: string[];
@@ -49,10 +75,15 @@ export function waehleNetz(
   k: Schichtkarte,
   laengen: Map<string, number>,
   landMm2: number,
-  formatfaktor: number,
+  bezug: Breitenbezug,
   ohneNachruecken = false,
 ): NetzAuswahl {
   const g = k.generalisierung;
+  const formatfaktor = Math.min(bezug.formatfaktor, g.formatBis ?? FORMAT_BIS);
+  // Aufdicken gilt fuer den Start-Massstab; weiter draussen bleibt eine Strasse in Metern hoechstens so breit wie dort.
+  // Dichte Orte machen das ueber die Deckung von selbst (doppelter Ausschnitt, doppelte Laenge auf der Platte), lichte
+  // blieben sonst beim Hoechstfaktor stehen und wurden immer klobiger (Lanzarote 20 km, Marcel 26.09.2026).
+  const maxFaktor = g.maxFaktor / Math.max(1, bezug.massstab);
   const stufe = g.stufen[k.kunde.strassenStufe] ?? g.stufen.ausgewogen;
   const land = Math.max(1, landMm2);
   const lang = (s: StrassenGruppe) => (laengen.get(s.id) ?? 0) > 0;
@@ -63,7 +94,7 @@ export function waehleNetz(
     nachgerueckt.includes(x) ? k.netzMinBreiteMm : Math.max(k.netzMinBreiteMm, x.breiteMm * formatfaktor * df);
   const deckungMit = (gruppen: StrassenGruppe[], df: number) =>
     gruppen.reduce((s, x) => s + laengen.get(x.id)! * breite(x, df), 0) / land;
-  const loeseFuer = (gruppen: StrassenGruppe[]) => loese((d) => deckungMit(gruppen, d), stufe.zielDeckung, g.maxFaktor);
+  const loeseFuer = (gruppen: StrassenGruppe[]) => loese((d) => deckungMit(gruppen, d), stufe.zielDeckung, maxFaktor);
   const schneidbar = (gruppen: StrassenGruppe[], df: number) => {
     const feinste = gruppen.find((x) => !nachgerueckt.includes(x));
     return !feinste || feinste.breiteMm * formatfaktor * df * stufe.maxAufdickung >= k.netzMinBreiteMm;
@@ -77,7 +108,7 @@ export function waehleNetz(
     // An lichten Orten erreicht keine Stufe ihr Ziel, alle landen beim Hoechstfaktor – "wenig" sah
     // dort aus wie "ausgewogen" (Goerzallee A5 3 km: beide 19 % Netz). Darum graviert "wenig" seine
     // feinste Klasse immer (Marcel 17.09.2026); wo sie ohnehin wich, bleibt alles gleich.
-    const feinste = feinsteGraviert(g, k.kunde.strassenStufe);
+    const feinste = feinsteGraviert(g, k.kunde.strassenStufe) + (bezug.massstab > (g.mehrGravurAb ?? MEHR_GRAVUR_AB) ? 1 : 0);
     while (stufeGraviert.length < feinste && netz.length > 1) {
       stufeGraviert.push(netz[0].titel);
       netz = netz.slice(1);
@@ -88,7 +119,10 @@ export function waehleNetz(
       netz = netz.slice(1);
       df = loeseFuer(netz);
     }
-    const modus = ohneNachruecken || herabgestuft.length || stufeGraviert.length ? "nie" : stufe.nachruecken;
+    // Nachruecken nur nahe dem Start-Massstab: weiter draussen ist die Deckung schon durch den Ausschnitt licht, und ein
+    // Feldweg auf Mindestbreite waere bei 20 km 30 m breit (Lanzarote: 19 m Feldwege geschnitten, 26.09.2026).
+    const zuWeit = bezug.massstab > NACHRUECKEN_MAX_MASSSTAB;
+    const modus = ohneNachruecken || zuWeit || herabgestuft.length || stufeGraviert.length ? "nie" : stufe.nachruecken;
     if (modus === "immer" || (modus === "licht" && deckungMit(netz, df) < stufe.zielDeckung * NACHRUECKEN_UNTER)) {
       for (const kandidat of k.strassen.filter((s) => s.ziel === "gravur" && s.nachruecken && lang(s))) {
         nachgerueckt.push(kandidat);
@@ -111,7 +145,7 @@ export function waehleNetz(
     if (!nachgerueckt.includes(x) && x.breiteMm * formatfaktor * df < k.netzMinBreiteMm) anMindestbreite.push(x.titel);
     breiten.set(x.id, breite(x, df));
   }
-  return { breiten, dichtefaktor: df, deckungVorOrt, herabgestuft, nachgerueckt: nachgerueckt.map((x) => x.titel), anMindestbreite };
+  return { breiten, dichtefaktor: df, breitenfaktor: formatfaktor * df, deckungVorOrt, herabgestuft, nachgerueckt: nachgerueckt.map((x) => x.titel), anMindestbreite };
 }
 
 /** Wie viele feinste Netzklassen die Stufe immer graviert – ohne Wert (aeltere Vorlage) der Standard der Stufe. */

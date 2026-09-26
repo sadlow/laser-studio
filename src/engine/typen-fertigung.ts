@@ -18,6 +18,12 @@ export interface GravurExport {
   art: GravurArt;
   /** Breite der gelaserten Linie, mit Defokus – bestimmt den Versatz der Kontur und wie weit Stichenden vor einer Kreuzung anhalten. */
   strahlMm: number;
+  /**
+   * Mindestabstand zwischen zwei annaehernd parallelen Gravur-Mittellinien (gravur-duenn.ts): dichter liegende brennt
+   * der Strahl gemeinsam, die Rille wird nur tiefer statt zwei Linien zu zeigen. 0 = alles graviert. Nicht fuer
+   * "flaeche" (dort deckt sich Ueberlappung von selbst).
+   */
+  minAbstandMm?: number;
 }
 
 export const GRAVUR_ART_TITEL: Record<GravurArt, string> = {

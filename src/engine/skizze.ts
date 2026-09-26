@@ -1,6 +1,6 @@
 import type { Punkt } from "./clip";
 import { clipPolyline } from "./clip";
-import { laengenImFenster, waehleNetz } from "./dichte";
+import { breitenbezug, laengenImFenster, waehleNetz } from "./dichte";
 import { ortZuMm } from "./geo";
 import { flaecheMm2, rechteck, ringeInMm, schneide, zuFlaeche, type Flaeche } from "./geometrie";
 import { setzeEingebettet } from "./ecken";
@@ -43,7 +43,7 @@ export async function skizziereSchichtkarte(eingabe: Schichtkarte, quelleOderTok
   const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
   const wasser = k.wasser ? schneide(zuFlaeche(roh.wasserFlaechen), fensterFl) : [];
   const land = f.breiteMm * f.hoeheMm - flaecheMm2(wasser);
-  const auswahl = waehleNetz(k, laengenImFenster(k, roh, f), land, faktor);
+  const auswahl = waehleNetz(k, laengenImFenster(k, roh, f), land, breitenbezug(k, f));
   const text = k.layoutArt === "eingebettet" ? setzeEingebettet(k, layout) : k.layoutArt === "kante" ? setzeKante(k, layout) : setzePosterText(k, layout);
 
   // Strassen: geschnittene als breite Striche (mit Anschluss an den Rahmen), gravierte als feine Linien.
@@ -59,7 +59,7 @@ export async function skizziereSchichtkarte(eingabe: Schichtkarte, quelleOderTok
     if (breite !== undefined) {
       netz.push(striche([...linien, ...anschluesseAnRahmen(linien, alleNetz, f, breite)], breite));
     } else {
-      const soll = g.ziel === "netz" ? GRAVUR_HERABGESTUFT_MM * faktor * auswahl.dichtefaktor : g.breiteMm * faktor * auswahl.dichtefaktor;
+      const soll = g.ziel === "netz" ? GRAVUR_HERABGESTUFT_MM * auswahl.breitenfaktor : g.breiteMm * auswahl.breitenfaktor;
       gravur.push(striche(linien.flatMap((l) => clipPolyline(l, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm)), strahl ?? Math.max(0.15, soll)));
     }
   }

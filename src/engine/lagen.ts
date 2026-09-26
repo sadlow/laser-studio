@@ -1,7 +1,8 @@
 import { weiter } from "./abbruch";
 import type { Punkt } from "./clip";
-import { laengenImFenster, waehleNetz } from "./dichte";
+import { breitenbezug, laengenImFenster, waehleNetz } from "./dichte";
 import { brueckenStreifen } from "./bruecken";
+import { duenneAus } from "./gravur-duenn";
 import { baueNetz } from "./netz";
 import {
   ausTeilen,
@@ -102,7 +103,8 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
   // ihnen stecken in den Laengen (Quadrat sonst 38 statt 33 %).
   const land = flaecheMm2(ziehAb(fensterFl, wasser.gesamt));
   const laengen = laengenImFenster(k, roh, f);
-  let auswahl = waehleNetz(k, laengen, land, faktor);
+  const bezug = breitenbezug(k, f);
+  let auswahl = waehleNetz(k, laengen, land, bezug);
   let n = baueNetz(k, roh, layout, schutzNetz, auswahl, symbolLoch, freiraum);
   await weiter(signal);
   // Nachgerueckte Wege muessen ein Netz ergeben, keine losen Stuecke: Venedigs
@@ -111,7 +113,7 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
   const nachrueckenVerworfen: string[] = [];
   if (auswahl.nachgerueckt.length && n.loseAnteil > NACHRUECKEN_MAX_LOSE_ANTEIL) {
     nachrueckenVerworfen.push(...auswahl.nachgerueckt);
-    auswahl = waehleNetz(k, laengen, land, faktor, true);
+    auswahl = waehleNetz(k, laengen, land, bezug, true);
     n = baueNetz(k, roh, layout, schutzNetz, auswahl, symbolLoch, freiraum);
   }
   const { netz, gravur: gravurRoh } = n;
@@ -140,7 +142,10 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
   // unter dem Netz (unsichtbar). Das Netz allein spart gemessen 31 % Gravurweg
   // bei 160 ms Rechenzeit – A4 Berlin: 15,0 m auf 10,4 m.
   const gravurAus = vereinige(schutz, traeger, inseln.wasser, netz, symbolLoch);
-  const gravur = gravurRoh.map((g) => ({ linien: ziehLinienAb(g.linien, gravurAus), breiteMm: g.breiteMm }));
+  const beschnitten = gravurRoh.map((g) => ({ linien: ziehLinienAb(g.linien, gravurAus), breiteMm: g.breiteMm }));
+  // Linien, die der Strahl gemeinsam brennen wuerde, nur einmal (gravur-duenn.ts) – nicht bei Flaechengravur.
+  const dicht = k.gravurExport.art !== "flaeche" ? duenneAus(beschnitten, k.gravurExport.minAbstandMm ?? 0) : null;
+  const gravur = dicht ? dicht.gruppen : beschnitten;
   // Unter dem Symbol eine gravierte Flaeche statt einer Umrisslinie (Marcel 17.09.2026): angeraut
   // haelt der Kleber besser, und die Stelle ist beim Aufsetzen markiert.
   const klebeflaeche = teile(versatz(ausTeilen(symbol), -KLEBE_EINZUG_MM), 0.01);
@@ -165,6 +170,7 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
       netzAnMindestbreite: auswahl.anMindestbreite,
       formatfaktor: faktor,
       dichtefaktor: auswahl.dichtefaktor,
+      breitenfaktor: auswahl.breitenfaktor,
       deckungVorOrt: auswahl.deckungVorOrt,
       herabgestuft: auswahl.herabgestuft,
       nachgerueckt: auswahl.nachgerueckt,

@@ -1,10 +1,10 @@
 import { clipPolyline, type Punkt } from "./clip";
 import type { NetzAuswahl } from "./dichte";
-import { ausTeilen, flaecheMm2, puffereLinien, rechteck, schneide, teile, vereinige, versatz, ziehAb, ziehLinienAb, type Flaeche } from "./geometrie";
+import { ausTeilen, flaecheMm2, puffereLinien, rechteck, saeubere, schneide, teile, vereinige, versatz, ziehAb, ziehLinienAb, type Flaeche } from "./geometrie";
 import type { KartenRohdaten } from "./kacheln";
 import { BRUECKE_RAND_MM, type BrueckenLinien } from "./bruecken";
 import { anschluesseAnRahmen } from "./randanschluss";
-import { REFERENZ_KARTENBREITE_MM, type Layout, type Schichtkarte } from "./typen";
+import type { Layout, Schichtkarte } from "./typen";
 import { SPLITTER_MM2 } from "./wasser";
 
 // Strichbreite (bei A4), mit der Netzstrassen graviert werden, die nicht
@@ -37,8 +37,7 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
   const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
   const imFenster = (linien: Punkt[][]) =>
     linien.flatMap((l) => clipPolyline(l, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm));
-  const massstab = f.breiteMm / REFERENZ_KARTENBREITE_MM;
-  const strichHerabgestuft = Math.max(0.15, GRAVUR_HERABGESTUFT_MM * massstab * auswahl.dichtefaktor);
+  const strichHerabgestuft = Math.max(0.15, GRAVUR_HERABGESTUFT_MM * auswahl.breitenfaktor);
   const brueckeFuer = (strich: number) => Math.max(k.netzMinBreiteMm, strich + 2 * BRUECKE_RAND_MM);
   const netzTeile: Flaeche[] = [];
   const netzLinien: Punkt[][] = [];
@@ -62,7 +61,7 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
       if (bruecken.length) netzBruecken.push({ linien: bruecken, breiteMm: breite });
       continue;
     }
-    const strich = gruppe.ziel === "netz" ? strichHerabgestuft : Math.max(0.15, gruppe.breiteMm * massstab * auswahl.dichtefaktor);
+    const strich = gruppe.ziel === "netz" ? strichHerabgestuft : Math.max(0.15, gruppe.breiteMm * auswahl.breitenfaktor);
     gravur.push({ linien: imFenster(linien), breiteMm: strich });
     const befahren = gruppe.ziel === "netz" || gruppe.klassen.some((kl) => kl.endsWith("_rail"));
     if (befahren && bruecken.length) gravurBruecken.push({ linien: bruecken, breiteMm: brueckeFuer(strich) });
@@ -77,7 +76,7 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
   // Ebenso, was von einem Block schmaler als ein schneidbarer Spalt ist: Keile am Rahmen, Spalte zwischen eng
   // laufenden Strassen. Oeffnen um den halben Spalt nimmt genau diese Teile weg – sie bleiben Material.
   const r = k.netzMinSpaltMm / 2;
-  const schmal = r > 0 ? ziehAb(bloecke, versatz(versatz(bloecke, -r), r)) : [];
+  const schmal = r > 0 ? saeubere(ziehAb(bloecke, versatz(versatz(bloecke, -r), r))) : [];
   const mitBloecken = ziehAb(vereinige(strassen, ausTeilen(kleineBloecke), schmal), symbolLoch);
 
   // Lose Stuecke haengen nirgends am Netz (meist nur ueber einen gravierten Weg,

@@ -1,8 +1,9 @@
 "use client";
 
-import { GRAVUR_ART_TITEL, type GravurArt } from "@/engine/typen-fertigung";
 import type { Generalisierung, Schichtkarte, StrassenGruppe, StrassenZiel } from "@/engine/typen";
-import { Auswahl, Block, Haken, Zahl } from "./felder";
+import { FORMAT_BIS, MEHR_GRAVUR_AB } from "@/engine/dichte";
+import { Block, Haken, Zahl } from "./felder";
+import { GravurWahl } from "./gravur-wahl";
 import { StufenTabelle } from "./stufen-tabelle";
 import type { Aenderung } from "./aenderung";
 
@@ -27,7 +28,7 @@ export function EingabeStrassen({ karte, aendern }: Props) {
     <Block
       titel="Strassen"
       zu={true}
-      hinweis={`Breiten gelten fuer A4 und wachsen mit dem Format. Netz = Strassen als ${
+      hinweis={`Breiten gelten fuer A4 und wachsen mit dem Format, hoechstens bis zum eingestellten Faktor. Netz = Strassen als ${
         karte.aufbau === "netz-weiss" ? "weisses" : "schwarzes"
       } Acryl, die Bloecke fallen heraus. Gravur = Linie auf dem ${
         karte.aufbau === "netz-weiss" ? "schwarzen" : "weissen"
@@ -60,18 +61,30 @@ export function EingabeStrassen({ karte, aendern }: Props) {
         />
       </div>
       <div className="mb-3 space-y-2 rounded-md p-3" style={{ background: "var(--grund)" }}>
+        <Zahl titel="Mit dem Format hoechstens breiter" einheit="x" schritt={0.05} min={0.5} wert={gen.formatBis ?? FORMAT_BIS}
+          aendern={(v) => setzeGen({ formatBis: v })} />
+        <p className="text-xs" style={{ color: "var(--gedaempft)" }}>
+          1,46 = 30 x 30: das 60 x 60 bekommt dieselben Breiten wie das 30 x 30, so wie Symbol und Schrift.
+        </p>
         <Haken titel="Breite folgt der Dichte vor Ort" wert={gen.aktiv} aendern={(v) => setzeGen({ aktiv: v })} />
         {gen.aktiv && (
           <>
             <StufenTabelle gen={gen} setzeGen={setzeGen} />
-            <Zahl titel="Hoechstens breiter als entworfen" einheit="x" schritt={0.05} min={1} wert={gen.maxFaktor}
-              aendern={(v) => setzeGen({ maxFaktor: v })} />
+            <div className="grid grid-cols-2 gap-3">
+              <Zahl titel="Hoechstens breiter als entworfen" einheit="x" schritt={0.05} min={1} wert={gen.maxFaktor}
+                aendern={(v) => setzeGen({ maxFaktor: v })} />
+              <Zahl titel="Eine Klasse mehr graviert ab" einheit="x Massstab" schritt={0.1} min={1} wert={gen.mehrGravurAb ?? MEHR_GRAVUR_AB}
+                aendern={(v) => setzeGen({ mehrGravurAb: v })} />
+            </div>
             <p className="text-xs" style={{ color: "var(--gedaempft)" }}>
               Deckung = Strassenlaenge × Breite / Land im Fenster. Die Netzbreiten werden auf das Ziel der gewaehlten Stufe
               skaliert (Berlin-Tiergarten 3,5 km = 29 %). Muesste die feinste Netzklasse mehr als aufgedickt werden, wird
               sie graviert. Nachruecken: markierte Gravurklassen (Haken rechts) – „licht" nur in lichten Gegenden,
               „immer" solange keine geschnittene Klasse dafuer weichen muss. Graviert: so viele der feinsten Netzklassen
               graviert die Stufe immer – bei „wenig" die Wohnstrassen, sonst saehe es an lichten Orten aus wie „ausgewogen".
+              Massstab = Meter je mm im Verhaeltnis zu A4 bei 3,5 km (60 x 60 bei 20 km: 2). Weiter draussen als der
+              Start-Massstab wird keine Strasse in Metern breiter, Nachruecken gibt es nur bis 1,25; ab dem eingestellten
+              Massstab graviert jede Stufe eine Klasse mehr (60 x 60 ab 15 km: die Wohnstrassen).
             </p>
           </>
         )}
@@ -157,31 +170,5 @@ export function EingabeFertigung({ karte, aendern }: Props) {
         <GravurWahl karte={karte} aendern={aendern} />
       </div>
     </Block>
-  );
-}
-
-/** Gravur in der Laserdatei – Flaeche rastert, Linien fahren den Weg nur ab (typen-fertigung.ts). */
-function GravurWahl({ karte, aendern }: Props) {
-  const g = karte.gravurExport;
-  return (
-    <div className="space-y-2">
-      <Auswahl<GravurArt>
-        titel="Gravur in der Laserdatei"
-        wert={g.art}
-        optionen={(Object.keys(GRAVUR_ART_TITEL) as GravurArt[]).map((art) => ({ wert: art, titel: GRAVUR_ART_TITEL[art] }))}
-        aendern={(art) => aendern({ gravurExport: { ...g, art } })}
-      />
-      {g.art !== "flaeche" && (
-        <Zahl titel="Linienbreite mit Defokus" einheit="mm" schritt={0.01} min={0.02} wert={g.strahlMm}
-          aendern={(v) => aendern({ gravurExport: { ...g, strahlMm: v } })} />
-      )}
-      <p className="text-xs" style={{ color: "var(--gedaempft)" }}>
-        {g.art === "flaeche" && "Gefuellte Flaechen in Sollbreite – die Lasersoftware rastert sie Zeile fuer Zeile."}
-        {g.art === "mittellinie" &&
-          "Jeder Weg einmal als durchgehende Linie, ohne doppelte Stuecke. Die Breite macht der Strahl (Gravurprobe: Defokus 6 mm). Wege, die an einer Kreuzung enden, halten um die halbe Linienbreite davor an."}
-        {g.art === "kontur" &&
-          "Eng anliegende Ringe um jeden Weg, um den halben Strahl nach innen; breite Wege bekommen so viele Durchgaenge, bis die Sollbreite gedeckt ist. Wege schmaler als der Strahl bleiben Mittellinie."}
-      </p>
-    </div>
   );
 }

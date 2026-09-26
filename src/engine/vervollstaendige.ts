@@ -13,7 +13,7 @@ export function vervollstaendige(eingabe: Schichtkarte): Schichtkarte {
     grundSchwarzFrost: eingabe.grundSchwarzFrost ?? (eingabe as { schwarzFrost?: boolean }).schwarzFrost ?? basis.grundSchwarzFrost,
     stegMinMm: eingabe.stegMinMm ?? basis.stegMinMm,
     netzMinSpaltMm: eingabe.netzMinSpaltMm ?? basis.netzMinSpaltMm,
-    gravurExport: eingabe.gravurExport ?? basis.gravurExport,
+    gravurExport: { ...basis.gravurExport, ...eingabe.gravurExport },
     teilung: { ...basis.teilung, ...eingabe.teilung },
     kante: { ...basis.kante, ...eingabe.kante },
     titelStil: { ...eingabe.titelStil, minStrichMm: eingabe.titelStil.minStrichMm ?? basis.titelStil.minStrichMm },
