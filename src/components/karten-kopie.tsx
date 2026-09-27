@@ -22,8 +22,10 @@ export function KartenKopie(props: {
   dx?: number;
   dy?: number;
   faktor?: number;
+  /** Das Symbol nicht mitschieben (Karte ziehen: das Herz steht still, zieh-vorschau.tsx zeichnet es). */
+  ohneSymbol?: boolean;
 }) {
-  const { svg, lage, platte, fenster: f, grund, dx = 0, dy = 0, faktor = 1 } = props;
+  const { svg, lage, platte, fenster: f, grund, dx = 0, dy = 0, faktor = 1, ohneSymbol = false } = props;
   const s = lage.pxProMm;
   const rechts = (platte.breiteMm - f.xMm - f.breiteMm) * s;
   const unten = (platte.hoeheMm - f.yMm - f.hoeheMm) * s;
@@ -33,7 +35,7 @@ export function KartenKopie(props: {
       style={{ left: lage.links + f.xMm * s, top: lage.oben + f.yMm * s, width: f.breiteMm * s, height: f.hoeheMm * s, background: grund }}
     >
       <div
-        className="absolute [&>svg]:h-full [&>svg]:w-full"
+        className={`absolute [&>svg]:h-full [&>svg]:w-full${ohneSymbol ? " [&_#symbol]:hidden" : ""}`}
         style={{
           left: -f.xMm * s + dx,
           top: -f.yMm * s + dy,
@@ -47,5 +49,25 @@ export function KartenKopie(props: {
         dangerouslySetInnerHTML={{ __html: svg }}
       />
     </div>
+  );
+}
+
+/** Das Symbol ueber der Vorschau: beim Ziehen des Symbols um dx/dy versetzt, beim Ziehen der Karte an seiner Stelle. */
+export function SchwebendesSymbol({ form, lage, box, dx, dy }: {
+  form: { d: string; hoehe: number };
+  lage: SvgLage;
+  box: { xMm: number; yMm: number; breiteMm: number; hoeheMm: number };
+  dx: number;
+  dy: number;
+}) {
+  const s = lage.pxProMm;
+  return (
+    <svg
+      className="pointer-events-none absolute"
+      viewBox={`0 0 1 ${form.hoehe}`}
+      style={{ left: lage.links + box.xMm * s + dx, top: lage.oben + box.yMm * s + dy, width: box.breiteMm * s, height: box.hoeheMm * s }}
+    >
+      <path d={form.d} fill="#d23a45" fillRule="evenodd" stroke="#fff" strokeWidth={0.03} />
+    </svg>
   );
 }

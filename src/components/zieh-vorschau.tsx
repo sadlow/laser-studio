@@ -6,7 +6,7 @@ import { symbolPfad } from "@/engine/symbole";
 import { FARBE_SCHWARZ, FARBE_WEISS } from "@/engine/svg";
 import type { Anzeige, Schichtkarte } from "@/engine/typen";
 import { RahmenUmriss, rahmenPlatz } from "./holzrahmen-2d";
-import { KartenKopie } from "./karten-kopie";
+import { KartenKopie, SchwebendesSymbol } from "./karten-kopie";
 import { NahtUeberlagerung } from "./naht-ueberlagerung";
 import { StandortZentrieren } from "./standort-zentrieren";
 import { useSvgLage } from "./svg-lage";
@@ -27,13 +27,16 @@ interface Zug {
   startY: number;
   dx: number;
   dy: number;
+  /** Standort zentrieren: das Herz wandert mit der Karte in die Mitte. Beim Ziehen bleibt es stehen. */
+  herzMit?: boolean;
 }
 
 /**
  * Vorschau zum Anfassen (Marcel 16.09.2026): Karte ziehen verschiebt den
  * Ausschnitt, Symbol ziehen versetzt den Ort – die Koordinaten zeigen immer den
  * Symbol-Anker (Spitze bei Herz und Pin) –, Plus und Minus zoomen in festen Stufen. Beim Ziehen und Zoomen
- * wird die letzte Vorschau verschoben bzw. skaliert gezeigt, bis die neue da ist.
+ * wird die letzte Vorschau verschoben bzw. skaliert gezeigt, bis die neue da ist. Karte ziehen: das Herz bleibt stehen,
+ * der Ort darunter wird zu den Koordinaten (Marcel 27.09.2026, sonst verliert man es aus dem Fenster).
  */
 export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
   const box = useRef<HTMLDivElement>(null);
@@ -125,7 +128,9 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
     const dyMm = zug.dy / lage.pxProMm;
     if (zug.art === "karte") {
       const neu = mmZuOrt({ x: f.xMm + f.breiteMm / 2 - dxMm, y: f.yMm + f.hoeheMm / 2 - dyMm }, mitte, breiteM, f);
-      aendern({ kartenMitte: neu });
+      // Das Herz steht still, die Karte gleitet darunter: neuer Ort ist, was jetzt unter dem Anker liegt.
+      const ort = ergebnis.symbol && mmZuOrt({ x: ergebnis.symbol.ankerXMm - dxMm, y: ergebnis.symbol.ankerYMm - dyMm }, mitte, breiteM, f);
+      aendern(ort ? { kartenMitte: neu, lon: ort.lon, lat: ort.lat } : { kartenMitte: neu });
     } else if (ergebnis.symbol) {
       const x = Math.min(f.xMm + f.breiteMm, Math.max(f.xMm, ergebnis.symbol.ankerXMm + dxMm));
       const y = Math.min(f.yMm + f.hoeheMm, Math.max(f.yMm, ergebnis.symbol.ankerYMm + dyMm));
@@ -164,19 +169,14 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
         dangerouslySetInnerHTML={{ __html: svg }}
       />
       {lage && zieht === "karte" && zug && (
-        <KartenKopie svg={svg} lage={lage} platte={platte} fenster={f} grund={grund} dx={zug.dx} dy={zug.dy} />
+        <KartenKopie svg={svg} lage={lage} platte={platte} fenster={f} grund={grund} dx={zug.dx} dy={zug.dy} ohneSymbol={!zug.herzMit} />
       )}
       {lage && !zieht && Math.abs(zoomFaktor - 1) > 0.002 && (
         <KartenKopie svg={svg} lage={lage} platte={platte} fenster={f} grund={grund} faktor={zoomFaktor} />
       )}
-      {lage && zieht === "symbol" && zug && h && (
-        <svg
-          className="pointer-events-none absolute"
-          viewBox={`0 0 1 ${form.hoehe}`}
-          style={{ left: lage.links + h.xMm * s + zug.dx, top: lage.oben + h.yMm * s + zug.dy, width: h.breiteMm * s, height: h.hoeheMm * s }}
-        >
-          <path d={form.d} fill="#d23a45" fillRule="evenodd" stroke="#fff" strokeWidth={0.03} />
-        </svg>
+      {lage && zug && h && (zieht === "symbol" || (zieht === "karte" && !zug.herzMit)) && (
+        // Symbol ziehen: es folgt dem Zeiger. Karte ziehen: es bleibt stehen.
+        <SchwebendesSymbol form={form} lage={lage} box={h} dx={zieht === "symbol" ? zug.dx : 0} dy={zieht === "symbol" ? zug.dy : 0} />
       )}
       {lage && !zieht && <NahtUeberlagerung ergebnis={ergebnis} lage={lage} />}
       {lage && <RahmenUmriss ergebnis={ergebnis} lage={lage} />}
@@ -191,7 +191,7 @@ export function ZiehVorschau({ svg, ergebnis, karte, aendern }: Props) {
       {lage && (
         // Unter Plus/Minus, rechtsbuendig mit ihnen.
         <StandortZentrieren karte={karte} ergebnis={ergebnis} lage={lage} aendern={aendern}
-          vorschieben={(dx, dy) => (setZug({ art: "karte", startX: 0, startY: 0, dx, dy }), setGezogen(true), setHaltenFuer(ergebnis))}
+          vorschieben={(dx, dy) => (setZug({ art: "karte", startX: 0, startY: 0, dx, dy, herzMit: true }), setGezogen(true), setHaltenFuer(ergebnis))}
           style={{ left: lage.links + (f.xMm + f.breiteMm) * s - 8, top: lage.oben + f.yMm * s + 8 + 90, transform: "translateX(-100%)" }} />
       )}
     </div>

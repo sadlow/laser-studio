@@ -54,7 +54,15 @@ export interface NetzAuswahl {
   herabgestuft: string[];
   nachgerueckt: string[];
   anMindestbreite: string[];
+  /**
+   * Die Klasse, die weit draussen zusaetzlich graviert wird, dort doch schneiden, wo keine parallele Strasse naeher
+   * als `abstandMm` liegt (querverbindung.ts) – nur Stufen mit `sparsamMm`, Standard "viel" 3 mm.
+   */
+  sparsam?: { id: string; breiteMm: number; abstandMm: number };
 }
+
+/** Ohne Wert in der Vorlage: nur "viel" schneidet die zusaetzlich gravierte Klasse sparsam (Marcel 27.09.2026). */
+export const SPARSAM_STANDARD: Record<StrassenStufe, number> = { viel: 3, ausgewogen: 0, wenig: 0 };
 
 /** Strassenlaenge je Gruppe im Kartenfenster, in mm auf der Platte. */
 export function laengenImFenster(k: Schichtkarte, roh: KartenRohdaten, f: Zone): Map<string, number> {
@@ -109,13 +117,16 @@ export function waehleNetz(
   const stufeGraviert: string[] = [];
 
   let df = 1;
+  let zusatzklasse: StrassenGruppe | undefined;
   if (g.aktiv) {
     // An lichten Orten erreicht keine Stufe ihr Ziel, alle landen beim Hoechstfaktor – "wenig" sah
     // dort aus wie "ausgewogen" (Goerzallee A5 3 km: beide 19 % Netz). Darum graviert "wenig" seine
     // feinste Klasse immer (Marcel 17.09.2026); wo sie ohnehin wich, bleibt alles gleich.
-    const feinste = feinsteGraviert(g, k.kunde.strassenStufe) + (bezug.massstab > (g.mehrGravurAb ?? MEHR_GRAVUR_AB) ? 1 : 0);
+    const mehr = bezug.massstab > (g.mehrGravurAb ?? MEHR_GRAVUR_AB);
+    const feinste = feinsteGraviert(g, k.kunde.strassenStufe) + (mehr ? 1 : 0);
     while (stufeGraviert.length < feinste && netz.length > 1) {
       stufeGraviert.push(netz[0].titel);
+      if (mehr && stufeGraviert.length === feinste) zusatzklasse = netz[0];
       netz = netz.slice(1);
     }
     df = loeseFuer(netz);
@@ -150,7 +161,9 @@ export function waehleNetz(
     if (!nachgerueckt.includes(x) && x.breiteMm * formatfaktor * df < mindest) anMindestbreite.push(x.titel);
     breiten.set(x.id, breite(x, df));
   }
-  return { breiten, dichtefaktor: df, breitenfaktor: formatfaktor * df, deckungVorOrt, herabgestuft, nachgerueckt: nachgerueckt.map((x) => x.titel), anMindestbreite };
+  const sparsamMm = g.stufen[k.kunde.strassenStufe]?.sparsamMm ?? SPARSAM_STANDARD[k.kunde.strassenStufe] ?? 0;
+  const sparsam = zusatzklasse && sparsamMm > 0 ? { id: zusatzklasse.id, breiteMm: breite(zusatzklasse, df), abstandMm: sparsamMm } : undefined;
+  return { breiten, dichtefaktor: df, breitenfaktor: formatfaktor * df, deckungVorOrt, herabgestuft, nachgerueckt: nachgerueckt.map((x) => x.titel), anMindestbreite, sparsam };
 }
 
 /** Wie viele feinste Netzklassen die Stufe immer graviert – ohne Wert (aeltere Vorlage) der Standard der Stufe. */

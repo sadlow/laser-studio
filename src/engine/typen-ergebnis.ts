@@ -50,6 +50,10 @@ export interface Kennzahlen {
   querverbindungen: number;
   /** Straenge, die fuer die Stabilitaet breiter geschnitten werden als ihre Klasse. */
   verstaerkt: number;
+  /** Lose Gruppen, die ueber einen gravierten Weg ans Netz gebunden werden. */
+  angebunden: number;
+  /** Sparsam geschnittene Zusatzklasse ("viel" weit draussen), in m. */
+  zusatzM: number;
   /** Strassengruppen, deren Breite durch das Format unter die Mindestbreite fiele. */
   netzAnMindestbreite: string[];
   formatfaktor: number;

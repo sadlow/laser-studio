@@ -23,6 +23,10 @@ export interface Netz {
   querverbindungen: number;
   /** Straenge, die fuer die Stabilitaet breiter geschnitten werden als ihre Klasse (netz-ketten.ts). */
   verstaerkt: number;
+  /** Lose Gruppen, die ueber einen gravierten Weg ans Netz gebunden werden. */
+  angebunden: number;
+  /** So viel der weit draussen gravierten Klasse wird doch geschnitten ("viel", in m). */
+  zusatzM: number;
   /** Lose Stuecke, die statt geschnitten graviert werden. */
   loseZurGravur: number;
   /** Ihr Anteil an der Netzflaeche im Fenster. */
@@ -71,7 +75,9 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
     const befahren = gruppe.ziel === "netz" || gruppe.klassen.some((kl) => kl.endsWith("_rail"));
     if (befahren && bruecken.length) gravurBruecken.push({ linien: bruecken, breiteMm: brueckeFuer(strich) });
   }
-  const { querverbindungen: stuetzen, verstaerkt } = stuetzeNetz(k, roh, layout.kartenfenster, auswahl);
+  const st = stuetzeNetz(k, roh, layout.kartenfenster, auswahl, schutz);
+  const { verstaerkt } = st;
+  const stuetzen = [...st.zusatz, ...st.anbindungen, ...st.querverbindungen];
   for (const q of stuetzen) {
     netzTeile.push(puffereLinien([q.linie], q.breiteMm));
     netzLinien.push(q.linie);
@@ -109,7 +115,9 @@ export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, s
     gravur,
     bruecken: { graviert: gravurBruecken, netz: netzBruecken.map((b) => ({ ...b, linien: ziehLinienAb(b.linien, loseFl) })) },
     kleineBloecke: kleineBloecke.length,
-    querverbindungen: stuetzen.length,
+    querverbindungen: st.querverbindungen.length,
+    angebunden: st.anbindungen.length,
+    zusatzM: st.zusatz.reduce((a, q) => a + q.linie.reduce((s, p, i) => (i ? s + Math.hypot(p.x - q.linie[i - 1].x, p.y - q.linie[i - 1].y) : s), 0), 0) / 1000,
     verstaerkt: verstaerkt.length,
     loseZurGravur: lose.length,
     loseAnteil: lose.reduce((a, t) => a + t.flaecheMm2, 0) / Math.max(1, flaecheMm2(mitBloecken)),

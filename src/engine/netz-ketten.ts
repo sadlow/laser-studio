@@ -18,6 +18,10 @@ export interface Kette {
   /** Enden: frei = Sackgasse (weder Kreuzung noch Rahmen). */
   anfangFrei: boolean;
   endeFrei: boolean;
+  /** Ein Ende liegt am Rahmen: die Gruppe haengt am Rahmen. */
+  amRahmen: boolean;
+  /** Zusammenhaengende Straenge (gemeinsame Kreuzung oder Beruehrung) haben dieselbe Gruppe. */
+  gruppe: number;
 }
 
 export interface Spanne {
@@ -79,9 +83,23 @@ export function baueKetten(linien: { l: Punkt[]; w: number }[], f: Zone): Kette[
     }
     const frei = (p: Punkt) => (grad.get(schluessel(p)) ?? 0) < 3 && !amRahmen(p);
     const proben = probiere(punkte);
-    ketten.push({ punkte, breiteMm: s.w, proben, gestuetzt: proben.map(() => false), anfangFrei: frei(punkte[0]), endeFrei: frei(punkte[punkte.length - 1]) });
+    const [a, e] = [punkte[0], punkte[punkte.length - 1]];
+    ketten.push({ punkte, breiteMm: s.w, proben, gestuetzt: proben.map(() => false), anfangFrei: frei(a), endeFrei: frei(e), amRahmen: amRahmen(a) || amRahmen(e), gruppe: ketten.length });
   });
-  markiereStuetzen(ketten);
+  // Gruppen: Straenge mit gemeinsamem Endpunkt (Kreuzung) gehoeren zusammen, dazu jede Beruehrung (markiereStuetzen).
+  const eltern = ketten.map((_, i) => i);
+  const wurzel = (i: number): number => (eltern[i] === i ? i : (eltern[i] = wurzel(eltern[i])));
+  const vereine = (i: number, j: number) => { eltern[wurzel(i)] = wurzel(j); };
+  const anPunkt = new Map<string, number>();
+  ketten.forEach((kt, ki) => {
+    for (const p of [kt.punkte[0], kt.punkte[kt.punkte.length - 1]]) {
+      const k = schluessel(p);
+      if (anPunkt.has(k)) vereine(ki, anPunkt.get(k)!);
+      else anPunkt.set(k, ki);
+    }
+  });
+  markiereStuetzen(ketten, vereine);
+  ketten.forEach((kt, ki) => (kt.gruppe = wurzel(ki)));
   return ketten;
 }
 
@@ -96,7 +114,7 @@ function probiere(l: Punkt[]): Punkt[] {
 }
 
 /** Enden an Kreuzung oder Rahmen stuetzen; innen stuetzt, was ein anderer Strang beruehrt. */
-function markiereStuetzen(ketten: Kette[]) {
+function markiereStuetzen(ketten: Kette[], vereine: (i: number, j: number) => void) {
   const gitter = new Map<string, [number, number][]>();
   const zelle = (p: Punkt) => `${Math.floor(p.x / 2)},${Math.floor(p.y / 2)}`;
   ketten.forEach((k, ki) => k.proben.forEach((p, pi) => (gitter.get(zelle(p)) ?? gitter.set(zelle(p), []).get(zelle(p))!).push([ki, pi])));
@@ -108,8 +126,10 @@ function markiereStuetzen(ketten: Kette[]) {
       const [gx, gy] = [Math.floor(p.x / 2), Math.floor(p.y / 2)];
       for (let ax = -1; ax <= 1 && !k.gestuetzt[pi]; ax++) for (let ay = -1; ay <= 1; ay++) {
         const liste = gitter.get(`${gx + ax},${gy + ay}`);
-        if (liste?.some(([kj, pj]) => kj !== ki && abstand(p, ketten[kj].proben[pj]) < (k.breiteMm + ketten[kj].breiteMm) / 2)) {
+        const treffer = liste?.find(([kj, pj]) => kj !== ki && abstand(p, ketten[kj].proben[pj]) < (k.breiteMm + ketten[kj].breiteMm) / 2);
+        if (treffer) {
           k.gestuetzt[pi] = true;
+          vereine(ki, treffer[0]);
           break;
         }
       }

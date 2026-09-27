@@ -169,6 +169,8 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
       netzLoecherZugefuellt: n.kleineBloecke,
       querverbindungen: n.querverbindungen,
       verstaerkt: n.verstaerkt,
+      angebunden: n.angebunden,
+      zusatzM: n.zusatzM,
       netzAnMindestbreite: auswahl.anMindestbreite,
       formatfaktor: faktor,
       dichtefaktor: auswahl.dichtefaktor,

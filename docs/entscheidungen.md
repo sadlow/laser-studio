@@ -147,6 +147,10 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
 - `ortZuMm`/`mmZuOrt` rechnen wie der Kachelabruf (Karte 30 mm verschoben -> Symbol
   30,000 mm). Rechenzeit Berlin 3,5 km 0,6 s, 5,5 km 1,6 s, 8,6 km 5,3 s.
 
+- **Karte ziehen: das Herz bleibt stehen** (`zieh-vorschau.tsx`, Marcel 27.09.2026): sonst verliert man es beim
+  Verschieben aus dem Fenster. Der Ort unter dem Herz wird zu den Koordinaten, wie beim Ziehen des Herzens; „Standort
+  zentrieren" holt ihn in die Mitte. Beim kleinen A4-Fenster liegt der Knopf „Standort zentrieren" ueber der Mitte.
+
 ## Layout
 
 - **Poster-Masse je Format** (`poster-masse.ts`), vermessen an den Mustern
@@ -294,6 +298,17 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   mindestens 0,8 (`netzMinBreiteMm`); bei Netz bis 2 mm Sackgassen ueber 30 mm und Straenge ueber 100 mm mindestens
   1,0 (`langMm`). Midtown Manhattan A4: Wohnstrassen bleiben mit 0,7 geschnitten, 3 Straenge verstaerkt; Tokio A4 15;
   Berlin unveraendert.
+- **Kein Stueck ohne Halt** (`querverbindung.ts` `bindeAn`, Marcel 27.09.2026: frei schwebende Strassenstuecke sind
+  nicht zu montieren). Das Netz zerfaellt in Gruppen (gemeinsame Kreuzung oder Beruehrung); was weder Rahmen noch Text
+  erreicht, bekommt den kuerzesten Weg ueber gravierte Strassen zum Netz (hoechstens 40 mm), sonst wird es graviert.
+  Die volle Rechnung gravierte lose Stuecke schon, die Skizze zeigte sie aber geschnitten – jetzt beide gleich.
+  Bali 13 km: 19 angebunden, 18 bleiben graviert.
+- **„viel" weit draussen: Wohnstrassen sparsam** (`sparsam.ts`, `sparsamMm` je Stufe, viel 3 mm). Ab 1,5-fachem
+  Massstab graviert jede Stufe die Wohnstrassen; „viel" schneidet sie dort doch, wo im Original keine parallele Strasse
+  naeher als 3 mm liegt (quer gemessen, die Fortsetzung zaehlt nicht) und ein Ende am Netz haengt. Gierig ausgeduennt
+  blieb in New York jede zweite Strasse eines Rasters stehen; beide Enden zu verlangen liess auf Lanzarote nichts uebrig.
+  Lanzarote 30 km: 0,6 m Wohnstrassen, 77 Querverbindungen (ausgewogen 17), Netz 3,8 statt 3,5 %; mehr ist bei 30 km
+  nicht sinnvoll schneidbar – Ortskerne liefen zu.
 - **Kreuzungen nur einmal brennen** (`wege-kreuzung.ts`, Marcel 27.09.2026: der Stern und viele Kreuzungen der
   Kartenstuecke gingen sehr tief). Jeder durchlaufende Weg brannte den Knoten erneut (Stern 4x, Kreuzung 2x). Jetzt
   laeuft nur der laengste durch, die anderen setzen aus, so weit sie in seiner Rille laegen: halbe Linienbreite durch den

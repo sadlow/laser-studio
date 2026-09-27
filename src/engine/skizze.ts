@@ -2,8 +2,9 @@ import type { Punkt } from "./clip";
 import { clipPolyline } from "./clip";
 import { breitenbezug, laengenImFenster, waehleNetz } from "./dichte";
 import { stuetzeNetz } from "./querverbindung";
+import { schluessel } from "./netz-ketten";
 import { ortZuMm } from "./geo";
-import { flaecheMm2, rechteck, ringeInMm, schneide, zuFlaeche, type Flaeche } from "./geometrie";
+import { flaecheMm2, rechteck, ringeInMm, schneide, vereinige, zuFlaeche, type Flaeche } from "./geometrie";
 import { setzeEingebettet } from "./ecken";
 import { ladeKartenRohdaten } from "./kacheln";
 import { setzeKante } from "./kante";
@@ -47,6 +48,11 @@ export async function skizziereSchichtkarte(eingabe: Schichtkarte, quelleOderTok
   const auswahl = waehleNetz(k, laengenImFenster(k, roh, f), land, breitenbezug(k, f));
   const text = k.layoutArt === "eingebettet" ? setzeEingebettet(k, layout) : k.layoutArt === "kante" ? setzeKante(k, layout) : setzePosterText(k, layout);
 
+  // Stuetzung wie im Netz (querverbindung.ts); was ohne Halt bleibt, zeigt die Skizze graviert wie die volle Rechnung.
+  const stuetzen = stuetzeNetz(k, roh, f, auswahl, vereinige(text.schutz, text.traeger ?? []));
+  const loseSchluessel = new Set(stuetzen.lose.flatMap((l) => l.map(schluessel)));
+  const istLose = (l: Punkt[]) => loseSchluessel.size > 0 && l.filter((p) => loseSchluessel.has(schluessel(p))).length * 2 > l.length;
+
   // Strassen: geschnittene als breite Striche (mit Anschluss an den Rahmen), gravierte als feine Linien.
   const alleNetz = k.strassen.filter((g) => auswahl.breiten.has(g.id)).flatMap((g) => g.klassen.flatMap((kl) => roh.strassen.get(kl) ?? []));
   const netz: string[] = [];
@@ -57,17 +63,18 @@ export async function skizziereSchichtkarte(eingabe: Schichtkarte, quelleOderTok
     const linien = g.klassen.flatMap((kl) => roh.strassen.get(kl) ?? []);
     if (!linien.length) continue;
     const breite = auswahl.breiten.get(g.id);
+    const lose = breite !== undefined ? linien.filter(istLose) : [];
+    if (lose.length) gravur.push(striche(lose, strahl ?? Math.max(0.15, GRAVUR_HERABGESTUFT_MM * auswahl.breitenfaktor)));
     if (breite !== undefined) {
-      netz.push(striche([...linien, ...anschluesseAnRahmen(linien, alleNetz, f, breite)], breite));
+      const fest = lose.length ? linien.filter((l) => !istLose(l)) : linien;
+      netz.push(striche([...fest, ...anschluesseAnRahmen(fest, alleNetz, f, breite)], breite));
     } else {
       const soll = g.ziel === "netz" ? GRAVUR_HERABGESTUFT_MM * auswahl.breitenfaktor : g.breiteMm * auswahl.breitenfaktor;
       gravur.push(striche(linien.flatMap((l) => clipPolyline(l, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm)), strahl ?? Math.max(0.15, soll)));
     }
   }
 
-  // Querverbindungen und Verstaerkungen wie im Netz (querverbindung.ts).
-  const stuetzen = stuetzeNetz(k, roh, f, auswahl);
-  for (const q of [...stuetzen.querverbindungen, ...stuetzen.verstaerkt]) netz.push(striche([q.linie], q.breiteMm));
+  for (const q of [...stuetzen.zusatz, ...stuetzen.anbindungen, ...stuetzen.querverbindungen, ...stuetzen.verstaerkt]) netz.push(striche([q.linie], q.breiteMm));
 
   // Farben wie stapel.ts: weisses Netz auf Schwarz, schwarzes Netz auf Weiss, schwarzes Netz unter weisser Deckschicht.
   const deck = k.aufbau === "netz-schwarz";
@@ -99,7 +106,7 @@ export async function skizziereSchichtkarte(eingabe: Schichtkarte, quelleOderTok
     `<path d="${flD(text.schutz)}" fill="${obenFarbe}"/>` +
     // Durch die ausgeschnittene Schrift sieht man, was darunter liegt: mit Deckschicht das schwarze Netz, sonst den Grund.
     `<path d="${ausschnitt}" fill="${deck ? FARBE_SCHWARZ : grund}"/>` +
-    (imFenster ? `<path d="${sym.ringe.map((r) => ringD(r)).join("")}" fill="url(#rot)" fill-rule="evenodd"/>` : "") +
+    (imFenster ? `<path id="symbol" d="${sym.ringe.map((r) => ringD(r)).join("")}" fill="url(#rot)" fill-rule="evenodd"/>` : "") +
     `</svg>`;
 
   return {

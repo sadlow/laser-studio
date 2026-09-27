@@ -22,6 +22,8 @@ function KennzahlenRaster({ kz }: { kz: Kennzahlen }) {
       <Kennzahl titel="Bloecke zugefuellt" wert={String(kz.netzLoecherZugefuellt)} />
       <Kennzahl titel="Querverbindungen" wert={String(kz.querverbindungen ?? 0)} />
       <Kennzahl titel="Verstaerkt" wert={String(kz.verstaerkt ?? 0)} />
+      <Kennzahl titel="Lose angebunden" wert={String(kz.angebunden ?? 0)} />
+      <Kennzahl titel="Zusatz sparsam" wert={`${(kz.zusatzM ?? 0).toFixed(1).replace(".", ",")} m`} />
       <Kennzahl titel="lose → Gravur" wert={String(kz.loseZurGravur)} />
       <Kennzahl titel="Stencil-Stege" wert={String(kz.stencilStege)} />
       <Kennzahl titel="Innenflaechen zu" wert={String(kz.inselnZugefuellt)} />

@@ -90,6 +90,11 @@ export interface StufenWerte {
    * Netz (querverbindung.ts; mm auf der Platte, Sackgassen zaehlen doppelt, 0 = aus). Ohne Wert: viel 30, ausgewogen 80.
    */
   stuetzMm?: number;
+  /**
+   * Weit draussen (ab `mehrGravurAb`) die zusaetzlich gravierte Klasse doch schneiden, wo keine parallele Strasse naeher
+   * als so viele mm liegt (0 = aus). Ohne Wert: viel 3, sonst aus.
+   */
+  sparsamMm?: number;
 }
 
 /**

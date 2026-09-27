@@ -1,14 +1,22 @@
 import { clipPolyline, type Punkt } from "./clip";
 import type { NetzAuswahl } from "./dichte";
+import { enthaelt, type Flaeche } from "./geometrie";
 import type { KartenRohdaten } from "./kacheln";
-import { baueKetten, PROBE_MM, schluessel, spannen, verstaerkungen, type Kette, type Spanne } from "./netz-ketten";
+import { baueKetten, spannen, verstaerkungen, type Kette, type Spanne } from "./netz-ketten";
+import { baueSuchgraph, suche, type Suchgraph } from "./netz-suche";
+import { waehleSparsam } from "./sparsam";
 import type { Schichtkarte, StrassenStufe, Zone } from "./typen";
 
 /**
- * Querverbindungen (Marcel 26.09.2026): ein geschnittener Strang, der lange frei laeuft – Bali, Lanzarote bei 30 km –,
- * ist instabil. Statt eine ganze Klasse nachzuschneiden, holt die Stufe einzelne Wege ins Netz: von der Mitte einer
- * zu langen Spanne der kuerzeste Weg ueber gravierte Strassen und Feldwege zu einem anderen Strang. "viel" stuetzt
- * enger als "ausgewogen", "wenig" gar nicht (`stuetzMm` je Stufe, 0 = aus).
+ * Das geschnittene Netz stabil machen (Marcel 26./27.09.2026), in dieser Reihenfolge:
+ * 1. Sparsame Klasse (nur "viel", weit draussen, sparsam.ts): die Wohnstrassen, die weit draussen sonst graviert
+ *    werden, dort schneiden, wo keine parallele Strasse naeher als `abstandMm` liegt und das Stueck zwei Stellen des
+ *    Netzes verbindet – auf dem Land ja, in der Stadt nicht, Stummel nie.
+ * 2. Lose Gruppen anbinden: was weder Rahmen noch Text erreicht, bekommt den kuerzesten Weg ueber gravierte Strassen
+ *    zum Netz; ohne Weg bleibt es lose und wird graviert (netz.ts, Skizze).
+ * 3. Querverbindungen: ein Strang, der laenger als `stuetzMm` frei laeuft, bekommt von seiner Mitte einen Weg zu
+ *    einem anderen Strang. "viel" stuetzt enger als "ausgewogen", "wenig" gar nicht.
+ * 4. Verstaerkung nach Strangspanne (netz-ketten.ts).
  */
 export interface Querverbindung {
   linie: Punkt[];
@@ -18,137 +26,115 @@ export interface Querverbindung {
 /** Ohne Wert in der Vorlage: viel 30, ausgewogen 80, wenig aus (Marcel 26.09.2026). */
 export const STUETZ_STANDARD: Record<StrassenStufe, number> = { viel: 30, ausgewogen: 80, wenig: 0 };
 const HOECHSTENS_RUNDEN = 400;
+// So weit darf der Weg sein, der ein loses Stueck ans Netz bindet.
+const ANBINDEN_MM = 40;
 
 export function stuetzMm(k: Schichtkarte): number {
   const s = k.kunde.strassenStufe;
   return k.generalisierung.stufen[s]?.stuetzMm ?? STUETZ_STANDARD[s] ?? 0;
 }
 
-/**
- * Querverbindungen und Verstaerkungen zusammen: beide brauchen die Straenge. Die Verstaerkung kommt nach den
- * Querverbindungen – was eine Verbindung stuetzt, muss nicht breiter werden.
- */
-export function stuetzeNetz(k: Schichtkarte, roh: KartenRohdaten, f: Zone, auswahl: NetzAuswahl): { querverbindungen: Querverbindung[]; verstaerkt: Querverbindung[] } {
-  const grenze = stuetzMm(k);
+export interface Stuetzung {
+  /** Stuecke der sparsamen Klasse, die geschnitten werden. */
+  zusatz: Querverbindung[];
+  anbindungen: Querverbindung[];
+  querverbindungen: Querverbindung[];
+  verstaerkt: Querverbindung[];
+  /** Straenge ohne Halt – graviert statt geschnitten (die volle Rechnung findet sie selbst, die Skizze braucht sie). */
+  lose: Punkt[][];
+}
+
+export function stuetzeNetz(k: Schichtkarte, roh: KartenRohdaten, f: Zone, auswahl: NetzAuswahl, schutz: Flaeche = []): Stuetzung {
+  const leer: Stuetzung = { zusatz: [], anbindungen: [], querverbindungen: [], verstaerkt: [], lose: [] };
   const imFenster = (ls: Punkt[][]) => ls.flatMap((l) => clipPolyline(l, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm));
   const netz: { l: Punkt[]; w: number }[] = [];
   const kandidaten: { l: Punkt[]; w: number }[] = [];
+  let sparsam: Punkt[][] = [];
   for (const g of k.strassen) {
     if (g.ziel === "aus") continue;
     const w = auswahl.breiten.get(g.id);
     const linien = imFenster(g.klassen.flatMap((kl) => roh.strassen.get(kl) ?? []));
     if (w !== undefined) netz.push(...linien.map((l) => ({ l, w })));
+    else if (g.id === auswahl.sparsam?.id) sparsam = linien;
     // Kandidaten: gravierte Netzklassen in ihrer Breite, Zufahrten und Feldwege auf Mindestbreite.
-    else if (g.ziel === "netz") kandidaten.push(...linien.map((l) => ({ l, w: Math.max(k.stabilitaet.rasterMm, g.breiteMm * auswahl.breitenfaktor) })));
-    else if (g.nachruecken) kandidaten.push(...linien.map((l) => ({ l, w: k.stabilitaet.rasterMm })));
+    if (w === undefined && g.ziel === "netz") kandidaten.push(...linien.map((l) => ({ l, w: Math.max(k.stabilitaet.rasterMm, g.breiteMm * auswahl.breitenfaktor) })));
+    else if (w === undefined && g.nachruecken) kandidaten.push(...linien.map((l) => ({ l, w: k.stabilitaet.rasterMm })));
   }
-  if (!netz.length) return { querverbindungen: [], verstaerkt: [] };
+  if (!netz.length) return leer;
+  const zusatz: Querverbindung[] = [];
+  if (auswahl.sparsam && sparsam.length) {
+    for (const l of waehleSparsam(netz.map((n) => n.l), sparsam, auswahl.sparsam.abstandMm, auswahl.sparsam.breiteMm, f)) zusatz.push({ linie: l, breiteMm: auswahl.sparsam.breiteMm });
+    netz.push(...zusatz.map((z) => ({ l: z.linie, w: z.breiteMm })));
+  }
   const ketten = baueKetten(netz, f);
-  const querverbindungen = grenze > 0 && k.generalisierung.aktiv && kandidaten.length ? verbinde(ketten, kandidaten, grenze, k) : [];
+  const graph = kandidaten.length ? baueSuchgraph(ketten, kandidaten) : null;
+  const gehalten = anker(ketten, schutz);
+  const anbindungen = graph ? bindeAn(ketten, graph, gehalten) : [];
+  const grenze = stuetzMm(k);
+  const querverbindungen = graph && grenze > 0 && k.generalisierung.aktiv ? verbinde(ketten, graph, grenze, k) : [];
   const r = { rasterSpanneMm: k.stabilitaet.rasterSpanneMm, freiMm: k.netzMinBreiteMm, langMm: k.stabilitaet.langMm, duenn: k.staerkenMm.acryl <= 2 };
   // Eine Verbindung ist selbst ein Strang: laenger als das Raster frei, mindestens so breit wie ein freier Strang.
-  for (const q of querverbindungen) {
+  for (const q of [...anbindungen, ...querverbindungen]) {
     const laenge = q.linie.reduce((a, p, i) => (i ? a + Math.hypot(p.x - q.linie[i - 1].x, p.y - q.linie[i - 1].y) : a), 0);
     if (laenge > r.rasterSpanneMm) q.breiteMm = Math.max(q.breiteMm, r.freiMm);
   }
-  return { querverbindungen, verstaerkt: verstaerkungen(ketten, r) };
+  const lose = ketten.filter((kt) => !gehalten.has(kt.gruppe)).map((kt) => kt.punkte);
+  return { zusatz, anbindungen, querverbindungen, verstaerkt: verstaerkungen(ketten.filter((kt) => gehalten.has(kt.gruppe)), r), lose };
 }
 
-function verbinde(ketten: Kette[], kandidaten: { l: Punkt[]; w: number }[], grenze: number, k: Schichtkarte): Querverbindung[] {
-
-  // Kandidatengraph ueber gemeinsame Punkte; jeder Punkt, der an einem Strang liegt, ist ein Anschluss.
-  const nachbarn = new Map<string, { k: string; d: number; w: number }[]>();
-  const ort = new Map<string, Punkt>();
-  for (const { l, w } of kandidaten) {
-    for (let i = 1; i < l.length; i++) {
-      const [a, b] = [schluessel(l[i - 1]), schluessel(l[i])];
-      if (a === b) continue;
-      const d = Math.hypot(l[i].x - l[i - 1].x, l[i].y - l[i - 1].y);
-      (nachbarn.get(a) ?? nachbarn.set(a, []).get(a)!).push({ k: b, d, w });
-      (nachbarn.get(b) ?? nachbarn.set(b, []).get(b)!).push({ k: a, d, w });
-      ort.set(a, l[i - 1]);
-      ort.set(b, l[i]);
-    }
+/** Gruppen, die halten: ein Strang endet am Rahmen oder in einer Schutzflaeche (Reiter, Titel). */
+function anker(ketten: Kette[], schutz: Flaeche): Set<number> {
+  const gehalten = new Set(ketten.filter((kt) => kt.amRahmen).map((kt) => kt.gruppe));
+  if (!schutz.length) return gehalten;
+  for (const kt of ketten) {
+    if (gehalten.has(kt.gruppe)) continue;
+    if ([kt.punkte[0], kt.punkte[kt.punkte.length - 1]].some((p) => enthaelt(schutz, p))) gehalten.add(kt.gruppe);
   }
-  const gitter = new Map<string, [number, number][]>();
-  ketten.forEach((kt, ki) => kt.proben.forEach((p, pi) => (gitter.get(`${Math.floor(p.x)},${Math.floor(p.y)}`) ?? gitter.set(`${Math.floor(p.x)},${Math.floor(p.y)}`, []).get(`${Math.floor(p.x)},${Math.floor(p.y)}`)!).push([ki, pi])));
-  const anschluss = new Map<string, [number, number]>();
-  for (const [s, p] of ort) {
-    let bester: [number, number] | null = null;
-    let bd = Infinity;
-    for (let ax = -1; ax <= 1; ax++) for (let ay = -1; ay <= 1; ay++) {
-      for (const [ki, pi] of gitter.get(`${Math.floor(p.x) + ax},${Math.floor(p.y) + ay}`) ?? []) {
-        const d = Math.hypot(ketten[ki].proben[pi].x - p.x, ketten[ki].proben[pi].y - p.y);
-        if (d < Math.max(0.6, ketten[ki].breiteMm / 2) && d < bd) [bester, bd] = [[ki, pi], d];
-      }
-    }
-    if (bester) anschluss.set(s, bester);
-  }
+  return gehalten;
+}
 
+/** Lose Gruppen ueber gravierte Wege ans Netz binden, die groesste zuerst; `gehalten` waechst dabei. */
+function bindeAn(ketten: Kette[], g: Suchgraph, gehalten: Set<number>): Querverbindung[] {
+  const lose = new Map<number, number>();
+  for (const kt of ketten) if (!gehalten.has(kt.gruppe)) lose.set(kt.gruppe, (lose.get(kt.gruppe) ?? 0) + kt.proben.length);
+  const aus: Querverbindung[] = [];
+  for (const gruppe of [...lose.keys()].sort((a, b) => lose.get(b)! - lose.get(a)!)) {
+    if (gehalten.has(gruppe)) continue;
+    const weg = suche(g, (ki) => ketten[ki].gruppe === gruppe, (ki) => gehalten.has(ketten[ki].gruppe), ANBINDEN_MM);
+    if (!weg) continue;
+    aus.push({ linie: weg.punkte, breiteMm: weg.breite });
+    gehalten.add(gruppe);
+  }
+  return aus;
+}
+
+function verbinde(ketten: Kette[], g: Suchgraph, grenze: number, k: Schichtkarte): Querverbindung[] {
   // Stufe fuer Stufe von der weitesten Grenze herunter: "viel" setzt erst die Verbindungen von "ausgewogen" und stuetzt
   // dann enger nach. Sonst fand es mit seiner kurzen Suchweite fuer manche lange Spanne gar keinen Weg (Lanzarote 30 km).
   const grenzen = [...new Set([...Object.keys(STUETZ_STANDARD).map((st) => stuetzMm({ ...k, kunde: { ...k.kunde, strassenStufe: st as StrassenStufe } })), grenze])]
-    .filter((g) => g >= grenze && g > 0)
+    .filter((x) => x >= grenze && x > 0)
     .sort((x, y) => y - x);
   const aus: Querverbindung[] = [];
   let runden = 0;
-  for (const g of grenzen) {
-    const offen: Spanne[] = ketten.flatMap((kt, ki) => spannen(kt, ki)).filter((s) => s.wert > g);
+  for (const gr of grenzen) {
+    const offen: Spanne[] = ketten.flatMap((kt, ki) => spannen(kt, ki)).filter((s) => s.wert > gr);
     while (offen.length && runden++ < HOECHSTENS_RUNDEN) {
       offen.sort((a, b) => b.wert - a.wert);
       const s = offen.shift()!;
+      // Mittlere Haelfte der Spanne; bei einer Sackgasse die aeussere Haelfte, dort haengt sie am weitesten frei.
+      const n = s.bis - s.von;
+      const [a, b] = s.frei === "ende" ? [s.von + n / 2, s.bis] : s.frei === "anfang" ? [s.von, s.von + n / 2] : [s.von + n / 4, s.bis - n / 4];
       // Der Weg darf so lang sein wie die Grenze – laenger waere er selbst eine zu lange freie Spanne.
-      const weg = suche(s, ketten, nachbarn, anschluss, ort, g);
+      const weg = suche(g, (ki, pi) => ki === s.kette && pi >= a && pi <= b, (ki) => ki !== s.kette, gr);
       if (!weg) continue;
       aus.push({ linie: weg.punkte, breiteMm: weg.breite });
       for (const [ki, pi] of [weg.start, weg.ziel]) {
         ketten[ki].gestuetzt[pi] = true;
         // Die betroffenen Spannen neu: alte raus, neue rein.
         for (let i = offen.length - 1; i >= 0; i--) if (offen[i].kette === ki) offen.splice(i, 1);
-        offen.push(...spannen(ketten[ki], ki).filter((x) => x.wert > g));
+        offen.push(...spannen(ketten[ki], ki).filter((x) => x.wert > gr));
       }
     }
   }
   return aus;
-}
-
-/** Kuerzester Weg (Dijkstra, hoechstens `grenze` mm) von der Mitte der Spanne zu einem anderen Strang. */
-function suche(s: Spanne, ketten: Kette[], nachbarn: Map<string, { k: string; d: number; w: number }[]>, anschluss: Map<string, [number, number]>, ort: Map<string, Punkt>, grenze: number) {
-  // Mittlere Haelfte einer Spanne; bei einer Sackgasse die aeussere Haelfte, dort haengt sie am weitesten frei.
-  const n = s.bis - s.von;
-  const [a, b] = s.frei === "ende" ? [s.von + n / 2, s.bis] : s.frei === "anfang" ? [s.von, s.von + n / 2] : [s.von + n / 4, s.bis - n / 4];
-  const dist = new Map<string, number>();
-  const vor = new Map<string, string>();
-  const breite = new Map<string, number>();
-  const schlange: [number, string][] = [];
-  for (const [k, [ki, pi]] of anschluss) {
-    if (ki === s.kette && pi >= a && pi <= b) {
-      dist.set(k, 0);
-      schlange.push([0, k]);
-    }
-  }
-  while (schlange.length) {
-    schlange.sort((x, y) => y[0] - x[0]);
-    const [d, k] = schlange.pop()!;
-    if (d > (dist.get(k) ?? Infinity)) continue;
-    const an = anschluss.get(k);
-    if (d > PROBE_MM && an && an[0] !== s.kette) {
-      const punkte: Punkt[] = [];
-      let start = k;
-      for (let c: string | undefined = k; c; c = vor.get(c)) {
-        punkte.push(ort.get(c)!);
-        start = c;
-      }
-      return { punkte: punkte.reverse(), breite: breite.get(k) ?? 0.8, start: anschluss.get(start)!, ziel: an };
-    }
-    for (const e of nachbarn.get(k) ?? []) {
-      const nd = d + e.d;
-      if (nd > grenze || nd >= (dist.get(e.k) ?? Infinity)) continue;
-      dist.set(e.k, nd);
-      vor.set(e.k, k);
-      breite.set(e.k, Math.max(breite.get(k) ?? 0, e.w));
-      schlange.push([nd, e.k]);
-    }
-  }
-  return null;
 }
