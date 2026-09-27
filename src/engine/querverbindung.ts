@@ -49,22 +49,26 @@ export function stuetzeNetz(k: Schichtkarte, roh: KartenRohdaten, f: Zone, auswa
   const imFenster = (ls: Punkt[][]) => ls.flatMap((l) => clipPolyline(l, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm));
   const netz: { l: Punkt[]; w: number }[] = [];
   const kandidaten: { l: Punkt[]; w: number }[] = [];
-  let sparsam: Punkt[][] = [];
+  const sparsam = new Map<string, Punkt[][]>();
   for (const g of k.strassen) {
     if (g.ziel === "aus") continue;
     const w = auswahl.breiten.get(g.id);
     const linien = imFenster(g.klassen.flatMap((kl) => roh.strassen.get(kl) ?? []));
     if (w !== undefined) netz.push(...linien.map((l) => ({ l, w })));
-    else if (g.id === auswahl.sparsam?.id) sparsam = linien;
+    else if (auswahl.sparsam?.klassen.some((x) => x.id === g.id)) sparsam.set(g.id, linien);
     // Kandidaten: gravierte Netzklassen in ihrer Breite, Zufahrten und Feldwege auf Mindestbreite.
     if (w === undefined && g.ziel === "netz") kandidaten.push(...linien.map((l) => ({ l, w: Math.max(k.stabilitaet.rasterMm, g.breiteMm * auswahl.breitenfaktor) })));
     else if (w === undefined && g.nachruecken) kandidaten.push(...linien.map((l) => ({ l, w: k.stabilitaet.rasterMm })));
   }
   if (!netz.length) return leer;
   const zusatz: Querverbindung[] = [];
-  if (auswahl.sparsam && sparsam.length) {
-    for (const l of waehleSparsam(netz.map((n) => n.l), sparsam, auswahl.sparsam.abstandMm, auswahl.sparsam.breiteMm, f)) zusatz.push({ linie: l, breiteMm: auswahl.sparsam.breiteMm });
-    netz.push(...zusatz.map((z) => ({ l: z.linie, w: z.breiteMm })));
+  // Klasse fuer Klasse, die wichtigste zuerst: was eine behaelt, zaehlt fuer die naechste als Netz.
+  for (const { id, breiteMm, abstandMm } of auswahl.sparsam?.klassen ?? []) {
+    const linien = sparsam.get(id);
+    if (!linien?.length) continue;
+    const neu = waehleSparsam(netz.map((n) => n.l), linien, abstandMm, breiteMm, f).map((l) => ({ linie: l, breiteMm }));
+    zusatz.push(...neu);
+    netz.push(...neu.map((z) => ({ l: z.linie, w: z.breiteMm })));
   }
   const ketten = baueKetten(netz, f);
   const graph = kandidaten.length ? baueSuchgraph(ketten, kandidaten) : null;

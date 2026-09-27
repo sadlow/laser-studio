@@ -1,7 +1,10 @@
 import { clipPolyline, type Punkt } from "./clip";
 import type { KartenRohdaten } from "./kacheln";
 import { standardSchichtkarte } from "./standard";
-import { REFERENZ_KARTENBREITE_MM, type Generalisierung, type Schichtkarte, type StrassenGruppe, type StrassenStufe, type Zone } from "./typen";
+import { FORMAT_BIS, MEHR_GRAVUR_AB, type Breitenbezug } from "./dichte-bezug";
+import type { Generalisierung, Schichtkarte, StrassenGruppe, StrassenStufe, Zone } from "./typen";
+
+export { breitenbezug, FORMAT_BIS, MEHR_GRAVUR_AB, type Breitenbezug } from "./dichte-bezug";
 
 /**
  * Welche Strassen geschnitten werden und wie breit – aus der Dichte vor Ort
@@ -20,29 +23,6 @@ const NACHRUECKEN_UNTER = 0.5;
 const NACHRUECKEN_BIS = 1.1;
 const NACHRUECKEN_MAX_MASSSTAB = 1.25;
 
-/**
- * Breiten wachsen mit dem Format hoechstens so weit wie beim 30 x 30 (Marcel 26.09.2026). Das 60 x 60 zeigt seit dem
- * gleichen Start-Massstab viermal so viel Land wie das A4, nicht dasselbe Bild vergroessert: mit Formatfaktor 2,9 wurde
- * an lichten Orten eine Primaerstrasse 8,9 mm breit (Lanzarote, Bali: Kurven verschwanden, Orte liefen zu).
- */
-export const FORMAT_BIS = 1.46;
-/** Standard fuer `mehrGravurAb` (typen-strassen.ts). */
-export const MEHR_GRAVUR_AB = 1.5;
-// Meter je mm Karte beim Start-Massstab: A4 bei 3,5 km.
-const START_M_JE_MM = 3500 / REFERENZ_KARTENBREITE_MM;
-
-/** Wie gross das Format ist und wie weit der Ausschnitt ueber den Start-Massstab hinausgeht. */
-export interface Breitenbezug {
-  /** Kartenbreite / A4-Kartenbreite. */
-  formatfaktor: number;
-  /** Meter je mm im Verhaeltnis zu A4 bei 3,5 km (60 x 60 bei 20 km: 2). */
-  massstab: number;
-}
-
-export function breitenbezug(k: Schichtkarte, f: Zone): Breitenbezug {
-  return { formatfaktor: f.breiteMm / REFERENZ_KARTENBREITE_MM, massstab: (k.ausschnittKm * 1000) / f.breiteMm / START_M_JE_MM };
-}
-
 export interface NetzAuswahl {
   /** Breite je Gruppen-id aller geschnittenen Gruppen, in mm auf der Platte. */
   breiten: Map<string, number>;
@@ -56,13 +36,21 @@ export interface NetzAuswahl {
   anMindestbreite: string[];
   /**
    * Die Klasse, die weit draussen zusaetzlich graviert wird, dort doch schneiden, wo keine parallele Strasse naeher
-   * als `abstandMm` liegt (querverbindung.ts) – nur Stufen mit `sparsamMm`, Standard "viel" 3 mm.
+   * als `abstandMm` liegt (querverbindung.ts) – nur Stufen mit `sparsamMm`, Standard "viel" 3 mm. Ebenso die
+   * nachgerueckten Klassen: Zufahrten liegen in den Bloecken und zerschnitten sie in Stuecke unter 4 mm², die volle
+   * Rechnung fuellte sie zu (Tiergarten A4 "viel": 181 Bloecke, Marcel 27.09.2026). Wichtigste Klasse zuerst.
    */
-  sparsam?: { id: string; breiteMm: number; abstandMm: number };
+  sparsam?: { klassen: { id: string; breiteMm: number; abstandMm: number }[] };
 }
 
 /** Ohne Wert in der Vorlage: nur "viel" schneidet die zusaetzlich gravierte Klasse sparsam (Marcel 27.09.2026). */
 export const SPARSAM_STANDARD: Record<StrassenStufe, number> = { viel: 3, ausgewogen: 0, wenig: 0 };
+/**
+ * Dasselbe fuer die nachrueckenden Klassen in dichten Orten (Zufahrten): sie sind meist Stummel und schliessen keine
+ * Bloecke, 1,5 mm laesst sie stehen, ohne dass etwas zulaeuft (Tiergarten A4: 21 zugefuellt; mit 3 mm fielen fast
+ * alle weg). Fuer die Wohnstrassen weit draussen reicht das nicht – Arrecife 20 km lief mit 1,5 mm zu (64 statt 20).
+ */
+export const SPARSAM_NACHRUECKEN_STANDARD: Record<StrassenStufe, number> = { viel: 1.5, ausgewogen: 0, wenig: 0 };
 
 /** Strassenlaenge je Gruppe im Kartenfenster, in mm auf der Platte. */
 export function laengenImFenster(k: Schichtkarte, roh: KartenRohdaten, f: Zone): Map<string, number> {
@@ -118,6 +106,10 @@ export function waehleNetz(
 
   let df = 1;
   let zusatzklasse: StrassenGruppe | undefined;
+  const st = k.kunde.strassenStufe;
+  const sparsamMm = g.stufen[st]?.sparsamMm ?? SPARSAM_STANDARD[st] ?? 0;
+  const sparsamNachMm = g.stufen[st]?.sparsamNachrueckenMm ?? SPARSAM_NACHRUECKEN_STANDARD[st] ?? 0;
+  let nachrueckenSparsam = false;
   if (g.aktiv) {
     // An lichten Orten erreicht keine Stufe ihr Ziel, alle landen beim Hoechstfaktor – "wenig" sah
     // dort aus wie "ausgewogen" (Goerzallee A5 3 km: beide 19 % Netz). Darum graviert "wenig" seine
@@ -139,7 +131,14 @@ export function waehleNetz(
     // Feldweg auf Mindestbreite waere bei 20 km 30 m breit (Lanzarote: 19 m Feldwege geschnitten, 26.09.2026).
     const zuWeit = bezug.massstab > NACHRUECKEN_MAX_MASSSTAB;
     const modus = ohneNachruecken || zuWeit || herabgestuft.length || stufeGraviert.length ? "nie" : stufe.nachruecken;
-    if (modus === "immer" || (modus === "licht" && deckungMit(netz, df) < stufe.zielDeckung * NACHRUECKEN_UNTER)) {
+    const licht = deckungMit(netz, df) < stufe.zielDeckung * NACHRUECKEN_UNTER;
+    if (modus === "immer" && sparsamNachMm > 0 && !licht) {
+      // In dichten Orten sparsam (querverbindung.ts): nur einzelne Stuecke kommen ins Netz, die Breiten geben dafuer
+      // nicht nach – sonst wurde "viel" schmaler als "ausgewogen" (Tiergarten A4: Faktor 0,89 statt 0,99). An lichten
+      // Orten ruecken die Klassen ganz nach wie bisher: dort zerschneiden sie keine Bloecke (Allgaeu, Feldwege).
+      nachgerueckt.push(...k.strassen.filter((s) => s.ziel === "gravur" && s.nachruecken && lang(s)));
+      nachrueckenSparsam = true;
+    } else if (modus === "immer" || (modus === "licht" && licht)) {
       for (const kandidat of k.strassen.filter((s) => s.ziel === "gravur" && s.nachruecken && lang(s))) {
         nachgerueckt.push(kandidat);
         const probe = [kandidat, ...netz];
@@ -161,8 +160,14 @@ export function waehleNetz(
     if (!nachgerueckt.includes(x) && x.breiteMm * formatfaktor * df < mindest) anMindestbreite.push(x.titel);
     breiten.set(x.id, breite(x, df));
   }
-  const sparsamMm = g.stufen[k.kunde.strassenStufe]?.sparsamMm ?? SPARSAM_STANDARD[k.kunde.strassenStufe] ?? 0;
-  const sparsam = zusatzklasse && sparsamMm > 0 ? { id: zusatzklasse.id, breiteMm: breite(zusatzklasse, df), abstandMm: sparsamMm } : undefined;
+  let sparsam: NetzAuswahl["sparsam"];
+  // Zusatzklasse weit draussen und nachgerueckte Klassen in dichten Orten nicht ganz, sondern ausgewaehlt.
+  const klassen = [
+    ...(zusatzklasse && sparsamMm > 0 ? [{ id: zusatzklasse.id, breiteMm: breite(zusatzklasse, df), abstandMm: sparsamMm }] : []),
+    ...(nachrueckenSparsam ? nachgerueckt.map((x) => ({ id: x.id, breiteMm: breite(x, df), abstandMm: sparsamNachMm })) : []),
+  ];
+  if (nachrueckenSparsam) for (const x of nachgerueckt) breiten.delete(x.id);
+  if (klassen.length) sparsam = { klassen };
   return { breiten, dichtefaktor: df, breitenfaktor: formatfaktor * df, deckungVorOrt, herabgestuft, nachgerueckt: nachgerueckt.map((x) => x.titel), anMindestbreite, sparsam };
 }
 

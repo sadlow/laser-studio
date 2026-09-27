@@ -16,6 +16,7 @@ async function main() {
   for (const km of kms) {
     const k = { ...v.karte, ausschnittKm: km, lon, lat, kunde: { ...b.kunde, holzrahmen: "schwarz" } } as Schichtkarte;
     if (process.env.GRAVIERT) k.strassen = k.strassen.map((g) => (process.env.GRAVIERT!.split(",").includes(g.id) ? { ...g, ziel: "gravur" as const } : g));
+    if (process.env.SPARSAM) k.generalisierung = { ...k.generalisierung, stufen: { ...k.generalisierung.stufen, viel: { ...k.generalisierung.stufen.viel, sparsamNachrueckenMm: Number(process.env.SPARSAM) } } };
     if (process.env.STUFE) k.kunde.strassenStufe = process.env.STUFE as Schichtkarte["kunde"]["strassenStufe"];
     if (process.env.AUFBAU) k.aufbau = process.env.AUFBAU as Schichtkarte["aufbau"];
     if (process.env.MITTE) { const [mla, mlo] = process.env.MITTE.split(",").map(Number); k.kartenMitte = { lat: mla, lon: mlo }; }

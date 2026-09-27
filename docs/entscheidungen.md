@@ -309,6 +309,14 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   blieb in New York jede zweite Strasse eines Rasters stehen; beide Enden zu verlangen liess auf Lanzarote nichts uebrig.
   Lanzarote 30 km: 0,6 m Wohnstrassen, 77 Querverbindungen (ausgewogen 17), Netz 3,8 statt 3,5 %; mehr ist bei 30 km
   nicht sinnvoll schneidbar – Ortskerne liefen zu.
+- **„viel" in dichten Orten: Zufahrten sparsam** (`dichte.ts`, `sparsamNachrueckenMm` viel 1,5, Marcel 27.09.2026:
+  erst sah die Skizze richtig aus, Sekunden spaeter fuellte die volle Rechnung Bloecke). Nachruecken „immer" schnitt
+  Zufahrten, Fussgaengerzonen und Feldwege ganz mit 0,7 mm; Zufahrten liegen in den Bloecken und zerschnitten sie in
+  Stuecke unter 4 mm² (Tiergarten A4: 181 zugefuellt, die Skizze fuellt nichts). Jetzt in dichten Orten nur Stuecke ohne
+  parallele Strasse naeher als 1,5 mm und mit einem Ende am Netz (`sparsam.ts`), und die Breiten geben dafuer nicht
+  nach (sonst Faktor 0,89 statt 0,99, „viel" schmaler als „ausgewogen"). Tiergarten „viel": Netz 29 %, 21 zugefuellt;
+  3 mm liess fast keine Zufahrt stehen. An lichten Orten ruecken die Klassen ganz nach wie bisher (Allgaeu 12,1 %).
+  Fuer die Wohnstrassen weit draussen bleibt 3 mm: mit 1,5 lief Arrecife bei 20 km zu (64 statt 20).
 - **Kreuzungen nur einmal brennen** (`wege-kreuzung.ts`, Marcel 27.09.2026: der Stern und viele Kreuzungen der
   Kartenstuecke gingen sehr tief). Jeder durchlaufende Weg brannte den Knoten erneut (Stern 4x, Kreuzung 2x). Jetzt
   laeuft nur der laengste durch, die anderen setzen aus, so weit sie in seiner Rille laegen: halbe Linienbreite durch den

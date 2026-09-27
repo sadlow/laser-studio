@@ -95,6 +95,8 @@ export interface StufenWerte {
    * als so viele mm liegt (0 = aus). Ohne Wert: viel 3, sonst aus.
    */
   sparsamMm?: number;
+  /** Nachrueckende Klassen in dichten Orten (Zufahrten) ebenso auswaehlen, mit diesem Abstand (0 = ganz). Ohne Wert: viel 1,5. */
+  sparsamNachrueckenMm?: number;
 }
 
 /**

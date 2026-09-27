@@ -70,7 +70,7 @@ export function StufenTabelle({ gen, setzeGen }: { gen: Generalisierung; setzeGe
 export function StufenZeile({ gen, setzeGen, feld, titel, standard, schritt }: {
   gen: Generalisierung;
   setzeGen: (teil: Partial<Generalisierung>) => void;
-  feld: "stuetzMm" | "sparsamMm";
+  feld: "stuetzMm" | "sparsamMm" | "sparsamNachrueckenMm";
   titel: string;
   standard: Record<StrassenStufe, number>;
   schritt: number;

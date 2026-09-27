@@ -1,7 +1,7 @@
 "use client";
 
 import type { Generalisierung, Schichtkarte, StrassenGruppe, StrassenZiel } from "@/engine/typen";
-import { FORMAT_BIS, MEHR_GRAVUR_AB, SPARSAM_STANDARD } from "@/engine/dichte";
+import { FORMAT_BIS, MEHR_GRAVUR_AB, SPARSAM_NACHRUECKEN_STANDARD, SPARSAM_STANDARD } from "@/engine/dichte";
 import { STUETZ_STANDARD } from "@/engine/querverbindung";
 import { Block, Haken, Zahl } from "./felder";
 import { GravurWahl } from "./gravur-wahl";
@@ -88,6 +88,8 @@ export function EingabeStrassen({ karte, aendern }: Props) {
               titel="Querverbindung, wenn ein Strang laenger frei laeuft als (mm, 0 = aus)" />
             <StufenZeile gen={gen} setzeGen={setzeGen} feld="sparsamMm" standard={SPARSAM_STANDARD} schritt={0.5}
               titel="Weit draussen gravierte Klasse doch schneiden, wo parallel frei ab (mm, 0 = aus)" />
+            <StufenZeile gen={gen} setzeGen={setzeGen} feld="sparsamNachrueckenMm" standard={SPARSAM_NACHRUECKEN_STANDARD} schritt={0.5}
+              titel="In dichten Orten nachrueckende Klassen nur, wo parallel frei ab (mm, 0 = ganz)" />
             <div className="grid grid-cols-2 gap-3">
               <Zahl titel="Hoechstens breiter als entworfen" einheit="x" schritt={0.05} min={1} wert={gen.maxFaktor}
                 aendern={(v) => setzeGen({ maxFaktor: v })} />

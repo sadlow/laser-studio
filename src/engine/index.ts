@@ -101,7 +101,9 @@ export async function rendereSchichtkarte(
     const immer = k.generalisierung.stufen[k.kunde.strassenStufe]?.nachruecken === "immer";
     warnungen.push(
       (immer ? "Mehr Strassen geschnitten: " : `Der Ort ist licht (${Math.round(b.kennzahlen.deckungVorOrt * 100)} % Deckung): `) +
-        `${b.kennzahlen.nachgerueckt.join(", ")} werden mitgeschnitten statt graviert.`,
+        `${b.kennzahlen.nachgerueckt.join(", ")} werden mitgeschnitten statt graviert` +
+        // Sparsam (dichte.ts): nur, wo sie keine Bloecke zerschneiden.
+        (b.kennzahlen.zusatzM > 0 ? ` – in dichten Vierteln nur einzeln, wo sie keine Bloecke zerschneiden (${b.kennzahlen.zusatzM.toFixed(1).replace(".", ",")} m).` : "."),
     );
   }
   if (b.kennzahlen.nachrueckenVerworfen.length > 0) {
