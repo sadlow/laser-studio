@@ -17,18 +17,20 @@ async function main() {
     const k = { ...v.karte, ausschnittKm: km, lon, lat, kunde: { ...b.kunde, holzrahmen: "schwarz" } } as Schichtkarte;
     if (process.env.GRAVIERT) k.strassen = k.strassen.map((g) => (process.env.GRAVIERT!.split(",").includes(g.id) ? { ...g, ziel: "gravur" as const } : g));
     if (process.env.SPARSAM) k.generalisierung = { ...k.generalisierung, stufen: { ...k.generalisierung.stufen, viel: { ...k.generalisierung.stufen.viel, sparsamNachrueckenMm: Number(process.env.SPARSAM) } } };
+    if (process.env.WASSERMIN) k.wasserMinBreiteMm = Number(process.env.WASSERMIN);
     if (process.env.STUFE) k.kunde.strassenStufe = process.env.STUFE as Schichtkarte["kunde"]["strassenStufe"];
     if (process.env.AUFBAU) k.aufbau = process.env.AUFBAU as Schichtkarte["aufbau"];
     if (process.env.MITTE) { const [mla, mlo] = process.env.MITTE.split(",").map(Number); k.kartenMitte = { lat: mla, lon: mlo }; }
     if (process.env.SKIZZE) {
       await mitKartenQuelle("archiv", (q) => skizziereSchichtkarte(k, q), km);
       const t0 = Date.now();
-      await mitKartenQuelle("archiv", (q) => skizziereSchichtkarte(k, q), km);
+      const { wert: sk } = await mitKartenQuelle("archiv", (q) => skizziereSchichtkarte(k, q), km);
       console.log(`  Skizze warm ${Date.now() - t0} ms`);
+      if (process.env.SVG) await sharp(Buffer.from((sk as unknown as { svg?: string; vorschauSvg?: string }).svg ?? (sk as unknown as { vorschauSvg: string }).vorschauSvg), { density: Number(process.env.DPI ?? 60) }).png().toFile(`${process.env.SVG}-skizze-${km}.png`);
     }
     const { wert: r, quelle } = await mitKartenQuelle(process.env.QUELLE === "mapbox" ? "mapbox" : "archiv", (q) => rendereSchichtkarte(k, q, undefined, { teilung: false }), km);
     const kz = r.kennzahlen;
-    console.log(`\n${km} km (${quelle}): format ${kz.formatfaktor.toFixed(2)} dichte ${kz.dichtefaktor.toFixed(2)} deckungVorOrt ${(kz.deckungVorOrt * 100).toFixed(1)} % netz ${(kz.netzAnteilFenster * 100).toFixed(1)} % zugefuellt ${kz.netzLoecherZugefuellt} quer ${kz.querverbindungen} verst ${kz.verstaerkt} angeb ${kz.angebunden} zusatz ${kz.zusatzM.toFixed(1)}m lose ${kz.loseZurGravur}/${kz.loseNetzstuecke} zeit ${kz.rechenzeitMs} ms lose ${kz.loseZurGravur}`);
+    console.log(`\n${km} km (${quelle}): format ${kz.formatfaktor.toFixed(2)} dichte ${kz.dichtefaktor.toFixed(2)} deckungVorOrt ${(kz.deckungVorOrt * 100).toFixed(1)} % netz ${(kz.netzAnteilFenster * 100).toFixed(1)} % zugefuellt ${kz.netzLoecherZugefuellt} quer ${kz.querverbindungen} verst ${kz.verstaerkt} angeb ${kz.angebunden} zusatz ${kz.zusatzM.toFixed(1)}m lose ${kz.loseZurGravur}/${kz.loseNetzstuecke} grund ${kz.hintergrundTeile} wasser ${kz.wasserFlaechenGeschnitten} zeit ${kz.rechenzeitMs} ms lose ${kz.loseZurGravur}`);
     console.log(`  herabgestuft ${kz.herabgestuft.join(", ") || "-"} | nachgerueckt ${kz.nachgerueckt.join(", ") || "-"} | Mindestbreite ${kz.netzAnMindestbreite.join(", ") || "-"} | Gravur ${kz.gravurWegM.toFixed(0)} m`);
     const d = (r as unknown as { diagnose?: unknown }).diagnose;
     if (d) console.log(d);

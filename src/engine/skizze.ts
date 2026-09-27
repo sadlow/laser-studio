@@ -16,6 +16,7 @@ import { symbolBreiteMm, symbolEinpassen } from "./symbole";
 import { setzePosterText } from "./textblock";
 import { REFERENZ_KARTENBREITE_MM, type Schichtkarte, type Skizze } from "./typen";
 import { vervollstaendige } from "./vervollstaendige";
+import { wasserImFenster } from "./wasser";
 import type { KachelQuelle } from "./quelle";
 import { mapboxTokenQuelle } from "./quelle-mapbox";
 
@@ -25,7 +26,8 @@ const GRAVUR_HERABGESTUFT_MM = 0.45;
 /**
  * Live-Vorschau fuer das Justieren (Marcel 25.09.2026: "der Kunde darf in der Liveansicht nicht auf Aktualisierungen
  * warten"). Dieselben Kacheln, dieselbe Strassenauswahl, dieselben Breiten und Texte wie die Produktion – aber die
- * Strassen als Striche statt verschmolzener Flaechen, das Wasser ungefiltert, keine Stege, Spalte oder losen Stuecke.
+ * Strassen als Striche statt verschmolzener Flaechen, keine Stege und Spalte. Wasser und lose Stuecke wie in der
+ * Produktion (Marcel 27.09.2026: der Kunde soll in der Vorschau das echte Schnittergebnis sehen).
  * Sieht aus wie das Produkt und kostet einen Bruchteil; geschnitten wird nie danach, sondern nach rendereSchichtkarte.
  */
 export async function skizziereSchichtkarte(eingabe: Schichtkarte, quelleOderToken: KachelQuelle | string, signal?: AbortSignal): Promise<Skizze> {
@@ -43,10 +45,13 @@ export async function skizziereSchichtkarte(eingabe: Schichtkarte, quelleOderTok
   });
 
   const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
-  const wasser = k.wasser ? schneide(zuFlaeche(roh.wasserFlaechen), fensterFl) : [];
-  const land = f.breiteMm * f.hoeheMm - flaecheMm2(wasser);
-  const auswahl = waehleNetz(k, laengenImFenster(k, roh, f), land, breitenbezug(k, f));
   const text = k.layoutArt === "eingebettet" ? setzeEingebettet(k, layout) : k.layoutArt === "kante" ? setzeKante(k, layout) : setzePosterText(k, layout);
+  // Wasser wie in der Produktion gefiltert (wasser.ts: schmaler als 1 mm und kleine Flaechen nicht geschnitten) – sonst
+  // zeigte die Skizze einen durchgehenden Kanal, den die volle Rechnung Sekunden spaeter unterbrach (Marcel 27.09.2026).
+  const w = wasserImFenster(k, roh, fensterFl, vereinige(text.schutz, text.traeger ?? []));
+  const wasser = w.geschnitten;
+  const land = f.breiteMm * f.hoeheMm - flaecheMm2(w.gesamt);
+  const auswahl = waehleNetz(k, laengenImFenster(k, roh, f), land, breitenbezug(k, f));
 
   // Stuetzung wie im Netz (querverbindung.ts); was ohne Halt bleibt, zeigt die Skizze graviert wie die volle Rechnung.
   const stuetzen = stuetzeNetz(k, roh, f, auswahl, vereinige(text.schutz, text.traeger ?? []));

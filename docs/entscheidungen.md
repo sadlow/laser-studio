@@ -38,7 +38,11 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Radwege (Stege, Anleger: Hamburg), nur Ufer zu Ufer, keine, die Wasser unter 6 mm² abtrennt; Gleise auf Strassenbruecken gehoeren dazu.
 - **Wasser schmaler als 1 mm wird nicht geschnitten** (`wasser.ts`, Oeffnen vor
   dem Beschnitt). Venedig: Hintergrund 107 -> 5 Teile, die Grachten Amsterdams
-  (1,4-1,7 mm) bleiben.
+  (1,4-1,7 mm) bleiben. Die Grenze schuetzt den Hintergrund vor dem Zerfallen, nicht den Schnitt (Testblatt: Spalt
+  offen ab 0,5 mm). Mit 0,6 statt 1 mm blieben Berlin, Venedig und Amsterdam gleich viele Hintergrundteile, aber ein
+  Stueckfluss loest sich schlechter aus (Marcel 27.09.2026: bleibt 1 mm). Die Skizze filtert das Wasser seit 27.09.
+  genauso – vorher zeigte sie den Landwehrkanal bei A4 5,5 km durchgehend, die volle Rechnung unterbrach ihn.
+  Skizze 60 x 60 bei 30 km: Hamburg 1,5 s, New York 1,5 s statt 1,1 s.
 - **Inseln unter 15 mm2 werden Wasser.** Berlin-Tiergarten: 18 Splitter, meist unter 3 mm2, jetzt 1 Hintergrundteil.
 
 ## Exportdateien (`produktion.ts`)
