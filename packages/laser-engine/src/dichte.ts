@@ -1,0 +1,197 @@
+import { clipPolyline, type Punkt } from "./clip";
+import type { KartenRohdaten } from "./kacheln";
+import { standardSchichtkarte } from "./standard";
+import { FORMAT_BIS, MEHR_GRAVUR_AB, type Breitenbezug } from "./dichte-bezug";
+import type { Generalisierung, Schichtkarte, StrassenGruppe, StrassenStufe, Zone } from "./typen";
+
+export { breitenbezug, FORMAT_BIS, MEHR_GRAVUR_AB, type Breitenbezug } from "./dichte-bezug";
+
+/**
+ * Welche Strassen geschnitten werden und wie breit – aus der Dichte vor Ort
+ * und der Stufe, die der Kunde waehlt (Vertrag: `Generalisierung` in
+ * typen-strassen.ts).
+ *
+ * Gemessen an acht Referenzorten, A4, 3,5 km, Deckung auf dem Land mit den
+ * Breiten der Vorlage: Berlin-Tiergarten 33 %, Hamburg 49 %, Bogota 50 %,
+ * Amsterdam 61 %, Tokio 64 %, New York 75 %, Allgaeu 7 %, Venedig 3 %. Mit
+ * einer festen Breite lief Tokio weiss zu und das Allgaeu blieb schwarz.
+ */
+// "licht" rueckt erst unter der halben Zieldeckung nach. Nachgerueckt wird bis
+// 10 % ueber das Ziel: eine ganze Klasse auf Mindestbreite laesst sich nicht
+// feiner dosieren (Venedig bei 2 km: Gassen 35 %).
+const NACHRUECKEN_UNTER = 0.5;
+const NACHRUECKEN_BIS = 1.1;
+const NACHRUECKEN_MAX_MASSSTAB = 1.25;
+
+export interface NetzAuswahl {
+  /** Breite je Gruppen-id aller geschnittenen Gruppen, in mm auf der Platte. */
+  breiten: Map<string, number>;
+  dichtefaktor: number;
+  /** Formatanteil x Dichtefaktor: damit wird jede Breite der Tabelle multipliziert (auch die Gravurstriche). */
+  breitenfaktor: number;
+  /** Deckung mit den Breiten der Vorlage (x Format), vor jeder Anpassung. */
+  deckungVorOrt: number;
+  herabgestuft: string[];
+  nachgerueckt: string[];
+  anMindestbreite: string[];
+  /**
+   * Die Klasse, die weit draussen zusaetzlich graviert wird, dort doch schneiden, wo keine parallele Strasse naeher
+   * als `abstandMm` liegt (querverbindung.ts) – nur Stufen mit `sparsamMm`, Standard "viel" 3 mm. Ebenso die
+   * nachgerueckten Klassen: Zufahrten liegen in den Bloecken und zerschnitten sie in Stuecke unter 4 mm², die volle
+   * Rechnung fuellte sie zu (Tiergarten A4 "viel": 181 Bloecke, Marcel 27.09.2026). Wichtigste Klasse zuerst.
+   */
+  sparsam?: { klassen: { id: string; breiteMm: number; abstandMm: number }[] };
+}
+
+/** Ohne Wert in der Vorlage: nur "viel" schneidet die zusaetzlich gravierte Klasse sparsam (Marcel 27.09.2026). */
+export const SPARSAM_STANDARD: Record<StrassenStufe, number> = { viel: 3, ausgewogen: 0, wenig: 0 };
+/**
+ * Dasselbe fuer die nachrueckenden Klassen in dichten Orten (Zufahrten): sie sind meist Stummel und schliessen keine
+ * Bloecke, 1,5 mm laesst sie stehen, ohne dass etwas zulaeuft (Tiergarten A4: 21 zugefuellt; mit 3 mm fielen fast
+ * alle weg). Fuer die Wohnstrassen weit draussen reicht das nicht – Arrecife 20 km lief mit 1,5 mm zu (64 statt 20).
+ */
+export const SPARSAM_NACHRUECKEN_STANDARD: Record<StrassenStufe, number> = { viel: 1.5, ausgewogen: 0, wenig: 0 };
+
+/** Strassenlaenge je Gruppe im Kartenfenster, in mm auf der Platte. */
+export function laengenImFenster(k: Schichtkarte, roh: KartenRohdaten, f: Zone): Map<string, number> {
+  const laengen = new Map<string, number>();
+  for (const g of k.strassen) {
+    let summe = 0;
+    for (const klasse of g.klassen) {
+      for (const linie of roh.strassen.get(klasse) ?? []) {
+        for (const t of clipPolyline(linie, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm)) summe += laenge(t);
+      }
+    }
+    laengen.set(g.id, summe);
+  }
+  return laengen;
+}
+
+export function waehleNetz(
+  k: Schichtkarte,
+  laengen: Map<string, number>,
+  landMm2: number,
+  bezug: Breitenbezug,
+  ohneNachruecken = false,
+): NetzAuswahl {
+  const g = k.generalisierung;
+  const formatfaktor = Math.min(bezug.formatfaktor, g.formatBis ?? FORMAT_BIS);
+  // Aufdicken gilt fuer den Start-Massstab; weiter draussen bleibt eine Strasse in Metern hoechstens so breit wie dort.
+  // Dichte Orte machen das ueber die Deckung von selbst (doppelter Ausschnitt, doppelte Laenge auf der Platte), lichte
+  // blieben sonst beim Hoechstfaktor stehen und wurden immer klobiger (Lanzarote 20 km, Marcel 26.09.2026).
+  const maxFaktor = g.maxFaktor / Math.max(1, bezug.massstab);
+  const stufe = g.stufen[k.kunde.strassenStufe] ?? g.stufen.ausgewogen;
+  const land = Math.max(1, landMm2);
+  const lang = (s: StrassenGruppe) => (laengen.get(s.id) ?? 0) > 0;
+  // Feinste zuerst: sie werden als erste graviert statt geschnitten.
+  let netz = k.strassen.filter((s) => s.ziel === "netz" && lang(s)).sort((a, b) => a.breiteMm - b.breiteMm);
+  const nachgerueckt: StrassenGruppe[] = [];
+  // Untergrenze ist die Rasterbreite; wo ein Strang laenger frei laeuft, verstaerkt netz-ketten.ts auf netzMinBreiteMm.
+  const mindest = k.stabilitaet?.rasterMm ?? k.netzMinBreiteMm;
+  const breite = (x: StrassenGruppe, df: number) =>
+    nachgerueckt.includes(x) ? mindest : Math.max(mindest, x.breiteMm * formatfaktor * df);
+  const deckungMit = (gruppen: StrassenGruppe[], df: number) =>
+    gruppen.reduce((s, x) => s + laengen.get(x.id)! * breite(x, df), 0) / land;
+  // Weiter draussen wird "viel" nicht breiter als "ausgewogen" – breitere Strassen fuellten in New York bei 30 km nur
+  // Bloecke zu; der Unterschied kommt dort aus den Querverbindungen (querverbindung.ts, Marcel 26.09.2026).
+  const ziel = bezug.massstab > NACHRUECKEN_MAX_MASSSTAB ? Math.min(stufe.zielDeckung, g.stufen.ausgewogen?.zielDeckung ?? stufe.zielDeckung) : stufe.zielDeckung;
+  const loeseFuer = (gruppen: StrassenGruppe[]) => loese((d) => deckungMit(gruppen, d), ziel, maxFaktor);
+  const schneidbar = (gruppen: StrassenGruppe[], df: number) => {
+    const feinste = gruppen.find((x) => !nachgerueckt.includes(x));
+    return !feinste || feinste.breiteMm * formatfaktor * df * stufe.maxAufdickung >= mindest;
+  };
+  const deckungVorOrt = netz.reduce((s, x) => s + laengen.get(x.id)! * x.breiteMm * formatfaktor, 0) / land;
+  const herabgestuft: string[] = [];
+  const stufeGraviert: string[] = [];
+
+  let df = 1;
+  let zusatzklasse: StrassenGruppe | undefined;
+  const st = k.kunde.strassenStufe;
+  const sparsamMm = g.stufen[st]?.sparsamMm ?? SPARSAM_STANDARD[st] ?? 0;
+  const sparsamNachMm = g.stufen[st]?.sparsamNachrueckenMm ?? SPARSAM_NACHRUECKEN_STANDARD[st] ?? 0;
+  let nachrueckenSparsam = false;
+  if (g.aktiv) {
+    // An lichten Orten erreicht keine Stufe ihr Ziel, alle landen beim Hoechstfaktor – "wenig" sah
+    // dort aus wie "ausgewogen" (Goerzallee A5 3 km: beide 19 % Netz). Darum graviert "wenig" seine
+    // feinste Klasse immer (Marcel 17.09.2026); wo sie ohnehin wich, bleibt alles gleich.
+    const mehr = bezug.massstab > (g.mehrGravurAb ?? MEHR_GRAVUR_AB);
+    const feinste = feinsteGraviert(g, k.kunde.strassenStufe) + (mehr ? 1 : 0);
+    while (stufeGraviert.length < feinste && netz.length > 1) {
+      stufeGraviert.push(netz[0].titel);
+      if (mehr && stufeGraviert.length === feinste) zusatzklasse = netz[0];
+      netz = netz.slice(1);
+    }
+    df = loeseFuer(netz);
+    while (netz.length > 1 && !schneidbar(netz, df)) {
+      herabgestuft.push(netz[0].titel);
+      netz = netz.slice(1);
+      df = loeseFuer(netz);
+    }
+    // Nachruecken nur nahe dem Start-Massstab: weiter draussen ist die Deckung schon durch den Ausschnitt licht, und ein
+    // Feldweg auf Mindestbreite waere bei 20 km 30 m breit (Lanzarote: 19 m Feldwege geschnitten, 26.09.2026).
+    const zuWeit = bezug.massstab > NACHRUECKEN_MAX_MASSSTAB;
+    const modus = ohneNachruecken || zuWeit || herabgestuft.length || stufeGraviert.length ? "nie" : stufe.nachruecken;
+    const licht = deckungMit(netz, df) < stufe.zielDeckung * NACHRUECKEN_UNTER;
+    if (modus === "immer" && sparsamNachMm > 0 && !licht) {
+      // In dichten Orten sparsam (querverbindung.ts): nur einzelne Stuecke kommen ins Netz, die Breiten geben dafuer
+      // nicht nach – sonst wurde "viel" schmaler als "ausgewogen" (Tiergarten A4: Faktor 0,89 statt 0,99). An lichten
+      // Orten ruecken die Klassen ganz nach wie bisher: dort zerschneiden sie keine Bloecke (Allgaeu, Feldwege).
+      nachgerueckt.push(...k.strassen.filter((s) => s.ziel === "gravur" && s.nachruecken && lang(s)));
+      nachrueckenSparsam = true;
+    } else if (modus === "immer" || (modus === "licht" && licht)) {
+      for (const kandidat of k.strassen.filter((s) => s.ziel === "gravur" && s.nachruecken && lang(s))) {
+        nachgerueckt.push(kandidat);
+        const probe = [kandidat, ...netz];
+        // "licht": Breiten bleiben, "immer": das Netz gibt fuer die neue Klasse nach.
+        const dfProbe = modus === "immer" ? loeseFuer(probe) : df;
+        if (deckungMit(probe, dfProbe) > stufe.zielDeckung * NACHRUECKEN_BIS || !schneidbar(netz, dfProbe)) {
+          nachgerueckt.pop();
+          break;
+        }
+        netz = probe;
+        df = dfProbe;
+      }
+    }
+  }
+
+  const breiten = new Map<string, number>();
+  const anMindestbreite: string[] = [];
+  for (const x of netz) {
+    if (!nachgerueckt.includes(x) && x.breiteMm * formatfaktor * df < mindest) anMindestbreite.push(x.titel);
+    breiten.set(x.id, breite(x, df));
+  }
+  let sparsam: NetzAuswahl["sparsam"];
+  // Zusatzklasse weit draussen und nachgerueckte Klassen in dichten Orten nicht ganz, sondern ausgewaehlt.
+  const klassen = [
+    ...(zusatzklasse && sparsamMm > 0 ? [{ id: zusatzklasse.id, breiteMm: breite(zusatzklasse, df), abstandMm: sparsamMm }] : []),
+    ...(nachrueckenSparsam ? nachgerueckt.map((x) => ({ id: x.id, breiteMm: breite(x, df), abstandMm: sparsamNachMm })) : []),
+  ];
+  if (nachrueckenSparsam) for (const x of nachgerueckt) breiten.delete(x.id);
+  if (klassen.length) sparsam = { klassen };
+  return { breiten, dichtefaktor: df, breitenfaktor: formatfaktor * df, deckungVorOrt, herabgestuft, nachgerueckt: nachgerueckt.map((x) => x.titel), anMindestbreite, sparsam };
+}
+
+/** Wie viele feinste Netzklassen die Stufe immer graviert – ohne Wert (aeltere Vorlage) der Standard der Stufe. */
+export function feinsteGraviert(g: Generalisierung, stufe: StrassenStufe): number {
+  return g.stufen[stufe]?.feinsteGraviert ?? standardSchichtkarte().generalisierung.stufen[stufe]?.feinsteGraviert ?? 0;
+}
+
+/** Faktor, bei dem die Deckung das Ziel trifft; die Deckung waechst mit dem Faktor. */
+function loese(deckung: (df: number) => number, ziel: number, max: number): number {
+  if (deckung(max) <= ziel) return max;
+  let lo = 0.01;
+  let hi = max;
+  if (deckung(lo) >= ziel) return lo;
+  for (let i = 0; i < 32; i++) {
+    const mitte = (lo + hi) / 2;
+    if (deckung(mitte) > ziel) hi = mitte;
+    else lo = mitte;
+  }
+  return lo;
+}
+
+function laenge(l: Punkt[]): number {
+  let s = 0;
+  for (let i = 1; i < l.length; i++) s += Math.hypot(l[i].x - l[i - 1].x, l[i].y - l[i - 1].y);
+  return s;
+}

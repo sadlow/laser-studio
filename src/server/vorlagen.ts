@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { standardSchichtkarte, staerkenAus } from "@/engine/standard";
+import { vervollstaendige } from "@/engine/vervollstaendige";
 import type { Schichtkarte } from "@/engine/typen";
 
 /**
@@ -43,30 +43,9 @@ export function ladeVorlage(id: string): Vorlage | null {
  */
 function lese(datei: string): Vorlage {
   const v = JSON.parse(fs.readFileSync(datei, "utf8")) as Vorlage;
-  const { kunde: _k, lon: _lo, lat: _la, ...basis } = standardSchichtkarte();
-  const k = v.karte as Partial<Produktparameter>;
-  return {
-    ...v,
-    karte: {
-      ...basis,
-      ...k,
-      eingebettet: { ...basis.eingebettet, ...k.eingebettet },
-      generalisierung: {
-        ...basis.generalisierung,
-        ...k.generalisierung,
-        stufen: { ...basis.generalisierung.stufen, ...k.generalisierung?.stufen },
-      },
-      symbolStufenMm: k.symbolStufenMm?.length ? k.symbolStufenMm : basis.symbolStufenMm,
-      staerkenMm: staerkenAus(k.staerkenMm),
-      grundSchwarzFrost: k.grundSchwarzFrost ?? (k as { schwarzFrost?: boolean }).schwarzFrost ?? basis.grundSchwarzFrost,
-      holzrahmenProfil: { ...basis.holzrahmenProfil, ...k.holzrahmenProfil },
-      gravurExport: { ...basis.gravurExport, ...k.gravurExport },
-      teilung: { ...basis.teilung, ...k.teilung },
-      kante: { ...basis.kante, ...k.kante },
-      titelStil: { ...basis.titelStil, ...k.titelStil },
-      zeilenStil: { ...basis.zeilenStil, ...k.zeilenStil },
-    },
-  };
+  const voll = vervollstaendige(v.karte as Schichtkarte);
+  const { kunde: _k, lon: _lo, lat: _la, kartenMitte: _m, teilungWahl: _t, ...karte } = voll;
+  return { ...v, karte };
 }
 
 /** Speichert unter einer id aus dem Namen. Gleicher Name ueberschreibt – gewollt beim Nachjustieren. */

@@ -15,3 +15,6 @@ next-env.d.ts
 
 # Ausgaben aus dem Werkzeug
 /export/
+
+/packages/laser-engine/dist/
+/packages/laser-engine/src/version.ts

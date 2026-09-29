@@ -1,0 +1,30 @@
+{
+  "name": "@papierschmiede/laser-engine",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@mapbox/vector-tile": "2.0.5",
+    "clipper-lib": "6.4.2",
+    "opentype.js": "2.0.0",
+    "pbf": "4.0.2",
+    "pmtiles": "4.5.0"
+  }
+}

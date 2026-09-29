@@ -7,6 +7,7 @@
  * Datei im Studio-Bucket. Ist die Variable leer oder das Archiv nicht erreichbar, rechnet die Karte mit Mapbox und
  * sagt es in den Hinweisen.
  */
+import { archivZoom as standardArchivZoom } from "@papierschmiede/laser-engine/quelle-protomaps";
 import { gunzipSync } from "node:zlib";
 import { Compression, PMTiles, SharedPromiseCache, type RangeResponse, type Source } from "pmtiles";
 import { ARCHIV_ZOOM, mapboxTokenQuelle, protomapsQuelle, type KachelQuelle } from "@/engine";
@@ -85,7 +86,7 @@ function archiv(adresse: string) {
 export function archivZoom(ausschnittKm: number): number {
   // Zum Messen: KARTE_ZOOM erzwingt eine Stufe (scripts/voll-weit.ts).
   if (process.env.KARTE_ZOOM) return Number(process.env.KARTE_ZOOM);
-  return ausschnittKm <= 12.5 ? ARCHIV_ZOOM : ausschnittKm <= 25 ? 14 : 13;
+  return standardArchivZoom(ausschnittKm);
 }
 
 function archivQuelle(adresse: string, ausschnittKm: number): KachelQuelle {

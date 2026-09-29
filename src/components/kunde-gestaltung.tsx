@@ -17,7 +17,8 @@ interface Props {
 export const FORMAT_KURZ: Partial<Record<FormatKey, string>> = { a5: "A5", a4: "A4", a3: "A3", quadrat30: "30 × 30", quadrat60: "60 × 60" };
 
 /** Groesser als das Laserfeld: aus zwei Rohplatten je Lage, darum nur mit Holzrahmen (Marcel 25.09.2026). */
-export const NUR_MIT_RAHMEN: FormatKey[] = ["quadrat60"];
+export { NUR_MIT_RAHMEN } from "@papierschmiede/laser-engine/formatwechsel";
+import { NUR_MIT_RAHMEN, mitFormat } from "@papierschmiede/laser-engine/formatwechsel";
 
 export const DESIGNS: { wert: Aufbau; titel: string; netz: string; grund: string; rahmen: string }[] = [
   { wert: "netz-weiss", titel: "Weiss auf Schwarz", netz: "#f6f5f1", grund: "#151515", rahmen: "#f6f5f1" },
@@ -69,27 +70,7 @@ export function KundeGestaltung({ karte, aendern }: Props) {
 
   // Das Format bringt Lage und Groesse der Texte vom gleichnamigen Poster mit;
   // Schriften und Sperrung bleiben, wie sie eingestellt sind.
-  const formatWaehlen = (format: FormatKey) => {
-    const w = standardLayoutWerte(format);
-    const rahmenPflicht = NUR_MIT_RAHMEN.includes(format) && (k.holzrahmen ?? "ohne") === "ohne";
-    aendern({
-      format,
-      // Gleicher Massstab auf jedem Format: A4 bei 3,5 km (Marcel 25.09.2026) – groesser zeigt mehr Umgebung.
-      ausschnittKm: massstabsgleicherAusschnittKm({ ...karte, format, layoutArt: w.layoutArt }),
-      // Neue Plattengroesse, neue Naehte.
-      teilungWahl: undefined,
-      ...(rahmenPflicht ? { kunde: { holzrahmen: "schwarz" } } : {}),
-      // Gross und geteilt: alle Lagen ausser dem Hintergrund auf Blau mindestens 3 mm (Marcel 25.09.2026).
-      ...(NUR_MIT_RAHMEN.includes(format) ? { staerkenMm: { ...karte.staerkenMm, acryl: Math.max(3, karte.staerkenMm.acryl) } } : {}),
-      layoutArt: w.layoutArt,
-      kartenEndeAnteil: w.kartenEndeAnteil,
-      titelMitteAnteil: w.titelMitteAnteil,
-      zeile1MitteAnteil: w.zeile1MitteAnteil,
-      zeile2MitteAnteil: w.zeile2MitteAnteil,
-      titelStil: { ...karte.titelStil, hoeheAnteil: w.titelStil.hoeheAnteil },
-      zeilenStil: { ...karte.zeilenStil, hoeheAnteil: zeilenGroesse(format, karte.zeilenStil.schrift).hoeheAnteil },
-    });
-  };
+  const formatWaehlen = (format: FormatKey) => aendern(mitFormat(karte, format));
 
   return (
     <Block titel="Gestaltung">

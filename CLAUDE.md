@@ -10,11 +10,13 @@ als Acrylaufbau aus mehreren Lagen.
 
 ## Grundsatz: Engine und UI getrennt
 
-`src/engine/` kennt kein React/Next. Einstieg:
+`packages/laser-engine/src/` ist die gemeinsame Engine ohne React/Next; `src/engine/` enthält nur Reexports. Einstieg:
 `rendereSchichtkarte(karte, token) => SchichtkartenErgebnis`, Vertrag in
 `typen.ts`. Wandert das Produkt in den baseline-customizer, wird die Engine
-**importiert**, nicht nachgebaut – sonst driften Vorschau und Produktion
-unbemerkt auseinander.
+**importiert**, nicht nachgebaut. Änderungen ausschließlich im Paket; der Customizer übernimmt
+ein unveränderliches npm-Release via `npm run sync:laserkarte-engine -- --uebernehmen`
+und prüft mit `npm run pruefe:laserkarte` beide Engines auf identische Ergebnisse.
+`npm run build:engine` baut lokal; Änderungen in beiden Repositories gemeinsam ausliefern.
 
 **Vorlage = Produkt, Kundeneingabe = Bestellung.** `vorlagen/*.json` enthaelt
 alle Parameter ausser `kunde`, `lon`, `lat`.

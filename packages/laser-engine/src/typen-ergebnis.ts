@@ -1,0 +1,136 @@
+// Was die Engine zurueckgibt: Zonen, Teile, Lagen, Kennzahlen.
+// Getrennt vom Eingabe-Vertrag in typen.ts, der von dort re-exportiert wird.
+
+import type { Punkt } from "./clip";
+import type { Holzrahmen, HolzrahmenProfil } from "./typen";
+import type { GravurExport } from "./typen-fertigung";
+import type { TeilungsErgebnis } from "./typen-teilung";
+
+export interface Zone {
+  xMm: number;
+  yMm: number;
+  breiteMm: number;
+  hoeheMm: number;
+}
+
+export interface Layout {
+  platte: Zone;
+  kartenfenster: Zone;
+}
+
+/** Ein physisches Teil: Aussenkontur mit Loechern, alles in mm. */
+export interface Teil {
+  aussen: Punkt[];
+  loecher: Punkt[][];
+  flaecheMm2: number;
+}
+
+/** deck nur beim schwarzen Netz: weisse Oberseite mit Rahmen und Text. */
+export type LagenKey = "symbol" | "deck" | "netz" | "hintergrund" | "blau";
+
+export interface Lage {
+  key: LagenKey;
+  titel: string;
+  material: string;
+  teile: Teil[];
+  staerkeMm: number;
+  /** Nur Hintergrund: feine Wege als Linien (mm) mit Strichbreite. */
+  gravur: { linien: Punkt[][]; breiteMm: number }[];
+  /** Nur Hintergrund: Flaeche unter dem Symbol, als Flaeche graviert – angeraut fuer den Kleber. */
+  klebeflaeche: Teil[];
+  /** SVG fuer den Laser: Schnitt rot, Gravur schwarz, Einheit mm. */
+  laserSvg: string;
+}
+
+export interface Kennzahlen {
+  /** Wieviel vom Kartenfenster ist Strassennetz – das Mass fuer "zu dicht". */
+  netzAnteilFenster: number;
+  netzLoecherZugefuellt: number;
+  /** Einzelne Wege, die als Stuetze langer Straenge mitgeschnitten werden. */
+  querverbindungen: number;
+  /** Straenge, die fuer die Stabilitaet breiter geschnitten werden als ihre Klasse. */
+  verstaerkt: number;
+  /** Lose Gruppen, die ueber einen gravierten Weg ans Netz gebunden werden. */
+  angebunden: number;
+  /** Sparsam geschnittene Zusatzklasse ("viel" weit draussen), in m. */
+  zusatzM: number;
+  /** Strassengruppen, deren Breite durch das Format unter die Mindestbreite fiele. */
+  netzAnMindestbreite: string[];
+  formatfaktor: number;
+  /** Anteil der Breite, der aus der Dichte vor Ort kommt (1 ohne Generalisierung). */
+  dichtefaktor: number;
+  /** Damit werden die Breiten der Tabelle multipliziert: Format (hoechstens wie 30 x 30) x Dichte. */
+  breitenfaktor: number;
+  /** Strassenlaenge x Vorlagenbreite / Land – so dicht waere das Netz ohne Anpassung. */
+  deckungVorOrt: number;
+  /** Netzklassen, die hier zu dicht fuer schneidbare Breiten waeren und graviert werden. */
+  herabgestuft: string[];
+  /** Gravurklassen, die mitgeschnitten werden, weil der Ort licht ist. */
+  nachgerueckt: string[];
+  /** Waeren nachgerueckt, zerfielen aber in lose Stuecke und bleiben Gravur. */
+  nachrueckenVerworfen: string[];
+  zoomEntsprechung: number;
+  /** Strassenstuecke, die nicht am Netz haengen und lose herausfallen. */
+  loseNetzstuecke: number;
+  /** Lose Stuecke, die deshalb graviert statt geschnitten werden. */
+  loseZurGravur: number;
+  /** Innenflaechen im Text, die trotz Stegen lose sind. */
+  loseTextteile: number;
+  /** Teile der Hintergrund-Lage – mehr als eins, wenn Wasser sie teilt. */
+  hintergrundTeile: number;
+  stencilStege: number;
+  punzenOhneSteg: number;
+  inselnZugefuellt: number;
+  /** Staerkste Verstaerkung einer Zeile, damit ihr Strich schneidbar ist. */
+  schriftZugabeMm: number;
+  wasserFlaechenGeschnitten: number;
+  /** Kleine Inseln, die Wasser wurden statt Einzelteil. */
+  wasserInselnGeflutet: number;
+  /** So weit steht das Symbol (auf dem Hintergrund geklebt) ueber die Netzlage hinaus. */
+  symbolUeberNetzMm: number;
+  /** So viel vom Rand bleibt im Holzrahmen sichtbar (Rand minus Ueberstand). */
+  randImRahmenMm: number;
+  /** Laenge aller Gravurlinien in m (so faehrt der Laser bei Mittellinie) und ihre Flaeche in mm². */
+  gravurWegM: number;
+  gravurFlaecheMm2: number;
+  rechenzeitMs: number;
+}
+
+export interface SchichtkartenErgebnis {
+  vorschauSvg: string;
+  /** Wirksame Kartenmitte – die Vorschau rechnet damit Ziehen in Koordinaten um. */
+  kartenMitte: { lon: number; lat: number };
+  /** Standort-Symbol in mm: Anker auf dem Ort und Umriss-Box; null ausserhalb des Ausschnitts. */
+  symbol: { ankerXMm: number; ankerYMm: number; xMm: number; yMm: number; breiteMm: number; hoeheMm: number } | null;
+  lagen: Lage[];
+  layout: Layout;
+  /** Gewaehlter Holzrahmen mit Profil; null ohne Rahmen. */
+  rahmen: ({ farbe: Exclude<Holzrahmen, "ohne"> } & HolzrahmenProfil) | null;
+  texte: { titel: string; zeile1: string; zeile2: string };
+  /** Wo die gesetzten Zeilen stehen ("Titel", "Namen", "Letzte Zeile") – fuer Kameramotive. */
+  textZonen: { name: string; zone: Zone }[];
+  ausschnittMeter: { breite: number; hoehe: number };
+  /** Wie graviert wird – die 3D-Ansicht zeichnet die Linien so breit, wie der Laser sie macht (sichtbareGravur). */
+  gravurExport: GravurExport;
+  kennzahlen: Kennzahlen;
+  /** Nur wenn die Platte groesser als das Laserfeld ist: je Lage die Naht und ihre kritischen Stellen. */
+  teilung: TeilungsErgebnis | null;
+  /** Groesser als das Laserfeld – auch wenn die Naehte (noch) nicht gerechnet sind. */
+  teilungNoetig: boolean;
+  /** Aus welchen Kartendaten gerechnet wurde ("protomaps-4" oder "mapbox.mapbox-streets-v8"). */
+  kartenQuelle: string;
+  warnungen: string[];
+}
+
+/**
+ * Was die Vorschau zum Anfassen braucht. Die Skizze (skizze.ts) liefert es in Millisekunden, das volle Ergebnis
+ * spaeter mit allen Lagen – die Vorschau zeigt, was gerade da ist.
+ */
+export type Anzeige = Pick<SchichtkartenErgebnis, "vorschauSvg" | "layout" | "kartenMitte" | "symbol" | "ausschnittMeter" | "rahmen"> & {
+  teilung?: TeilungsErgebnis | null;
+};
+
+export interface Skizze extends Anzeige {
+  rechenzeitMs: number;
+  kartenQuelle: string;
+}
