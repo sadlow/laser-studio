@@ -23,6 +23,7 @@
   "dependencies": {
     "@mapbox/vector-tile": "2.0.5",
     "clipper-lib": "6.4.2",
+    "libtess": "1.2.2",
     "opentype.js": "2.0.0",
     "pbf": "4.0.2",
     "pmtiles": "4.5.0"

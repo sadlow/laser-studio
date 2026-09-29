@@ -52,7 +52,7 @@ export async function rendereSchichtkarte(
   signal?: AbortSignal,
   // Die Nahtsuche einer geteilten Karte kostet bis zu Sekunden – die Live-Vorschau laesst sie weg und holt sie bei
   // Bedarf nach (teilungFuer), Export und Skripte rechnen sie mit (Marcel 25.09.2026).
-  optionen: { teilung?: boolean } = {},
+  optionen: { teilung?: boolean; laserdateien?: boolean } = {},
 ): Promise<SchichtkartenErgebnis> {
   const k = vervollstaendige(eingabe);
   const start = Date.now();
@@ -87,7 +87,7 @@ export async function rendereSchichtkarte(
   await weiter(signal);
   const b = await baueBausteine(k, layout, roh, textblock, signal);
   await weiter(signal);
-  const s = stapleLagen(k, layout, b);
+  const s = stapleLagen(k, layout, b, optionen.laserdateien !== false);
   const netzFarbe = k.aufbau === "netz-weiss" ? "weissen" : "schwarzen";
 
   if (b.kennzahlen.herabgestuft.length > 0) {

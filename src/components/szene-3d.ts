@@ -1,9 +1,10 @@
+import { extrusionsDaten } from "../engine/extrusion";
 import * as THREE from "three";
 import { Reflector } from "three/examples/jsm/objects/Reflector.js";
 import type { Punkt } from "@/engine/clip";
 import type { Lage, SchichtkartenErgebnis, Zone } from "@/engine/typen";
 import { gravurFlaeche } from "./gravur-3d";
-import { materialien, nachFlaechen } from "./material-3d";
+import { materialien } from "./material-3d";
 import { rahmenGeometrie, rahmenMaterial } from "./rahmen-3d";
 import { spiegelFlaeche } from "./spiegel-3d";
 
@@ -17,9 +18,6 @@ import { spiegelFlaeche } from "./spiegel-3d";
  * die gravierte Klebeflaeche, im Ausschnitt der Netzlage – und steht darueber hinaus.
  * Auseinandergezogen schwebt es ueber dem Stapel, der Holzrahmen noch darueber.
  */
-// Punkte naeher als das zusammenfassen – die gepufferten Strassen haben runde
-// Ecken aus sehr vielen kurzen Stuecken, die Triangulierung dauerte sonst Sekunden.
-const PUNKTABSTAND_MM = 0.12;
 const SYMBOL_LUFT_MM = 0.1;
 
 /** Form um ihre Mitte verkleinern, so dass der Rand etwa mm nach innen rueckt. */
@@ -56,24 +54,19 @@ export interface Stapel {
   aussen: { breiteMm: number; hoeheMm: number; hintenMm: number };
 }
 
-function ausduennen(ring: Punkt[]): Punkt[] {
-  const aus: Punkt[] = [];
-  for (const p of ring) {
-    const l = aus[aus.length - 1];
-    if (!l || Math.hypot(p.x - l.x, p.y - l.y) >= PUNKTABSTAND_MM) aus.push(p);
-  }
-  return aus.length >= 3 ? aus : ring;
-}
-
 function platteGeometrie(lage: Lage, b: number, h: number, staerke: number): THREE.BufferGeometry | null {
-  // mm auf der Platte (y nach unten) -> Szene (Mitte im Ursprung, y nach oben)
-  const v = (p: Punkt) => new THREE.Vector2(p.x - b / 2, h / 2 - p.y);
-  const teile = lage.teile.map((t) => {
-    const form = new THREE.Shape(ausduennen(t.aussen).map(v));
-    form.holes = t.loecher.map((l) => new THREE.Path(ausduennen(l).map(v)));
-    return new THREE.ExtrudeGeometry(form, { depth: staerke, bevelEnabled: false, curveSegments: 1 });
-  });
-  return teile.length ? nachFlaechen(teile) : null;
+  if (!lage.teile.length) return null;
+  const { deckel, kanten } = extrusionsDaten(lage.teile, b, h, staerke);
+  const g = new THREE.BufferGeometry();
+  const position = new Float32Array(deckel.length + kanten.length);
+  position.set(deckel); position.set(kanten, deckel.length);
+  g.setAttribute("position", new THREE.BufferAttribute(position, 3));
+  const uv = new Float32Array(position.length / 3 * 2);
+  for (let i = 0; i < position.length / 3; i++) { uv[i*2] = position[i*3]; uv[i*2+1] = position[i*3+1]; }
+  g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+  g.addGroup(0, deckel.length / 3, 0); g.addGroup(deckel.length / 3, kanten.length / 3, 1);
+  g.computeVertexNormals();
+  return g;
 }
 
 export function baueSzene(ergebnis: SchichtkartenErgebnis): Stapel {

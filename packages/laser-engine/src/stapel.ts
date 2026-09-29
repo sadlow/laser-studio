@@ -31,7 +31,7 @@ export const FARBE_FROST = "#2a2a2a";
  * darueber haben an seiner Stelle einen Ausschnitt in Symbolform, und es steht
  * ueber das Netz hinaus (Marcel 16.09.2026, zuerst auf Blau geplant).
  */
-export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stapel {
+export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine, laserdateien = true): Stapel {
   const rahmen = ziehAb(b.plattenFl, b.fensterFl);
   // Unter Bruecken wird nicht geschnitten: dort liegt Netz darueber, und der
   // Hintergrund haelt ueber die Bruecke zusammen, statt am Fluss zu zerfallen.
@@ -59,11 +59,11 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
     ];
     return {
       lagen: [
-        lage(k, layout, "symbol", symbolTitel, "Spiegelacryl rot", b.symbol),
-        lage(k, layout, "deck", "Weiss oben", "Acrylglas weiss", deck),
-        lage(k, layout, "netz", "Schwarz (Netz)", "Acrylglas schwarz", netz),
-        lage(k, layout, "hintergrund", "Weiss unten", "Acrylglas weiss", hintergrund, b.gravur, b.klebeflaeche),
-        lage(k, layout, "blau", "Blau", "Spiegelacryl blau", blau),
+        lage(laserdateien, k, layout, "symbol", symbolTitel, "Spiegelacryl rot", b.symbol),
+        lage(laserdateien, k, layout, "deck", "Weiss oben", "Acrylglas weiss", deck),
+        lage(laserdateien, k, layout, "netz", "Schwarz (Netz)", "Acrylglas schwarz", netz),
+        lage(laserdateien, k, layout, "hintergrund", "Weiss unten", "Acrylglas weiss", hintergrund, b.gravur, b.klebeflaeche),
+        lage(laserdateien, k, layout, "blau", "Blau", "Spiegelacryl blau", blau),
       ],
       vorschauSvg: vorschauSvg(layout, schritte),
       loseNetzstuecke: netzLose.length,
@@ -97,10 +97,10 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
   ];
   return {
     lagen: [
-      lage(k, layout, "symbol", symbolTitel, "Spiegelacryl rot", b.symbol),
-      lage(k, layout, "netz", netzTitel, netzMaterial, netz),
-      lage(k, layout, "hintergrund", grundTitel, grundMaterial, hintergrund, b.gravur, b.klebeflaeche),
-      lage(k, layout, "blau", "Blau", "Spiegelacryl blau", blau),
+      lage(laserdateien, k, layout, "symbol", symbolTitel, "Spiegelacryl rot", b.symbol),
+      lage(laserdateien, k, layout, "netz", netzTitel, netzMaterial, netz),
+      lage(laserdateien, k, layout, "hintergrund", grundTitel, grundMaterial, hintergrund, b.gravur, b.klebeflaeche),
+      lage(laserdateien, k, layout, "blau", "Blau", "Spiegelacryl blau", blau),
     ],
     vorschauSvg: vorschauSvg(layout, schritte),
     loseNetzstuecke: loseNetz.length,
@@ -109,12 +109,12 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine): Stap
   };
 }
 
-function lage(k: Schichtkarte, layout: Layout, key: LagenKey, titel: string, material: string, t: Teil[], gravur: Gravur = [], klebeflaeche: Teil[] = []): Lage {
+function lage(laserdateien: boolean, k: Schichtkarte, layout: Layout, key: LagenKey, titel: string, material: string, t: Teil[], gravur: Gravur = [], klebeflaeche: Teil[] = []): Lage {
   // Nur der schwarze Hintergrund wird graviert – er ist dick und matt; ein schwarzes Netz bleibt glaenzend.
   const grundSchwarz = key === "hintergrund" && material === "Acrylglas schwarz";
   const staerkeMm = material.startsWith("Spiegelacryl") ? k.staerkenMm.spiegel : grundSchwarz ? k.staerkenMm.grundSchwarz : k.staerkenMm.acryl;
   // Frost steht im Materialnamen: so erscheint es in der Pruefung, in jeder Laserdatei und in der 3D-Ansicht.
   if (grundSchwarz && k.grundSchwarzFrost) material = "Acrylglas schwarz Frost";
   const beschreibung = `Lage ${titel} – ${material}, ${staerkeMm} mm`;
-  return { key, titel, material, staerkeMm, teile: t, gravur, klebeflaeche, laserSvg: laserSvg(layout, beschreibung, t, gravur, klebeflaeche) };
+  return { key, titel, material, staerkeMm, teile: t, gravur, klebeflaeche, laserSvg: laserdateien ? laserSvg(layout, beschreibung, t, gravur, klebeflaeche) : "" };
 }
