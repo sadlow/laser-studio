@@ -1,3 +1,4 @@
+import { istSymbolLage } from "./marker";
 import { bogenSvg } from "./produktion";
 import { montageplanPdf } from "./montageplan";
 import { teileLage } from "./teilung-export";
@@ -19,7 +20,7 @@ export function geteilteDateien(
   if (!t) throw new Error("Teilung fehlt: Produktionsausgabe braucht die vollstaendige Rechnung.");
   if (!karte.kunde.holzrahmen || karte.kunde.holzrahmen === "ohne") throw new Error("60 × 60 benötigt einen Holzrahmen.");
   for (const lage of r.lagen) {
-    if (!["symbol", "blau", "deck"].includes(lage.key) && !t.lagen.some(l => l.key === lage.key))
+    if (!istSymbolLage(lage.key) && !["blau", "deck"].includes(lage.key) && !t.lagen.some(l => l.key === lage.key))
       throw new Error(`Keine passende Rohplatten-Teilung fuer ${lage.titel}.`);
   }
   const dateien: Partial<Record<LagenKey, string[]>> = {};

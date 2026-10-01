@@ -18,8 +18,8 @@ import {
   zuFlaeche,
   type Flaeche,
 } from "./geometrie";
-import { symbolBreiteMm, symbolEinpassen } from "./symbole";
-import { ortZuMm } from "./geo";
+import { MARKER_FARBEN, markerAlsListe, markerFarbe, platziereMarker } from "./marker";
+import type { MarkerFarbe } from "./typen";
 import type { KartenRohdaten } from "./kacheln";
 import {
   REFERENZ_KARTENBREITE_MM,
@@ -53,7 +53,13 @@ export interface Bausteine {
   gravur: { linien: Punkt[][]; breiteMm: number }[];
   klebeflaeche: Teil[];
   symbol: Teil[];
+  /** Die Marker je Spiegelacryl-Farbe; leer, wenn der Kunde keinen Marker gesetzt hat. */
+  symbolJeFarbe: { farbe: MarkerFarbe; teile: Teil[] }[];
   symbolLage: SchichtkartenErgebnis["symbol"];
+  /** Alle sichtbaren Marker. */
+  symbole: SchichtkartenErgebnis["symbole"];
+  /** Marker der Liste, die ausserhalb des Ausschnitts liegen und darum fehlen. */
+  markerAusserhalb: number;
   /** Aussenkontur des Symbols – in den Lagen ueber dem Hintergrund ausgeschnitten. */
   symbolLoch: Flaeche;
   textBereich: Flaeche;
@@ -80,20 +86,28 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
   const schutzNetz = traeger.length ? vereinige(schutz, traeger) : schutz;
   const faktor = f.breiteMm / REFERENZ_KARTENBREITE_MM;
 
-  // --- Standort-Symbol: Anker auf dem Ort (Spitze bei Herz und Pin), Groesse
-  // fuer A4 und mitwachsend. Liegt der Ort ausserhalb des verschobenen
-  // Ausschnitts, gibt es kein Symbol.
-  const anker = ortZuMm({ lon: k.lon, lat: k.lat }, k.kartenMitte ?? { lon: k.lon, lat: k.lat }, k.ausschnittKm * 1000, f);
-  const imFenster = anker.x >= f.xMm && anker.x <= f.xMm + f.breiteMm && anker.y >= f.yMm && anker.y <= f.yMm + f.hoeheMm;
-  const eingepasst = symbolEinpassen(k.kunde.symbol ?? "herz", anker.x, anker.y, symbolBreiteMm(k.symbolStufenMm, k.kunde.symbolGroesse, faktor));
-  const symbol = imFenster ? teile(zuFlaeche(eingepasst.ringe)) : [];
-  const symbolLage = imFenster ? { ankerXMm: anker.x, ankerYMm: anker.y, ...eingepasst.box } : null;
+  // --- Marker (marker.ts): Anker auf ihrem Ort (Spitze bei Herz und Pin), Groesse
+  // fuer A4 und mitwachsend. Liegt ein Marker ausserhalb des verschobenen
+  // Ausschnitts, faellt er weg.
+  const kartenMitte = k.kartenMitte ?? { lon: k.lon, lat: k.lat };
+  const marker = platziereMarker(k, kartenMitte, f, faktor);
+  const symbol = teile(vereinigeAlle(marker.platziert.map((m) => zuFlaeche(m.ringe))));
+  // Je Farbe eine Lage. Ohne Liste wie bisher genau die rote, auch wenn das Symbol ausserhalb liegt.
+  const symbolJeFarbe: { farbe: MarkerFarbe; teile: Teil[] }[] = markerAlsListe(k)
+    ? MARKER_FARBEN.flatMap((farbe) => {
+        const eigene = marker.platziert.filter((m) => markerFarbe(m.marker) === farbe);
+        if (!eigene.length) return [];
+        return [{ farbe, teile: eigene.length === marker.platziert.length ? symbol : teile(vereinigeAlle(eigene.map((m) => zuFlaeche(m.ringe)))) }];
+      })
+    : [{ farbe: "rot", teile: symbol }];
+
+  const symbolLage = marker.platziert[0]?.lage ?? null;
   // Das Symbol wird auf den Hintergrund geklebt (die Lage auf dem Wasser) und
   // steht ueber das Netz hinaus (Marcel 16.09.2026). Die Lagen darueber haben
   // dort einen Ausschnitt in Symbolform – nur die Aussenkontur, sonst bliebe im
   // Loch des Pins eine lose Scheibe. Unter dem Symbol wird kein Wasser
   // geschnitten, sonst fehlte am Fluss die Klebeflaeche.
-  const symbolLoch = imFenster ? ohneLoecher(zuFlaeche(eingepasst.ringe)) : [];
+  const symbolLoch = vereinigeAlle(marker.platziert.map((m) => ohneLoecher(zuFlaeche(m.ringe))));
   const wasser = wasserImFenster(k, roh, fensterFl, vereinige(schutz, symbolLoch, traeger));
   await weiter(signal);
 
@@ -161,7 +175,10 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
     gravur,
     klebeflaeche,
     symbol,
+    symbolJeFarbe,
     symbolLage,
+    symbole: marker.platziert.map((m) => m.lage),
+    markerAusserhalb: marker.ausserhalb,
     symbolLoch,
     textBereich: text.textBereich,
     kennzahlen: {
@@ -188,4 +205,10 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
       wasserInselnGeflutet: inseln.geflutet,
     },
   };
+}
+
+/** Ein Marker bleibt seine Flaeche wie bisher; erst mehrere werden vereinigt (ueberlappende Marker sind ein Teil). */
+function vereinigeAlle(flaechen: Flaeche[]): Flaeche {
+  if (flaechen.length === 0) return [];
+  return flaechen.length === 1 ? flaechen[0] : vereinige(...flaechen);
 }

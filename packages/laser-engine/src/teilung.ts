@@ -1,3 +1,4 @@
+import { istSymbolLage } from "./marker";
 import { ausTeilen, type Flaeche } from "./geometrie";
 import { bandAus, fugen, mitEinzelteilen } from "./teilung-bewertung";
 import type { Lage, Zone } from "./typen-ergebnis";
@@ -32,10 +33,10 @@ export function berechneTeilung(platte: Zone, lagen: Lage[], v: Teilungsvorgabe,
   // Die Deckschicht (nur Rahmen und Reiter) kommt als Rahmenbogen aus vier Leisten (teilung-rahmen.ts); dann traegt
   // sie die Schrift, und das Netz darunter darf in beide Richtungen geteilt werden.
   const deck = lagen.some((l) => l.key === "deck");
-  const geteilt = lagen.filter((l) => l.key !== "symbol" && l.key !== "blau" && l.key !== "deck");
+  const geteilt = lagen.filter((l) => !istSymbolLage(l.key) && l.key !== "blau" && l.key !== "deck");
   const frontKey = deck ? undefined : geteilt[0]?.key;
   const ergebnis: LagenTeilung[] = [];
-  let obere: Flaeche = ausTeilen(lagen.filter((l) => l.key === "symbol" || l.key === "deck").flatMap((l) => l.teile));
+  let obere: Flaeche = ausTeilen(lagen.filter((l) => istSymbolLage(l.key) || l.key === "deck").flatMap((l) => l.teile));
 
   for (const lage of geteilt) {
     const front = lage.key === frontKey;
@@ -90,7 +91,7 @@ export function berechneTeilung(platte: Zone, lagen: Lage[], v: Teilungsvorgabe,
     rohplatte: v.rohplatte,
     bandMm: ou ?? lr ?? [0, 0],
     lagen: ergebnis,
-    ungeteilt: lagen.filter((l) => l.key === "symbol" || l.key === "blau").map((l) => l.key),
+    ungeteilt: lagen.filter((l) => istSymbolLage(l.key) || l.key === "blau").map((l) => l.key),
     gehrung: deck ? ["deck"] : [],
   };
 }

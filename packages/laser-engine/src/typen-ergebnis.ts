@@ -2,6 +2,17 @@
 // Getrennt vom Eingabe-Vertrag in typen.ts, der von dort re-exportiert wird.
 
 import type { Punkt } from "./clip";
+
+/** Ein Marker in mm: Anker auf seinem Ort und Umriss-Box. */
+export interface SymbolLage {
+  index: number;
+  ankerXMm: number;
+  ankerYMm: number;
+  xMm: number;
+  yMm: number;
+  breiteMm: number;
+  hoeheMm: number;
+}
 import type { Holzrahmen, HolzrahmenProfil } from "./typen";
 import type { GravurExport } from "./typen-fertigung";
 import type { TeilungsErgebnis } from "./typen-teilung";
@@ -26,7 +37,8 @@ export interface Teil {
 }
 
 /** deck nur beim schwarzen Netz: weisse Oberseite mit Rahmen und Text. */
-export type LagenKey = "symbol" | "deck" | "netz" | "hintergrund" | "blau";
+/** "symbol" ist das rote Spiegelacryl, "symbol-gold" und "symbol-silber" die weiteren Markerfarben (marker.ts). */
+export type LagenKey = "symbol" | "symbol-gold" | "symbol-silber" | "deck" | "netz" | "hintergrund" | "blau";
 
 export interface Lage {
   key: LagenKey;
@@ -100,8 +112,10 @@ export interface SchichtkartenErgebnis {
   vorschauSvg: string;
   /** Wirksame Kartenmitte – die Vorschau rechnet damit Ziehen in Koordinaten um. */
   kartenMitte: { lon: number; lat: number };
-  /** Standort-Symbol in mm: Anker auf dem Ort und Umriss-Box; null ausserhalb des Ausschnitts. */
-  symbol: { ankerXMm: number; ankerYMm: number; xMm: number; yMm: number; breiteMm: number; hoeheMm: number } | null;
+  /** Erster sichtbarer Marker (bisher: das Standort-Symbol); null, wenn keiner im Ausschnitt liegt. */
+  symbol: SymbolLage | null;
+  /** Alle sichtbaren Marker; `index` ist ihre Stelle in der Marker-Liste des Kunden. */
+  symbole: SymbolLage[];
   lagen: Lage[];
   layout: Layout;
   /** Gewaehlter Holzrahmen mit Profil; null ohne Rahmen. */
@@ -126,7 +140,7 @@ export interface SchichtkartenErgebnis {
  * Was die Vorschau zum Anfassen braucht. Die Skizze (skizze.ts) liefert es in Millisekunden, das volle Ergebnis
  * spaeter mit allen Lagen – die Vorschau zeigt, was gerade da ist.
  */
-export type Anzeige = Pick<SchichtkartenErgebnis, "vorschauSvg" | "layout" | "kartenMitte" | "symbol" | "ausschnittMeter" | "rahmen"> & {
+export type Anzeige = Pick<SchichtkartenErgebnis, "vorschauSvg" | "layout" | "kartenMitte" | "symbol" | "symbole" | "ausschnittMeter" | "rahmen"> & {
   teilung?: TeilungsErgebnis | null;
 };
 

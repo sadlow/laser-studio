@@ -72,6 +72,12 @@ export function vorschauSvg(layout: Layout, schritte: Malschritt[]): string {
     `<linearGradient id="rot" x1="0" y1="0" x2="1" y2="1">` +
     `<stop offset="0" stop-color="#7d0c12"/><stop offset=".45" stop-color="#f0525a"/>` +
     `<stop offset="1" stop-color="#8f1016"/></linearGradient>` +
+    `<linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">` +
+    `<stop offset="0" stop-color="#7a5a17"/><stop offset=".45" stop-color="#f3d88a"/>` +
+    `<stop offset="1" stop-color="#8a6a1f"/></linearGradient>` +
+    `<linearGradient id="silber" x1="0" y1="0" x2="1" y2="1">` +
+    `<stop offset="0" stop-color="#6d7175"/><stop offset=".45" stop-color="#f2f4f6"/>` +
+    `<stop offset="1" stop-color="#7b7f84"/></linearGradient>` +
     `<filter id="schatten" x="-5%" y="-5%" width="110%" height="110%">` +
     `<feDropShadow dx="0.25" dy="0.35" stdDeviation="0.3" flood-color="#000" flood-opacity="0.55"/></filter>` +
     `</defs>` +

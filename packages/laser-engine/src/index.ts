@@ -3,6 +3,7 @@ import { zoomEntsprechung } from "./geo";
 import { ringeInMm } from "./geometrie";
 import { gravurMasse } from "./gravur-export";
 import { holzrahmenPruefen } from "./holzrahmen";
+import { istSymbolLage, markerAlsListe } from "./marker";
 import { ladeKartenRohdaten } from "./kacheln";
 import { weiter } from "./abbruch";
 import { baueBausteine } from "./lagen";
@@ -29,6 +30,7 @@ export { FORMATE, masseAusFormat } from "./formate";
 export { berechneLayout } from "./layout";
 export { POSTER_MASSE, standardLayoutWerte } from "./poster-masse";
 export { SYMBOL_TITEL, symbolPfad, type SymbolArt, type SymbolGroesse } from "./symbole";
+export { istSymbolLage, MARKER_FARBEN, markerDerKarte } from "./marker";
 export {
   standardSchichtkarte,
   STRASSEN_STANDARD,
@@ -145,13 +147,19 @@ export async function rendereSchichtkarte(
         (symbolUeberNetzMm === 0 ? "buendig mit dem Netz." : `${(-symbolUeberNetzMm).toFixed(1)} mm tiefer.`),
     );
   }
-  if (!b.symbolLage) {
+  if (!markerAlsListe(k) && !b.symbolLage) {
     warnungen.push("Der Ort liegt ausserhalb des Kartenausschnitts – das Standort-Symbol fehlt. Karte zurueckschieben oder zentrieren.");
+  }
+  if (markerAlsListe(k) && b.markerAusserhalb > 0) {
+    warnungen.push(
+      (b.markerAusserhalb === 1 ? "Ein Marker liegt" : `${b.markerAusserhalb} Marker liegen`) +
+        " ausserhalb des Kartenausschnitts und fehlen. Karte verschieben oder den Marker neu setzen.",
+    );
   }
 
   const textZonen = textblock.zeilen.map((z) => ({ name: z.name, zone: umgebend(ringeInMm(z.flaeche).flat()) }));
-  const stapelMm = s.lagen.filter((l) => l.key !== "symbol").reduce((summe, l) => summe + l.staerkeMm, 0);
-  const holz = holzrahmenPruefen(k, layout, b.symbolLage, textZonen, stapelMm);
+  const stapelMm = s.lagen.filter((l) => !istSymbolLage(l.key)).reduce((summe, l) => summe + l.staerkeMm, 0);
+  const holz = holzrahmenPruefen(k, layout, b.symbole, textZonen, stapelMm);
   const gravur = gravurMasse(s.lagen);
   warnungen.push(...holz.warnungen);
   await weiter(signal);
@@ -164,6 +172,7 @@ export async function rendereSchichtkarte(
     vorschauSvg: s.vorschauSvg,
     kartenMitte,
     symbol: b.symbolLage,
+    symbole: b.symbole,
     lagen: s.lagen,
     layout,
     rahmen: holz.rahmen,
