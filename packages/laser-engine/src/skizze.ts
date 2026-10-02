@@ -3,7 +3,6 @@ import { clipPolyline } from "./clip";
 import { breitenbezug, laengenImFenster, waehleNetz } from "./dichte";
 import { stuetzeNetz } from "./querverbindung";
 import { schluessel } from "./netz-ketten";
-import { ortZuMm } from "./geo";
 import { flaecheMm2, rechteck, ringeInMm, schneide, vereinige, zuFlaeche, type Flaeche } from "./geometrie";
 import { setzeEingebettet } from "./ecken";
 import { ladeKartenRohdaten } from "./kacheln";
@@ -12,7 +11,7 @@ import { berechneLayout } from "./layout";
 import { anschluesseAnRahmen } from "./randanschluss";
 import { FARBE_FROST, GRAVUR_AUF_SCHWARZ, GRAVUR_AUF_WEISS } from "./stapel";
 import { FARBE_SCHWARZ, FARBE_WEISS } from "./svg";
-import { symbolBreiteMm, symbolEinpassen } from "./symbole";
+import { MARKER_LAGE, markerFarbe, platziereMarker } from "./marker";
 import { setzePosterText } from "./textblock";
 import { REFERENZ_KARTENBREITE_MM, type Schichtkarte, type Skizze } from "./typen";
 import { vervollstaendige } from "./vervollstaendige";
@@ -90,9 +89,10 @@ export async function skizziereSchichtkarte(eingabe: Schichtkarte, quelleOderTok
   const rahmen = `M0,0H${z(p.breiteMm)}V${z(p.hoeheMm)}H0Z` + ringD([[f.xMm, f.yMm], [f.xMm, f.yMm + f.hoeheMm], [f.xMm + f.breiteMm, f.yMm + f.hoeheMm], [f.xMm + f.breiteMm, f.yMm]].map(([x, y]) => ({ x, y })));
   const ausschnitt = text.zeilen.map((zl) => flD(zl.schnitt)).join("");
 
-  const anker = ortZuMm({ lon: k.lon, lat: k.lat }, kartenMitte, k.ausschnittKm * 1000, f);
-  const imFenster = anker.x >= f.xMm && anker.x <= f.xMm + f.breiteMm && anker.y >= f.yMm && anker.y <= f.yMm + f.hoeheMm;
-  const sym = symbolEinpassen(k.kunde.symbol ?? "herz", anker.x, anker.y, symbolBreiteMm(k.symbolStufenMm, k.kunde.symbolGroesse, faktor));
+  const marker = platziereMarker(k, kartenMitte, f, faktor);
+  const markerPfade = marker.platziert
+    .map((m, i) => `<path id="${i === 0 ? "symbol" : `symbol-${m.index}`}" d="${m.ringe.map((r) => ringD(r)).join("")}" fill="${MARKER_LAGE[markerFarbe(m.marker)].fuellung}" fill-rule="evenodd"/>`)
+    .join("");
 
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="${z(p.breiteMm)}mm" height="${z(p.hoeheMm)}mm" viewBox="0 0 ${z(p.breiteMm)} ${z(p.hoeheMm)}">` +
@@ -100,6 +100,8 @@ export async function skizziereSchichtkarte(eingabe: Schichtkarte, quelleOderTok
     `<linearGradient id="blau" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b4b82"/><stop offset=".45" stop-color="#7fb4e3"/>` +
     `<stop offset=".55" stop-color="#5d97cf"/><stop offset="1" stop-color="#173f70"/></linearGradient>` +
     `<linearGradient id="rot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7d0c12"/><stop offset=".45" stop-color="#f0525a"/><stop offset="1" stop-color="#8f1016"/></linearGradient>` +
+    `<linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a5a17"/><stop offset=".45" stop-color="#f3d88a"/><stop offset="1" stop-color="#8a6a1f"/></linearGradient>` +
+    `<linearGradient id="silber" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d7175"/><stop offset=".45" stop-color="#f2f4f6"/><stop offset="1" stop-color="#7b7f84"/></linearGradient>` +
     `<clipPath id="fenster"><rect x="${z(f.xMm)}" y="${z(f.yMm)}" width="${z(f.breiteMm)}" height="${z(f.hoeheMm)}"/></clipPath></defs>` +
     `<rect width="${z(p.breiteMm)}" height="${z(p.hoeheMm)}" fill="${grund}"/>` +
     `<path d="${flD(wasser)}" fill="url(#blau)" fill-rule="nonzero"/>` +
@@ -111,14 +113,15 @@ export async function skizziereSchichtkarte(eingabe: Schichtkarte, quelleOderTok
     `<path d="${flD(text.schutz)}" fill="${obenFarbe}"/>` +
     // Durch die ausgeschnittene Schrift sieht man, was darunter liegt: mit Deckschicht das schwarze Netz, sonst den Grund.
     `<path d="${ausschnitt}" fill="${deck ? FARBE_SCHWARZ : grund}"/>` +
-    (imFenster ? `<path id="symbol" d="${sym.ringe.map((r) => ringD(r)).join("")}" fill="url(#rot)" fill-rule="evenodd"/>` : "") +
+    markerPfade +
     `</svg>`;
 
   return {
     vorschauSvg: svg,
     layout,
     kartenMitte,
-    symbol: imFenster ? { ankerXMm: anker.x, ankerYMm: anker.y, ...sym.box } : null,
+    symbol: marker.platziert[0]?.lage ?? null,
+    symbole: marker.platziert.map((m) => m.lage),
     ausschnittMeter: roh.ausschnittMeter,
     rahmen: (k.kunde.holzrahmen ?? "ohne") === "ohne" ? null : { farbe: k.kunde.holzrahmen as Exclude<typeof k.kunde.holzrahmen, "ohne">, ...k.holzrahmenProfil },
     rechenzeitMs: Date.now() - start,

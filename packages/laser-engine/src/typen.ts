@@ -40,9 +40,28 @@ export interface Kundeneingabe {
   symbolGroesse: SymbolGroesse;
   /** Optionaler Holzrahmen – das Profil legt die Vorlage fest. */
   holzrahmen: Holzrahmen;
+  /**
+   * Marker auf der Karte (Marcel 01.10.2026): keiner, einer oder mehrere, je mit Form, Groesse und Stelle.
+   * Fehlt die Liste, sitzt wie bisher genau ein Symbol (`symbol`, `symbolGroesse`) auf dem Ort; eine leere
+   * Liste heisst: kein Symbol, keine rote Lage.
+   */
+  marker?: Marker[];
   /** Nur Layout "kante": Titel links oder rechts auf der Kante, Zeile im Rand links, mittig oder rechts. */
   titelLage?: TitelLage;
   zeilenLage?: ZeilenLage;
+}
+
+/** Spiegelacryl der Marker (Marcel 01.10.2026): rot wie bisher, dazu gold und silber, alle verspiegelt. */
+export type MarkerFarbe = "rot" | "gold" | "silber";
+
+/** Ein Marker: Spiegelacryl in Form `art`, Anker (Spitze bei Herz und Pin) auf lon/lat. */
+export interface Marker {
+  art: SymbolArt;
+  groesse: SymbolGroesse;
+  lon: number;
+  lat: number;
+  /** Ohne Angabe rot. */
+  farbe?: MarkerFarbe;
 }
 
 export type Holzrahmen = "ohne" | "schwarz" | "weiss" | "eiche" | "dunkelbraun";

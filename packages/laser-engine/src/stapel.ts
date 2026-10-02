@@ -1,7 +1,7 @@
 import { enthaelt, schwerpunkt, teile, vereinige, ziehAb } from "./geometrie";
 import { sichtbareGravur } from "./gravur-export";
 import type { Bausteine } from "./lagen";
-import { SYMBOL_TITEL } from "./symbole";
+import { MARKER_LAGE, symbolTitel } from "./marker";
 import { SPLITTER_MM2 } from "./wasser";
 import { FARBE_LOSE, FARBE_SCHWARZ, FARBE_WEISS, laserSvg, vorschauSvg, type Gravur, type Malschritt } from "./svg";
 import type { LagenKey, Lage, Layout, Schichtkarte, Teil } from "./typen";
@@ -37,7 +37,9 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine, laser
   // Hintergrund haelt ueber die Bruecke zusammen, statt am Fluss zu zerfallen.
   const hintergrund = teile(ziehAb(b.plattenFl, ziehAb(b.wasser, b.netz)), SPLITTER_MM2);
   const blau = teile(b.plattenFl);
-  const symbolTitel = SYMBOL_TITEL[k.kunde.symbol] ?? "Symbol";
+  // Marker obenauf, je Farbe eine Lage aus eigenem Spiegelacryl.
+  const markerLagen = b.symbolJeFarbe.map((g) => lage(laserdateien, k, layout, MARKER_LAGE[g.farbe].key, symbolTitel(k, g.farbe), MARKER_LAGE[g.farbe].material, g.teile));
+  const markerSchritte: Malschritt[] = b.symbolJeFarbe.map((g, i) => ({ art: "flaeche", teile: g.teile, fuellung: MARKER_LAGE[g.farbe].fuellung, schatten: true, id: i === 0 ? "symbol" : `symbol-${g.farbe}` }));
   const gravur = sichtbareGravur(b.gravur, k.gravurExport);
 
   if (k.aufbau === "netz-schwarz") {
@@ -55,11 +57,11 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine, laser
       { art: "flaeche", teile: netzHaupt ? [netzHaupt] : [], fuellung: FARBE_SCHWARZ, schatten: true },
       { art: "flaeche", teile: netzLose, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : FARBE_SCHWARZ },
       { art: "flaeche", teile: deck, fuellung: FARBE_WEISS, schatten: true },
-      { art: "flaeche", teile: b.symbol, fuellung: "url(#rot)", schatten: true, id: "symbol" },
+      ...markerSchritte,
     ];
     return {
       lagen: [
-        lage(laserdateien, k, layout, "symbol", symbolTitel, "Spiegelacryl rot", b.symbol),
+        ...markerLagen,
         lage(laserdateien, k, layout, "deck", "Weiss oben", "Acrylglas weiss", deck),
         lage(laserdateien, k, layout, "netz", "Schwarz (Netz)", "Acrylglas schwarz", netz),
         lage(laserdateien, k, layout, "hintergrund", "Weiss unten", "Acrylglas weiss", hintergrund, b.gravur, b.klebeflaeche),
@@ -93,11 +95,11 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine, laser
     { art: "flaeche", teile: b.klebeflaeche, fuellung: schwarz ? GRAVUR_AUF_WEISS : GRAVUR_AUF_SCHWARZ },
     { art: "flaeche", teile: netzHaupt ? [netzHaupt, ...loseText] : [], fuellung: netzFarbe, schatten: true },
     { art: "flaeche", teile: loseNetz, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : netzFarbe },
-    { art: "flaeche", teile: b.symbol, fuellung: "url(#rot)", schatten: true, id: "symbol" },
+    ...markerSchritte,
   ];
   return {
     lagen: [
-      lage(laserdateien, k, layout, "symbol", symbolTitel, "Spiegelacryl rot", b.symbol),
+      ...markerLagen,
       lage(laserdateien, k, layout, "netz", netzTitel, netzMaterial, netz),
       lage(laserdateien, k, layout, "hintergrund", grundTitel, grundMaterial, hintergrund, b.gravur, b.klebeflaeche),
       lage(laserdateien, k, layout, "blau", "Blau", "Spiegelacryl blau", blau),

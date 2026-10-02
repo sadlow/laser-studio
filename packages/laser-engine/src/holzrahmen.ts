@@ -12,7 +12,7 @@ export const HOLZRAHMEN_TITEL: Record<Holzrahmen, string> = { ohne: "ohne", schw
 export function holzrahmenPruefen(
   k: Schichtkarte,
   layout: Layout,
-  symbol: SchichtkartenErgebnis["symbol"],
+  symbole: SchichtkartenErgebnis["symbol"] | SchichtkartenErgebnis["symbole"],
   textZonen: SchichtkartenErgebnis["textZonen"],
   stapelMm: number,
 ): { rahmen: SchichtkartenErgebnis["rahmen"]; warnungen: string[]; randImRahmenMm: number } {
@@ -30,8 +30,13 @@ export function holzrahmenPruefen(
   if (randImRahmenMm < 0) {
     warnungen.push(`Der Holzrahmen steht ${u} mm ueber das Motiv, der Rand ist nur ${randMm(k)} mm – ${(-randImRahmenMm).toFixed(1)} mm der Karte liegen unter dem Rahmen.`);
   }
-  if (symbol && verdeckt(symbol)) {
-    warnungen.push("Das Standort-Symbol reicht unter den Holzrahmen und stuende gegen die Rahmenkante. Symbol weiter nach innen ziehen.");
+  const liste = Array.isArray(symbole) ? symbole : symbole ? [symbole] : [];
+  if (liste.some(verdeckt)) {
+    warnungen.push(
+      liste.length > 1
+        ? "Ein Marker reicht unter den Holzrahmen und stuende gegen die Rahmenkante. Marker weiter nach innen ziehen."
+        : "Das Standort-Symbol reicht unter den Holzrahmen und stuende gegen die Rahmenkante. Symbol weiter nach innen ziehen.",
+    );
   }
   const text = textZonen.filter((t) => verdeckt(t.zone)).map((t) => t.name);
   if (text.length) warnungen.push(`${text.join(", ")} reicht unter den Holzrahmen.`);
