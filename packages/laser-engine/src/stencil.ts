@@ -1,5 +1,6 @@
 import type { Punkt } from "./clip";
 import { vereinige, zuFlaeche, type Flaeche } from "./geometrie";
+import { stegeHalbinseln } from "./halbinseln";
 import { alsFlaeche, geradeSeiten, ringeMitPunzen, senkrechtKreuzungen } from "./punzen";
 
 // Kleiner ist ein Rechenrest, keine Punze: zufuellen.
@@ -22,6 +23,8 @@ export interface Stege {
   zugefuelltAnzahl: number;
   /** Punzen, fuer die kein Steg gefunden wurde – sie fielen heraus. */
   ohneSteg: number;
+  /** Fast geschlossene Flaechen, die nur an einem schmalen Hals hingen und Stege bekamen (halbinseln.ts). */
+  halbinseln: number;
 }
 
 /**
@@ -91,7 +94,16 @@ export function stegeDruckschrift(ink: Flaeche, R: StegRegeln, nurUnten = false)
     }
     if (stege.length === vorher) ohneSteg++;
   }
-  return { stege: vereinige(...stege), zugefuellt: alsFlaeche(zugefuellt), anzahl: stege.length, zugefuelltAnzahl: zugefuellt.length, ohneSteg };
+  // Fast geschlossene Bogen (G, C, & der Zeilenschrift), die nur an einem schmalen Hals haengen.
+  const h = stegeHalbinseln(ink, R.stegMm);
+  return {
+    stege: vereinige(...stege, h.stege),
+    zugefuellt: alsFlaeche(zugefuellt),
+    anzahl: stege.length + h.anzahl,
+    zugefuelltAnzahl: zugefuellt.length,
+    ohneSteg: ohneSteg + h.ohneSteg,
+    halbinseln: h.halbinseln,
+  };
 }
 
 /** Punze und alle Ringe um `winkel` gedreht – im gedrehten Bild laeuft der Steg senkrecht. */
