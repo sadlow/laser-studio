@@ -90,7 +90,7 @@ export function vorschauSvg(layout: Layout, schritte: Malschritt[]): string {
  * Datei fuer den Laser: Schnitt rot, Gravur schwarz, Einheit mm, keine Fuellung.
  * Genau eine Platte je Datei – jede Lage ist ein eigenes Material.
  */
-export function laserSvg(layout: Layout, titel: string, schnitt: Teil[], gravur: Gravur = [], klebeflaeche: Teil[] = []): string {
+export function laserSvg(layout: Layout, titel: string, schnitt: Teil[], gravur: Gravur = [], klebeflaeche: Teil[] = [], flaechenGravur: Teil[] = []): string {
   const { breiteMm: b, hoeheMm: h } = layout.platte;
   const gravurTeil = gravur.length
     ? `<g id="gravur" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round">` +
@@ -98,10 +98,13 @@ export function laserSvg(layout: Layout, titel: string, schnitt: Teil[], gravur:
       `</g>`
     : "";
   const klebeTeil = klebeflaeche.length ? `<g id="klebeflaeche" fill="#000000" stroke="none"><path d="${teileD(klebeflaeche)}" fill-rule="evenodd"/></g>` : "";
+  // Als Flaeche gravierte Texte (Layout "herz"): gefuellt, die Lasersoftware rastert sie.
+  const flaechenTeil = flaechenGravur.length ? `<g id="textgravur" fill="#000000" stroke="none"><path d="${teileD(flaechenGravur)}" fill-rule="evenodd"/></g>` : "";
   return (
     kopf(b, h, titel) +
     gravurTeil +
     klebeTeil +
+    flaechenTeil +
     `<g id="schnitt" fill="none" stroke="#ff0000" stroke-width="0.1"><path d="${teileD(schnitt)}"/></g>` +
     `</svg>`
   );

@@ -1,3 +1,4 @@
+import { fensterFlaeche } from "./fenster";
 import { clipPolyline, type Punkt } from "./clip";
 import type { NetzAuswahl } from "./dichte";
 import { ausTeilen, flaecheMm2, puffereLinien, rechteck, saeubere, schneide, teile, vereinige, versatz, ziehAb, ziehLinienAb, type Flaeche } from "./geometrie";
@@ -43,7 +44,7 @@ export interface Netz {
  */
 export function baueNetz(k: Schichtkarte, roh: KartenRohdaten, layout: Layout, schutz: Flaeche, auswahl: NetzAuswahl, symbolLoch: Flaeche = [], freiraum: Flaeche = []): Netz {
   const { platte, kartenfenster: f } = layout;
-  const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
+  const fensterFl = fensterFlaeche(k, layout);
   const imFenster = (linien: Punkt[][]) =>
     linien.flatMap((l) => clipPolyline(l, f.xMm, f.yMm, f.xMm + f.breiteMm, f.yMm + f.hoeheMm));
   const strichHerabgestuft = Math.max(0.15, GRAVUR_HERABGESTUFT_MM * auswahl.breitenfaktor);

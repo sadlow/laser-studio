@@ -21,6 +21,7 @@ export { ARCHIV_ZOOM, protomapsQuelle } from "./quelle-protomaps";
 
 export { teilungFuer } from "./teilung-hinweise";
 import { setzePosterText } from "./textblock";
+import { setzeHerzText } from "./herz-text";
 import { setzeKante } from "./kante";
 import { REFERENZ_KARTENBREITE_MM, type Schichtkarte, type SchichtkartenErgebnis } from "./typen";
 import { zeichenWarnungen } from "./zeichen";
@@ -31,6 +32,9 @@ export { berechneLayout } from "./layout";
 export { POSTER_MASSE, standardLayoutWerte } from "./poster-masse";
 export { SYMBOL_TITEL, symbolPfad, type SymbolArt, type SymbolGroesse } from "./symbole";
 export { istSymbolLage, MARKER_FARBEN, markerDerKarte } from "./marker";
+export { HOLZ_MASSSTAB, herzLayout, standardHolzkarte, STRASSEN_HOLZ } from "./holzkarte";
+export { HOLZ_STANDARD } from "./stapel-holz";
+export { HERZ_FENSTER_FORM, HERZ_FENSTER_HOEHE } from "./herz-form";
 export {
   standardSchichtkarte,
   STRASSEN_STANDARD,
@@ -83,7 +87,9 @@ export async function rendereSchichtkarte(
   await weiter(signal);
 
   const textblock =
-    k.layoutArt === "eingebettet" ? setzeEingebettet(k, layout) : k.layoutArt === "kante" ? setzeKante(k, layout) : setzePosterText(k, layout);
+    k.layoutArt === "herz" && k.herz
+      ? setzeHerzText(k, layout)
+      : k.layoutArt === "eingebettet" ? setzeEingebettet(k, layout) : k.layoutArt === "kante" ? setzeKante(k, layout) : setzePosterText(k, layout);
   warnungen.push(...zeichenWarnungen(k), ...textblock.warnungen);
 
   await weiter(signal);
@@ -141,7 +147,8 @@ export async function rendereSchichtkarte(
 
   // Symbol auf dem Hintergrund, Netzlage mit Ausschnitt: so weit steht es vor.
   const symbolUeberNetzMm = k.staerkenMm.spiegel - (s.lagen.find((l) => l.key === "netz")?.staerkeMm ?? 0);
-  if (b.symbolLage && symbolUeberNetzMm <= 0) {
+  // Holz: das Symbol sitzt im Loch der 3-mm-Netzlage, buendig ist dort gewollt.
+  if (b.symbolLage && symbolUeberNetzMm <= 0 && k.aufbau !== "holz") {
     warnungen.push(
       `Das Symbol (${k.staerkenMm.spiegel} mm) steht nicht ueber das Netz hinaus, es liegt ` +
         (symbolUeberNetzMm === 0 ? "buendig mit dem Netz." : `${(-symbolUeberNetzMm).toFixed(1)} mm tiefer.`),

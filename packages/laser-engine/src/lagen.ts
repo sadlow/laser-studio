@@ -2,6 +2,7 @@ import { weiter } from "./abbruch";
 import type { Punkt } from "./clip";
 import { breitenbezug, laengenImFenster, waehleNetz } from "./dichte";
 import { brueckenStreifen } from "./bruecken";
+import { fensterFlaeche } from "./fenster";
 import { duenneAus } from "./gravur-duenn";
 import { baueNetz } from "./netz";
 import {
@@ -50,6 +51,8 @@ export interface Bausteine {
   wasser: Flaeche;
   /** Was aus der weissen Oberseite fuer die Buchstaben herausgeschnitten wird. */
   textAusschnitt: Flaeche;
+  /** Layout "herz": die Texte als gravierte Flaeche (die Zeilen werden dort nicht geschnitten). */
+  textGravur: Flaeche;
   gravur: { linien: Punkt[][]; breiteMm: number }[];
   klebeflaeche: Teil[];
   symbol: Teil[];
@@ -78,7 +81,7 @@ const KLEBE_EINZUG_MM = 0.3;
 export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: KartenRohdaten, text: Textblock, signal?: AbortSignal): Promise<Bausteine> {
   const { platte, kartenfenster: f } = layout;
   const plattenFl = rechteck(0, 0, platte.breiteMm, platte.hoeheMm);
-  const fensterFl = rechteck(f.xMm, f.yMm, f.breiteMm, f.hoeheMm);
+  const fensterFl = fensterFlaeche(k, layout);
   const schutz = schneide(text.schutz, fensterFl);
   const freiraum = text.freiraum ? schneide(text.freiraum, fensterFl) : [];
   const traeger = text.traeger ? schneide(text.traeger, fensterFl) : [];
@@ -138,8 +141,13 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
 
   // --- Text: ausgeschnitten, Innenflaechen an Stegen – gesetzt und gestegt schon beim Setzen (schnitt-text.ts).
   const ausschnitte: Flaeche[] = [];
+  const graviert: Flaeche[] = [];
   let [stege, ohneSteg, zugefuellt] = [0, 0, 0];
   for (const zeile of text.zeilen) {
+    if (k.layoutArt === "herz") {
+      graviert.push(zeile.flaeche);
+      continue;
+    }
     ausschnitte.push(zeile.schnitt);
     stege += zeile.stege;
     ohneSteg += zeile.ohneSteg;
@@ -155,7 +163,10 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
   // noch ueber Wasser (dort ist kein Material, der Laser graviert Luft) noch
   // unter dem Netz (unsichtbar). Das Netz allein spart gemessen 31 % Gravurweg
   // bei 160 ms Rechenzeit – A4 Berlin: 15,0 m auf 10,4 m.
-  const gravurAus = vereinige(schutz, traeger, inseln.wasser, netz, symbolLoch);
+  // Herz: ausserhalb des Fensters liegt die Netzlage darueber – dort gravierte man unsichtbar.
+  const gravurAus = k.layoutArt === "herz"
+    ? vereinige(schutz, traeger, inseln.wasser, netz, symbolLoch, ziehAb(plattenFl, fensterFl))
+    : vereinige(schutz, traeger, inseln.wasser, netz, symbolLoch);
   const beschnitten = gravurRoh.map((g) => ({ linien: ziehLinienAb(g.linien, gravurAus), breiteMm: g.breiteMm }));
   // Linien, die der Strahl gemeinsam brennen wuerde, nur einmal (gravur-duenn.ts) – nicht bei Flaechengravur.
   const dicht = k.gravurExport.art !== "flaeche" ? duenneAus(beschnitten, k.gravurExport.minAbstandMm ?? 0) : null;
@@ -172,6 +183,7 @@ export async function baueBausteine(k: Schichtkarte, layout: Layout, roh: Karten
     traeger,
     wasser: inseln.wasser,
     textAusschnitt: vereinige(...ausschnitte),
+    textGravur: graviert.length ? vereinige(...graviert) : [],
     gravur,
     klebeflaeche,
     symbol,
