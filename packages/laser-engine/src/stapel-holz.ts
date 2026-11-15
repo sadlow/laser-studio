@@ -19,6 +19,7 @@ export const FARBE_HELLBLAU = "#4f9fd6";
 // Auf Birne brennt der Laser dunkelbraun; duenne UltraLight-Striche wirkten mit dem helleren Ton nur wie ein Hauch.
 export const GRAVUR_AUF_BIRNE = "#5c3519";
 export const GRAVUR_AUF_NUSS = "#3d2a1e";
+const VORSCHAU_BRAND_MM = 0.15;
 
 interface Vorstufe {
   rahmen: Flaeche;
@@ -49,6 +50,9 @@ export function stapleHolz(k: Schichtkarte, layout: Layout, b: Bausteine, laserd
     { art: "flaeche", teile: netzHaupt ? [netzHaupt] : [], fuellung: FARBE_BIRNE, schatten: true },
     { art: "flaeche", teile: lose, fuellung: k.loseTeileMarkieren ? FARBE_LOSE : FARBE_BIRNE },
     { art: "flaeche", teile: text, fuellung: GRAVUR_AUF_BIRNE },
+    // Brandkante nur in der Vorschau: Der Laser brennt bei Flaechengravur etwas ueber die Kontur hinaus, sonst waeren
+    // die UltraLight-Zeilen am Bildschirm duenner als ein Bildpunkt und kaum zu lesen. Die Laserdatei bleibt die Kontur.
+    { art: "gravur", gravur: [{ linien: text.flatMap((t) => [t.aussen, ...t.loecher].map((r) => [...r, r[0]])), breiteMm: VORSCHAU_BRAND_MM }], farbe: GRAVUR_AUF_BIRNE },
     ...v.markerSchritte,
   ];
   const lage = (key: LagenKey, titel: string, p: HolzPlatte, t: Teil[], gravur: Gravur = [], klebe: Teil[] = [], textGravur: Teil[] = []): Lage => {
