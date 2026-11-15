@@ -28,7 +28,7 @@ alle Parameter ausser `kunde`, `lon`, `lat`.
 | `kacheln.ts`, `quelle*.ts` | Vector-Tiles -> Linien/Flaechen in mm, Tunnel und Gehwege raus; Quelle: eigenes Archiv (Protomaps, `KARTE_ARCHIV`), Mapbox als Rueckfall |
 | `layout.ts`, `textblock.ts`, `ecken.ts`, `kante.ts` | Zonen; Texte im Poster, in Reitern oder Titel als Material auf der unteren Kante |
 | `poster-masse.ts`, `symbole.ts` | Gemessene Poster-Masse je Format; Standort-Symbole mit Anker |
-| `schnitt-text.ts`, `stencil.ts`, `stencil-schreib.ts`, `sonderzeichen.ts`, `strich.ts` | Schrift, wie sie geschnitten wird: Druckschrift Glyphe fuer Glyphe eckig verstaerkt, Stege wie gezeichnete Stencil-Schriften, Gradring, Abstaende; Titel nur aussen verstaerkt, Stege durch die duennste Wand |
+| `schnitt-text.ts`, `stencil.ts`, `stencil-schreib.ts`, `halbinseln.ts`, `sonderzeichen.ts`, `strich.ts` | Schrift, wie sie geschnitten wird: Druckschrift Glyphe fuer Glyphe eckig verstaerkt, Stege wie gezeichnete Stencil-Schriften, Gradring, Abstaende; Titel nur aussen verstaerkt, Stege durch die duennste Wand; Halbinseln an Haelsen unter 2 mm bekommen Stege |
 | `dichte.ts`, `netz.ts`, `randanschluss.ts`, `bruecken.ts`, `querverbindung.ts` | Netzklassen und Breiten nach Dichte vor Ort; Enden am Rahmen angeschlossen, Spalte < 0,5 mm zu; lose Stuecke -> Gravur; Bruecken gravierter Strassen; lange freie Straenge per Querverbindung gestuetzt |
 | `wasser.ts` | Wasser im Fenster, schmale Kanaele und kleine Inseln raus |
 | `lagen.ts` | Bausteine: Netz, Wasser, Textausschnitt, Gravur, Herz |
@@ -47,7 +47,7 @@ Server (`src/server/`): `vorlagen.ts` (JSON), `export.ts` (Exportknopf: Produkti
 Alle mit Messwert in **`docs/entscheidungen.md`** – vor Aenderungen an Breiten,
 Stegen, Filtern oder Exportformat dort lesen. Die wichtigsten:
 - Gleicher Massstab als Start: A4 bei 3,5 km (30 x 30 5,1 km, 60 x 60 10,1 km, hoechstens 30); Breiten wachsen mit dem Format nur bis 30 x 30, weiter draussen nicht breiter in Metern, ab 1,5-fachem Massstab eine Klasse mehr graviert; Netz im Raster ab 0,7 mm, frei laufend 0,8, in 2 mm lange Straenge 1,0 (Stabilitaets-Testbogen)
-- Testblatt 2 mm Weiss: Spalt, Strasse ab 0,5 mm. Stege 0,7 mm (0,5 brach beim Herausdruecken), Schrift mind. 0,8 mm Strich, 0,7 mm Material zwischen Buchstaben
+- Testblatt 2 mm Weiss: Spalt, Strasse ab 0,5 mm. Stege 0,7 mm (0,5 brach beim Herausdruecken), Schrift mind. 0,8 mm Strich, 0,7 mm Material zwischen Buchstaben; allein tragender Anschluss mind. 2 mm (& brach weg, 10.10.); Platten A5 150, A4 211 mm breit (Rahmen, 10.10.), Hoehen und A3 noch nachmessen
 - Gravur im Export: Mittellinie (Standard, Defocus 6 mm, durchgehende Wege, Kreuzungen einmal gebrannt), waehlbar Flaeche oder Kontur; nie unter Netz, Text oder Wasser; parallele Linien unter 0,75 mm nur einmal
 - Titel hoechstens 20 Zeichen, jede Zeile darunter 30 – bei Ort + Koordinaten zaehlen die Koordinaten mit
 - Strassenbreite folgt der Dichte vor Ort; Kunde waehlt Stufe viel/ausgewogen/wenig (Ziel 37/29/23 %, Strassen nur aus der eigenen Kachel); wenig graviert Wohnstrassen immer

@@ -95,6 +95,12 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   Gravur auf Weiss kaum lesbar -> `gravurprobe-weiss.ts`: Liniengravur mit Defocus 1/2/3, Flaechengravur zum Vergleich,
   Beschriftung geschnitten. Grenzen im Code noch nicht uebernommen.
 
+- **A5 150 mm, A4 211 mm breit** (Marcel 10.10.2026): die gekauften A5-Rahmen sind fuer 15 x 21 cm gebaut (Oeffnung
+  151 mm), die Karte mit 148 mm rutschte links und rechts; A4-Rahmen nehmen etwa 212 mm auf. Je 1 mm Spiel. Hoehen
+  (210/297) und A3 sind nicht nachgemessen und bleiben DIN. Texte haengen an der Plattenhoehe und bleiben gleich; das
+  Kartenfenster waechst um 2 bzw. 1 mm. `REFERENZ_KARTENBREITE_MM` bleibt 196 (DIN A4): A4 rechnet Strassen mit
+  Faktor 1,005, alle anderen Formate unveraendert.
+
 ## Oberflaeche (Marcel 16.09.2026)
 
 - **Rechnet die Vorschau, wird sie unscharf** und zeigt ein Ladezeichen mit „Abbrechen" (19.09.2026). Abbrechen laesst
@@ -205,6 +211,18 @@ je Abschnitt. Pruefskripte liegen unter `scripts/`.
   die schraegen Schleifen an wie Risse („Zuhmuze").
 - **Schmale Innenflaechen bekommen einen Steg** statt zugefuellt zu werden (unter 0,8 mm, das & bei A5) – zugefuellt
   war es ein Klecks. Unter 0,35 mm wird zugefuellt.
+- **Tragender Anschluss mindestens 2 mm** (`halbinseln.ts`, `ANSCHLUSS_MM`, Musterstueck 10.10.2026): Am
+  Kaufmannsund der Bacalisties hing der obere Bogen innen nur an einem Hals zwischen Strichende und Abstrich und brach
+  beim Schneiden oder Herausdruecken weg. Formal keine Punze, also bekam er keinen Steg. Hals im Titel „Lukas & Emily"
+  gemessen: A5 0,55-0,6 mm, A4 1,45 mm. Regel: Material, das nur an Haelsen schmaler als 2 mm haengt, ist eine
+  Halbinsel. Sind alle Haelse schmaler als ein Steg (0,7), bekommt sie zwei Stege wie eine Punze; hat sie genau einen
+  Hals ab Stegbreite, zaehlt er als ein Steg und ein zweiter kommt gegenueber dazu (mindestens ein Drittel des Umfangs
+  entfernt); zwei Haelse ab Stegbreite halten wie zwei Stege. 2 mm, weil ein einzelner Anschluss auch das Hebeln
+  abfangen muss, das zwei getrennte Stege unter sich aufteilen – rund drei Stegbreiten, und es deckt das A4-Mass ab.
+  Gefunden per Schliessen der Schrift um 1 mm (Halbinsel wird zum Loch), Stege wie im Titel quer durch die duennste
+  Wand. Gilt fuer Titel und Zeilen. `scripts/halbinseln-schrift.ts` (alle Titel- und Zeilenschriften, A5/A4/A3):
+  Titel 0-8 Halbinseln je Zeile (Cinderella am meisten: eingerollte Anstriche an B, H, M, N, R, a), Zeilen meist 0,
+  vereinzelt S, 5 und & ab A4. Rechenzeit Titel +50-200 ms. Am Werkstueck noch nicht bestaetigt.
 - **Gradzeichen als Ring mit einem Steg unten**: Strich 0,8, Innenkreis 0,9 mm, oben buendig. Das Zeichen der Schrift
   war nach dem Verstaerken ein Punkt („52•24", Marcel 17.09.); mit zwei Stegen las es sich als kleine Null.
 - **Material zwischen allem, was geschnitten wird, mindestens 0,7 mm** (`stegMinMm`): die Striche des “ und die

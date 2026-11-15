@@ -102,8 +102,8 @@ export function puffereLinien(linien: Punkt[][], breiteMm: number): Flaeche {
  * 6 235 Ringe unter 0,001 mm²); an ihnen ordnete Clipper beim Vereinigen einen Blockrand falsch zu und fuellte den
  * ganzen Block – ein See und ein Block ums Herz wurden Netz (26.09.2026). Abstand 1,415 µm: nur Rechenreste.
  */
-export function saeubere(flaeche: Flaeche): Flaeche {
-  return ClipperLib.Clipper.CleanPolygons(flaeche, 1.415);
+export function saeubere(flaeche: Flaeche, abstandMm = 0.001415): Flaeche {
+  return ClipperLib.Clipper.CleanPolygons(flaeche, abstandMm * S);
 }
 
 /** Waechst eine Flaeche nach aussen (positiv) oder schrumpft sie (negativ). */

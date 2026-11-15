@@ -25,6 +25,8 @@ export interface SchnittText {
   stege: number;
   zugefuellt: number;
   ohneSteg: number;
+  /** Fast geschlossene Flaechen, die nur an einem schmalen Hals hingen und Stege bekamen (halbinseln.ts). */
+  halbinseln: number;
   breiteMm: number;
   /** Kleiner als 1, wenn die Zeile auf die verfuegbare Breite verkleinert wurde. */
   faktor: number;
@@ -66,7 +68,7 @@ function druckschrift(satz: ZeilenSatz, R: SchnittRegeln): SchnittText {
   }
   abstaendeSichern(glyphen, R.materialMm);
 
-  let [stege, zugefuellt, ohneSteg] = [0, 0, 0];
+  let [stege, zugefuellt, ohneSteg, halbinseln] = [0, 0, 0, 0];
   const schnitte: Flaeche[] = [];
   for (const x of glyphen) {
     if (!x.ink.length) continue;
@@ -75,6 +77,7 @@ function druckschrift(satz: ZeilenSatz, R: SchnittRegeln): SchnittText {
     stege += s.anzahl;
     zugefuellt += s.zugefuelltAnzahl;
     ohneSteg += s.ohneSteg;
+    halbinseln += s.halbinseln;
     schnitte.push(ohneSplitter(ziehAb(vereinige(x.ink, s.zugefuellt), s.stege), SPLITTER_MM2));
   }
   // Wieder mittig: verstaerkt und auseinandergerueckt ist die Zeile breiter geworden.
@@ -88,6 +91,7 @@ function druckschrift(satz: ZeilenSatz, R: SchnittRegeln): SchnittText {
     stege,
     zugefuellt,
     ohneSteg,
+    halbinseln,
     breiteMm: xs.length ? Math.max(...xs) - Math.min(...xs) : 0,
     faktor: g.faktor,
   };
@@ -105,6 +109,7 @@ function schreibschrift(satz: ZeilenSatz, R: SchnittRegeln): SchnittText {
     stege: s.anzahl,
     zugefuellt: s.zugefuelltAnzahl,
     ohneSteg: s.ohneSteg,
+    halbinseln: s.halbinseln,
     breiteMm: g.breiteMm,
     faktor: g.faktor,
   };

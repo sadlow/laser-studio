@@ -26,7 +26,10 @@ export interface StrassenGruppe {
   nachruecken?: boolean;
 }
 
-/** Kartenbreite von A4 mit 7 mm Rahmen – der Bezug aller Strassenbreiten. */
+/**
+ * Kartenbreite von DIN A4 (210 mm) mit 7 mm Rahmen – der feste Bezug aller Strassenbreiten. Seit die A4-Platte 211 mm
+ * breit ist (10.10.2026), rechnet A4 mit Faktor 1,005; der Bezug bleibt, damit A5, A3 und die Quadrate gleich bleiben.
+ */
 export const REFERENZ_KARTENBREITE_MM = 196;
 
 /**
