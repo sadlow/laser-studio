@@ -1,3 +1,4 @@
+import { herzBox } from "./fenster";
 import { masseAusFormat } from "./formate";
 import { REFERENZ_KARTENBREITE_MM, type Layout, type Schichtkarte } from "./typen";
 
@@ -13,6 +14,11 @@ import { REFERENZ_KARTENBREITE_MM, type Layout, type Schichtkarte } from "./type
 export function berechneLayout(k: Schichtkarte): Layout {
   const { breiteMm, hoeheMm } = masseAusFormat(k.format, k.breiteMm, k.hoeheMm);
   const rahmen = randMm(k);
+
+  // Herz: das Fenster ist die Box des Herzens der Vorlage; die Flaeche selbst gibt fenster.ts.
+  if (k.layoutArt === "herz" && k.herz) {
+    return { platte: { xMm: 0, yMm: 0, breiteMm, hoeheMm }, kartenfenster: herzBox(k, breiteMm, hoeheMm) };
+  }
 
   // Eingebettet und Kante: die Karte fuellt alles innerhalb des Rahmens, unten breiter.
   if (k.layoutArt === "eingebettet" || k.layoutArt === "kante") {

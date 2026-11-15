@@ -14,6 +14,7 @@ import type { GravurExport } from "./typen-fertigung";
 import type { Generalisierung, NetzStabilitaet, StrassenGruppe, StrassenStufe } from "./typen-strassen";
 import type { KantenLayout, TitelLage, ZeilenLage } from "./typen-kante";
 import type { Teilungsvorgabe, TeilungsWahl } from "./typen-teilung";
+import type { HerzLayout, HolzAufbau } from "./typen-herz";
 
 export type FormatKey = "a5" | "a4" | "a3" | "quadrat30" | "quadrat60" | "frei";
 
@@ -32,6 +33,8 @@ export interface Kundeneingabe {
   letzteZeile: LetzteZeile;
   /** Ort vor den Koordinaten ("BERLIN"). */
   ortText: string;
+  /** Nur Layout "herz": die Zeile zwischen Namen und Koordinaten ("Potsdam, 2. August 2025"). */
+  ortDatum?: string;
   wunschtext: string;
   /** Wie viel vom Strassennetz geschnitten wird – die Bedeutung legt die Vorlage fest. */
   strassenStufe: StrassenStufe;
@@ -85,8 +88,10 @@ export interface HolzrahmenProfil {
  *              Entworfen fuer das Quadrat (Marcel 16.09.2026).
  * kante:       Titel als Material auf der unteren Rahmenkante, Zeile negativ im breiten Rand (typen-kante.ts, Marcel
  *              25.09.2026).
+ * herz:        Kartenfenster in Herzform, Texte darunter graviert statt geschnitten – die Tiefenwerk-Holzkarte
+ *              „MD2 We said yes“ (typen-herz.ts, Marcel 15.11.2026).
  */
-export type LayoutArt = "poster" | "eingebettet" | "kante";
+export type LayoutArt = "poster" | "eingebettet" | "kante" | "herz";
 
 export type Anker = "oben-mitte" | "oben-links" | "oben-rechts" | "unten-mitte" | "unten-links" | "unten-rechts";
 
@@ -120,8 +125,10 @@ export interface EingebettetesLayout {
  * netz-schwarz:           weiss-schwarz-weiss-blau – Positiv-Look des Posters,
  *                         darueber eine weisse Deckschicht nur mit Rahmen und
  *                         Text (Marcel 16.09.2026). Gravur auf Weiss sieht man kaum.
+ * holz:                   wie netz-weiss, aber Holz: Netz aus furniertem HDF, Grund aus Edelsperrholz, darunter
+ *                         Acrylglas (stapel-holz.ts). Die Texte sind auf der Netzlage graviert.
  */
-export type Aufbau = "netz-weiss" | "netz-schwarz-dreilagig" | "netz-schwarz";
+export type Aufbau = "netz-weiss" | "netz-schwarz-dreilagig" | "netz-schwarz" | "holz";
 
 export interface TextStil {
   /** Dateiname in ~/Library/Fonts oder /Library/Fonts. */
@@ -239,6 +246,10 @@ export interface Schichtkarte {
   teilung: Teilungsvorgabe;
   /** Im Studio umgewaehlte Naehte – sonst sucht die Engine die sauberste. */
   teilungWahl?: TeilungsWahl;
+  /** Nur Layout "herz": Herzform, Lage und Texte (typen-herz.ts). */
+  herz?: HerzLayout;
+  /** Nur Aufbau "holz": Platten und Staerken der Holzlagen (typen-herz.ts). */
+  holz?: HolzAufbau;
   /** Kartendaten: das eigene Archiv (OpenStreetMap, Standard) oder Mapbox (Rueckfall, Abgleich) – Marcel 25.09.2026. */
   kartenQuelle?: "archiv" | "mapbox";
 }
@@ -248,3 +259,4 @@ export * from "./typen-fertigung";
 export * from "./typen-strassen";
 export * from "./typen-teilung";
 export * from "./typen-kante";
+export * from "./typen-herz";

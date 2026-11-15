@@ -1,3 +1,4 @@
+import { stapleHolz } from "./stapel-holz";
 import { enthaelt, schwerpunkt, teile, vereinige, ziehAb } from "./geometrie";
 import { sichtbareGravur } from "./gravur-export";
 import type { Bausteine } from "./lagen";
@@ -41,6 +42,7 @@ export function stapleLagen(k: Schichtkarte, layout: Layout, b: Bausteine, laser
   const markerLagen = b.symbolJeFarbe.map((g) => lage(laserdateien, k, layout, MARKER_LAGE[g.farbe].key, symbolTitel(k, g.farbe), MARKER_LAGE[g.farbe].material, g.teile));
   const markerSchritte: Malschritt[] = b.symbolJeFarbe.map((g, i) => ({ art: "flaeche", teile: g.teile, fuellung: MARKER_LAGE[g.farbe].fuellung, schatten: true, id: i === 0 ? "symbol" : `symbol-${g.farbe}` }));
   const gravur = sichtbareGravur(b.gravur, k.gravurExport);
+  if (k.aufbau === "holz") return stapleHolz(k, layout, b, laserdateien, { rahmen, hintergrund, blau, markerLagen, markerSchritte, gravur });
 
   if (k.aufbau === "netz-schwarz") {
     const deck = teile(ziehAb(vereinige(rahmen, b.schutz), vereinige(b.textAusschnitt, b.symbolLoch)), SPLITTER_MM2);
