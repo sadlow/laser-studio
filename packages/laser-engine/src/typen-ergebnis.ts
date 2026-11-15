@@ -50,6 +50,8 @@ export interface Lage {
   gravur: { linien: Punkt[][]; breiteMm: number }[];
   /** Nur Hintergrund: Flaeche unter dem Symbol, als Flaeche graviert – angeraut fuer den Kleber. */
   klebeflaeche: Teil[];
+  /** Nur Holzkarte (Layout "herz"): die Texte, als Flaeche graviert auf der Netzlage. */
+  textGravur?: Teil[];
   /** SVG fuer den Laser: Schnitt rot, Gravur schwarz, Einheit mm. */
   laserSvg: string;
 }

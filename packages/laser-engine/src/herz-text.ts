@@ -3,7 +3,7 @@ import { flaecheMm2, rechteck, schneide, vereinige, ziehAb, zuFlaeche, type Flae
 import type { Punkt } from "./clip";
 import { setzeGlyphen } from "./schrift";
 import type { HerzZeile, Layout, Schichtkarte } from "./typen";
-import { letzteZeileText } from "./zeichen";
+import { koordinatenHolz } from "./geo";
 import type { GesetzteZeile, Textblock } from "./zeilen";
 
 /**
@@ -22,7 +22,11 @@ export function setzeHerzText(k: Schichtkarte, layout: Layout): Textblock {
   const texte = {
     titel: stil(k.kunde.titel.trim(), h.titel),
     zeile1: stil(k.kunde.namen.trim(), h.zeile1),
-    zeile2: stil(letzteZeileText(k), h.zeile3),
+    // Letzte Zeile im Format der bisherigen Holzkarte (geo.ts), davor optional ein Ort.
+    zeile2: stil(
+      k.kunde.letzteZeile === "koordinaten" ? [k.kunde.ortText.trim(), koordinatenHolz(k.lat, k.lon)].filter(Boolean).join(" ") : k.kunde.wunschtext.trim(),
+      h.zeile3,
+    ),
   };
   const ortDatum = stil((k.kunde.ortDatum ?? "").trim(), h.zeile2);
 

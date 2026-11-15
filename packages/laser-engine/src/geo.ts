@@ -117,3 +117,26 @@ export function gms(wert: number, art: "breite" | "laenge"): string {
   // Anfuehrungszeichen, in Avant Garde schraege Striche statt senkrechter.
   return `${grad}°${minuten}‘${sekunden}“${richtung}`;
 }
+
+/**
+ * Koordinaten wie auf der Holzkarte „MD2 We said yes“ (md2.jsx: decimalToDMS(…, 2, true)): Sekunden mit zwei
+ * Nachkommastellen und Punkt, gerade ' und ", englisches "E" – „49°17'58.09"N 6°48'33.57"E“.
+ */
+export function gmsHolz(wert: number, art: "breite" | "laenge"): string {
+  const abs = Math.abs(wert);
+  let grad = Math.floor(abs);
+  let minuten = Math.floor((abs - grad) * 60);
+  let sekunden = Math.round((abs * 3600 - grad * 3600 - minuten * 60) * 100) / 100;
+  if (sekunden >= 60) {
+    sekunden -= 60;
+    minuten += 1;
+  }
+  if (minuten >= 60) {
+    minuten -= 60;
+    grad += 1;
+  }
+  const richtung = art === "breite" ? (wert >= 0 ? "N" : "S") : wert >= 0 ? "E" : "W";
+  return `${grad}°${minuten}'${sekunden.toFixed(2)}"${richtung}`;
+}
+
+export const koordinatenHolz = (lat: number, lon: number) => `${gmsHolz(lat, "breite")} ${gmsHolz(lon, "laenge")}`;

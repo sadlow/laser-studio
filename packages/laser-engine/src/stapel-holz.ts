@@ -16,7 +16,8 @@ export const HOLZ_STANDARD: HolzAufbau = {
 export const FARBE_BIRNE = "#d8a477";
 export const FARBE_NUSS = "#5e4231";
 export const FARBE_HELLBLAU = "#4f9fd6";
-export const GRAVUR_AUF_BIRNE = "#9a6440";
+// Auf Birne brennt der Laser dunkelbraun; duenne UltraLight-Striche wirkten mit dem helleren Ton nur wie ein Hauch.
+export const GRAVUR_AUF_BIRNE = "#5c3519";
 export const GRAVUR_AUF_NUSS = "#3d2a1e";
 
 interface Vorstufe {
@@ -52,7 +53,11 @@ export function stapleHolz(k: Schichtkarte, layout: Layout, b: Bausteine, laserd
   ];
   const lage = (key: LagenKey, titel: string, p: HolzPlatte, t: Teil[], gravur: Gravur = [], klebe: Teil[] = [], textGravur: Teil[] = []): Lage => {
     const beschreibung = `Lage ${titel} – ${p.material}, ${p.staerkeMm} mm`;
-    return { key, titel, material: p.material, staerkeMm: p.staerkeMm, teile: t, gravur, klebeflaeche: klebe, laserSvg: laserdateien ? laserSvg(layout, beschreibung, t, gravur, klebe, textGravur) : "" };
+    return {
+      key, titel, material: p.material, staerkeMm: p.staerkeMm, teile: t, gravur, klebeflaeche: klebe,
+      ...(textGravur.length ? { textGravur } : {}),
+      laserSvg: laserdateien ? laserSvg(layout, beschreibung, t, gravur, klebe, textGravur) : "",
+    };
   };
   return {
     lagen: [
